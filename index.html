@@ -189,18 +189,24 @@ input::placeholder{color:var(--dim);opacity:1}
    Players sit evenly around the rim (seatAt), you at the bottom; the cards each has played lie on the cloth in front of them. */
 .table{grid-area:pitch;position:relative;justify-self:center;width:min(41rem,100% - 9rem);aspect-ratio:1;margin:3.4rem 0 4.2rem}
 .rim{position:absolute;inset:0;border-radius:50%;
-  background:conic-gradient(from 200deg,rgba(255,226,180,0),rgba(255,226,180,.2) 40deg,rgba(255,226,180,0) 80deg,rgba(255,226,180,0) 190deg,rgba(255,226,180,.1) 230deg,rgba(255,226,180,0) 270deg),
-    radial-gradient(circle,#7a4a26 0 88%,#3d210e 93%,#86552c 95.5%,#2e180a 100%);
+  background:conic-gradient(from 200deg,rgba(255,232,196,0),rgba(255,232,196,.22) 35deg,rgba(255,232,196,0) 75deg,rgba(255,232,196,0) 190deg,rgba(255,232,196,.1) 225deg,rgba(255,232,196,0) 265deg),
+    radial-gradient(circle,transparent 0 86%,rgba(0,0,0,.45) 92%,rgba(255,214,160,.16) 95%,rgba(0,0,0,.65) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .09' numOctaves='4' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 .16 0 0 0 0 .08 0 0 0 0 .03 2.6 0 0 0 -1.05'/%3E%3C/filter%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.02 .6' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .7 0 0 0 0 .45 0 0 0 -1.6 1.05'/%3E%3C/filter%3E%3Crect width='640' height='640' fill='%23744420'/%3E%3Crect width='640' height='640' filter='url(%23f)' opacity='.35'/%3E%3Crect width='640' height='640' filter='url(%23g)'/%3E%3C/svg%3E") center/cover,#6b3f1e;
   box-shadow:0 46px 80px -26px rgba(0,0,0,.92),0 0 0 1px rgba(0,0,0,.6),inset 0 0 0 2px rgba(255,214,150,.16)}
-.rim::before{content:"";position:absolute;inset:1.6%;border-radius:50%;background:repeating-conic-gradient(#ecca72 0 .7deg,transparent .7deg 10deg);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px),#000 calc(100% - 1px),transparent);mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px),#000 calc(100% - 1px),transparent)}
-.felt{position:absolute;inset:5.2%;border-radius:50%;overflow:hidden;isolation:isolate;
+/* brass studs round the rim, each with its own highlight */
+.stud{position:absolute;width:1.1%;aspect-ratio:1;min-width:5px;border-radius:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle at 35% 30%,#fff6d6,#e6c06a 35%,#9a7426 75%,#5e440f);box-shadow:0 1px 1.5px rgba(0,0,0,.6)}
+/* metallic gold inlay just inside the rim */
+.rim::after{content:"";position:absolute;inset:4.4%;border-radius:50%;
+  background:conic-gradient(from 30deg,#8a6a24,#f6e09a,#a98330,#fff3c8,#8d6b22,#e2c070,#7d5d1c,#f6e09a,#8a6a24);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3.5px))}
+.felt{position:absolute;inset:5.6%;border-radius:50%;overflow:hidden;isolation:isolate;
   background:radial-gradient(ellipse at 50% 40%,color-mix(in srgb,var(--felt) 72%,#fff),var(--felt) 42%,color-mix(in srgb,var(--felt) 58%,#000) 100%);
-  box-shadow:0 0 0 2px #e0bb62,0 0 0 5px rgba(0,0,0,.45),0 0 0 6.5px #b38a3a,inset 0 0 90px rgba(0,0,0,.55)}
-.felt::before{content:"";position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;
+  box-shadow:0 0 0 1.5px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.06),inset 0 10px 30px rgba(0,0,0,.45),inset 0 0 110px rgba(0,0,0,.6)}
+.felt::before{content:"";position:absolute;inset:0;opacity:.32;mix-blend-mode:overlay;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
-/* a ring in the four house colours around the piles */
-.felt::after{content:"";position:absolute;left:50%;top:50%;width:47%;aspect-ratio:1;transform:translate(-50%,-50%) rotate(45deg);border-radius:50%;opacity:.75;
+/* a ring in the four house colours around the piles, stitched into the cloth */
+.felt::after{content:"";position:absolute;left:50%;top:50%;width:47%;aspect-ratio:1;transform:translate(-50%,-50%) rotate(45deg);border-radius:50%;opacity:.45;
   background:conic-gradient(#ae0001 0 25%,#ecb939 0 50%,#2a4fb0 0 75%,#2a7a4a 0);
   -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));
   box-shadow:0 0 0 10px color-mix(in srgb,var(--crest) 8%,transparent)}
@@ -790,6 +796,7 @@ function statsHTML(p) {
 // Seats around the table: [plate x, plate y, played x, played y] in % of the table, for wide and narrow screens, by number of opponents.
 // Seats around the round table: you at the bottom (90°), opponents spaced evenly round the circle.
 // Returns [x, y] in % of the table box; plates sit on the rim, played cards lie further in on the cloth.
+const STUDS = Array.from({ length: 36 }, (_, i) => { const a = i * Math.PI / 18; return `<i class="stud" style="left:${(50 + 48.1 * Math.cos(a)).toFixed(2)}%;top:${(50 + 48.1 * Math.sin(a)).toFixed(2)}%"></i>`; }).join("");
 const seatAngle = (j, k) => 90 + 360 * (j + 1) / (k + 1);
 const seatAt = (deg, r, lo = 0, hi = 100) => { const a = deg * Math.PI / 180; return [Math.min(hi, Math.max(lo, 50 + r * Math.cos(a))), 50 + r * Math.sin(a)].map(n => +n.toFixed(2)); };
 const seatPos = (wx, wy, nx, ny) => `--x:${wx}%;--y:${wy}%;--nx:${nx}%;--ny:${ny}%`;
@@ -874,7 +881,7 @@ function renderGame() {
   ${S.status === "over" ? winnerHTML(v) : ""}
   <div class="arena${sideOpen() ? " side-open" : ""}">
     <div class="table k${k}${flashNow ? " flash" : ""}">
-      <div class="rim"><div class="felt"><span class="glint"></span></div></div>
+      <div class="rim">${STUDS}<div class="felt"><span class="glint"></span></div></div>
       ${order.map((i, j) => plateHTML(i, v, waiting, rose(i), plateAt(j)) + playedHTML(S.players[i], zone(j))).join("")}
       ${P ? plateHTML(v, v, waiting, rose(v), seatPos(50, 101, 50, 99)) + playedHTML(P, `${seatPos(50, 77, 50, 85)};--w:46%;--nw:66%`, " mine") : ""}
       <div class="center">
