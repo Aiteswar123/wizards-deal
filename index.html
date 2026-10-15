@@ -30,7 +30,7 @@
   --galleon:#e2b23a; --galleon-ink:#2b1d00; --felt:#1f4f39;
   --magic:"Grenze Gotisch","Big Shoulders Display",serif;
   transition:--stand .9s ease,--stand-2 .9s ease,--line .9s ease,--board .9s ease,--board-2 .9s ease,--live .9s ease,--crest .9s ease;
-  --card:#f6f3ea; --card-ink:#141a27; --card-muted:#59607a;
+  --card:#ece2c6; --card-ink:#231b10; --card-muted:#6b5a3a;
   --spell:#8e6ad8; --spell-face:#efe9fb; --ok:#6fd49a; --warn:#ff9f5e; --bad:#ff6b6b;
   --display:"Alegreya Sans SC","Alegreya Sans",serif;
   --label:"Alegreya Sans SC","Alegreya Sans",sans-serif;
@@ -256,13 +256,25 @@ input::placeholder{color:var(--dim);opacity:1}
 .plate .hc i{width:.45rem;height:.66rem;border-radius:1px;background:var(--chalk);opacity:.85}
 .plate .bk::before{content:"";width:.62rem;height:.62rem;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffeaa6,var(--galleon) 55%,#a87a14)}
 .plate em{position:absolute;left:50%;top:100%;transform:translate(-50%,-35%);white-space:nowrap;font:700 .66rem/1 var(--label);font-style:normal;letter-spacing:.07em;text-transform:uppercase;padding:.25rem .5rem;border-radius:999px;background:var(--board)}
-.tclock{display:flex;flex-direction:column;align-items:center;gap:.25rem;min-width:7rem;margin-bottom:.15rem}
+.tclock{display:grid;grid-template-columns:auto auto;grid-template-areas:"hg lab" "hg time";align-items:center;column-gap:.6rem;row-gap:.1rem;margin-bottom:.15rem}
+.tclock .tlabel{grid-area:lab}.tclock b{grid-area:time}
+.hglass{grid-area:hg;width:2.2rem;height:3.3rem;overflow:visible;filter:drop-shadow(0 4px 6px rgba(0,0,0,.55))}
+.hg-glass{fill:rgba(220,235,255,.08);stroke:rgba(235,240,250,.55);stroke-width:1}
+.hg-frame{stroke:#c9a95a;stroke-width:2.6;stroke-linecap:round}
+.hg-post{stroke:#9c7f3e;stroke-width:1.6}
+.gem{fill:var(--gem);stroke:color-mix(in srgb,var(--gem) 60%,#fff);stroke-width:.4}
+.gemfill{fill:var(--gem)}
+.hg-top{transform-box:view-box;transform-origin:50% 28px;transform:scaleY(var(--p,1));transition:transform .25s linear}
+.hg-bot{transform-box:view-box;transform-origin:50% 54px;transform:scaleY(calc(1 - var(--p,1)));transition:transform .25s linear}
+.hg-stream circle{fill:var(--gem);animation:gemfall .6s linear infinite}
+.hg-stream circle:nth-child(2){animation-delay:.2s}.hg-stream circle:nth-child(3){animation-delay:.4s}
+@keyframes gemfall{from{transform:translateY(-3px);opacity:0}30%{opacity:1}to{transform:translateY(12px);opacity:0}}
+.tclock.resp .gem,.tclock.resp .gemfill,.tclock.resp .hg-stream circle{fill:var(--warn)}
 .tclock .tlabel{font:700 .66rem/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--chalk);opacity:.85}
 .tclock b{font:800 1.6rem/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:.04em;color:var(--chalk);text-shadow:0 2px 6px rgba(0,0,0,.5)}
-.tclock .tbar{display:block;width:100%;height:4px;border-radius:2px;background:rgba(0,0,0,.4);overflow:hidden}
-.tclock .tbar i{display:block;height:100%;width:100%;transform-origin:left;transform:scaleX(var(--p,1));background:var(--live);transition:transform .25s linear}
+
 .tclock.resp b{color:var(--warn)}
-.tclock.resp .tbar i{background:var(--warn)}
+
 .tclock.low b,.plate em.low span{color:var(--bad);animation:urgent 1s steps(2) infinite}
 @keyframes urgent{50%{opacity:.45}}
 .peek{display:flex;gap:.5rem;flex-wrap:wrap;padding:.6rem 0}
@@ -364,7 +376,7 @@ input::placeholder{color:var(--dim);opacity:1}
   .table.many .played:not(.mine) .stack small{font-size:.5rem}
   .table.n3 .center .say,.table.n3 .center .sub,.table.n3 .center .dots,.table.n4 .center .say,.table.n5 .center .say,.table.n4 .center .sub,.table.n5 .center .sub,.table.n4 .center .dots,.table.n5 .center .dots{display:none}
   .center .say{font-size:1.4rem}
-  .tclock{min-width:5.5rem}
+  .hglass{width:1.7rem;height:2.6rem}
   .tclock b{font-size:1.2rem}
   .tclock .tlabel{font-size:.58rem}
   .center .sub{font-size:.78rem}
@@ -469,8 +481,14 @@ input::placeholder{color:var(--dim);opacity:1}
 .zone{grid-area:zone;display:grid;gap:.9rem;grid-template-columns:minmax(0,1fr);min-width:0}
 @media (min-width:1000px){.hand{flex-wrap:wrap;overflow:visible;padding-top:1.1rem}}
 .panel{position:relative;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(0 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") top left/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(90 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") top right/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(270 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") bottom left/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(180 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") bottom right/34px 34px no-repeat,var(--board);border-radius:8px;padding:1.05rem 1rem 1rem;display:flex;flex-direction:column;gap:.75rem;min-width:0;box-shadow:0 18px 30px -18px rgba(0,0,0,.8);overflow:hidden}
-.panel.live{box-shadow:0 0 0 1px color-mix(in srgb,var(--live) 55%,transparent),0 18px 30px -18px rgba(0,0,0,.8)}
+.panel.live{outline:1px solid color-mix(in srgb,var(--live) 55%,transparent);outline-offset:3px}
+.panel{background-color:#1a1410!important;box-shadow:inset 0 0 0 5px #1a1410,inset 0 0 0 6px rgba(201,169,90,.5),inset 0 0 0 9px #1a1410,inset 0 0 0 9.6px rgba(201,169,90,.3),inset 0 0 60px rgba(0,0,0,.6),0 18px 30px -18px rgba(0,0,0,.8)!important;padding:1.4rem 1.35rem 1.3rem!important}
+.panel::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;mix-blend-mode:overlay;border-radius:inherit;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23l)'/%3E%3C/svg%3E")}
 .panel h3{font:700 2rem/1 var(--magic)}
+.panel h3::first-letter{font-size:1.5em;color:var(--crest);text-shadow:0 0 12px color-mix(in srgb,var(--crest) 45%,transparent)}
+.panel .opt{background:rgba(255,240,210,.04);border-color:rgba(201,169,90,.28)}
+.panel .opt:hover:not(:disabled){border-color:var(--crest);background:rgba(255,240,210,.08)}
 .panel.live h3{color:var(--live)}
 .panel.live .btn.primary{box-shadow:0 2px 0 rgba(0,0,0,.35);background:var(--live);border-color:var(--live);color:var(--live-ink)}
 .panel.live .btn.primary:hover:not(:disabled){background:color-mix(in srgb,var(--live) 82%,#fff)}
@@ -500,9 +518,9 @@ input::placeholder{color:var(--dim);opacity:1}
 
 /* Cards */
 :root{--foil:linear-gradient(135deg,#6b6250 0%,#b9ad8e 24%,#7d735e 48%,#cfc3a4 66%,#6f6652 86%,#a99d80 100%)}
-.card{--face:var(--card);--lift:0px;appearance:none;flex:none;position:relative;width:8rem;min-height:12.4rem;color:var(--card-ink);border:2px solid transparent;border-radius:8px;padding:1.4rem .55rem .55rem;text-align:left;
-  background:linear-gradient(var(--face),var(--face)) padding-box,var(--foil) border-box;
-  display:flex;flex-direction:column;gap:.26rem;overflow:hidden;box-shadow:0 10px 18px -10px rgba(0,0,0,.8);
+.card{--face:var(--card);--rule:rgba(110,84,40,.55);--lift:0px;appearance:none;flex:none;position:relative;width:8rem;min-height:12.4rem;color:var(--card-ink);border:2px solid transparent;border-radius:8px;padding:1.4rem .55rem .55rem;text-align:left;
+  background:radial-gradient(ellipse at 30% 20%,color-mix(in srgb,var(--face) 80%,#fff),var(--face) 55%,color-mix(in srgb,var(--face) 82%,#5a4220)) padding-box,var(--foil) border-box;
+  display:flex;flex-direction:column;gap:.26rem;overflow:hidden;box-shadow:inset 0 0 0 3px var(--face),inset 0 0 0 3.8px var(--rule),inset 0 0 0 5.5px var(--face),inset 0 0 0 6px var(--rule),0 10px 18px -10px rgba(0,0,0,.8);
   transform:perspective(800px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--lift));transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
 .card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:3;opacity:0;transition:opacity .35s var(--ease);mix-blend-mode:soft-light;
   background:radial-gradient(circle at var(--mx,30%) var(--my,20%),rgba(255,255,255,.9),rgba(255,236,190,.35) 28%,transparent 60%)}
@@ -521,13 +539,13 @@ button.card:hover::before,.card.tilting::before,.card.sel::before{opacity:1}
 .card.picked::after{content:"Chosen";position:absolute;left:50%;top:55%;transform:translate(-50%,-50%) rotate(-12deg);font:800 .95rem/1 var(--label);letter-spacing:.16em;text-transform:uppercase;color:#c62f2f;border:2px solid currentColor;border-radius:3px;padding:.3rem .45rem;background:rgba(246,243,234,.85)}
 .card .band{position:absolute;inset:0 0 auto 0;height:.95rem}
 .card .val{position:absolute;top:1.25rem;right:.4rem;width:1.75rem;height:1.75rem;border-radius:50%;background:var(--card-ink);color:var(--card);display:grid;place-items:center;font:800 1rem/1 var(--display)}
-.card .cn{font:700 1.08rem/1.02 var(--label);text-transform:uppercase;letter-spacing:.02em;padding-right:1.9rem;text-wrap:balance}
+.card .cn{font:700 1.22rem/.98 var(--magic);letter-spacing:0;padding-right:1.9rem;text-wrap:balance}
 .card .cs{font:700 .66rem/1.1 var(--label);letter-spacing:.07em;text-transform:uppercase;color:var(--card-muted)}
 .card .cb{font-size:.75rem;line-height:1.3}
 .card .rent{display:flex;flex-wrap:wrap;gap:2px;margin-top:auto}
 .card .rent span{font:700 .68rem/1 var(--label);background:var(--card-ink);color:var(--card);border-radius:2px;padding:.2rem .28rem;font-variant-numeric:tabular-nums}
-.card.t-spell{--face:var(--spell-face)}
-.card.t-point{--face:var(--board);color:var(--chalk)}
+.card.t-spell{--face:#e6dcf0;--rule:rgba(90,60,140,.5)}
+.card.t-point{--face:#1c1710;--rule:rgba(201,169,90,.55);color:var(--chalk)}
 .card.t-point .cn{font:900 1.8rem/.95 var(--display);padding-right:0;margin-top:.3rem;color:var(--galleon)}
 .card.t-point .cs{color:var(--muted)}
 .card.t-point .val{background:var(--galleon);color:var(--galleon-ink)}
@@ -957,6 +975,19 @@ function statsHTML(p) {
 }
 
 // Seats around the table: [plate x, plate y, played x, played y] in % of the table, for wide and narrow screens, by number of opponents.
+// The turn clock as a house-points hourglass from the Great Hall: gems in the current player's house colour fall from
+// the top bulb to the bottom as time runs out. --p (time left, 0 to 1) is set on the svg by the countdown.
+function hourglass(kind, H) {
+  const gems = (cls, y0, rows) => Array.from({ length: rows }, (_, r) => Array.from({ length: 5 - Math.abs(2 - r) }, (_, k) => `<circle class="${cls}" cx="${20 + (k - (4 - Math.abs(2 - r)) / 2) * 3.4}" cy="${y0 + r * 3.1}" r="1.45"/>`).join("")).join("");
+  return `<svg class="hglass" data-clockbar="${kind}" viewBox="0 0 40 60" aria-hidden="true" style="--gem:${H.c};--gem2:${H.c2}">
+    <defs><clipPath id="hgTop${kind}"><path d="M10 6 H30 Q30 20 21 28 H19 Q10 20 10 6Z"/></clipPath><clipPath id="hgBot${kind}"><path d="M19 32 H21 Q30 40 30 54 H10 Q10 40 19 32Z"/></clipPath></defs>
+    <path class="hg-glass" d="M10 6 H30 Q30 20 21 30 Q30 40 30 54 H10 Q10 40 19 30 Q10 20 10 6Z"/>
+    <g clip-path="url(#hgTop${kind})"><g class="hg-top">${gems("gem", 9, 5)}<rect x="10" y="20" width="20" height="10" class="gemfill"/></g></g>
+    <g clip-path="url(#hgBot${kind})"><g class="hg-bot"><rect x="8" y="38" width="24" height="18" class="gemfill"/>${gems("gem", 37, 5)}</g></g>
+    <g class="hg-stream"><circle cx="20" cy="31" r="1"/><circle cx="20" cy="35" r="1"/><circle cx="20" cy="39" r="1"/></g>
+    <path class="hg-frame" d="M6 3 H34 M6 57 H34"/><path class="hg-post" d="M8 4 V56 M32 4 V56"/></svg>`;
+}
+
 // Seats around the round table: you at the bottom (90°), opponents spaced evenly round the circle.
 // Returns [x, y] in % of the table box; plates sit on the rim, played cards lie further in on the cloth.
 // The table's shape follows the player count: 2 a long table, 3 a triangle, 4 a square, 5 a pentagon.
@@ -1143,7 +1174,7 @@ function renderGame() {
       ${tableSVG(gw, BW, "w", "wd")}${tableSVG(gn, BN, "n", "nw")}
       ${seated.map((i, j) => { const sp = spot(j); return plateHTML(i, v, waiting, rose(i), sp.plate) + playedHTML(S.players[i], sp.zone, i === v ? " mine" : ""); }).join("")}
       <div class="center">
-      ${S.status === "play" && S.clock ? `<div class="tclock${S.pending ? " resp" : ""}"><span class="tlabel">${S.pending ? "Time to answer" : "Turn time"}</span><b data-clock="${S.pending ? "resp" : "turn"}">${S.pending ? "0:30" : "3:00"}</b><i class="tbar"><i data-clockbar="${S.pending ? "resp" : "turn"}"></i></i></div>` : ""}
+      ${S.status === "play" && S.clock ? `<div class="tclock${S.pending ? " resp" : ""}"><span class="tlabel">${S.pending ? "Time to answer" : "Turn time"}</span><b data-clock="${S.pending ? "resp" : "turn"}">${S.pending ? "0:30" : "3:00"}</b>${hourglass(S.pending ? "resp" : "turn", houseOf(S.players[S.pending ? S.pending.caster : S.turn].char))}</div>` : ""}
       <div class="piles"><div class="pile"><div class="back" aria-label="${S.deck.length} cards in the draw pile"><span class="mono">W</span><span class="cnt">${S.deck.length}</span></div>Draw pile</div>
         <div class="pile">${topCard != null ? cardHTML(topCard, { cls: "small" }) : `<div class="slot"></div>`}Discard · ${S.discard.length}</div></div>
       <div class="say${myMove && !S.pending ? " mine" : ""}">${say}</div>

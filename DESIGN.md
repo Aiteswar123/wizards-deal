@@ -73,6 +73,9 @@ House kit colours (`HOUSES`) for jersey stripes and shields: Gryffindor `#c8282e
   - **Hogwarts letter:** the lobby code on a parchment envelope with green-ink lettering and a wax seal, unfolding once when the lobby opens.
   - **Marauder's Map footsteps:** ink footprints walk from one seat to the next when the turn passes.
   - **Lumos:** a soft wand-light trail behind the mouse on desktop.
+- **House-points hourglass** (`hourglass()`): the turn clock is a Great Hall hourglass. Gems in the current player's house colour drain from the top bulb to the bottom as time runs out, a stream of gems falls through the neck, and it turns to the warning colour while a spell waits for answers.
+- **Owl post** (`sky.js`): owls (snowy, tawny, barn) cross the enchanted ceiling carrying sealed letters, replacing broom riders.
+- **Parchment cards and spellbook panel**: cards have a parchment face with an engraved double inner rule and names in the gothic wizarding face. The action panel is a dark leather spellbook page with a gilt double rule, a grain texture and an illuminated first letter on its heading.
 - **House shields** (`shield(ch)`): an inline SVG shield in the house field colour with a metal band and the character's initial. Used wherever a player is named.
 - **House banner** (`.houseband`): the first thing on your screen in a game, a full-width band in your house colour with your shield, the house name, your character and the house trait.
 - **House bar**: your own seat opens with "House Gryffindor" and the house trait.

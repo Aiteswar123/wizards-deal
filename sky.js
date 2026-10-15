@@ -1,6 +1,6 @@
 /* The sky behind every screen: the enchanted ceiling of the Great Hall, drawn for realism rather than cartoon.
    A deep starfield with the Milky Way and a cratered moon, soft moonlit cloud, the four house banners hanging from
-   the ceiling, floating candles, backlit riders on broomsticks crossing the night with motion blur, and the Golden Snitch.
+   the ceiling, floating candles, owls carrying letters across the night, and the Golden Snitch.
    Static layers (sky, stars, Milky Way, moon, stadium) are painted once per size or house change; only the moving parts
    are drawn each frame. Runs at about 30fps, stops while the tab is hidden, and holds one still frame for reduced motion. */
 (function () {
@@ -156,8 +156,8 @@
 
   function newFlyer(first) {
     const far = rnd() < .5, s = far ? .35 + rnd() * .25 : .8 + rnd() * .5, dir = rnd() < .5 ? 1 : -1;
-    return { s, dir, far, tint: BANNERS[Math.floor(rnd() * 4)], p: rnd() * TAU, amp: 8 + rnd() * 22,
-      y0: H * (.12 + rnd() * .45), x: first ? rnd() * W : (dir > 0 ? -90 : W + 90), v: (far ? 40 : 110) + rnd() * 80, wait: first ? 0 : 1500 + rnd() * 5000 };
+    return { s, dir, far, owl: Math.floor(rnd() * OWLS.length), tint: BANNERS[Math.floor(rnd() * 4)], p: rnd() * TAU, amp: 8 + rnd() * 22,
+      y0: H * (.12 + rnd() * .45), x: first ? rnd() * W : (dir > 0 ? -90 : W + 90), v: (far ? 30 : 70) + rnd() * 50, wait: first ? 0 : 2500 + rnd() * 7000 };
   }
 
   function seed() {
@@ -194,32 +194,34 @@
   }
 
   // A rider on a broom, in silhouette: robe tinted by house, a rim of floodlight on the top edge, motion-blurred.
-  function riderShape(fl) {
-    ctx.beginPath();
-    ctx.moveTo(26, -1); ctx.lineTo(-22, 3); ctx.lineTo(-44, -2); ctx.lineTo(-47, 6); ctx.lineTo(-40, 12); ctx.lineTo(-22, 6); ctx.lineTo(26, 1.5); ctx.closePath();   // broom
-    ctx.moveTo(9, -18); ctx.bezierCurveTo(12, -22, 4, -26, 2, -21);                                   // head
-    ctx.bezierCurveTo(-2, -18, -4, -14, -6, -10);
-    ctx.bezierCurveTo(-16, -10 + fl, -28, -4 + fl, -36, 2 + fl);                                      // cloak streaming
-    ctx.bezierCurveTo(-26, 2, -16, 4, -9, 3);
-    ctx.lineTo(-6, 9); ctx.lineTo(0, 11); ctx.lineTo(-1, 3);                                           // leg
-    ctx.lineTo(13, 1); ctx.lineTo(14, -2); ctx.lineTo(4, -9);                                          // arm to the handle
-    ctx.bezierCurveTo(7, -13, 9, -15, 9, -18); ctx.closePath();
-  }
+  // Owl post: owls cross the enchanted ceiling with letters, as at breakfast in the Great Hall. Snowy, tawny and barn owls,
+  // lit by candlelight from below; far owls are small and dim, near ones larger, with a slow wingbeat.
+  const OWLS = [["#f2f0ea", "#c9c4b8"], ["#8a6a48", "#5c4430"], ["#d9c29c", "#9c7e58"], ["#6b5844", "#43362a"]];
   function rider(f, t) {
-    const y = f.y0 + Math.sin(f.x * .005 + f.p) * f.amp, fl = Math.sin(t * .016 + f.p) * 3.2;
-    for (let k = 2; k >= 0; k--) {
-      ctx.save();
-      ctx.translate(f.x - f.dir * k * 7 * f.s, y); ctx.scale(f.dir * f.s, f.s); ctx.rotate(-.06 + Math.sin(t * .003 + f.p) * .05);
-      riderShape(fl);
-      ctx.globalAlpha = (f.far ? .55 : .95) * (k ? .12 / k : 1);
-      ctx.fillStyle = k ? "#0a0910" : f.tint; ctx.fill();
-      if (!k) {
-        ctx.globalAlpha = f.far ? .55 : .9; ctx.fillStyle = "rgba(6,5,10,.7)"; ctx.fill();                // shade the tint down to a lit silhouette
-        ctx.globalAlpha = f.far ? .25 : .45; ctx.strokeStyle = "rgba(255,240,210,.9)"; ctx.lineWidth = .9 / f.s;
-        ctx.beginPath(); ctx.moveTo(-36, 2 + fl); ctx.bezierCurveTo(-28, -4 + fl, -16, -10 + fl, -6, -10); ctx.bezierCurveTo(-4, -14, -2, -18, 2, -21); ctx.bezierCurveTo(4, -26, 12, -22, 9, -18); ctx.stroke();
-      }
-      ctx.restore();
-    }
+    const y = f.y0 + Math.sin(f.x * .005 + f.p) * f.amp, flap = Math.sin(t * .012 + f.p), [body, wing] = OWLS[f.owl || 0];
+    ctx.save();
+    ctx.translate(f.x, y); ctx.scale(f.dir * f.s, f.s); ctx.globalAlpha = f.far ? .55 : .95;
+    // wings: far wing behind, near wing in front, beating together
+    const wingPath = (dy, tip) => { ctx.beginPath(); ctx.moveTo(-4, -2); ctx.quadraticCurveTo(-10, -14 + dy * .6, -28, tip); ctx.quadraticCurveTo(-18, -2 + dy * .2, -6, 4); ctx.closePath(); };
+    ctx.fillStyle = wing; wingPath(flap * 10, -10 + flap * 16); ctx.fill();
+    // body and head
+    const g = ctx.createLinearGradient(0, -12, 0, 12); g.addColorStop(0, body); g.addColorStop(1, wing);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 0, 11, 8, -.15, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(10, -6, 6.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#f2b73a"; ctx.beginPath(); ctx.arc(12.5, -7.5, 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#2a2018"; ctx.beginPath(); ctx.moveTo(15.8, -5.5); ctx.lineTo(18, -4.2); ctx.lineTo(15.4, -3.6); ctx.closePath(); ctx.fill();
+    // tail
+    ctx.fillStyle = wing; ctx.beginPath(); ctx.moveTo(-10, -1); ctx.lineTo(-19, 2); ctx.lineTo(-10, 4); ctx.closePath(); ctx.fill();
+    // the letter, held in the talons, with a red seal
+    ctx.save(); ctx.translate(2, 11); ctx.rotate(.12 + Math.sin(t * .004 + f.p) * .08);
+    ctx.fillStyle = "#e8dcbc"; ctx.fillRect(-6, 0, 12, 8);
+    ctx.strokeStyle = "rgba(120,90,40,.6)"; ctx.lineWidth = .6; ctx.beginPath(); ctx.moveTo(-6, 0); ctx.lineTo(0, 4.5); ctx.lineTo(6, 0); ctx.stroke();
+    ctx.fillStyle = "#9b1c22"; ctx.beginPath(); ctx.arc(0, 4.4, 1.5, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    ctx.strokeStyle = "#3a2c1e"; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(1, 6); ctx.lineTo(1, 11); ctx.moveTo(4, 6); ctx.lineTo(4, 11); ctx.stroke();
+    // near wing, and candlelight catching the underside
+    ctx.fillStyle = wing; wingPath(-flap * 10, -12 - flap * 16); ctx.fill();
+    ctx.globalAlpha = (f.far ? .2 : .35); ctx.fillStyle = "#ffcf8a"; ctx.beginPath(); ctx.ellipse(0, 4, 9, 3, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
   }
 
   function moveSnitch(dt, t) {
