@@ -30,7 +30,7 @@ Each player holds a real private hand on their own device while the table (items
 - Static `index.html` + `engine.js` + `cutin.js`, served by `dev.js` locally and a Vercel function (`api/game.js`) with Upstash Redis in production. No build step, no framework.
 - Views: home (name, create/join, open tables, how to play), lobby (code, seats, start), game (opponents around the table, draw/discard piles, your character/table/bank, action panel, hand, table talk log, winner).
 - 10 item colours with fixed hexes in `engine.js`; 12 spells; 5 characters (Harry, Hermione, Draco, Luna, Cedric); points are Galleons.
-- Rules and game flow are not to change.
+- Rules and game flow change only on request. Added rules so far: Harry never has to pay with his protected colour. Each turn has 3 minutes; when it runs out the turn ends (drawing first if needed, discarding at random down to 7). A spell that needs answers pauses the turn clock and gives the players asked one shared 30-second window. If someone doesn't answer, a payment is made automatically (bank notes first, then items outside complete sets, then complete sets, random within each, never Harry's protected colour), other spells go through, and a blocked caster lets it go. The server enforces the clock on every poll.
 
 ## Brand Commitments
 

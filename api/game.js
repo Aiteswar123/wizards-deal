@@ -71,15 +71,29 @@ async function lobbies() {
     .map(g => ({ code: g.code, host: (g.players.find(p => p.uid === g.host) || {}).nick || "A wizard", count: g.players.length }));
 }
 
+// Applies anything the turn clock says has run out (a turn ending, an unanswered spell) and saves it.
+// Every device polls about once a second, so time runs out on schedule even if nobody acts.
+async function settleClock(code, g) {
+  if (!g || !E.expire(g, Date.now())) return g;
+  return withLock(code, async () => {
+    const cur = await load(code);
+    const next = cur && E.expire(cur, Date.now());
+    if (!next) return cur;
+    next.tokens = cur.tokens; next.v = (cur.v || 0) + 1; next.updated = Date.now();
+    await save(code, next);
+    return next;
+  });
+}
+
 async function handle(req) {
   const q = req.method === "GET" ? req.query : (req.body || {});
   if (req.method === "GET") {
     if (q.list) return { lobbies: await lobbies() };
     const code = String(q.code || "").toUpperCase();
-    const g = await load(code);
+    const g = await settleClock(code, await load(code));
     if (!g) return { gone: true };
-    if (q.v && +q.v === g.v) return { same: true, v: g.v };
-    return { game: view(g, q.pid) };
+    if (q.v && +q.v === g.v) return { same: true, v: g.v, now: Date.now() };
+    return { game: view(g, q.pid), now: Date.now() };
   }
 
   const { op, pid, token } = q;
@@ -101,8 +115,10 @@ async function handle(req) {
   if (!/^[A-Z]{4}$/.test(code)) throw Object.assign(new Error("Enter the 4-letter game code."), { status: 400 });
 
   return withLock(code, async () => {
-    const g = await load(code);
-    if (!g) throw Object.assign(new Error(`No game with code ${code}.`), { status: 404 });
+    const loaded = await load(code);
+    if (!loaded) throw Object.assign(new Error(`No game with code ${code}.`), { status: 404 });
+    const g = E.expire(loaded, Date.now()) || loaded;   // anything overdue happens before this move
+    if (g !== loaded) g.v = (loaded.v || 0) + 1;
     g.tokens = g.tokens || {};
     const seat = g.players.findIndex(p => p.uid === pid);
     if (seat >= 0 && g.tokens[pid] !== token) throw Object.assign(new Error("That seat belongs to another device."), { status: 403 });
@@ -148,9 +164,11 @@ async function handle(req) {
       }
       default: fail("Unknown request.");
     }
+    const before = next === g ? JSON.parse(JSON.stringify(g)) : g;
+    E.syncClock(before, next, Date.now());
     next.v = (g.v || 0) + 1; next.updated = Date.now();
     await save(code, next);
-    return { game: view(next, pid) };
+    return { game: view(next, pid), now: Date.now() };
   });
 }
 

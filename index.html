@@ -216,6 +216,17 @@ input::placeholder{color:var(--dim);opacity:1}
 .plate .hc i{width:.45rem;height:.66rem;border-radius:1px;background:var(--chalk);opacity:.85}
 .plate .bk::before{content:"";width:.62rem;height:.62rem;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffeaa6,var(--galleon) 55%,#a87a14)}
 .plate em{position:absolute;left:50%;top:100%;transform:translate(-50%,-35%);white-space:nowrap;font:700 .66rem/1 var(--label);font-style:normal;letter-spacing:.12em;text-transform:uppercase;padding:.25rem .5rem;border-radius:999px;background:var(--board)}
+.tclock{display:flex;flex-direction:column;align-items:center;gap:.25rem;min-width:7rem;margin-bottom:.15rem}
+.tclock .tlabel{font:700 .66rem/1 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--chalk);opacity:.85}
+.tclock b{font:800 1.6rem/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:.04em;color:var(--chalk);text-shadow:0 2px 6px rgba(0,0,0,.5)}
+.tclock .tbar{display:block;width:100%;height:4px;border-radius:2px;background:rgba(0,0,0,.4);overflow:hidden}
+.tclock .tbar i{display:block;height:100%;width:100%;transform-origin:left;transform:scaleX(var(--p,1));background:var(--live);transition:transform .25s linear}
+.tclock.resp b{color:var(--warn)}
+.tclock.resp .tbar i{background:var(--warn)}
+.tclock.low b,.plate em.low span{color:var(--bad);animation:urgent 1s steps(2) infinite}
+@keyframes urgent{50%{opacity:.45}}
+.answerclock{font:600 .9rem/1.3 var(--label);letter-spacing:.03em;color:var(--warn)}
+.answerclock b{font-family:var(--display);font-size:1.05rem;font-variant-numeric:tabular-nums}
 .plate .turnlight{color:var(--live);box-shadow:inset 0 0 0 1px var(--live)}
 .plate .resp{color:var(--warn);box-shadow:inset 0 0 0 1px var(--warn)}
 .plate.live{box-shadow:0 0 0 2px var(--live),0 14px 26px -8px rgba(0,0,0,.9),inset 0 3px 0 var(--c)}
@@ -265,6 +276,9 @@ input::placeholder{color:var(--dim);opacity:1}
   .table.n5 .plate:not(.mine) b{font-size:.74rem;max-width:4.9rem}
   .table.n3 .center .say,.table.n3 .center .sub,.table.n3 .center .dots,.table.n4 .center .say,.table.n5 .center .say,.table.n4 .center .sub,.table.n5 .center .sub,.table.n4 .center .dots,.table.n5 .center .dots{display:none}
   .center .say{font-size:1.4rem}
+  .tclock{min-width:5.5rem}
+  .tclock b{font-size:1.2rem}
+  .tclock .tlabel{font-size:.58rem}
   .center .sub{font-size:.78rem}
   .center .back,.center .slot,.center .card.small{width:3.3rem;height:4.6rem;min-height:4.6rem}
   .center .back .mono{font-size:1.8rem}
@@ -519,6 +533,7 @@ let S = null;        // the table as this player may see it
 let code = null;
 let lobbies = [];
 let netDown = false;
+let clockOffset = 0;   // server time minus this device's time, so countdowns agree across devices
 let ui = freshUI();
 // The players' cards side panel: open by default on wide screens, remembered per device once toggled.
 const sideOpen = () => { const s = LS.get("wd-side"); return s == null ? !!(window.matchMedia && matchMedia("(min-width:1000px)").matches) : !!s; };
@@ -534,6 +549,7 @@ async function call(op, extra = {}) {
   try {
     const r = await fetch("/api/game", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ op, pid: ID.pid, token: ID.token, code }, extra)) });
     const j = await r.json();
+    if (j.now) clockOffset = j.now - Date.now();
     if (j.error) { flash(j.error); return null; }
     netDown = false;
     if (j.game) { S = j.game; code = S.code; view = "game"; LS.set("wd-last", code); render(); gotState(); }
@@ -557,6 +573,7 @@ async function poll() {
     try {
       const r = await fetch(`/api/game?code=${encodeURIComponent(code)}&pid=${encodeURIComponent(me)}&v=${S ? S.v : 0}`, { cache: "no-store" });
       const j = await r.json();
+      if (j.now) clockOffset = j.now - Date.now();
       if (gen !== pollGen) return;
       if (netDown) { netDown = false; render(); }
       if (j.gone) { flash("That table has closed."); return goHome(); }
@@ -873,7 +890,7 @@ function plateHTML(i, v, waiting, rise, pos) {
   return `<div class="plate${live ? " live" : ""}${acting ? " acting" : ""}${rise ? " rise" : ""}${i === v ? " mine" : ""}" style="${kit(p.char)};${pos}">
     ${shield(p.char)}<div class="pl"><b>${esc(i === v ? "You" : nameOf(i))}</b><small>${E.CHARS[p.char].n}${p.petrified != null ? ` · <span class="frozen">Frozen</span>` : ""}</small></div>
     <div class="pm"><span class="setpips" role="img" aria-label="${sets} of 3 sets complete">${[0, 1, 2].map(n => `<i${n < sets ? ` class="on" style="--i:${n}"` : ""}></i>`).join("")}</span><span class="hc" title="${p.hand.length} cards in hand"><i></i>${p.hand.length}</span><span class="bk" title="Bank: ${E.bankTotal(p)} points">${E.bankTotal(p)}</span></div>
-    ${acting ? `<em class="resp">Responding</em>` : live ? `<em class="turnlight">On turn</em>` : ""}</div>`;
+    ${acting ? `<em class="resp">Responding · <span data-clock="resp">0:30</span></em>` : live ? `<em class="turnlight">On turn · <span data-clock="turn">3:00</span></em>` : ""}</div>`;
 }
 // The cards a player has played, laid on the cloth as small foil cards stacked by colour.
 function miniHTML(e) {
@@ -954,6 +971,7 @@ function renderGame() {
       ${tableSVG(gw, BW, "w", "wd")}${tableSVG(gn, BN, "n", "nw")}
       ${seated.map((i, j) => { const sp = spot(j); return plateHTML(i, v, waiting, rose(i), sp.plate) + playedHTML(S.players[i], sp.zone, i === v ? " mine" : ""); }).join("")}
       <div class="center">
+      ${S.status === "play" && S.clock ? `<div class="tclock${S.pending ? " resp" : ""}"><span class="tlabel">${S.pending ? "Time to answer" : "Turn time"}</span><b data-clock="${S.pending ? "resp" : "turn"}">${S.pending ? "0:30" : "3:00"}</b><i class="tbar"><i data-clockbar="${S.pending ? "resp" : "turn"}"></i></i></div>` : ""}
       <div class="piles"><div class="pile"><div class="back" aria-label="${S.deck.length} cards in the draw pile"><span class="mono">W</span><span class="cnt">${S.deck.length}</span></div>Draw pile</div>
         <div class="pile">${topCard != null ? cardHTML(topCard, { cls: "small" }) : `<div class="slot"></div>`}Discard · ${S.discard.length}</div></div>
       <div class="say${myMove && !S.pending ? " mine" : ""}">${say}</div>
@@ -1004,11 +1022,11 @@ function panelHTML(v) {
   const pd = S.pending;
   if (pd) {
     const t = pd.tg.find(x => x.p === v && x.st === "respond");
-    if (t) return respondHTML(v, pd, t);
+    if (t) return `<p class="answerclock">Answer within <b data-clock="resp">0:30</b>, or the game answers for you</p>` + respondHTML(v, pd, t);
     const blocked = v === pd.caster ? pd.tg.filter(x => x.st === "counter") : [];
     if (blocked.length) {
       const has = P.hand.some(id => E.card(id).k === "protego");
-      return `<span class="stamp">Protego</span><h3>Blocked!</h3>${blocked.map(x => `<p>${esc(nameOf(x.p))} used Protego against your ${spellLabel(pd)}.</p><div class="opts">${has ? opt("counterP", { p: x.p }, "Cast Protego back", "Your spell goes through unless they block again.") : ""}${opt("yield", { p: x.p }, "Let it go")}</div>`).join("")}`;
+      return `<p class="answerclock">Decide within <b data-clock="resp">0:30</b></p><span class="stamp">Protego</span><h3>Blocked!</h3>${blocked.map(x => `<p>${esc(nameOf(x.p))} used Protego against your ${spellLabel(pd)}.</p><div class="opts">${has ? opt("counterP", { p: x.p }, "Cast Protego back", "Your spell goes through unless they block again.") : ""}${opt("yield", { p: x.p }, "Let it go")}</div>`).join("")}`;
     }
     return `<h3>Waiting…</h3><p class="muted">${E.waitingOn(S).map(i => esc(nameOf(i))).join(", ")} must respond to ${esc(nameOf(pd.caster))}'s ${spellLabel(pd)}.</p>`;
   }
@@ -1196,6 +1214,21 @@ document.addEventListener("pointermove", e => {
 }, { passive: true });
 document.addEventListener("pointerout", e => { if (tiltEl && !(e.relatedTarget && tiltEl.contains(e.relatedTarget))) untilt(); });
 
+// Countdowns: the turn clock and the answer clock, worked out from the server's timestamps.
+const mmss = ms => { const t = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; };
+setInterval(() => {
+  const c = S && S.status === "play" && S.clock;
+  if (!c || view !== "game") return;
+  const now = Date.now() + clockOffset;
+  const left = { turn: c.since != null ? c.left - (now - c.since) : c.left, resp: c.resp != null ? c.resp - now : E.RESPOND_MS };
+  const full = { turn: E.TURN_MS, resp: E.RESPOND_MS }, lowAt = { turn: 30000, resp: 10000 };
+  document.querySelectorAll("[data-clock]").forEach(el => {
+    const k = el.dataset.clock; el.textContent = mmss(left[k]);
+    (el.closest(".tclock") || el.closest("em") || el).classList.toggle("low", left[k] <= lowAt[k]);
+  });
+  document.querySelectorAll("[data-clockbar]").forEach(el => { const k = el.dataset.clockbar; el.style.setProperty("--p", Math.max(0, Math.min(1, left[k] / full[k])).toFixed(3)); });
+}, 250);
+
 // Start: go straight back to your table if you were seated at one.
 (async () => {
   render();
@@ -1203,6 +1236,7 @@ document.addEventListener("pointerout", e => { if (tiltEl && !(e.relatedTarget &
   if (last) {
     try {
       const j = await (await fetch(`/api/game?code=${last}&pid=${me}`, { cache: "no-store" })).json();
+      if (j.now) clockOffset = j.now - Date.now();
       if (j.game && j.game.players.some(p => p.uid === me) && j.game.status !== "closed") { S = j.game; code = last; view = "game"; render(); gotState(); return poll(); }
     } catch (e) {}
   }

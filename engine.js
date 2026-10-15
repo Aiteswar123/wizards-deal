@@ -417,5 +417,74 @@
     return [s.turn];
   }
 
-  G.Engine = { COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, payable, harryGuards, newGame, apply, waitingOn, shuffle };
+  // ---- turn clock ----
+  // Each turn has 3 minutes. While a spell waits for answers the turn clock pauses and the players asked share a
+  // 30-second window. The server calls syncClock after every change and expire whenever it reads a table, so time
+  // runs out even if nobody acts. All times are server milliseconds.
+  const TURN_MS = 180000, RESPOND_MS = 30000;
+  const shuffled = a => shuffle(a.slice());
+  // What a player pays when their time runs out: bank notes first, then items outside complete sets, then complete
+  // sets, at random within each group, until the debt is covered. Items Harry protects are never taken.
+  function autoPay(P, amt) {
+    const open = P.table.filter(e => !harryGuards(P, e.col));
+    const order = [...shuffled(P.bank), ...shuffled(open.filter(e => !complete(P, e.col)).map(e => e.c)), ...shuffled(open.filter(e => complete(P, e.col)).map(e => e.c))];
+    const pay = []; let sum = 0;
+    for (const id of order) { if (sum >= amt) break; if (card(id).val > 0) { pay.push(id); sum += card(id).val; } }
+    return pay;
+  }
+  function syncClock(prev, s, now) {
+    if (s.status !== "play") { s.clock = null; return s; }
+    const fresh = !prev || prev.status !== "play" || !prev.clock || prev.created !== s.created;
+    const c = fresh ? { turn: -1 } : Object.assign({}, prev.clock);
+    const wait = s.pending ? waitingOn(s) : [];
+    if (fresh || c.turn !== s.turn) Object.assign(c, { turn: s.turn, left: TURN_MS, since: s.pending ? null : now, resp: null, wait: [] });
+    if (wait.length) {
+      if (c.since != null) { c.left = Math.max(0, c.left - (now - c.since)); c.since = null; }   // pause the turn
+      if (c.resp == null || wait.some(p => !(c.wait || []).includes(p))) c.resp = now + RESPOND_MS;   // someone new must answer
+    } else {
+      c.resp = null;
+      if (c.since == null) c.since = now;   // resume the turn
+    }
+    c.wait = wait;
+    s.clock = c;
+    return s;
+  }
+  // Applies whatever the clock says is overdue. Returns the new state, or null when nothing has run out.
+  function expire(s0, now) {
+    let s = s0, changed = false;
+    for (let guard = 0; guard < 8 && s.status === "play" && s.clock; guard++) {
+      const c = s.clock, pd = s.pending;
+      let next = null;
+      if (pd && c.resp != null && now >= c.resp) {
+        next = clone(s);
+        for (const t of next.pending.tg.filter(x => x.st === "respond")) {
+          if (!next.pending) break;
+          const P = next.players[t.p];
+          log(next, `@${t.p} ran out of time to answer.`);
+          const r = apply(next, t.p, PAY_KINDS.includes(pd.k) ? { t: "respond", choice: "accept", pay: autoPay(P, t.amt) } : { t: "respond", choice: "accept" });
+          if (!r.error) next = r.state;
+        }
+        if (next.pending) for (const t of next.pending.tg.filter(x => x.st === "counter")) {
+          if (!next.pending) break;
+          log(next, `@${next.pending.caster} ran out of time and let it go.`);
+          const r = apply(next, next.pending.caster, { t: "counter", p: t.p, choice: "yield" });
+          if (!r.error) next = r.state;
+        }
+      } else if (!pd && c.since != null && now - c.since >= c.left) {
+        const a = s.turn;
+        next = clone(s);
+        log(next, `@${a} ran out of time.`);
+        if (!next.drew) { const r = apply(next, a, { t: "draw", src: "deck" }); if (!r.error) next = r.state; }
+        const P = next.players[a], extra = P.hand.length - 7;
+        const r = apply(next, a, { t: "end", discard: extra > 0 ? shuffled(P.hand).slice(0, extra) : [] });
+        if (r.error) break;
+        next = r.state;
+      }
+      if (!next) break;
+      s = syncClock(s, next, now); changed = true;
+    }
+    return changed ? s : null;
+  }
+
+  G.Engine = { TURN_MS, RESPOND_MS, autoPay, syncClock, expire, COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, payable, harryGuards, newGame, apply, waitingOn, shuffle };
 })(typeof window !== "undefined" ? window : globalThis);
