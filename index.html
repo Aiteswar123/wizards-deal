@@ -66,6 +66,9 @@ input[type=text]{background:var(--surface);border:1px solid var(--line);border-r
 .bigcode{font-family:var(--display);font-size:clamp(3rem,14vw,5rem);letter-spacing:.12em;line-height:1}
 .seats{display:flex;flex-direction:column;gap:.4rem}
 .seats li{display:flex;align-items:center;gap:.75rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem}
+.seats li.open{border-style:dashed;background:transparent}
+.seat.empty{border-style:dashed;background:transparent;opacity:.6;justify-content:center;min-height:6rem}
+@media (max-width:820px){.seat.empty{display:none}}
 .seats .tag{margin-left:auto;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
 .crest{flex:none;width:2.2rem;height:2.2rem;border-radius:50%;display:grid;place-items:center;font-family:var(--display);color:#15121d;font-size:1.05rem}
 .seatno{background:var(--raise);color:var(--brass);border:1px solid var(--brass)}
@@ -381,7 +384,9 @@ function renderLobby() {
     <div><span class="eyebrow">Table code</span><div class="row" style="margin-top:.4rem"><span class="bigcode">${esc(S.code)}</span><button class="btn small" data-a="copy">Copy code</button></div>
     <p class="muted" style="margin-top:.4rem">Friends open this website on their own device, type their name, then join with this code.</p></div>
     <div><span class="eyebrow">Seated at the table · ${S.players.length}/5</span>
-    <ul class="seats" style="margin-top:.5rem">${S.players.map((p, i) => `<li><span class="crest seatno">${i + 1}</span><div><b>${esc(nameOf(i))}</b></div><span class="tag">${p.uid === S.host ? "Table owner" : ""}${p.uid === me ? (p.uid === S.host ? " · you" : "You") : ""}</span></li>`).join("")}</ul></div>
+    <ul class="seats" style="margin-top:.5rem">${Array.from({ length: 5 }, (_, i) => { const p = S.players[i];
+      return p ? `<li><span class="crest seatno">${i + 1}</span><div><b>${esc(nameOf(i))}</b></div><span class="tag">${p.uid === S.host ? "Table owner" : ""}${p.uid === me ? (p.uid === S.host ? " · you" : "You") : ""}</span></li>`
+        : `<li class="open"><span class="crest seatno">${i + 1}</span><div class="muted">Open seat, waiting for a player</div></li>`; }).join("")}</ul></div>
     ${mine ? `<label style="display:flex;flex-direction:column;gap:.3rem"><span class="eyebrow">Your name at the table</span><input type="text" id="nick" maxlength="20" value="${esc(typing ?? mine.nick ?? "")}"></label>` : `<p class="muted">This table is full or has started.</p>`}
     <p class="muted">When everyone is seated, the table owner presses Start. Each player is then dealt a different character at random, with its own power: ${CHAR_KEYS.map(c => E.CHARS[c].n).join(", ")}.</p>
     <div class="row">${isHost ? `<button class="btn primary" data-a="start" ${S.players.length < 2 ? "disabled" : ""}>Start and deal characters</button>${S.players.length < 2 ? `<span class="muted">Waiting for at least one more player…</span>` : ""}` : `<span class="muted">Waiting for ${esc(nameOf(S.players.findIndex(p => p.uid === S.host)))}, the table owner, to start…</span>`}
@@ -446,7 +451,8 @@ function renderGame() {
   // Seat everyone clockwise starting from the player after you.
   const base = v >= 0 ? v : 0;
   const order = Array.from({ length: n }, (_, k) => (base + k) % n).filter(i => i !== v);
-  const spots = SPOTS[order.length] || SPOTS[4];
+  const spots = SPOTS[4];   // always lay out all five seats around the table
+  const emptySeats = Math.max(0, 4 - order.length);
   const max = E.maxPlays(S.players[S.turn]);
   const topCard = S.discard.length ? S.discard[S.discard.length - 1] : null;
   const say = S.status === "over" ? `${esc(nameOf(S.winner))} wins!`
@@ -463,6 +469,7 @@ function renderGame() {
   <div class="arena">
     ${order.map((i, k) => `<section class="seat a-${spots[k]}${S.turn === i ? " turn" : ""}${waiting.includes(i) && S.pending ? " acting" : ""}">${whoHTML(i)}${statsHTML(S.players[i])}
       ${tableHTML(S.players[i], false, false)}<div class="bankrow"><span class="eyebrow" style="margin-right:.3rem">Bank</span>${bankHTML(S.players[i])}</div></section>`).join("")}
+    ${Array.from({ length: emptySeats }, (_, k) => `<section class="seat empty a-${spots[order.length + k]}" aria-label="Empty seat"><div class="who"><span class="crest seatno">–</span><div><b>Empty seat</b><small>No player this game</small></div></div></section>`).join("")}
     <div class="felt${flashNow ? " flash" : ""}">
       <div class="piles"><div class="pile"><div class="back">${S.deck.length}</div>Draw pile</div>
         <div class="pile">${topCard != null ? cardHTML(topCard, { cls: "small" }) : `<div class="slot"></div>`}Discard · ${S.discard.length}</div></div>
