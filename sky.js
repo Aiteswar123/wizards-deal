@@ -1,6 +1,6 @@
-/* The sky behind every screen: a Quidditch match at night, drawn for realism rather than cartoon.
-   A deep starfield with the Milky Way and a cratered moon, soft moonlit cloud, a stadium in silhouette lit by floodlight
-   beams through haze with shaded house banners, backlit riders on broomsticks with motion blur, and the Golden Snitch.
+/* The sky behind every screen: the enchanted ceiling of the Great Hall, drawn for realism rather than cartoon.
+   A deep starfield with the Milky Way and a cratered moon, soft moonlit cloud, the four house banners hanging from
+   the ceiling, floating candles, backlit riders on broomsticks crossing the night with motion blur, and the Golden Snitch.
    Static layers (sky, stars, Milky Way, moon, stadium) are painted once per size or house change; only the moving parts
    are drawn each frame. Runs at about 30fps, stops while the tab is hidden, and holds one still frame for reduced motion. */
 (function () {
@@ -107,54 +107,51 @@
     return c;
   }
 
-  // Stadium: silhouetted stands and towers, shaded hanging banners, lit box windows, floodlight masts and haze.
+  // The Great Hall: four house banners hang from the enchanted ceiling, with a faint stone gloom rising from below.
   function paintStadium() {
     const [c, g] = layer();
-    const base = H, small = W < 600, standH = small ? 30 : 46;
-    const sg = g.createLinearGradient(0, base - standH - 30, 0, base);
-    sg.addColorStop(0, "rgba(8,8,14,.0)"); sg.addColorStop(.4, "rgba(8,8,14,.85)"); sg.addColorStop(1, "#040407");
-    g.fillStyle = sg; g.fillRect(0, base - standH - 30, W, standH + 30);
-    const unit = small ? 40 : 58, count = Math.ceil(W / unit) + 1;
-    for (let i = 0; i < count; i++) {
-      const w = unit * (.58 + rnd() * .18), x = i * unit + (rnd() - .5) * unit * .2, h = (small ? 50 : 78) + rnd() * (small ? 44 : 80), top = base - h;
-      const tg = g.createLinearGradient(x, 0, x + w, 0);
-      tg.addColorStop(0, "#0b0a12"); tg.addColorStop(.5, "#13111c"); tg.addColorStop(1, "#08070d");
-      g.fillStyle = tg; g.fillRect(x, top, w, h);
-      // a conical roof, dark, with a thin rim of floodlight on one edge
-      g.fillStyle = "#0c0b13"; g.beginPath(); g.moveTo(x - 2, top); g.lineTo(x + w / 2, top - w * .85); g.lineTo(x + w + 2, top); g.closePath(); g.fill();
-      g.strokeStyle = "rgba(255,236,200,.18)"; g.lineWidth = 1; g.beginPath(); g.moveTo(x + w / 2, top - w * .85); g.lineTo(x + w + 2, top); g.stroke();
-      // a hanging house banner, shaded like cloth, with a notched hem
-      const bc = BANNERS[i % 4], bw = w * .62, bx = x + (w - bw) / 2, by = top + 6, bh = Math.min(h * .55, w * 1.3);
-      const cg = g.createLinearGradient(bx, 0, bx + bw, 0);
-      cg.addColorStop(0, "rgba(0,0,0,.55)"); cg.addColorStop(.35, "rgba(0,0,0,0)"); cg.addColorStop(.7, "rgba(255,255,255,.08)"); cg.addColorStop(1, "rgba(0,0,0,.5)");
-      g.fillStyle = bc; g.globalAlpha = .75;
-      g.beginPath(); g.moveTo(bx, by); g.lineTo(bx + bw, by); g.lineTo(bx + bw, by + bh); g.lineTo(bx + bw / 2, by + bh - bw * .35); g.lineTo(bx, by + bh); g.closePath(); g.fill();
-      g.globalAlpha = 1; g.fillStyle = cg; g.fill();
-      g.fillStyle = "rgba(0,0,0,.35)"; g.fillRect(x, top, w, 3);
-      // lit box seats
-      for (let k = 0; k < 3; k++) if (rnd() < .5) { g.fillStyle = `rgba(255,${190 + rnd() * 40 | 0},120,${.35 + rnd() * .3})`; g.fillRect(x + 3 + k * (w - 6) / 3, base - h * .28, (w - 6) / 3 - 2, 3); }
-    }
-    // floodlight masts
-    lamps = [.18, .39, .61, .82].map(f => ({ x: W * f + (rnd() - .5) * 20, y: base - (small ? 150 : 230) - rnd() * 30 }));
-    lamps.forEach(l => {
-      g.strokeStyle = "#0d0c14"; g.lineWidth = small ? 2 : 3; g.beginPath(); g.moveTo(l.x, base); g.lineTo(l.x, l.y); g.stroke();
-      g.fillStyle = "#14121c"; g.fillRect(l.x - 12, l.y - 4, 24, 8);
-      for (let k = 0; k < 4; k++) { g.fillStyle = "#fffbe9"; g.fillRect(l.x - 10 + k * 5.4, l.y - 2, 3.6, 3.6); }
+    const gloom = g.createLinearGradient(0, H * .62, 0, H);
+    gloom.addColorStop(0, "rgba(6,6,10,0)"); gloom.addColorStop(1, "rgba(6,6,10,.7)");
+    g.fillStyle = gloom; g.fillRect(0, H * .62, W, H * .38);
+    // banners frame the hall at its edges, clear of the page's content column
+    const small = W < 600, bw = Math.max(small ? 22 : 38, W * (small ? .05 : .04)), bh = Math.min(H * (small ? .16 : .26), small ? 150 : 260);
+    (small ? [[.04, 0], [.96, 2]] : [[.025, 0], [.075, 3], [.925, 2], [.975, 1]]).forEach(([fx, hi]) => {
+      const x = W * fx - bw / 2, col = BANNERS[hi];
+      // the rod
+      g.fillStyle = "#6e5a34"; g.fillRect(x - 6, 2, bw + 12, 4);
+      // the cloth, shaded into soft folds, with a notched hem
+      g.fillStyle = col; g.globalAlpha = .62;
+      g.beginPath(); g.moveTo(x, 6); g.lineTo(x + bw, 6); g.lineTo(x + bw, bh); g.lineTo(x + bw / 2, bh - bw * .32); g.lineTo(x, bh); g.closePath(); g.fill();
+      const fold = g.createLinearGradient(x, 0, x + bw, 0);
+      fold.addColorStop(0, "rgba(0,0,0,.5)"); fold.addColorStop(.3, "rgba(0,0,0,.05)"); fold.addColorStop(.55, "rgba(255,255,255,.07)"); fold.addColorStop(.75, "rgba(0,0,0,.18)"); fold.addColorStop(1, "rgba(0,0,0,.55)");
+      g.globalAlpha = 1; g.fillStyle = fold; g.fill();
+      // a woven gold border and a simple diamond emblem
+      g.strokeStyle = "rgba(214,180,100,.55)"; g.lineWidth = 1.2;
+      g.beginPath(); g.moveTo(x + 4, 10); g.lineTo(x + bw - 4, 10); g.lineTo(x + bw - 4, bh - 6); g.lineTo(x + bw / 2, bh - bw * .32 - 4); g.lineTo(x + 4, bh - 6); g.closePath(); g.stroke();
+      const ey = bh * .42;
+      g.fillStyle = "rgba(214,180,100,.5)"; g.beginPath(); g.moveTo(x + bw / 2, ey - bw * .28); g.lineTo(x + bw * .78, ey); g.lineTo(x + bw / 2, ey + bw * .28); g.lineTo(x + bw * .22, ey); g.closePath(); g.fill();
     });
-    // goal hoops: thin metal rings on tall posts, catching the light
-    const hoopSet = (cx, s) => [[-22, 1.2], [0, 1.55], [22, 1.0]].forEach(([dx, hk]) => {
-      const x = cx + dx * s, topY = base - H * .2 * hk * s, r = 9 * s;
-      g.strokeStyle = "#2a241a"; g.lineWidth = 2.4 * s; g.beginPath(); g.moveTo(x, base); g.lineTo(x, topY + r); g.stroke();
-      g.beginPath(); g.arc(x, topY, r, 0, TAU); g.stroke();
-      g.strokeStyle = "rgba(240,206,120,.55)"; g.lineWidth = 1 * s; g.beginPath(); g.arc(x, topY, r, -2.2, -.6); g.stroke();
-      g.beginPath(); g.moveTo(x + 1, topY + r); g.lineTo(x + 1, base); g.stroke();
-    });
-    hoopSet(W * .1, small ? .7 : 1); hoopSet(W * .9, small ? .7 : 1);
-    // ground haze
-    const hz = g.createLinearGradient(0, base - standH * 2.2, 0, base);
-    hz.addColorStop(0, "rgba(200,205,225,0)"); hz.addColorStop(.6, "rgba(200,205,225,.05)"); hz.addColorStop(1, "rgba(200,205,225,.09)");
-    g.fillStyle = hz; g.fillRect(0, base - standH * 2.2, W, standH * 2.2);
+    lamps = [];
     stad = c;
+  }
+
+  // Floating candles of the Great Hall: they bob and flicker, and fade out during a game so nothing peeks between panels.
+  let candles = [], candleAlpha = 1;
+  function seedCandles() {
+    const nc = W < 600 ? 6 : 14;
+    candles = Array.from({ length: nc }, (_, i) => ({ x: (i + .5) / nc * W + (rnd() - .5) * W / nc * .6, y: 30 + rnd() * Math.min(H * .4, 320), s: .6 + rnd() * .5, p: rnd() * TAU }));
+  }
+  function candle(cd, t) {
+    const s = cd.s, x = cd.x, y = cd.y + Math.sin(t * .00055 + cd.p) * 7 * s;
+    const fl = 1 + Math.sin(t * .011 + cd.p * 3) * .12 + Math.sin(t * .023 + cd.p) * .06;
+    const glow = ctx.createRadialGradient(x, y - 2 * s, 0, x, y - 2 * s, 30 * s);
+    glow.addColorStop(0, "rgba(255,206,120,.28)"); glow.addColorStop(1, "rgba(255,206,120,0)");
+    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y - 2 * s, 30 * s, 0, TAU); ctx.fill();
+    ctx.fillStyle = "#ffbf45"; ctx.beginPath(); ctx.ellipse(x, y - 4 * s * fl, 2.3 * s, 5.2 * s * fl, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = "#fff4d0"; ctx.beginPath(); ctx.ellipse(x, y - 2.6 * s, 1 * s, 2.4 * s, 0, 0, TAU); ctx.fill();
+    const body = ctx.createLinearGradient(x - 3.5 * s, 0, x + 3.5 * s, 0);
+    body.addColorStop(0, "#f7efd9"); body.addColorStop(.6, "#e9dcbc"); body.addColorStop(1, "#c9b991");
+    ctx.fillStyle = body; ctx.fillRect(x - 3.5 * s, y + 1.5 * s, 7 * s, 30 * s);
   }
 
   function newFlyer(first) {
@@ -176,7 +173,7 @@
     W = innerWidth; H = innerHeight;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    colKey = ""; seed(); paintStadium(); readColours(performance.now(), true);
+    colKey = ""; seed(); seedCandles(); paintStadium(); readColours(performance.now(), true);
     draw(performance.now(), 0);
   }
 
@@ -289,10 +286,12 @@
       f.x += f.dir * f.v * dt / 1000;
       if ((f.dir > 0 && f.x > W + 100) || (f.dir < 0 && f.x < -100)) Object.assign(f, newFlyer(false));
     }
-    beams(t);
     for (const f of flyers) if (f.far && f.wait <= 0) rider(f, t);
     ctx.globalAlpha = 1;
     if (stad) ctx.drawImage(stad, 0, 0, W, H);
+    const want = root.dataset.screen === "game" ? 0 : 1;
+    candleAlpha += (want - candleAlpha) * (dt ? Math.min(1, dt / 400) : 1);
+    if (candleAlpha > .02) { ctx.globalAlpha = candleAlpha; for (const cd of candles) candle(cd, t); ctx.globalAlpha = 1; }
     for (const f of flyers) if (!f.far && f.wait <= 0) rider(f, t);
     if (dt) moveSnitch(dt, t);
     drawSnitch(t);
