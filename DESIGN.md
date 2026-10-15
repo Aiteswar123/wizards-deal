@@ -67,6 +67,12 @@ House kit colours (`HOUSES`) for jersey stripes and shields: Gryffindor `#c8282e
 - **Game feel**: a "Your turn" banner sweeps in when your move begins. Buttons and options have a raised edge and press down when tapped. Cards that land on the table pop in. The plate of the player on turn has a pulsing ring of light.
 - **In-game motion** (`fxAfterRender`): after each new game state the page compares it with the last one and animates the change. Dealt cards fly from the draw pile into your hand, flipping over. Cards you play fly to the table, bank or discard. Other players' new items fly from their seat. Galleons fly from payer to payee with a "+N Galleons" label. Completed sets burst with sparkles and "Set complete!". The player now on turn pops, the panel slides in with its options staggered, and a win sets off fireworks in the winner's house colours. Everything is skipped when reduced motion is on.
 - **Hall of Fame** (`.ranks`): on the home page, every player ranked by total EXP, with medals for the top three, a level and a gold progress bar to the next level, plus EXP, wins, games and win rate. Your own row is highlighted. At full time the winner panel lists each player's place, EXP earned, level and any "Level up!" (`.awards`).
+- **Wizarding-world details** (inspired by the films' graphic design and Harry Potter web experiments):
+  - **Engraved corners:** gilt corner flourishes on the panels.
+  - **Daily Prophet:** the latest move printed as a newsprint headline that slides in.
+  - **Hogwarts letter:** the lobby code on a parchment envelope with green-ink lettering and a wax seal, unfolding once when the lobby opens.
+  - **Marauder's Map footsteps:** ink footprints walk from one seat to the next when the turn passes.
+  - **Lumos:** a soft wand-light trail behind the mouse on desktop.
 - **House shields** (`shield(ch)`): an inline SVG shield in the house field colour with a metal band and the character's initial. Used wherever a player is named.
 - **House banner** (`.houseband`): the first thing on your screen in a game, a full-width band in your house colour with your shield, the house name, your character and the house trait.
 - **House bar**: your own seat opens with "House Gryffindor" and the house trait.
