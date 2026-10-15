@@ -185,35 +185,19 @@ input::placeholder{color:var(--dim);opacity:1}
 .arena{display:grid;gap:1.1rem;margin-top:.6rem;grid-template-columns:minmax(0,1fr);grid-template-areas:"pitch" "zone" "me";align-items:start}
 @media (min-width:1000px){.zone{grid-template-columns:minmax(17rem,21rem) minmax(0,1fr);align-items:start}}
 
-/* The table: a round lacquered-oak table with gold studs and a double gold inlay, its cloth in your house colour.
-   Players sit evenly around the rim (seatAt), you at the bottom; the cards each has played lie on the cloth in front of them. */
-.table{grid-area:pitch;position:relative;justify-self:center;width:min(41rem,100% - 9rem);aspect-ratio:1;margin:3.4rem 0 4.2rem}
-.rim{position:absolute;inset:0;border-radius:50%;
-  background:conic-gradient(from 200deg,rgba(255,232,196,0),rgba(255,232,196,.22) 35deg,rgba(255,232,196,0) 75deg,rgba(255,232,196,0) 190deg,rgba(255,232,196,.1) 225deg,rgba(255,232,196,0) 265deg),
-    radial-gradient(circle,transparent 0 86%,rgba(0,0,0,.45) 92%,rgba(255,214,160,.16) 95%,rgba(0,0,0,.65) 100%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .09' numOctaves='4' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 .16 0 0 0 0 .08 0 0 0 0 .03 2.6 0 0 0 -1.05'/%3E%3C/filter%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.02 .6' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .7 0 0 0 0 .45 0 0 0 -1.6 1.05'/%3E%3C/filter%3E%3Crect width='640' height='640' fill='%23744420'/%3E%3Crect width='640' height='640' filter='url(%23f)' opacity='.35'/%3E%3Crect width='640' height='640' filter='url(%23g)'/%3E%3C/svg%3E") center/cover,#6b3f1e;
-  box-shadow:0 46px 80px -26px rgba(0,0,0,.92),0 0 0 1px rgba(0,0,0,.6),inset 0 0 0 2px rgba(255,214,150,.16)}
-/* brass studs round the rim, each with its own highlight */
-.stud{position:absolute;width:1.1%;aspect-ratio:1;min-width:5px;border-radius:50%;transform:translate(-50%,-50%);
-  background:radial-gradient(circle at 35% 30%,#fff6d6,#e6c06a 35%,#9a7426 75%,#5e440f);box-shadow:0 1px 1.5px rgba(0,0,0,.6)}
-/* metallic gold inlay just inside the rim */
-.rim::after{content:"";position:absolute;inset:4.4%;border-radius:50%;
-  background:conic-gradient(from 30deg,#8a6a24,#f6e09a,#a98330,#fff3c8,#8d6b22,#e2c070,#7d5d1c,#f6e09a,#8a6a24);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3.5px))}
-.felt{position:absolute;inset:5.6%;border-radius:50%;overflow:hidden;isolation:isolate;
-  background:radial-gradient(ellipse at 50% 40%,color-mix(in srgb,var(--felt) 72%,#fff),var(--felt) 42%,color-mix(in srgb,var(--felt) 58%,#000) 100%);
-  box-shadow:0 0 0 1.5px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.06),inset 0 10px 30px rgba(0,0,0,.45),inset 0 0 110px rgba(0,0,0,.6)}
-.felt::before{content:"";position:absolute;inset:0;opacity:.32;mix-blend-mode:overlay;
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
-/* a ring in the four house colours around the piles, stitched into the cloth */
-.felt::after{content:"";position:absolute;left:50%;top:50%;width:47%;aspect-ratio:1;transform:translate(-50%,-50%) rotate(45deg);border-radius:50%;opacity:.45;
-  background:conic-gradient(#ae0001 0 25%,#ecb939 0 50%,#2a4fb0 0 75%,#2a7a4a 0);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));
-  box-shadow:0 0 0 10px color-mix(in srgb,var(--crest) 8%,transparent)}
-.glint{position:absolute;inset:0;pointer-events:none}
-.table.flash .glint{background:linear-gradient(100deg,transparent 30%,rgba(255,246,220,.3) 50%,transparent 70%);animation:flood 1.2s var(--ease) both}
-@keyframes flood{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-.center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;width:40%;display:flex;flex-direction:column;align-items:center;gap:.5rem;text-align:center;color:var(--chalk)}
+/* The table takes the shape of the players around it: two at a long table, three at a triangle, four at a square,
+   five at a pentagon. Each player sits at the middle of their own side, you on the bottom edge, and the cards they
+   have played lie along their edge. The shape is drawn as SVG (tableSVG): oak with real grain, brass studs, a gold
+   inlay and the house cloth. Wide and narrow screens each get their own geometry (tableGeom). */
+.table{grid-area:pitch;position:relative;justify-self:center;width:min(44rem,100% - 9rem);aspect-ratio:1;margin:3.4rem 0 4.4rem}
+.table.n2{aspect-ratio:100/80}
+.table.n3{width:min(52rem,100% - 9rem)}
+.tsvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 26px 28px rgba(0,0,0,.72))}
+.tsvg.nw{display:none}
+.glintbar{opacity:0}
+.table.flash .glintbar{opacity:1;animation:glintmove 1.3s var(--ease) both}
+@keyframes glintmove{from{transform:translateX(0)}to{transform:translateX(200px)}}
+.center{position:absolute;left:var(--cx,50%);top:var(--cy,50%);transform:translate(-50%,-50%);z-index:2;width:var(--cw,34%);display:flex;flex-direction:column;align-items:center;gap:.5rem;text-align:center;color:var(--chalk)}
 .center .say{font:700 clamp(1.6rem,2.8vw,2.4rem)/.95 var(--magic);text-shadow:0 2px 8px rgba(0,0,0,.5)}
 .table.flash .say{animation:sayin .7s var(--ease)}
 @keyframes sayin{from{opacity:0;transform:translateY(6px) scale(1.08);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
@@ -239,7 +223,7 @@ input::placeholder{color:var(--dim);opacity:1}
 .plate.live .setpips{--lit:var(--live)}
 .plate.acting{box-shadow:0 0 0 2px var(--warn),0 14px 26px -8px rgba(0,0,0,.9),inset 0 3px 0 var(--c)}
 .plate.rise .setpips i.on{animation:bulb .55s var(--ease) calc(var(--i) * 90ms) both}
-.played{position:absolute;left:var(--x);top:var(--y);width:var(--w);transform:translate(-50%,-50%);z-index:2;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:.6rem .75rem}
+.played{position:absolute;left:var(--x);top:var(--y);width:var(--w);transform:translate(-50%,-50%) rotate(var(--rot,0deg));z-index:2;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:.6rem .75rem}
 .stack{display:flex;flex-direction:column;align-items:center;gap:.22rem}
 .minis{display:flex;padding-left:.2rem}
 .mini{display:grid;place-items:center;width:1.75rem;height:2.45rem;border-radius:4px;border:1.5px solid transparent;flex:none;
@@ -271,10 +255,15 @@ input::placeholder{color:var(--dim);opacity:1}
 }
 @media (max-width:480px){.sidebtn .sbl,.tcode .tl2{display:none}.board-top{gap:.45rem}.board-top .btn.small{min-height:2.1rem}}
 @media (max-width:760px){
-  .table{width:100%;aspect-ratio:1/1.22;margin:3.4rem 0 3.6rem}
-  .felt{inset:4%}
-  .center{width:50%;gap:.35rem;top:58%}
-  .felt::after{width:56%;aspect-ratio:1/.82;top:58%}
+  .table,.table.n2,.table.n3{width:100%;aspect-ratio:100/122;margin:3.4rem 0 3.8rem}
+  .tsvg.wd{display:none}
+  .tsvg.nw{display:block}
+  .center{left:var(--ncx,50%);top:var(--ncy,50%);width:var(--ncw,48%);gap:.35rem}
+  .table.n3 .center .back,.table.n3 .center .slot,.table.n3 .center .card.small,.table.n4 .center .back,.table.n4 .center .slot,.table.n4 .center .card.small,.table.n5 .center .back,.table.n5 .center .slot,.table.n5 .center .card.small{width:2.7rem;height:3.8rem;min-height:3.8rem}
+  .table.n5 .center .back .mono,.table.n4 .center .back .mono,.table.n3 .center .back .mono{font-size:1.5rem}
+  .table.n5 .plate:not(.mine){max-width:5.6rem}
+  .table.n5 .plate:not(.mine) b{font-size:.74rem;max-width:4.9rem}
+  .table.n3 .center .say,.table.n3 .center .sub,.table.n3 .center .dots,.table.n4 .center .say,.table.n5 .center .say,.table.n4 .center .sub,.table.n5 .center .sub,.table.n4 .center .dots,.table.n5 .center .dots{display:none}
   .center .say{font-size:1.4rem}
   .center .sub{font-size:.78rem}
   .center .back,.center .slot,.center .card.small{width:3.3rem;height:4.6rem;min-height:4.6rem}
@@ -285,18 +274,17 @@ input::placeholder{color:var(--dim);opacity:1}
   .plate small{display:none}
   .plate .pm{gap:.32rem;font-size:.74rem}
   .plate.mine{grid-template-columns:auto auto;grid-template-areas:"sh pl" "sh pm";justify-items:start;text-align:left;max-width:13rem;padding:.45rem .7rem .45rem .5rem}
-  .played{left:var(--nx);top:var(--ny);width:var(--nw);gap:.35rem .45rem}
+  .played{left:var(--nx);top:var(--ny);width:var(--nw);gap:.35rem .45rem;transform:translate(-50%,-50%) rotate(var(--nrot,0deg))}
   .mini{width:1.3rem;height:1.82rem;border-width:1.2px}
   .mini+.mini{margin-left:-.95rem}
   .mini svg{width:.8rem;height:.8rem}
   .stack small{font-size:.64rem}
-  /* five at the table: a taller table and compact card stacks for the other players */
-  .table.k4,.table.k5{aspect-ratio:1/1.32}
-  .table.k4 .played:not(.mine) .mini,.table.k5 .played:not(.mine) .mini{width:.95rem;height:1.32rem;border-width:1px}
-  .table.k4 .played:not(.mine) .mini+.mini,.table.k5 .played:not(.mine) .mini+.mini{margin-left:-.7rem}
-  .table.k4 .played:not(.mine) .mini svg,.table.k5 .played:not(.mine) .mini svg{display:none}
-  .table.k4 .played:not(.mine) .stack small,.table.k5 .played:not(.mine) .stack small{font-size:.56rem}
-  .table.k4 .played:not(.mine),.table.k5 .played:not(.mine){gap:.25rem .35rem}
+  /* four or five at the table: compact card stacks for the other players */
+  .table.n4 .played:not(.mine) .mini,.table.n5 .played:not(.mine) .mini{width:.95rem;height:1.32rem;border-width:1px}
+  .table.n4 .played:not(.mine) .mini+.mini,.table.n5 .played:not(.mine) .mini+.mini{margin-left:-.7rem}
+  .table.n4 .played:not(.mine) .mini svg,.table.n5 .played:not(.mine) .mini svg{display:none}
+  .table.n4 .played:not(.mine) .stack small,.table.n5 .played:not(.mine) .stack small{font-size:.56rem}
+  .table.n4 .played:not(.mine),.table.n5 .played:not(.mine){gap:.25rem .35rem}
 }
 .piles{display:flex;gap:1.1rem;align-items:flex-end;justify-content:center}
 .pile{display:flex;flex-direction:column;align-items:center;gap:.3rem;font:600 .78rem/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--chalk)}
@@ -796,9 +784,86 @@ function statsHTML(p) {
 // Seats around the table: [plate x, plate y, played x, played y] in % of the table, for wide and narrow screens, by number of opponents.
 // Seats around the round table: you at the bottom (90°), opponents spaced evenly round the circle.
 // Returns [x, y] in % of the table box; plates sit on the rim, played cards lie further in on the cloth.
-const STUDS = Array.from({ length: 36 }, (_, i) => { const a = i * Math.PI / 18; return `<i class="stud" style="left:${(50 + 48.1 * Math.cos(a)).toFixed(2)}%;top:${(50 + 48.1 * Math.sin(a)).toFixed(2)}%"></i>`; }).join("");
-const seatAngle = (j, k) => 90 + 360 * (j + 1) / (k + 1);
-const seatAt = (deg, r, lo = 0, hi = 100) => { const a = deg * Math.PI / 180; return [Math.min(hi, Math.max(lo, 50 + r * Math.cos(a))), 50 + r * Math.sin(a)].map(n => +n.toFixed(2)); };
+// The table's shape follows the player count: 2 a long table, 3 a triangle, 4 a square, 5 a pentagon.
+// Worked out in a box 100 units wide and bh tall; seat 0 (you) has the bottom side, the rest follow clockwise.
+// Returns the corners, the centre, and per seat its outward direction (th, degrees), side midpoint, distance from centre and side length.
+function tableGeom(n, bh, narrow) {
+  const rad = d => d * Math.PI / 180;
+  if (n <= 2) {
+    const hw = narrow ? 44 : 46, hh = bh / 2 - (narrow ? 16 : 8), cy = bh / 2, verts = [[50 - hw, cy - hh], [50 + hw, cy - hh], [50 + hw, cy + hh], [50 - hw, cy + hh]];
+    return { rect: true, hw, hh, c: [50, cy], verts, seats: [{ mid: [50, cy + hh], out: [0, 1], len: 2 * hw, rot: 0 }, { mid: [50, cy - hh], out: [0, -1], len: 2 * hw, rot: 0 }] };
+  }
+  // a regular polygon fitted to the width, then stretched upright to use the height (gently on wide screens, more on phones)
+  const m = narrow ? (n >= 5 ? 11 : n === 4 ? 9 : 6) : 4, top = narrow ? 13 : 9;
+  const unit = Array.from({ length: n }, (_, j) => { const a = rad(90 + 180 / n + 360 * j / n); return [Math.cos(a), Math.sin(a)]; });
+  const xs = unit.map(p => p[0]), ys = unit.map(p => p[1]), ux = Math.max(...xs) - Math.min(...xs), uy = Math.max(...ys) - Math.min(...ys);
+  const R = Math.min((100 - 2 * m) / ux, (bh - 2 * top) / uy), sy = Math.min(narrow ? 1.5 : 1.1, (bh - 2 * top) / (R * uy));
+  const cx = 50 - R * (Math.max(...xs) + Math.min(...xs)) / 2, cy = bh / 2 - R * sy * (Math.max(...ys) + Math.min(...ys)) / 2;
+  const verts = unit.map(([x, y]) => [cx + R * x, cy + R * sy * y]), apo = R * Math.cos(Math.PI / n) * Math.min(1, sy);
+  return { R, sy, apo, c: [cx, cy], verts, seats: Array.from({ length: n }, (_, j) => {
+    const a = verts[(j + n - 1) % n], b = verts[j], mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], dx = mid[0] - cx, dy = mid[1] - cy, d = Math.hypot(dx, dy);
+    let rot = Math.atan2(a[1] - b[1], a[0] - b[0]) * 180 / Math.PI; rot = ((rot % 360) + 360) % 360; if (rot > 90 && rot <= 270) rot -= 180; else if (rot > 270) rot -= 360;
+    const L = Math.hypot(b[0] - a[0], b[1] - a[1]), up = a[1] <= b[1] ? [(a[0] - b[0]) / L, (a[1] - b[1]) / L] : [(b[0] - a[0]) / L, (b[1] - a[1]) / L];
+    return { mid, out: [dx / d, dy / d], up, len: L, rot: +rot.toFixed(1) };
+  }) };
+}
+// The same outline moved d units inward (a rectangle shrinks its edges; a regular polygon scales about its centre).
+function insetPts(g, d) {
+  if (g.rect) { const [cx, cy] = g.c, hw = g.hw - d, hh = g.hh - d; return [[cx - hw, cy - hh], [cx + hw, cy - hh], [cx + hw, cy + hh], [cx - hw, cy + hh]]; }
+  const f = 1 - d / g.apo; return g.verts.map(([x, y]) => [g.c[0] + (x - g.c[0]) * f, g.c[1] + (y - g.c[1]) * f]);
+}
+// A closed path through the points with each corner rounded off.
+function roundPath(pts, r) {
+  const n = pts.length, f = v => +v.toFixed(2); let d = "";
+  pts.forEach((p, i) => {
+    const a = pts[(i + n - 1) % n], b = pts[(i + 1) % n], la = Math.hypot(a[0] - p[0], a[1] - p[1]), lb = Math.hypot(b[0] - p[0], b[1] - p[1]);
+    const ra = Math.min(r, la / 2), rb = Math.min(r, lb / 2);
+    d += `${i ? "L" : "M"}${f(p[0] + (a[0] - p[0]) / la * ra)},${f(p[1] + (a[1] - p[1]) / la * ra)}Q${f(p[0])},${f(p[1])} ${f(p[0] + (b[0] - p[0]) / lb * rb)},${f(p[1] + (b[1] - p[1]) / lb * rb)}`;
+  });
+  return d + "Z";
+}
+// The tabletop as SVG: oak with grain and lacquer, a dark edge, a gold inlay, brass studs, the house cloth with nap and
+// an inner shadow, a ring in the four house colours around the piles, and the glint that sweeps across on your move.
+function tableSVG(g, bh, id, cls) {
+  const rimW = g.rect ? 4.2 : Math.max(3.4, g.apo * .085), outer = roundPath(g.verts, g.rect ? 7 : 9), cloth = roundPath(insetPts(g, rimW), g.rect ? 4 : 6);
+  const inlay = roundPath(insetPts(g, rimW * .78), g.rect ? 5 : 7), mid = insetPts(g, rimW * .42);
+  const studs = mid.map((p, i) => { const q = mid[(i + 1) % mid.length], L = Math.hypot(q[0] - p[0], q[1] - p[1]), n = Math.max(2, Math.floor(L / 5.5));
+    return Array.from({ length: n }, (_, k) => { const t = (k + .5) / n; return `<circle cx="${(p[0] + (q[0] - p[0]) * t).toFixed(2)}" cy="${(p[1] + (q[1] - p[1]) * t).toFixed(2)}" r=".55" fill="url(#stud${id})"/>`; }).join(""); }).join("");
+  const rr = Math.min(g.rect ? g.hh * .55 : g.apo * .5, 18), [cx, cy] = g.c;
+  const arc = (a0, a1, colr) => { const p = a => [cx + rr * Math.cos(a), cy + rr * Math.sin(a)], [x0, y0] = p(a0), [x1, y1] = p(a1);
+    return `<path d="M${x0.toFixed(2)},${y0.toFixed(2)}A${rr},${rr} 0 0 1 ${x1.toFixed(2)},${y1.toFixed(2)}" stroke="${colr}"/>`; };
+  const Q = Math.PI / 2;
+  return `<svg class="tsvg ${cls}" viewBox="0 0 100 ${bh}" preserveAspectRatio="none" aria-hidden="true"><defs>
+    <filter id="grain${id}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".035 .55" numOctaves="4" seed="11"/><feColorMatrix values="0 0 0 0 .16 0 0 0 0 .08 0 0 0 0 .03 2.6 0 0 0 -1.05"/></filter>
+    <filter id="fleck${id}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".12 2.4" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 .95 0 0 0 0 .7 0 0 0 0 .45 0 0 0 -1.6 1.05"/></filter>
+    <filter id="nap${id}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="2.6" numOctaves="2" seed="4"/><feColorMatrix type="saturate" values="0"/></filter>
+    <radialGradient id="cloth${id}" gradientUnits="userSpaceOnUse" cx="${cx}" cy="${cy - 6}" r="${g.rect ? 52 : g.R * 1.05}"><stop offset="0" style="stop-color:color-mix(in srgb,var(--felt) 70%,#fff)"/><stop offset=".45" style="stop-color:var(--felt)"/><stop offset="1" style="stop-color:color-mix(in srgb,var(--felt) 55%,#000)"/></radialGradient>
+    <linearGradient id="gold${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a6a24"/><stop offset=".22" stop-color="#f6e09a"/><stop offset=".45" stop-color="#a98330"/><stop offset=".7" stop-color="#fff3c8"/><stop offset="1" stop-color="#8d6b22"/></linearGradient>
+    <radialGradient id="stud${id}" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#fff6d6"/><stop offset=".35" stop-color="#e6c06a"/><stop offset=".75" stop-color="#9a7426"/><stop offset="1" stop-color="#5e440f"/></radialGradient>
+    <linearGradient id="lac${id}" x1="0" y1="0" x2="1" y2=".7"><stop offset="0" stop-color="#ffe8c4" stop-opacity="0"/><stop offset=".32" stop-color="#ffe8c4" stop-opacity=".2"/><stop offset=".5" stop-color="#ffe8c4" stop-opacity="0"/><stop offset=".8" stop-color="#ffe8c4" stop-opacity=".08"/><stop offset="1" stop-color="#ffe8c4" stop-opacity="0"/></linearGradient>
+    <linearGradient id="glint${id}" x1="0" x2="1"><stop offset=".3" stop-color="#fff6dc" stop-opacity="0"/><stop offset=".5" stop-color="#fff6dc" stop-opacity=".3"/><stop offset=".7" stop-color="#fff6dc" stop-opacity="0"/></linearGradient>
+    <clipPath id="rim${id}"><path d="${outer}"/></clipPath><clipPath id="cloth${id}c"><path d="${cloth}"/></clipPath></defs>
+    <g clip-path="url(#rim${id})"><rect width="100" height="${bh}" fill="#744420"/><rect width="100" height="${bh}" filter="url(#fleck${id})" opacity=".35"/><rect width="100" height="${bh}" filter="url(#grain${id})"/><rect width="100" height="${bh}" fill="url(#lac${id})"/></g>
+    <path d="${outer}" fill="none" stroke="rgba(0,0,0,.6)" stroke-width=".5"/>
+    <path d="${inlay}" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="1.3"/>
+    <path d="${inlay}" fill="none" stroke="url(#gold${id})" stroke-width=".7"/>
+    ${studs}
+    <path d="${cloth}" fill="url(#cloth${id})"/>
+    <g clip-path="url(#cloth${id}c)"><rect width="100" height="${bh}" filter="url(#nap${id})" opacity=".2" style="mix-blend-mode:overlay"/>
+      <path d="${cloth}" fill="none" stroke="rgba(0,0,0,.42)" stroke-width="5"/><path d="${cloth}" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="2"/>
+      <g fill="none" stroke-width=".55" opacity=".5">${arc(-Q * 2, -Q, "#ae0001")}${arc(-Q, 0, "#ecb939")}${arc(0, Q, "#2a4fb0")}${arc(Q, Q * 2, "#2a7a4a")}</g>
+      <rect class="glintbar" x="-100" width="100" height="${bh}" fill="url(#glint${id})"/></g>
+    <path d="${cloth}" fill="none" stroke="rgba(0,0,0,.65)" stroke-width=".35"/></svg>`;
+}
+// Placement on the table: a plate just outside its side, played cards inside along that side, turned to follow it.
+const pct = (bh, [x, y]) => [+x.toFixed(2), +(y / bh * 100).toFixed(2)];
+const ZONE_IN = { 2: .74, 3: .84, 4: .68, 5: .66 }, ZONE_IN_N = { 2: .7, 3: .8, 4: .64, 5: .6 }, ZONE_W = { 2: .5, 3: .5, 4: .62, 5: .64 };
+// slide moves a spot along its side: positive toward the side's upper end, negative toward its lower end
+function seatSpot(g, bh, s, out, lo, hi, slide = 0) { const u = s.up || [0, -1]; return pct(bh, [Math.min(hi, Math.max(lo, s.mid[0] + s.out[0] * out + u[0] * slide)), s.mid[1] + s.out[1] * out + u[1] * slide]); }
+function zoneSpot(g, bh, s, f, slide = 0) { const u = s.up || [0, -1]; return pct(bh, [g.c[0] + (s.mid[0] - g.c[0]) * f + u[0] * slide, g.c[1] + (s.mid[1] - g.c[1]) * f + u[1] * slide]); }
+// On phones a seat on a left or right side can't fit its plate beside the table, so the plate moves up toward that
+// side's upper corner and its cards sit a little lower, keeping both readable.
+const sideSeat = s => Math.abs(s.out[0]) > .6;
 const seatPos = (wx, wy, nx, ny) => `--x:${wx}%;--y:${wy}%;--nx:${nx}%;--ny:${ny}%`;
 
 // A player's name plate on the rim: shield, name, sets done in bulbs, cards in hand, Galleons banked, and the turn light.
@@ -870,20 +935,24 @@ function renderGame() {
   const now = S.players.map(p => E.completeCols(p).length), prev = renderGame.prevSets || [];
   renderGame.prevSets = now;
   const rose = i => prev.length === now.length && now[i] > prev[i];
-  const k = Math.max(1, order.length);
-  // wide: everyone evenly round the circle; narrow (phones): opponents round the top half so their cards clear the piles
-  const narrowAngle = j => 180 + 180 * (j + 1) / (k + 1);
-  const plateAt = j => seatPos(...seatAt(seatAngle(j, k), 54, 4, 96), ...seatAt(narrowAngle(j), 47, 15, 85));
-  const zone = j => `${seatPos(...seatAt(seatAngle(j, k), 29), ...seatAt(narrowAngle(j), 27))};--w:${k > 3 ? 24 : 28}%;--nw:${k > 3 ? 26 : k > 1 ? 34 : 60}%`;
+  // Everyone round a table shaped to the player count: you take the bottom side, the rest follow clockwise.
+  const seated = P ? [v, ...order] : order, nT = Math.max(2, Math.min(5, seated.length));
+  const BW = nT <= 2 ? 80 : 100, BN = 122, gw = tableGeom(nT, BW, false), gn = tableGeom(nT, BN, true);
+  const spot = j => { const sw = gw.seats[j], sn = gn.seats[j];
+    // phones: side seats of a square or pentagon lift their plate to the upper corner; a triangle's slanted seats slide down to the base corners
+    const side = nT >= 4 && sideSeat(sn), slant = nT === 3 && j > 0;
+    const pslide = side ? sn.len * .34 : slant ? -sn.len * .34 : 0, zslide = side ? -sn.len * .14 : slant ? sn.len * .14 : 0;
+    return { plate: seatPos(...seatSpot(gw, BW, sw, nT <= 2 ? 6 : 7, 6, 94), ...seatSpot(gn, BN, sn, side ? 2 : slant ? 4 : 5, 14, 86, pslide)),
+      zone: `${seatPos(...zoneSpot(gw, BW, sw, ZONE_IN[nT]), ...zoneSpot(gn, BN, sn, side ? .66 : slant ? .74 : ZONE_IN_N[nT], zslide))};--w:${(sw.len * ZONE_W[nT]).toFixed(1)}%;--nw:${(sn.len * (side ? .5 : ZONE_W[nT])).toFixed(1)}%;--rot:${sw.rot}deg;--nrot:${sn.rot}deg` }; };
+  const [ccx, ccy] = pct(BW, gw.c), [ncx, ncy] = pct(BN, gn.c);
 
   $app.innerHTML = `
   ${boardHTML(v, waiting)}
   ${S.status === "over" ? winnerHTML(v) : ""}
   <div class="arena${sideOpen() ? " side-open" : ""}">
-    <div class="table k${k}${flashNow ? " flash" : ""}">
-      <div class="rim">${STUDS}<div class="felt"><span class="glint"></span></div></div>
-      ${order.map((i, j) => plateHTML(i, v, waiting, rose(i), plateAt(j)) + playedHTML(S.players[i], zone(j))).join("")}
-      ${P ? plateHTML(v, v, waiting, rose(v), seatPos(50, 101, 50, 99)) + playedHTML(P, `${seatPos(50, 77, 50, 85)};--w:46%;--nw:66%`, " mine") : ""}
+    <div class="table n${nT}${flashNow ? " flash" : ""}" style="--cx:${ccx}%;--cy:${ccy}%;--ncx:${ncx}%;--ncy:${ncy}%;--cw:${nT === 3 ? 30 : 34}%;--ncw:${nT === 3 ? 42 : 48}%">
+      ${tableSVG(gw, BW, "w", "wd")}${tableSVG(gn, BN, "n", "nw")}
+      ${seated.map((i, j) => { const sp = spot(j); return plateHTML(i, v, waiting, rose(i), sp.plate) + playedHTML(S.players[i], sp.zone, i === v ? " mine" : ""); }).join("")}
       <div class="center">
       <div class="piles"><div class="pile"><div class="back" aria-label="${S.deck.length} cards in the draw pile"><span class="mono">W</span><span class="cnt">${S.deck.length}</span></div>Draw pile</div>
         <div class="pile">${topCard != null ? cardHTML(topCard, { cls: "small" }) : `<div class="slot"></div>`}Discard · ${S.discard.length}</div></div>
