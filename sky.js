@@ -135,6 +135,94 @@
     stad = c;
   }
 
+  // ---- each house's common room, layered over the ceiling once you're sorted ----
+  // Gryffindor tower: firelight and rising embers. Slytherin dungeon under the lake: rippling green water-light and
+  // bubbles. Ravenclaw tower's star-painted dome: constellations drawing themselves. Hufflepuff's earthy cellar:
+  // golden light shafts and drifting seeds. It fades in and out with the house, so the sorting crossfades.
+  let embers = [], bubbles = [], seeds = [], consts = [], atmos = { gryffindor: 0, slytherin: 0, ravenclaw: 0, hufflepuff: 0 };
+  function seedAtmos() {
+    const n = W < 600 ? .5 : 1;
+    embers = Array.from({ length: Math.round(70 * n) }, () => ({ x: rnd() * W, y: H + rnd() * H, v: 20 + rnd() * 50, r: .8 + rnd() * 1.8, p: rnd() * TAU, life: rnd() }));
+    bubbles = Array.from({ length: Math.round(40 * n) }, () => ({ x: rnd() * W, y: H + rnd() * H, v: 14 + rnd() * 30, r: 1.5 + rnd() * 4, p: rnd() * TAU }));
+    seeds = Array.from({ length: Math.round(45 * n) }, () => ({ x: rnd() * W, y: rnd() * H, vx: 6 + rnd() * 14, vy: -3 + rnd() * 6, r: 1 + rnd() * 1.6, p: rnd() * TAU }));
+    // a handful of constellations: a chain of stars in a small region, revealed segment by segment
+    consts = Array.from({ length: W < 600 ? 3 : 6 }, (_, i) => { const cx = W * (.1 + .8 * rnd()), cy = H * (.08 + .55 * rnd()), k = 4 + Math.floor(rnd() * 3);
+      let x = cx, y = cy; return { pts: Array.from({ length: k }, () => { x += (rnd() - .4) * 70; y += (rnd() - .5) * 50; return [x, y]; }), off: i * 2.3 }; });
+  }
+  function drawAtmos(t, dt) {
+    const want = root.dataset.screen === "game" ? root.dataset.house : "";
+    for (const k in atmos) atmos[k] += ((k === want ? 1 : 0) - atmos[k]) * (dt ? Math.min(1, dt / 900) : 1);
+    const sec = dt / 1000;
+    if (atmos.gryffindor > .01) {
+      const a = atmos.gryffindor, fl = .85 + .15 * Math.sin(t * .004) * Math.sin(t * .0023);
+      const g = ctx.createRadialGradient(W / 2, H * 1.15, 0, W / 2, H * 1.15, Math.max(W, H) * .9);
+      g.addColorStop(0, `rgba(255,120,40,${.38 * a * fl})`); g.addColorStop(.45, `rgba(200,40,30,${.16 * a})`); g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = "lighter";
+      for (const e of embers) {
+        e.y -= e.v * sec; e.x += Math.sin(t * .0015 + e.p) * 12 * sec; e.life -= sec * .12;
+        if (e.y < -10 || e.life <= 0) { e.y = H + 10; e.x = rnd() * W; e.life = 1; }
+        ctx.globalAlpha = a * Math.min(1, e.life * 1.4) * .9; ctx.fillStyle = e.life > .6 ? "#ffd27a" : "#ff7a2e";
+        ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, TAU); ctx.fill();
+      }
+      ctx.globalCompositeOperation = "source-over";
+    }
+    if (atmos.slytherin > .01) {
+      const a = atmos.slytherin;
+      ctx.globalAlpha = .22 * a; ctx.fillStyle = "#0e5a3a"; ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = "lighter";
+      // caustics: soft wavering bands of light, as through lake water
+      for (let i = 0; i < 9; i++) {
+        const y = H * (i / 9) + Math.sin(t * .0006 + i) * 30, amp = 18 + i * 3;
+        ctx.globalAlpha = .07 * a; ctx.strokeStyle = "#7dffc2"; ctx.lineWidth = 10 + (i % 3) * 8;
+        ctx.beginPath();
+        for (let x = -20; x <= W + 20; x += 24) ctx.lineTo(x, y + Math.sin(x * .012 + t * .0011 + i * 1.7) * amp);
+        ctx.stroke();
+      }
+      for (const b of bubbles) {
+        b.y -= b.v * sec; b.x += Math.sin(t * .002 + b.p) * 10 * sec;
+        if (b.y < -10) { b.y = H + 10; b.x = rnd() * W; }
+        ctx.globalAlpha = .35 * a; ctx.strokeStyle = "#b8ffe0"; ctx.lineWidth = .8;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, TAU); ctx.stroke();
+        ctx.globalAlpha = .5 * a; ctx.fillStyle = "#e8fff4"; ctx.beginPath(); ctx.arc(b.x - b.r * .35, b.y - b.r * .35, b.r * .25, 0, TAU); ctx.fill();
+      }
+      ctx.globalCompositeOperation = "source-over";
+    }
+    if (atmos.ravenclaw > .01) {
+      const a = atmos.ravenclaw;
+      ctx.globalAlpha = .12 * a; ctx.fillStyle = "#1d3fa8"; ctx.fillRect(0, 0, W, H);
+      for (const c of consts) {
+        const cycle = ((t / 1000 + c.off) % 14) / 14, reveal = Math.min(1, cycle * 2.2), fade = cycle > .8 ? (1 - cycle) / .2 : 1, n = c.pts.length - 1;
+        ctx.globalAlpha = .55 * a * fade; ctx.strokeStyle = "#cfa86a"; ctx.lineWidth = .9; ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(c.pts[0][0], c.pts[0][1]);
+        for (let i = 1; i <= n; i++) { const f = Math.max(0, Math.min(1, reveal * n - (i - 1))); if (!f) break;
+          const [x0, y0] = c.pts[i - 1], [x1, y1] = c.pts[i]; ctx.lineTo(x0 + (x1 - x0) * f, y0 + (y1 - y0) * f); }
+        ctx.stroke(); ctx.setLineDash([]);
+        c.pts.forEach(([x, y], i) => { ctx.globalAlpha = a * fade * (.6 + .4 * Math.sin(t * .003 + i)); ctx.fillStyle = "#fff4dc";
+          ctx.beginPath(); ctx.arc(x, y, 1.8, 0, TAU); ctx.fill(); ctx.globalAlpha *= .3; ctx.beginPath(); ctx.arc(x, y, 5, 0, TAU); ctx.fill(); });
+      }
+    }
+    if (atmos.hufflepuff > .01) {
+      const a = atmos.hufflepuff;
+      ctx.globalAlpha = .1 * a; ctx.fillStyle = "#b8860b"; ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = "lighter";
+      for (let i = 0; i < 4; i++) {   // light shafts slanting down from round windows
+        const x = W * (.15 + i * .25) + Math.sin(t * .0003 + i) * 20, sh = ctx.createLinearGradient(x, 0, x + W * .15, H);
+        sh.addColorStop(0, `rgba(255,214,120,${.13 * a})`); sh.addColorStop(1, "rgba(255,214,120,0)");
+        ctx.globalAlpha = 1; ctx.fillStyle = sh; ctx.beginPath(); ctx.moveTo(x - 30, 0); ctx.lineTo(x + 30, 0); ctx.lineTo(x + W * .2, H); ctx.lineTo(x + W * .08, H); ctx.closePath(); ctx.fill();
+      }
+      for (const d of seeds) {
+        d.x += d.vx * sec; d.y += (d.vy + Math.sin(t * .001 + d.p) * 6) * sec;
+        if (d.x > W + 10) { d.x = -10; d.y = rnd() * H; }
+        ctx.globalAlpha = .7 * a; ctx.fillStyle = "#fff0b8"; ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, TAU); ctx.fill();
+        ctx.globalAlpha = .25 * a; ctx.strokeStyle = "#fff0b8"; ctx.lineWidth = .6;
+        for (let k = 0; k < 5; k++) { const ang = k * TAU / 5 + d.p; ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + Math.cos(ang) * 4, d.y + Math.sin(ang) * 4); ctx.stroke(); }
+      }
+      ctx.globalCompositeOperation = "source-over";
+    }
+    ctx.globalAlpha = 1;
+  }
+
   // Floating candles of the Great Hall: they bob and flicker, and fade out during a game so nothing peeks between panels.
   let candles = [], candleAlpha = 1;
   function seedCandles() {
@@ -173,7 +261,7 @@
     W = innerWidth; H = innerHeight;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    colKey = ""; seed(); seedCandles(); paintStadium(); readColours(performance.now(), true);
+    colKey = ""; seed(); seedCandles(); seedAtmos(); paintStadium(); readColours(performance.now(), true);
     draw(performance.now(), 0);
   }
 
@@ -295,6 +383,7 @@
     candleAlpha += (want - candleAlpha) * (dt ? Math.min(1, dt / 400) : 1);
     if (candleAlpha > .02) { ctx.globalAlpha = candleAlpha; for (const cd of candles) candle(cd, t); ctx.globalAlpha = 1; }
     for (const f of flyers) if (!f.far && f.wait <= 0) rider(f, t);
+    drawAtmos(t, dt);
     if (dt) moveSnitch(dt, t);
     drawSnitch(t);
     ctx.globalAlpha = 1;
