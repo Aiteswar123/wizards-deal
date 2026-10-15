@@ -390,7 +390,7 @@
       default: return "Unknown spell.";
     }
 
-    take(P.hand, act.card); s.plays++;
+    take(P.hand, act.card); s.plays++; P.casts = (P.casts || 0) + 1;
     stamp(s, a, k, { col: prm.col || null, t: tg ? (tg.length > 1 ? -1 : tg[0].p) : null });
     const label = k === "accio2" || k === "accioAny" ? `Accio (${COLORS[prm.col].n})` : c.name;
     if (k === "geminio") {
@@ -606,5 +606,27 @@
     return changed ? s : null;
   }
 
-  G.Engine = { BASE, MAX_PLAYERS, decksFor, handLimit, has, copyReady, umbridgeLimits, TURN_MS, RESPOND_MS, autoPay, syncClock, expire, COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, payable, harryGuards, newGame, apply, waitingOn, shuffle };
+  // ---- ranking ----
+  // EXP for a finished game. Places: the winner first, then everyone else by complete sets, then total value on the table.
+  // Winner 100 + 10 per player beyond 2; 2nd 60; 3rd 45; everyone else 30. Everyone adds 10 per complete set and
+  // 3 per spell cast (up to 15).
+  function awards(s) {
+    if (s.status !== "over" || s.winner == null) return [];
+    const n = s.players.length, others = s.players.map((p, i) => i).filter(i => i !== s.winner)
+      .sort((x, y) => completeCols(s.players[y]).length - completeCols(s.players[x]).length || worth(s.players[y]) - worth(s.players[x]));
+    const order = [s.winner, ...others];
+    return s.players.map((p, i) => {
+      const place = order.indexOf(i) + 1, sets = completeCols(p).length, casts = p.casts || 0;
+      const base = place === 1 ? 100 + 10 * (n - 2) : place === 2 ? 60 : place === 3 ? 45 : 30;
+      return { p: i, nick: p.nick || "", place, sets, casts, xp: base + 10 * sets + Math.min(15, 3 * casts), won: place === 1 };
+    });
+  }
+  // Level 2 at 100 EXP; each level needs 50 more than the last (100, 150, 200...).
+  function levelFor(xp) {
+    let level = 1, need = 100, floor = 0;
+    while (xp >= floor + need) { floor += need; level++; need += 50; }
+    return { level, into: xp - floor, need };
+  }
+
+  G.Engine = { awards, levelFor, BASE, MAX_PLAYERS, decksFor, handLimit, has, copyReady, umbridgeLimits, TURN_MS, RESPOND_MS, autoPay, syncClock, expire, COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, payable, harryGuards, newGame, apply, waitingOn, shuffle };
 })(typeof window !== "undefined" ? window : globalThis);

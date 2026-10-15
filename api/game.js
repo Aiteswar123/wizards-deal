@@ -73,6 +73,34 @@ async function lobbies() {
     .map(g => ({ code: g.code, host: (g.players.find(p => p.uid === g.host) || {}).nick || "A wizard", count: g.players.length }));
 }
 
+// ---- ranking: one shared record of every player, matched by name (ignoring capitals and spaces) ----
+const RANK_KEY = "wd:ranking";
+const profileKey = nick => String(nick || "").trim().toLowerCase().replace(/s+/g, " ");
+async function loadRanking() { const v = await redis(["GET", RANK_KEY]); return v ? JSON.parse(v) : {}; }
+// Adds a finished game's EXP to everyone's record, once per game.
+async function recordGame(g) {
+  if (g.status !== "over" || g.recorded) return;
+  const list = E.awards(g);
+  g.recorded = true; g.awards = list;
+  await withLock("RANKING", async () => {
+    const r = await loadRanking();
+    for (const a of list) {
+      const k = profileKey(a.nick); if (!k) continue;
+      const p = r[k] || { name: a.nick, xp: 0, games: 0, wins: 0 };
+      const before = E.levelFor(p.xp).level;
+      p.name = a.nick; p.xp += a.xp; p.games += 1; p.wins += a.won ? 1 : 0; p.last = Date.now();
+      a.total = p.xp; a.level = E.levelFor(p.xp).level; a.levelUp = a.level > before;
+      r[k] = p;
+    }
+    await redis(["SET", RANK_KEY, JSON.stringify(r)]);
+  });
+}
+async function ranking() {
+  const r = await loadRanking();
+  return Object.values(r).sort((a, b) => b.xp - a.xp || b.wins - a.wins).slice(0, 100)
+    .map(p => Object.assign({ name: p.name, xp: p.xp, games: p.games, wins: p.wins }, E.levelFor(p.xp)));
+}
+
 // Applies anything the turn clock says has run out (a turn ending, an unanswered spell) and saves it.
 // Every device polls about once a second, so time runs out on schedule even if nobody acts.
 async function settleClock(code, g) {
@@ -82,6 +110,7 @@ async function settleClock(code, g) {
     const next = cur && E.expire(cur, Date.now());
     if (!next) return cur;
     next.tokens = cur.tokens; next.v = (cur.v || 0) + 1; next.updated = Date.now();
+    await recordGame(next);
     await save(code, next);
     return next;
   });
@@ -91,6 +120,7 @@ async function handle(req) {
   const q = req.method === "GET" ? req.query : (req.body || {});
   if (req.method === "GET") {
     if (q.list) return { lobbies: await lobbies() };
+    if (q.ranking) return { ranking: await ranking() };
     const code = String(q.code || "").toUpperCase();
     const g = await settleClock(code, await load(code));
     if (!g) return { gone: true };
@@ -154,7 +184,7 @@ async function handle(req) {
         break;
       case "again":
         if (g.host !== pid || g.status !== "over") fail("Only the table owner can start a rematch.");
-        next = { status: "lobby", code, host: g.host, created: Date.now(), tokens: g.tokens, players: g.players.map(p => ({ uid: p.uid, nick: p.nick })) };
+        next = { status: "lobby", recorded: false, code, host: g.host, created: Date.now(), tokens: g.tokens, players: g.players.map(p => ({ uid: p.uid, nick: p.nick })) };
         await redis(["ZADD", "wd:lobbies", String(next.created), code]);
         break;
       case "act": {
@@ -169,6 +199,7 @@ async function handle(req) {
     const before = next === g ? JSON.parse(JSON.stringify(g)) : g;
     E.syncClock(before, next, Date.now());
     next.v = (g.v || 0) + 1; next.updated = Date.now();
+    await recordGame(next);
     await save(code, next);
     return { game: view(next, pid), now: Date.now() };
   });

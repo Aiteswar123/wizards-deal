@@ -253,6 +253,28 @@ input::placeholder{color:var(--dim);opacity:1}
 .fxspark{position:fixed;z-index:36;width:7px;height:7px;border-radius:50%;pointer-events:none;box-shadow:0 0 8px currentColor}
 .fxtext{position:fixed;z-index:36;pointer-events:none;font:700 1.5rem/1 var(--magic);text-shadow:0 3px 10px rgba(0,0,0,.7);white-space:nowrap}
 .fxcanvas{position:fixed;inset:0;z-index:34;pointer-events:none;width:100%;height:100%}
+.ranks{margin-top:1.5rem;background:var(--board);border-radius:8px;padding:1.4rem;box-shadow:0 18px 30px -18px rgba(0,0,0,.8)}
+.ranks header{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:.6rem}
+.ranks h2{font:700 1.9rem/1 var(--magic)}
+.ranklist li{display:grid;grid-template-columns:2.2rem minmax(8rem,1fr) 5.5rem repeat(4,minmax(4rem,auto));align-items:center;gap:.4rem 1rem;padding:.7rem .2rem;border-top:1px solid var(--board-2)}
+.ranklist li.me{background:color-mix(in srgb,var(--crest) 9%,transparent);border-radius:6px}
+.rk{width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;font:700 1rem/1 var(--display);color:var(--chalk);box-shadow:inset 0 0 0 1.5px var(--m,var(--line-2))}
+.ranklist li:nth-child(-n+3) .rk{background:color-mix(in srgb,var(--m) 22%,transparent);color:var(--m)}
+.rn b{display:block;font:700 1.05rem/1.2 var(--label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lvbar{display:block;height:4px;border-radius:2px;background:var(--board-2);margin-top:.35rem;overflow:hidden}
+.lvbar i{display:block;height:100%;background:var(--crest)}
+.lv{font:600 .85rem/1 var(--label);color:var(--muted)}.lv b{font:700 1.3rem/1 var(--magic);color:var(--crest);margin-left:.2rem}
+.st{font:600 .82rem/1 var(--label);color:var(--muted);text-align:right}.st b{color:var(--chalk);font-size:1rem}
+@media (max-width:760px){.ranklist li{grid-template-columns:2rem minmax(0,1fr) auto;grid-template-areas:"rk rn lv" "rk st st"}.ranklist .st{display:none}.ranklist .st:first-of-type{display:block;grid-column:2/4;text-align:left}}
+.awards{display:flex;flex-direction:column;gap:.35rem;width:min(28rem,100%);margin:.3rem auto}
+.awards li{display:grid;grid-template-columns:1.8rem 1fr auto auto;align-items:center;gap:.7rem;padding:.45rem .7rem;border-radius:6px;background:var(--board-2);animation:awardin .5s var(--ease) both}
+.awards li:nth-child(2){animation-delay:.12s}.awards li:nth-child(3){animation-delay:.24s}.awards li:nth-child(n+4){animation-delay:.36s}
+@keyframes awardin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.awards li.me{box-shadow:inset 0 0 0 1px var(--crest)}
+.ap{font:700 1rem/1 var(--display);color:var(--crest)}
+.awards b{text-align:left;font:700 1rem/1.1 var(--label)}
+.ax{font:700 1rem/1 var(--display);color:var(--ok)}
+.al{font:600 .82rem/1 var(--label);color:var(--muted)}.al em{font-style:normal;color:var(--crest);margin-left:.3rem}
 .answerclock{font:600 .9rem/1.3 var(--label);letter-spacing:.03em;color:var(--warn)}
 .answerclock b{font-family:var(--display);font-size:1.05rem;font-variant-numeric:tabular-nums}
 .plate .turnlight{color:var(--live);box-shadow:inset 0 0 0 1px var(--live)}
@@ -674,8 +696,10 @@ async function poll() {
     await sleep(document.hidden ? 5000 : 1200);
   }
 }
+let rankingList = [];
 async function pollLobbies() {
   while (view === "home") {
+    try { const r = (await (await fetch("/api/game?ranking=1", { cache: "no-store" })).json()).ranking || []; if (JSON.stringify(r) !== JSON.stringify(rankingList)) { rankingList = r; if (view === "home") renderHome(); } } catch (e) {}
     try { const j = await (await fetch("/api/game?list=1", { cache: "no-store" })).json(); const next = j.lobbies || []; if (JSON.stringify(next) !== JSON.stringify(lobbies)) { lobbies = next; if (view === "home") renderHome(); } } catch (e) {}
     await sleep(4000);
   }
@@ -763,6 +787,20 @@ function refHTML() {
   </div></details>`;
 }
 
+// The leaderboard: everyone who has finished a game, by total EXP.
+function rankingHTML() {
+  const mine = (LS.get("wd-nick") || "").trim().toLowerCase().replace(/s+/g, " ");
+  const medal = ["#e8c25a", "#c9ced8", "#c58a52"];
+  return `<section class="ranks"><header><h2>Hall of Fame</h2><span class="lbl">${rankingList.length ? rankingList.length + " wizards" : "All-time"}</span></header>
+    ${rankingList.length ? `<ol class="ranklist">${rankingList.map((r, i) => `<li class="${r.name.trim().toLowerCase().replace(/s+/g, " ") === mine ? "me" : ""}">
+      <span class="rk" style="${i < 3 ? `--m:${medal[i]}` : ""}">${i + 1}</span>
+      <span class="rn"><b>${esc(r.name)}</b><span class="lvbar" title="${r.into} of ${r.need} EXP to level ${r.level + 1}"><i style="width:${Math.round(100 * r.into / r.need)}%"></i></span></span>
+      <span class="lv">Level <b>${r.level}</b></span>
+      <span class="st"><b>${r.xp}</b> EXP</span><span class="st"><b>${r.wins}</b> wins</span><span class="st"><b>${r.games}</b> games</span><span class="st"><b>${r.games ? Math.round(100 * r.wins / r.games) : 0}%</b> won</span></li>`).join("")}</ol>`
+      : `<p class="muted">No finished games yet. Every player earns EXP when a game ends; the winner earns the most.</p>`}
+    <p class="fine" style="margin-top:.9rem">EXP per game: winner 100 + 10 for each player beyond 2 · 2nd 60 · 3rd 45 · others 30 · +10 per complete set · +3 per spell cast (up to 15). Players are matched by name.</p></section>`;
+}
+
 function renderHome() {
   const last = LS.get("wd-last");
   const typed = document.getElementById("myname");
@@ -790,6 +828,7 @@ function renderHome() {
         : `<p class="nofix">No open tables right now. Create one and share the code with your friends.</p>`}</section>
   </div>
   ${refHTML()}
+  ${rankingHTML()}
   <p class="fine">Fan-made and unofficial; not affiliated with Hasbro or Warner Bros. Item names are stand-ins where the real card names weren't available.</p>`;
   if (focus === "myname" || focus === "joincode") { const el = document.getElementById(focus); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
 }
@@ -1112,6 +1151,7 @@ function winnerHTML(v) {
   const sets = E.completeCols(S.players[S.winner]);
   return `<div class="winner${v === S.winner ? " you" : ""}"><span class="lbl">Full time</span><h2>${v === S.winner ? "You win!" : esc(nameOf(S.winner)) + " wins!"}</h2>
     <p class="muted">${sets.map(c => swatch(c) + colName(c)).join(", ")} sets completed.</p>
+    ${S.awards && S.awards.length ? `<ol class="awards">${S.awards.slice().sort((a, b) => a.place - b.place).map(a => `<li class="${a.p === v ? "me" : ""}"><span class="ap">${a.place}</span><b>${esc(a.p === v ? "You" : nameOf(a.p))}</b><span class="ax">+${a.xp} EXP</span><span class="al">${a.level ? `Level ${a.level}${a.levelUp ? ` <em>Level up!</em>` : ""}` : ""}</span></li>`).join("")}</ol>` : ""}
     <div class="row" style="justify-content:center">${S.host === me ? `<button class="btn primary" data-a="again">Play again with this table</button>` : `<span class="muted">The table owner can start a rematch.</span>`}<button class="btn ghost" data-a="home">Leave table</button></div></div>`;
 }
 function charControls(v) {
