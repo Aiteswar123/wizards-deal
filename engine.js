@@ -103,6 +103,8 @@
     }
   }
   function log(s, m) { s.log.push(m); if (s.log.length > 40) s.log.splice(0, s.log.length - 40); }
+  // Every spell cast (and every Protego) is stamped so each screen can play the cut-in once.
+  function stamp(s, p, k, extra) { s.lastCast = Object.assign({ n: ((s.lastCast && s.lastCast.n) || 0) + 1, p, k }, extra || {}); }
   const take = (arr, id) => { const i = arr.indexOf(id); if (i < 0) return false; arr.splice(i, 1); return true; };
 
   function newGame(players) {
@@ -282,6 +284,7 @@
     }
 
     take(P.hand, act.card); s.plays++;
+    stamp(s, a, k, { col: prm.col || null, t: tg ? (tg.length > 1 ? -1 : tg[0].p) : null });
     const label = k === "accio2" || k === "accioAny" ? `Accio (${COLORS[prm.col].n})` : c.name;
     if (k === "geminio") {
       drawN(s, P, 2); s.discard.push(act.card);
@@ -309,6 +312,7 @@
       const pid = P.hand.find(id => card(id).k === "protego");
       if (pid == null) return "You have no Protego.";
       take(P.hand, pid); s.discard.push(pid); t.st = "counter";
+      stamp(s, a, "protego", { t: pd.caster });
       log(s, `@${a} blocked it with Protego!`);
     } else if (act.choice === "accept") {
       if (PAY_KINDS.includes(pd.k)) {
@@ -343,6 +347,7 @@
       const pid = P.hand.find(id => card(id).k === "protego");
       if (pid == null) return "You have no Protego.";
       take(P.hand, pid); s.discard.push(pid); t.st = "respond";
+      stamp(s, a, "protego", { t: act.p });
       log(s, `@${a} answered with their own Protego!`);
     } else {
       t.st = "done"; t.blocked = true;

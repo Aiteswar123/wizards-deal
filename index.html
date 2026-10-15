@@ -178,6 +178,30 @@ button.card:hover{transform:translateY(-4px)}
 .felt.flash{animation:yourturn .9s cubic-bezier(.16,1,.3,1) 2}
 .felt.flash .say{animation:sayin .6s cubic-bezier(.16,1,.3,1)}
 @keyframes sayin{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* Spell cut-in */
+.ci{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(8,6,14,0);transition:background .25s;cursor:pointer;overflow:hidden}
+.ci.on{background:rgba(8,6,14,.6)}
+.ci.out{background:rgba(8,6,14,0)}
+.ci-band{position:relative;width:100%;height:min(46vh,24rem);clip-path:polygon(0 20%,100% 0,100% 80%,0 100%);transform:translateX(-105%);background:#0d0a14;overflow:hidden}
+.ci.on .ci-band{animation:ci-in .34s cubic-bezier(.16,1,.3,1) forwards}
+.ci.out .ci-band{animation:ci-out .36s cubic-bezier(.7,0,.84,0) forwards}
+@keyframes ci-in{from{transform:translateX(-105%) skewX(-10deg)}to{transform:none}}
+@keyframes ci-out{from{transform:none}to{transform:translateX(105%) skewX(-10deg)}}
+.ci-burst{position:absolute;inset:0;background:radial-gradient(ellipse 60% 90% at 26% 55%,rgba(255,255,255,.55) 0%,var(--ci) 20%,color-mix(in srgb,var(--ci) 40%,#0d0a14) 50%,#0d0a14 82%)}
+.ci-streaks i{position:absolute;left:-60%;width:55%;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--ci2),transparent);animation:ci-streak .6s linear infinite}
+@keyframes ci-streak{from{transform:translateX(0)}to{transform:translateX(330%)}}
+.ci-art{position:absolute;left:6%;bottom:-34%;height:128%;aspect-ratio:270/320;animation:ci-art 1.7s cubic-bezier(.16,1,.3,1) both}
+@keyframes ci-art{from{transform:translateX(-16%) scale(1.12)}to{transform:translateX(0) scale(1)}}
+.ci-fig{width:100%;height:100%;filter:drop-shadow(0 14px 20px rgba(0,0,0,.65))}
+.ci-spark{transform-box:fill-box;transform-origin:center;animation:ci-pulse .45s ease-in-out infinite alternate}
+@keyframes ci-pulse{from{transform:scale(.75)}to{transform:scale(1.3)}}
+.ci-text{position:absolute;right:5%;top:50%;transform:translateY(-50%) skewX(-8deg);text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:.35rem;max-width:58%}
+.ci-who{font:800 .8rem/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.ci-call{font-family:var(--display);font-size:clamp(2rem,7.2vw,4.8rem);line-height:.95;color:#fff;text-wrap:balance;text-shadow:0 0 22px var(--ci2),0 6px 14px rgba(0,0,0,.55);animation:ci-slam .5s cubic-bezier(.16,1,.3,1) .12s both}
+@keyframes ci-slam{from{transform:scale(1.6);opacity:0;filter:blur(8px)}to{transform:none;opacity:1;filter:none}}
+.ci-char{font:700 .9rem/1 var(--body);color:#fff;background:color-mix(in srgb,var(--ci) 70%,#0d0a14);padding:.3rem .6rem;border-radius:4px}
+@media (max-width:640px){.ci-band{height:min(40vh,18rem)}.ci-art{left:-6%}.ci-text{max-width:66%;right:4%}}
+@media (prefers-reduced-motion:reduce){.ci .ci-band{transform:none}.ci-streaks{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -186,6 +210,7 @@ button.card:hover{transform:translateY(-4px)}
 <div class="toast" id="toast" hidden></div>
 
 <script src="engine.js"></script>
+<script src="cutin.js"></script>
 <script>
 "use strict";
 const E = window.Engine;
@@ -221,7 +246,7 @@ async function call(op, extra = {}) {
     const j = await r.json();
     if (j.error) { flash(j.error); return null; }
     netDown = false;
-    if (j.game) { S = j.game; code = S.code; view = "game"; LS.set("wd-last", code); render(); }
+    if (j.game) { S = j.game; code = S.code; view = "game"; LS.set("wd-last", code); render(); gotState(); }
     return j;
   } catch (e) { flash("Couldn't reach the game server. Check your connection."); return null; }
 }
@@ -245,7 +270,7 @@ async function poll() {
       if (gen !== pollGen) return;
       if (netDown) { netDown = false; render(); }
       if (j.gone) { flash("That table has closed."); return goHome(); }
-      if (j.game) { S = j.game; render(); }
+      if (j.game) { S = j.game; render(); gotState(); }
     } catch (e) { if (!netDown) { netDown = true; render(); } }
     await sleep(document.hidden ? 5000 : 1200);
   }
@@ -256,6 +281,7 @@ async function pollLobbies() {
     await sleep(4000);
   }
 }
+function gotState() { if (window.CutIn) window.CutIn.observe(S, nameOf, mySeat()); }
 function enter(c) { code = c; poll(); }
 function goHome() { pollGen++; code = null; S = null; view = "home"; ui = freshUI(); render(); pollLobbies(); }
 function myName() {
@@ -648,7 +674,7 @@ $app.addEventListener("change", e => {
   if (last) {
     try {
       const j = await (await fetch(`/api/game?code=${last}&pid=${me}`, { cache: "no-store" })).json();
-      if (j.game && j.game.players.some(p => p.uid === me) && j.game.status !== "closed") { S = j.game; code = last; view = "game"; render(); return poll(); }
+      if (j.game && j.game.players.some(p => p.uid === me) && j.game.status !== "closed") { S = j.game; code = last; view = "game"; render(); gotState(); return poll(); }
     } catch (e) {}
   }
   pollLobbies();
