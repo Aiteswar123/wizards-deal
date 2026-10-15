@@ -43,7 +43,8 @@ House kit colours (`HOUSES`) for jersey stripes and shields: Gryffindor `#c8282e
 - **Top bar** (`.board`): your house banner, the wordmark, the table code, Leave, and a "Latest" commentary line.
 - **The table** (`.table`): a dark oak oval with a gold inlay. Its cloth (`--felt`) is in your house colour, with a fine noise texture and a crest-coloured ring under the piles. When it becomes your move, a candle-glint sweeps across once (`.flash`).
 - **Seats around the table**: every player sits on a name plate on the rim (`plateHTML`). Each plate shows their shield, name, character, three set pips that light as sets complete, cards in hand and Galleons banked, plus an "On turn" or "Responding" tag. You sit at the bottom. Positions come from `SEATS` presets for 1 to 5 opponents, with separate wide and narrow (≤760px) layouts.
-- **Played cards on the table** (`playedHTML`): in front of each plate, that player's items lie on the cloth as small foil cards stacked by colour, with "2/3" counts and a check on complete sets. Hovering a stack lists the item names. Full detail sits in the "Everyone's cards in detail" fold-out below.
+- **Played cards on the table** (`playedHTML`): in front of each plate, that player's items lie on the cloth as small foil cards stacked by colour, with "2/3" counts and a check on complete sets. Hovering a stack lists the item names. Full detail sits in the side panel.
+- **Players' cards side panel** (`.side`): every other player's cards in full (shield, hand and set counts, every set with item names and charge, bank). A "Players' cards" button in the top bar and a Hide button show and hide it. It sits beside the table from 1000px and slides in from the right as a drawer on phones (tap outside or press Escape to close). It starts open on wide screens and closed on phones, and remembers your choice on the device (`wd-side`).
 - **Sets at one fixed scale**: every set shows fixed-width slots (`.slots`) on a shared baseline, so progress compares across players at a glance.
 - **Stamps** (`.stamp`): blocked spells and chosen cards are stamped, never silently removed ("Protego", "Blocked", "Chosen", "Full time").
 - **Enchanted ceiling** (`sky.js`): a canvas behind every screen with twinkling stars, drifting cloud, an occasional shooting star and floating candles. It reads its light from `--board`, `--stand` and `--crest`, so it changes with your house. Candles float on the home and lobby screens and fade out during a game. It runs at about 30fps, stops while the tab is hidden, and holds a single still frame when reduced motion is on.
@@ -58,7 +59,7 @@ House kit colours (`HOUSES`) for jersey stripes and shields: Gryffindor `#c8282e
 
 ## Layout
 
-- One column at every width: top bar, the table with everyone around it, then the action panel and your hand, your seat in detail, the fold-out of everyone's cards, table talk, and how to play.
+- One column at every width: top bar, the table with everyone around it, then the action panel and your hand, your seat in detail, table talk, and how to play. With the side panel open on a wide screen, the table, panel and seat share the left column and the side panel takes a sticky right column.
 - On phones the table turns into a tall oval, with opponents along the top and sides. From 1000px the action panel and the hand sit side by side, and the hand wraps instead of scrolling.
 - 16px side gutter; the scoreboard bleeds to the edges.
 

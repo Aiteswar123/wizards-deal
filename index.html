@@ -182,7 +182,7 @@ input::placeholder{color:var(--dim);opacity:1}
 .conn{font:600 .85rem/1 var(--label);letter-spacing:.06em;color:var(--warn)}
 
 /* Arena */
-.arena{display:grid;gap:1.1rem;margin-top:.6rem;grid-template-columns:minmax(0,1fr);grid-template-areas:"pitch" "zone" "me" "opps";align-items:start}
+.arena{display:grid;gap:1.1rem;margin-top:.6rem;grid-template-columns:minmax(0,1fr);grid-template-areas:"pitch" "zone" "me";align-items:start}
 @media (min-width:1000px){.zone{grid-template-columns:minmax(17rem,21rem) minmax(0,1fr);align-items:start}}
 
 /* The table: an oak oval with a gold inlay, its cloth in your house colour. Players sit around the rim on name plates;
@@ -237,8 +237,26 @@ input::placeholder{color:var(--dim);opacity:1}
 .stack small{font:700 .72rem/1 var(--label);letter-spacing:.05em;color:var(--chalk);display:inline-flex;align-items:center;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 .stack.done small{color:var(--ok)}
 .nothing{font:italic 500 .8rem/1.2 var(--body);color:color-mix(in srgb,var(--chalk) 55%,transparent)}
-.oppsd{grid-area:opps;margin-top:0}
-.oppgrid{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));padding-bottom:1.25rem}
+/* Side panel: every other player's cards in full, beside the table on wide screens and as a slide-in drawer on phones. */
+.side{grid-area:side;display:none;min-width:0}
+.sidehead{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.75rem}
+.sidehead h2{font:700 1.7rem/1 var(--magic)}
+.sidelist{display:flex;flex-direction:column;gap:.75rem}
+.scrim{display:none}
+.ico{width:1.05rem;height:1.05rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sidebtn[aria-expanded=true]{border-color:var(--crest);color:var(--crest)}
+@media (min-width:1000px){
+  .arena.side-open{grid-template-columns:minmax(0,1fr) minmax(19rem,25rem);grid-template-areas:"pitch side" "zone side" "me side"}
+  .arena.side-open .side{display:block;position:sticky;top:1rem;max-height:calc(100vh - 2rem);overflow:auto;padding-right:.3rem;scrollbar-width:thin}
+}
+@media (max-width:999px){
+  .side{display:block;position:fixed;top:0;right:0;bottom:0;z-index:25;width:min(24rem,90vw);overflow:auto;overscroll-behavior:contain;padding:1rem 1rem calc(1.5rem + env(safe-area-inset-bottom,0px));
+    background:var(--stand);box-shadow:-24px 0 40px -12px rgba(0,0,0,.75);transform:translateX(105%);visibility:hidden;transition:transform .35s var(--ease),visibility 0s .35s}
+  .arena.side-open .side{transform:none;visibility:visible;transition:transform .35s var(--ease),visibility 0s}
+  .scrim{display:block;position:fixed;inset:0;z-index:24;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .3s}
+  .arena.side-open .scrim{opacity:1;pointer-events:auto}
+}
+@media (max-width:480px){.sidebtn .sbl{display:none}}
 @media (max-width:760px){
   .table{height:38rem;margin:2.6rem 0 2.6rem}
   .table.k1,.table.k2,.table.k3{height:33rem}
@@ -494,6 +512,13 @@ let code = null;
 let lobbies = [];
 let netDown = false;
 let ui = freshUI();
+// The players' cards side panel: open by default on wide screens, remembered per device once toggled.
+const sideOpen = () => { const s = LS.get("wd-side"); return s == null ? !!(window.matchMedia && matchMedia("(min-width:1000px)").matches) : !!s; };
+function setSide(open) {
+  LS.set("wd-side", open);
+  const a = document.querySelector(".arena"); if (a) a.classList.toggle("side-open", open);
+  document.querySelectorAll(".sidebtn").forEach(b => b.setAttribute("aria-expanded", String(open)));
+}
 function freshUI() { return { sel: null, step: {}, mode: null, picks: [], pay: [], payKey: "", seat: -2 }; }
 
 // ---------- server ----------
@@ -750,8 +775,8 @@ function statsHTML(p) {
 
 // Seats around the table: [plate x, plate y, played x, played y] in % of the table, for wide and narrow screens, by number of opponents.
 const SEATS = {
-  wide: { 1: [[50, 1, 50, 25]], 2: [[25, 7, 30, 28], [75, 7, 70, 28]], 3: [[9, 46, 22, 47], [50, 1, 50, 23], [91, 46, 78, 47]],
-    4: [[9, 50, 21, 52], [29, 4, 33, 25], [71, 4, 67, 25], [91, 50, 79, 52]], 5: [[9, 62, 21, 63], [14, 14, 27, 30], [50, 1, 50, 23], [86, 14, 73, 30], [91, 62, 79, 63]] },
+  wide: { 1: [[50, 1, 50, 25]], 2: [[25, 7, 30, 28], [75, 7, 70, 28]], 3: [[9, 46, 25, 47], [50, 1, 50, 23], [91, 46, 75, 47]],
+    4: [[9, 50, 25, 52], [29, 4, 33, 25], [71, 4, 67, 25], [91, 50, 75, 52]], 5: [[9, 62, 25, 63], [14, 14, 29, 30], [50, 1, 50, 23], [86, 14, 71, 30], [91, 62, 75, 63]] },
   narrow: { 1: [[50, 1, 50, 20]], 2: [[27, 1, 27, 20], [73, 1, 73, 20]], 3: [[17, 1, 17, 20], [50, 1, 50, 22], [83, 1, 83, 20]],
     4: [[14, 26, 20, 42], [33, 1, 33, 17], [67, 1, 67, 17], [86, 26, 80, 42]], 5: [[14, 36, 18, 48], [14, 6, 22, 22], [50, 1, 50, 18], [86, 6, 78, 22], [86, 36, 82, 48]] }
 };
@@ -791,7 +816,7 @@ function boardHTML(v, waiting) {
   const mine = v >= 0 ? S.players[v] : null, H = mine && houseOf(mine.char);
   return `<header class="board">
     ${H ? `<div class="houseband">${shield(mine.char)}<b>${H.n}</b><span>${E.CHARS[mine.char].n} · ${H.trait}</span></div>` : ""}
-    <div class="board-top"><span class="mark">Wizard's Deal</span><span class="tcode">Table <b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}<button class="btn ghost small" data-a="home">Leave table</button></div>
+    <div class="board-top"><span class="mark">Wizard's Deal</span><span class="tcode">Table <b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}<button class="btn ghost small sidebtn" data-a="side" aria-controls="side" aria-expanded="${sideOpen()}"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICON.geminio}</svg><span class="sbl">Players' cards</span></button><button class="btn ghost small" data-a="home">Leave table</button></div>
     ${last ? `<p class="ticker"><span class="tl">Latest</span><span>${fmt(last)}</span></p>` : ""}
   </header>`;
 }
@@ -833,7 +858,7 @@ function renderGame() {
   $app.innerHTML = `
   ${boardHTML(v, waiting)}
   ${S.status === "over" ? winnerHTML(v) : ""}
-  <div class="arena">
+  <div class="arena${sideOpen() ? " side-open" : ""}">
     <div class="table k${k}${flashNow ? " flash" : ""}" style="--ncy:${k >= 4 ? 60 : 53}%">
       <div class="rim"><div class="felt"><span class="glint"></span></div></div>
       ${order.map((i, j) => plateHTML(i, v, waiting, rose(i), seatPos(W[j][0], W[j][1], N[j][0], N[j][1])) + playedHTML(S.players[i], zone(i, j))).join("")}
@@ -856,10 +881,11 @@ function renderGame() {
       <div class="mychar">${whoHTML(v, true)}<div class="txt"><p class="power">${esc(E.CHARS[P.char].d)}</p>${charControls(v)}</div></div>
       <div class="mycols"><div><h3>Your table</h3>${tableHTML(P, true, S.status === "play" && S.turn === v && !S.pending)}</div>
       <div><h3>Your bank</h3><div class="bankrow">${bankHTML(P)}</div></div></div></section>` : `<p class="muted" style="grid-area:zone">You're watching this game.</p>`}
-    <details class="ref oppsd"><summary>Everyone's cards in detail</summary><div class="oppgrid">
+    <aside class="side" id="side" aria-label="Other players' cards"><div class="sidehead"><h2>Other players</h2><button class="btn ghost small" data-a="side">Hide</button></div><div class="sidelist">
     ${order.map(i => `<section class="seat${S.turn === i ? " turn" : ""}${waiting.includes(i) && S.pending ? " acting" : ""}" style="${kit(S.players[i].char)}">
       <div class="seathead">${whoHTML(i)}${statsHTML(S.players[i])}</div>
-      ${tableHTML(S.players[i], false, false)}<div class="bankrow"><span class="lbl" style="margin-right:.35rem">Bank</span>${bankHTML(S.players[i])}</div></section>`).join("")}</div></details>
+      ${tableHTML(S.players[i], false, false)}<div class="bankrow"><span class="lbl" style="margin-right:.35rem">Bank</span>${bankHTML(S.players[i])}</div></section>`).join("")}</div></aside>
+    <div class="scrim" data-a="side" aria-hidden="true"></div>
   </div>
   <section class="log"><h2>Table talk</h2><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}${/blocked|Protego!/.test(m) ? `<span class="stamp">Blocked</span>` : /wins!$/.test(m) ? `<span class="stamp win">Full time</span>` : ""}</li>`).join("")}</ol></section>
   ${refHTML()}`;
@@ -1012,6 +1038,7 @@ $app.addEventListener("click", async e => {
     case "joinCode": return joinGame(d.code);
     case "rejoin": return joinGame(LS.get("wd-last"));
     case "home": return goHome();
+    case "side": return setSide(!document.querySelector(".arena")?.classList.contains("side-open"));
     case "copy": try { await navigator.clipboard.writeText(S.code); flash("Code copied", true); } catch (err) { flash("Copy didn't work here. The code is " + S.code + "."); } return;
     case "leaveLobby": { await call("leave"); LS.del("wd-last"); return goHome(); }
     case "start": return call("start");
@@ -1050,6 +1077,7 @@ $app.addEventListener("click", async e => {
     case "yield": return act({ t: "counter", p: num("p"), choice: "yield" });
   }
 });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && document.querySelector(".arena.side-open") && !matchMedia("(min-width:1000px)").matches) setSide(false); });
 $app.addEventListener("submit", e => { if (e.target.id === "joinForm") { e.preventDefault(); joinGame(document.getElementById("joincode").value); } });
 $app.addEventListener("change", e => {
   if (e.target.id === "myname") LS.set("wd-nick", e.target.value.trim().slice(0, 20));
