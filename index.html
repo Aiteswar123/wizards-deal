@@ -27,7 +27,7 @@
   --muted:#b5acd6; --dim:#8d84b6;
   --pitch:#2e7d46; --pitch-2:#286e3d; --chalk:#f4f1e8; --chalk-2:rgba(244,241,232,.62);
   --ink:#f4f1e8; --ink-2:color-mix(in srgb,var(--chalk) 82%,var(--muted));
-  --galleon:#e2b23a; --galleon-ink:#2b1d00;
+  --galleon:#e2b23a; --galleon-ink:#2b1d00; --felt:#1f4f39;
   --magic:"Grenze Gotisch","Big Shoulders Display",serif;
   transition:--stand .9s ease,--stand-2 .9s ease,--line .9s ease,--board .9s ease,--board-2 .9s ease,--live .9s ease,--crest .9s ease;
   --card:#f6f3ea; --card-ink:#141a27; --card-muted:#59607a;
@@ -40,16 +40,16 @@
 }
 /* Gryffindor: scarlet and gold */
 :root[data-house=gryffindor]{--stand:#3d0a12;--stand-2:#520e19;--stand-3:#6a1422;--line:#7e1b2a;--line-2:#9b2636;--board:#22050a;--board-2:#330810;--bulb-off:#4a1820;
-  --live:#ffc94a;--live-ink:#2b1a00;--crest:#f0c040;--muted:#f0c4c0;--dim:#d29d98;--band:#a3121c;--band-ink:#f6cf55}
+  --live:#ffc94a;--live-ink:#2b1a00;--crest:#f0c040;--muted:#f0c4c0;--dim:#d29d98;--band:#a3121c;--band-ink:#f6cf55;--felt:#7a1019}
 /* Slytherin: green and silver */
 :root[data-house=slytherin]{--stand:#04301f;--stand-2:#08402a;--stand-3:#0d5236;--line:#126444;--line-2:#1a7d55;--board:#011c12;--board-2:#04281a;--bulb-off:#0f3d2b;
-  --live:#6ff0ad;--live-ink:#02200f;--crest:#d3d9df;--muted:#b3dccb;--dim:#8cbfaa;--band:#1a5c37;--band-ink:#e2e7ec}
+  --live:#6ff0ad;--live-ink:#02200f;--crest:#d3d9df;--muted:#b3dccb;--dim:#8cbfaa;--band:#1a5c37;--band-ink:#e2e7ec;--felt:#0f5636}
 /* Ravenclaw: blue and bronze */
 :root[data-house=ravenclaw]{--stand:#0b2266;--stand-2:#102d80;--stand-3:#163a99;--line:#1d47b0;--line-2:#2a5bd0;--board:#061545;--board-2:#0b1f5c;--bulb-off:#1a2f70;
-  --live:#ffab6b;--live-ink:#2a1300;--crest:#d9944f;--muted:#c3d0f5;--dim:#9fb2e6;--band:#1f3f9e;--band-ink:#eaa866}
+  --live:#ffab6b;--live-ink:#2a1300;--crest:#d9944f;--muted:#c3d0f5;--dim:#9fb2e6;--band:#1f3f9e;--band-ink:#eaa866;--felt:#1b3f96}
 /* Hufflepuff: yellow and black */
 :root[data-house=hufflepuff]{--stand:#1f1a08;--stand-2:#2c250b;--stand-3:#3a300e;--line:#4a3d12;--line-2:#66541a;--board:#110e03;--board-2:#1c1806;--bulb-off:#3a3212;
-  --live:#ffd43f;--live-ink:#221900;--crest:#f2c230;--muted:#e4d6a2;--dim:#bfae74;--band:#ecb939;--band-ink:#1a1400}
+  --live:#ffd43f;--live-ink:#221900;--crest:#f2c230;--muted:#e4d6a2;--dim:#bfae74;--band:#ecb939;--band-ink:#1a1400;--felt:#5a4610}
 *{box-sizing:border-box}
 ::selection{background:var(--chalk);color:var(--board)}
 html{scrollbar-color:var(--line-2) var(--stand);accent-color:var(--chalk);-webkit-text-size-adjust:100%}
@@ -174,40 +174,92 @@ input::placeholder{color:var(--dim);opacity:1}
 .mark{font:700 1.6rem/1 var(--magic);color:var(--crest)}
 .tcode{font:600 .85rem/1 var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .tcode b{color:var(--chalk);font-family:var(--display);font-size:1.05rem;letter-spacing:.16em;margin-left:.2rem}
-.cols{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));margin-top:.7rem;border-top:1px solid var(--board-2)}
-.col{position:relative;padding:.7rem .4rem .55rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.3rem;min-width:0}
-.col+.col{border-left:1px solid var(--board-2)}
-.col::before{content:"";position:absolute;inset:0 .4rem auto;height:6px;background:linear-gradient(var(--c) 0 4px,var(--c2,var(--c)) 4px);border-radius:0 0 2px 2px}
-.col .nm{font:700 1rem/1.05 var(--label);text-transform:uppercase;letter-spacing:.05em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.col .ch{font:500 .78rem/1 var(--label);color:var(--dim);letter-spacing:.05em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.col .bulbs{margin:.25rem 0 .1rem}
-.col .of{font:500 .74rem/1.15 var(--label);color:var(--dim);letter-spacing:.04em}
-.col em{font:700 .7rem/1 var(--label);font-style:normal;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:.3rem}
-.col em::before{content:"";width:.45rem;height:.45rem;border-radius:50%;background:currentColor}
-.col.live{background:linear-gradient(180deg,color-mix(in srgb,var(--live) 13%,transparent),transparent 70%)}
-.col.live .bulbs{--lit:var(--live)}
-.col.live .nm{color:var(--live)}
-.col .turnlight{color:var(--live)}
-.col .resp{color:var(--warn)}
-.col.rise .bulbs i.on{animation:bulb .55s var(--ease) calc(var(--i) * 40ms) both}
 .frozen{color:var(--warn)}
 .ticker{display:flex;gap:.6rem;align-items:baseline;margin-top:.55rem;background:var(--board-2);border-radius:4px;padding:.45rem .65rem;font-size:.9rem;color:var(--ink-2);min-width:0}
 .ticker .tl{flex:none;font:700 .72rem/1 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .ticker b{color:var(--chalk)}
-@media (max-width:480px){.mark{font-size:1.25rem}.tcode{font-size:.75rem}.board-top .btn.small{padding:.35rem .55rem;font-size:.78rem}.col .hn{display:none}.col .ch{display:none}.col .nm{font-size:.9rem}.bulbs{--b:7px;--g:2px}.col .of{font-size:.68rem}}
+@media (max-width:480px){.mark{font-size:1.25rem}.tcode{font-size:.75rem}.board-top .btn.small{padding:.35rem .55rem;font-size:.78rem}}
 .conn{font:600 .85rem/1 var(--label);letter-spacing:.06em;color:var(--warn)}
 
 /* Arena */
-.arena{display:grid;gap:1rem;margin-top:1rem;grid-template-columns:minmax(0,1fr);grid-template-areas:"pitch" "zone" "me" "opps";align-items:start}
-@media (min-width:1000px){.arena{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);grid-template-areas:"pitch opps" "zone opps" "me opps"}}
-.pitch{grid-area:pitch;position:relative;isolation:isolate;overflow:hidden;min-height:15.5rem;border-radius:999px;padding:1.6rem 3.4rem 1.4rem;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;text-align:center;color:var(--chalk);
-  background:repeating-linear-gradient(90deg,var(--pitch) 0 2.4rem,var(--pitch-2) 2.4rem 4.8rem);box-shadow:inset 0 0 50px rgba(0,0,0,.35),0 18px 30px -18px rgba(0,0,0,.8)}
-.pitch::before{content:"";position:absolute;inset:8px;border:2px solid var(--chalk-2);border-radius:999px;z-index:-1;
-  background:radial-gradient(circle at 50% 50%,transparent 3.1rem,var(--chalk-2) 3.1rem,var(--chalk-2) calc(3.1rem + 2px),transparent calc(3.1rem + 2px)),
-  linear-gradient(90deg,transparent calc(50% - 1px),var(--chalk-2) calc(50% - 1px),var(--chalk-2) calc(50% + 1px),transparent calc(50% + 1px))}
-.hoops{position:absolute;top:50%;height:58%;transform:translateY(-50%);color:var(--chalk);opacity:.8;z-index:-1}
-.hoops.l{left:5%}.hoops.r{right:5%;transform:translateY(-50%) scaleX(-1)}
+.arena{display:grid;gap:1.1rem;margin-top:.6rem;grid-template-columns:minmax(0,1fr);grid-template-areas:"pitch" "zone" "me" "opps";align-items:start}
+@media (min-width:1000px){.zone{grid-template-columns:minmax(17rem,21rem) minmax(0,1fr);align-items:start}}
+
+/* The table: an oak oval with a gold inlay, its cloth in your house colour. Players sit around the rim on name plates;
+   the cards each has played lie on the cloth in front of them. Positions come from SEATS (wide) and --nx/--ny (narrow). */
+.table{grid-area:pitch;position:relative;height:clamp(32rem,46vw,40rem);margin:2.2rem 0 2.6rem}
+.rim{position:absolute;inset:0 2.5%;border-radius:50%;background:radial-gradient(ellipse at 50% 28%,#8d5c33,#5b3519 55%,#38200d);
+  box-shadow:0 34px 60px -22px rgba(0,0,0,.9),inset 0 2px 0 rgba(255,222,170,.28),inset 0 -8px 16px rgba(0,0,0,.5)}
+.felt{position:absolute;inset:1.15rem;border-radius:50%;overflow:hidden;isolation:isolate;
+  background:radial-gradient(ellipse at 50% 40%,color-mix(in srgb,var(--felt) 72%,#fff),var(--felt) 42%,color-mix(in srgb,var(--felt) 58%,#000) 100%);
+  box-shadow:0 0 0 2px #d8b25c,0 0 0 4px rgba(0,0,0,.4),inset 0 0 80px rgba(0,0,0,.55)}
+.felt::before{content:"";position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.felt::after{content:"";position:absolute;left:50%;top:var(--cy,50%);width:min(44%,25rem);aspect-ratio:1.55;transform:translate(-50%,-50%);border-radius:50%;
+  border:1.5px solid color-mix(in srgb,var(--crest) 45%,transparent);box-shadow:0 0 0 8px color-mix(in srgb,var(--crest) 9%,transparent)}
+.glint{position:absolute;inset:0;pointer-events:none}
+.table.flash .glint{background:linear-gradient(100deg,transparent 30%,rgba(255,246,220,.3) 50%,transparent 70%);animation:flood 1.2s var(--ease) both}
+@keyframes flood{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.center{position:absolute;left:50%;top:var(--cy,50%);transform:translate(-50%,-50%);z-index:2;width:min(23rem,40%);display:flex;flex-direction:column;align-items:center;gap:.5rem;text-align:center;color:var(--chalk)}
+.center .say{font:700 clamp(1.8rem,3.4vw,2.7rem)/.95 var(--magic);text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.table.flash .say{animation:sayin .7s var(--ease)}
+@keyframes sayin{from{opacity:0;transform:translateY(6px) scale(1.08);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+.plate{position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);z-index:4;display:grid;grid-template-columns:auto auto;grid-template-areas:"sh pl" "sh pm";
+  align-items:center;column-gap:.55rem;row-gap:.25rem;padding:.5rem .85rem .5rem .55rem;border-radius:12px;background:var(--board);max-width:14rem;
+  box-shadow:0 14px 24px -10px rgba(0,0,0,.9),inset 0 0 0 1px color-mix(in srgb,var(--c) 65%,transparent),inset 0 3px 0 var(--c)}
+.plate .shield{grid-area:sh;width:1.8rem;height:2.07rem}
+.plate .pl{grid-area:pl;min-width:0}
+.plate b{display:block;font:700 .95rem/1.05 var(--label);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:8.5rem}
+.plate small{display:block;font:500 .76rem/1.15 var(--label);color:var(--muted);white-space:nowrap}
+.plate .pm{grid-area:pm;display:flex;align-items:center;gap:.5rem;font:800 .85rem/1 var(--display);color:var(--chalk)}
+.pips{display:inline-flex;gap:3px}
+.pips i{width:.55rem;height:.55rem;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--chalk) 45%,transparent)}
+.pips i.on{background:radial-gradient(circle at 38% 34%,#fff 0 18%,var(--lit,var(--chalk)) 60%);box-shadow:0 0 5px color-mix(in srgb,var(--lit,var(--chalk)) 55%,transparent)}
+.plate .hc,.plate .bk{display:inline-flex;align-items:center;gap:.22rem}
+.plate .hc i{width:.45rem;height:.66rem;border-radius:1px;background:var(--chalk);opacity:.85}
+.plate .bk::before{content:"";width:.62rem;height:.62rem;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffeaa6,var(--galleon) 55%,#a87a14)}
+.plate em{position:absolute;left:50%;top:100%;transform:translate(-50%,-35%);white-space:nowrap;font:700 .66rem/1 var(--label);font-style:normal;letter-spacing:.12em;text-transform:uppercase;padding:.25rem .5rem;border-radius:999px;background:var(--board)}
+.plate .turnlight{color:var(--live);box-shadow:inset 0 0 0 1px var(--live)}
+.plate .resp{color:var(--warn);box-shadow:inset 0 0 0 1px var(--warn)}
+.plate.live{box-shadow:0 0 0 2px var(--live),0 14px 26px -8px rgba(0,0,0,.9),inset 0 3px 0 var(--c)}
+.plate.live b{color:var(--live)}
+.plate.live .pips{--lit:var(--live)}
+.plate.acting{box-shadow:0 0 0 2px var(--warn),0 14px 26px -8px rgba(0,0,0,.9),inset 0 3px 0 var(--c)}
+.plate.rise .pips i.on{animation:bulb .55s var(--ease) calc(var(--i) * 90ms) both}
+.played{position:absolute;left:var(--x);top:var(--y);width:var(--w);transform:translate(-50%,-50%);z-index:2;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:.6rem .75rem}
+.stack{display:flex;flex-direction:column;align-items:center;gap:.22rem}
+.minis{display:flex;padding-left:.2rem}
+.mini{display:grid;place-items:center;width:1.75rem;height:2.45rem;border-radius:4px;border:1.5px solid transparent;flex:none;
+  background:var(--mf) padding-box,var(--foil) border-box;box-shadow:-3px 5px 9px -4px rgba(0,0,0,.7)}
+.mini+.mini{margin-left:-1.2rem}
+.mini svg{width:1.05rem;height:1.05rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.mini:last-child svg{opacity:1}
+.stack small{font:700 .72rem/1 var(--label);letter-spacing:.05em;color:var(--chalk);display:inline-flex;align-items:center;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.stack.done small{color:var(--ok)}
+.nothing{font:italic 500 .8rem/1.2 var(--body);color:color-mix(in srgb,var(--chalk) 55%,transparent)}
+.oppsd{grid-area:opps;margin-top:0}
+.oppgrid{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));padding-bottom:1.25rem}
+@media (max-width:760px){
+  .table{height:38rem;margin:2.6rem 0 2.6rem}
+  .table.k1,.table.k2,.table.k3{height:33rem}
+  .rim{inset:0}
+  .felt{inset:.8rem}
+  .center{width:64%;top:var(--ncy,56%)}
+  .felt::after{top:var(--ncy,56%);width:62%;aspect-ratio:1.2}
+  .center .say{font-size:1.7rem}
+  .center .sub{font-size:.85rem}
+  .plate{left:var(--nx);top:var(--ny);grid-template-columns:auto;grid-template-areas:"sh" "pl" "pm";justify-items:center;text-align:center;padding:.4rem .45rem .45rem;max-width:6.4rem;row-gap:.18rem}
+  .plate .shield{width:1.4rem;height:1.61rem}
+  .plate b{font-size:.8rem;max-width:5.6rem}
+  .plate small{display:none}
+  .plate .pm{gap:.32rem;font-size:.74rem}
+  .plate.mine{grid-template-columns:auto auto;grid-template-areas:"sh pl" "sh pm";justify-items:start;text-align:left;max-width:13rem;padding:.45rem .7rem .45rem .5rem}
+  .played{left:var(--nx);top:var(--ny);width:var(--nw);gap:.35rem .45rem}
+  .mini{width:1.3rem;height:1.82rem;border-width:1.2px}
+  .mini+.mini{margin-left:-.95rem}
+  .mini svg{width:.8rem;height:.8rem}
+  .stack small{font-size:.64rem}
+}
 .piles{display:flex;gap:1.1rem;align-items:flex-end;justify-content:center}
 .pile{display:flex;flex-direction:column;align-items:center;gap:.3rem;font:600 .78rem/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--chalk)}
 .back{position:relative;width:4.2rem;height:5.8rem;border-radius:7px;display:grid;place-items:center;border:2px solid transparent;
@@ -223,11 +275,6 @@ input::placeholder{color:var(--dim);opacity:1}
 .dots{display:flex;gap:5px;justify-content:center}
 .dots i{width:1.5rem;height:.45rem;border-radius:2px;background:rgba(11,15,23,.55)}
 .dots i.used{background:var(--live)}
-.pitch.flash::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(100deg,transparent 30%,rgba(255,246,220,.38) 50%,transparent 70%);animation:flood 1.1s var(--ease) both}
-@keyframes flood{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-.pitch.flash .say{animation:sayin .7s var(--ease)}
-@keyframes sayin{from{opacity:0;transform:translateY(6px) scale(1.08);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
-@media (max-width:480px){.sub{font-size:.88rem;max-width:24ch}.pitch{padding:1.4rem 2.8rem 1.3rem;min-height:14rem;border-radius:7rem}.hoops{height:46%}.hoops.l{left:3%}.hoops.r{right:3%}}
 
 /* Seats: opponents and you */
 .opps{grid-area:opps;display:flex;flex-direction:column;gap:.75rem;min-width:0}
@@ -555,7 +602,6 @@ function setHouse(house) {
 }
 const DIGITS = ["111101101101111", "010110010010111", "111001111100111", "111001111001111", "101101111001001", "111100111001111", "111100111101111", "111001001001001", "111101111101111", "111101111001111"];
 const bulbs = (n, cls = "") => `<span class="bulbs ${cls}" role="img" aria-label="${n}">${[...DIGITS[Math.max(0, Math.min(9, n))]].map((b, i) => b === "1" ? `<i class="on" style="--i:${i}"></i>` : "<i></i>").join("")}</span>`;
-const HOOPS = side => `<svg class="hoops ${side}" viewBox="0 0 44 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="8" cy="34" r="5.5"/><path d="M8 39.5V100"/><circle cx="22" cy="12" r="6.5"/><path d="M22 18.5V100"/><circle cx="36" cy="44" r="5"/><path d="M36 49V100"/></g></svg>`;
 
 function refHTML() {
   const spells = Object.entries(E.SPELLS).map(([k, s]) => `<li><b>${s.n}${k === "accio2" ? " (two-colour)" : k === "accioAny" ? " (any colour)" : ""}</b>: ${s.d}</li>`).join("");
@@ -702,25 +748,50 @@ function statsHTML(p) {
   return `<div class="stats"><span title="${p.hand.length} cards in hand"><span class="minihand">${p.hand.slice(0, 10).map(() => "<i></i>").join("")}</span><b>${p.hand.length}</b> in hand</span><span><b>${E.completeCols(p).length}</b> of 3 sets</span>${p.char === "harry" && p.harryCol ? `<span>${swatch(p.harryCol)}guarded</span>` : ""}</div>`;
 }
 
-// The scoreboard: every player in seat order, set count in bulbs, the turn light on whoever is playing.
-function boardHTML(v, waiting) {
-  const now = S.players.map(p => E.completeCols(p).length);
-  const prev = renderGame.prevSets || [];
-  renderGame.prevSets = now;
-  const cols = S.players.map((p, i) => {
-    const live = S.status === "play" && S.turn === i && !S.pending;
-    const acting = S.status === "play" && S.pending && waiting.includes(i);
-    const rise = prev.length === now.length && now[i] > prev[i];
-    return `<li class="col${live ? " live" : ""}${acting ? " acting" : ""}${rise ? " rise" : ""}" style="${kit(p.char)}">
-      <b class="nm">${esc(i === v ? "You" : nameOf(i))}</b><span class="ch">${E.CHARS[p.char].n}${p.petrified != null ? ` · <span class="frozen">Frozen</span>` : ""}</span>
-      ${bulbs(now[i])}<span class="of">of 3 sets<span class="hn"> · ${p.hand.length} in hand</span></span>${acting ? `<em class="resp">Responding</em>` : live ? `<em class="turnlight">On turn</em>` : ""}</li>`;
+// Seats around the table: [plate x, plate y, played x, played y] in % of the table, for wide and narrow screens, by number of opponents.
+const SEATS = {
+  wide: { 1: [[50, 1, 50, 25]], 2: [[25, 7, 30, 28], [75, 7, 70, 28]], 3: [[9, 46, 22, 47], [50, 1, 50, 23], [91, 46, 78, 47]],
+    4: [[9, 50, 21, 52], [29, 4, 33, 25], [71, 4, 67, 25], [91, 50, 79, 52]], 5: [[9, 62, 21, 63], [14, 14, 27, 30], [50, 1, 50, 23], [86, 14, 73, 30], [91, 62, 79, 63]] },
+  narrow: { 1: [[50, 1, 50, 20]], 2: [[27, 1, 27, 20], [73, 1, 73, 20]], 3: [[17, 1, 17, 20], [50, 1, 50, 22], [83, 1, 83, 20]],
+    4: [[14, 26, 20, 42], [33, 1, 33, 17], [67, 1, 67, 17], [86, 26, 80, 42]], 5: [[14, 36, 18, 48], [14, 6, 22, 22], [50, 1, 50, 18], [86, 6, 78, 22], [86, 36, 82, 48]] }
+};
+const SEAT_W = { wide: { 1: 40, 2: 32, 3: 24, 4: 22, 5: 20 }, narrow: { 1: 70, 2: 44, 3: 31, 4: 30, 5: 28 } };
+const seatPos = (wx, wy, nx, ny) => `--x:${wx}%;--y:${wy}%;--nx:${nx}%;--ny:${ny}%`;
+
+// A player's name plate on the rim: shield, name, sets done in bulbs, cards in hand, Galleons banked, and the turn light.
+function plateHTML(i, v, waiting, rise, pos) {
+  const p = S.players[i], sets = E.completeCols(p).length;
+  const live = S.status === "play" && S.turn === i && !S.pending, acting = S.status === "play" && S.pending && waiting.includes(i);
+  return `<div class="plate${live ? " live" : ""}${acting ? " acting" : ""}${rise ? " rise" : ""}${i === v ? " mine" : ""}" style="${kit(p.char)};${pos}">
+    ${shield(p.char)}<div class="pl"><b>${esc(i === v ? "You" : nameOf(i))}</b><small>${E.CHARS[p.char].n}${p.petrified != null ? ` · <span class="frozen">Frozen</span>` : ""}</small></div>
+    <div class="pm"><span class="pips" role="img" aria-label="${sets} of 3 sets complete">${[0, 1, 2].map(n => `<i${n < sets ? ` class="on" style="--i:${n}"` : ""}></i>`).join("")}</span><span class="hc" title="${p.hand.length} cards in hand"><i></i>${p.hand.length}</span><span class="bk" title="Bank: ${E.bankTotal(p)} points">${E.bankTotal(p)}</span></div>
+    ${acting ? `<em class="resp">Responding</em>` : live ? `<em class="turnlight">On turn</em>` : ""}</div>`;
+}
+// The cards a player has played, laid on the cloth as small foil cards stacked by colour.
+function miniHTML(e) {
+  const c = E.card(e.c), hex = E.COLORS[e.col].hex;
+  const face = c.type === "item" ? `linear-gradient(${hex},${hex})` : c.type === "wild" ? `linear-gradient(135deg,${E.COLORS[c.cols[0]].hex} 50%,${E.COLORS[c.cols[1]].hex} 50%)`
+    : `conic-gradient(${E.COLOR_KEYS.map(k => E.COLORS[k].hex).join(",")},${E.COLORS.brown.hex})`;
+  const ink = c.type === "item" && lum(hex) > .4 ? "#1d1606" : "#fff";
+  return `<span class="mini" style="--mf:${face};color:${ink}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON[c.type === "item" ? SET_ICON[e.col] : "star"]}</svg></span>`;
+}
+function playedHTML(p, pos) {
+  const stacks = E.COLOR_KEYS.filter(col => E.colCount(p, col)).map(col => {
+    const C = E.COLORS[col], ents = p.table.filter(e => e.col === col), done = E.complete(p, col);
+    const names = ents.map(e => { const c = E.card(e.c); return c.type === "item" ? c.name : "Wild"; }).join(", ");
+    return `<div class="stack${done ? " done" : ""}" title="${esc(C.n)}: ${esc(names)}"><div class="minis">${ents.map(miniHTML).join("")}</div>
+      <small>${Math.min(ents.length, C.size)}/${C.size}${done ? `<svg class="check" viewBox="0 0 16 16" aria-label="complete"><path d="M3 8.5l3.2 3L13 4.5"/></svg>` : ""}</small></div>`;
   }).join("");
+  return `<div class="played" style="${pos}">${stacks || `<span class="nothing">No cards played yet</span>`}</div>`;
+}
+
+// The top bar: your house banner, the table code and the latest move.
+function boardHTML(v, waiting) {
   const last = S.log.length ? S.log[S.log.length - 1] : "";
   const mine = v >= 0 ? S.players[v] : null, H = mine && houseOf(mine.char);
   return `<header class="board">
     ${H ? `<div class="houseband">${shield(mine.char)}<b>${H.n}</b><span>${E.CHARS[mine.char].n} · ${H.trait}</span></div>` : ""}
     <div class="board-top"><span class="mark">Wizard's Deal</span><span class="tcode">Table <b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}<button class="btn ghost small" data-a="home">Leave table</button></div>
-    <ol class="cols" style="--n:${S.players.length}" aria-label="Scoreboard">${cols}</ol>
     ${last ? `<p class="ticker"><span class="tl">Latest</span><span>${fmt(last)}</span></p>` : ""}
   </header>`;
 }
@@ -753,19 +824,28 @@ function renderGame() {
   const sub = S.status !== "play" ? "" : S.pending ? `Waiting on ${waiting.map(i => esc(i === v ? "you" : nameOf(i))).join(", ")}`
     : S.drew ? `${S.plays} of ${max} plays used` : S.turn === v ? "Draw your cards from the panel below" : "Drawing cards…";
   const blocked = S.pending && S.pending.tg.some(x => x.st === "counter");
+  const now = S.players.map(p => E.completeCols(p).length), prev = renderGame.prevSets || [];
+  renderGame.prevSets = now;
+  const rose = i => prev.length === now.length && now[i] > prev[i];
+  const k = Math.min(5, Math.max(1, order.length)), W = SEATS.wide[k], N = SEATS.narrow[k];
+  const zone = (i, j) => `${seatPos(W[j][2], W[j][3], N[j][2], N[j][3])};--w:${SEAT_W.wide[k]}%;--nw:${SEAT_W.narrow[k]}%`;
 
   $app.innerHTML = `
   ${boardHTML(v, waiting)}
   ${S.status === "over" ? winnerHTML(v) : ""}
   <div class="arena">
-    <div class="pitch${flashNow ? " flash" : ""}">${HOOPS("l")}${HOOPS("r")}
+    <div class="table k${k}${flashNow ? " flash" : ""}" style="--ncy:${k >= 4 ? 60 : 53}%">
+      <div class="rim"><div class="felt"><span class="glint"></span></div></div>
+      ${order.map((i, j) => plateHTML(i, v, waiting, rose(i), seatPos(W[j][0], W[j][1], N[j][0], N[j][1])) + playedHTML(S.players[i], zone(i, j))).join("")}
+      ${P ? plateHTML(v, v, waiting, rose(v), seatPos(50, 99, 50, 99)) + playedHTML(P, `${seatPos(50, 77, 50, 82)};--w:46%;--nw:84%`) : ""}
+      <div class="center">
       <div class="piles"><div class="pile"><div class="back" aria-label="${S.deck.length} cards in the draw pile"><span class="mono">W</span><span class="cnt">${S.deck.length}</span></div>Draw pile</div>
         <div class="pile">${topCard != null ? cardHTML(topCard, { cls: "small" }) : `<div class="slot"></div>`}Discard · ${S.discard.length}</div></div>
       <div class="say${myMove && !S.pending ? " mine" : ""}">${say}</div>
       ${blocked ? `<span class="stamp" style="color:var(--chalk);background:rgba(11,15,23,.4)">Protego</span>` : ""}
       ${S.status === "play" && !S.pending && S.drew ? `<div class="dots" aria-label="${S.plays} of ${max} plays used">${Array.from({ length: max }, (_, i) => `<i class="${i < S.plays ? "used" : ""}"></i>`).join("")}</div>` : ""}
       <div class="sub">${sub}</div>
-    </div>
+    </div></div>
     ${P ? `<div class="zone">
       <section class="panel${myMove ? " live" : ""}" aria-live="polite">${panelHTML(v)}</section>
       <div class="handwrap"><div class="handhead"><h2>Your hand</h2><small>Only you can see it · ${P.hand.length} card${P.hand.length === 1 ? "" : "s"}</small></div>
@@ -776,10 +856,10 @@ function renderGame() {
       <div class="mychar">${whoHTML(v, true)}<div class="txt"><p class="power">${esc(E.CHARS[P.char].d)}</p>${charControls(v)}</div></div>
       <div class="mycols"><div><h3>Your table</h3>${tableHTML(P, true, S.status === "play" && S.turn === v && !S.pending)}</div>
       <div><h3>Your bank</h3><div class="bankrow">${bankHTML(P)}</div></div></div></section>` : `<p class="muted" style="grid-area:zone">You're watching this game.</p>`}
-    <div class="opps"><h2>Other players</h2>
+    <details class="ref oppsd"><summary>Everyone's cards in detail</summary><div class="oppgrid">
     ${order.map(i => `<section class="seat${S.turn === i ? " turn" : ""}${waiting.includes(i) && S.pending ? " acting" : ""}" style="${kit(S.players[i].char)}">
       <div class="seathead">${whoHTML(i)}${statsHTML(S.players[i])}</div>
-      ${tableHTML(S.players[i], false, false)}<div class="bankrow"><span class="lbl" style="margin-right:.35rem">Bank</span>${bankHTML(S.players[i])}</div></section>`).join("")}</div>
+      ${tableHTML(S.players[i], false, false)}<div class="bankrow"><span class="lbl" style="margin-right:.35rem">Bank</span>${bankHTML(S.players[i])}</div></section>`).join("")}</div></details>
   </div>
   <section class="log"><h2>Table talk</h2><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}${/blocked|Protego!/.test(m) ? `<span class="stamp">Blocked</span>` : /wins!$/.test(m) ? `<span class="stamp win">Full time</span>` : ""}</li>`).join("")}</ol></section>
   ${refHTML()}`;
