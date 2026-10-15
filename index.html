@@ -317,6 +317,7 @@ button.card:hover{transform:translateY(-5px);box-shadow:0 16px 24px -12px rgba(0
 
 /* Spell cut-in: replayed on the big screen */
 .ci{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(6,9,16,0);transition:background .25s;cursor:pointer;overflow:hidden}
+.ci[hidden]{display:none}
 .ci.on{background:rgba(6,9,16,.66)}
 .ci.out{background:rgba(6,9,16,0)}
 .ci-band{position:relative;width:100%;height:min(46vh,24rem);clip-path:polygon(0 18%,100% 0,100% 82%,0 100%);transform:translateX(-105%);background:var(--board);overflow:hidden}
