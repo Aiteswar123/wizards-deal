@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Wizard's Deal</title>
-<meta name="description" content="Play the Harry Potter edition of Monopoly Deal online with 2 to 5 friends, each on their own device.">
+<meta name="description" content="Play the Harry Potter edition of Monopoly Deal online with 2 to 12 friends, each on their own device.">
 <meta name="theme-color" content="#0b0f17">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -192,6 +192,19 @@ input::placeholder{color:var(--dim);opacity:1}
 .table{grid-area:pitch;position:relative;justify-self:center;width:min(44rem,100% - 9rem);aspect-ratio:1;margin:3.4rem 0 4.4rem}
 .table.n2{aspect-ratio:100/80}
 .table.n3{width:min(52rem,100% - 9rem)}
+/* six or more at the table: a bigger table, compact seats and compact card stacks */
+.table.many{width:min(58rem,100% - 9rem)}
+.table.many .plate{grid-template-columns:auto;grid-template-areas:"sh" "pl" "pm";justify-items:center;text-align:center;padding:.35rem .45rem .4rem;max-width:7rem;row-gap:.15rem}
+.table.many .plate small{display:none}
+.table.many .plate .shield{width:1.45rem;height:1.67rem}
+.table.many .plate b{font-size:.8rem;max-width:6.2rem}
+.table.many .plate .pm{gap:.32rem;font-size:.74rem}
+.table.many .played:not(.mine) .mini{width:1.05rem;height:1.45rem;border-width:1px}
+.table.many .played:not(.mine) .mini+.mini{margin-left:-.75rem}
+.table.many .played:not(.mine) .mini svg{display:none}
+.table.many .played:not(.mine) .stack small{font-size:.6rem}
+.table.many .played:not(.mine){gap:.25rem .35rem}
+.seatcount{display:block;margin-top:.25rem;font:600 .78rem/1 var(--label);letter-spacing:.06em;color:var(--dim)}
 .tsvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 26px 28px rgba(0,0,0,.72))}
 .tsvg.nw{display:none}
 .glintbar{opacity:0}
@@ -266,7 +279,7 @@ input::placeholder{color:var(--dim);opacity:1}
 }
 @media (max-width:480px){.sidebtn .sbl,.tcode .tl2{display:none}.board-top{gap:.45rem}.board-top .btn.small{min-height:2.1rem}}
 @media (max-width:760px){
-  .table,.table.n2,.table.n3{width:100%;aspect-ratio:100/122;margin:3.4rem 0 3.8rem}
+  .table,.table.n2,.table.n3,.table.many{width:100%;aspect-ratio:100/122;margin:3.4rem 0 3.8rem}
   .tsvg.wd{display:none}
   .tsvg.nw{display:block}
   .center{left:var(--ncx,50%);top:var(--ncy,50%);width:var(--ncw,48%);gap:.35rem}
@@ -274,6 +287,16 @@ input::placeholder{color:var(--dim);opacity:1}
   .table.n5 .center .back .mono,.table.n4 .center .back .mono,.table.n3 .center .back .mono{font-size:1.5rem}
   .table.n5 .plate:not(.mine){max-width:5.6rem}
   .table.n5 .plate:not(.mine) b{font-size:.74rem;max-width:4.9rem}
+  .table.many .center .back,.table.many .center .slot,.table.many .center .card.small{width:2.5rem;height:3.5rem;min-height:3.5rem}
+  .table.many .center .say,.table.many .center .sub{display:none}
+  .table.many .plate{max-width:4.6rem;padding:.25rem .3rem .3rem}
+  .table.many .plate b{font-size:.66rem;max-width:4rem}
+  .table.many .plate .hc,.table.many .plate .bk{display:none}
+  .table.many .plate .shield{width:1.1rem;height:1.27rem}
+  .table.many .plate em{font-size:.52rem;padding:.18rem .3rem}
+  .table.many .played:not(.mine) .mini{width:.75rem;height:1.05rem}
+  .table.many .played:not(.mine) .mini+.mini{margin-left:-.55rem}
+  .table.many .played:not(.mine) .stack small{font-size:.5rem}
   .table.n3 .center .say,.table.n3 .center .sub,.table.n3 .center .dots,.table.n4 .center .say,.table.n5 .center .say,.table.n4 .center .sub,.table.n5 .center .sub,.table.n4 .center .dots,.table.n5 .center .dots{display:none}
   .center .say{font-size:1.4rem}
   .tclock{min-width:5.5rem}
@@ -633,7 +656,8 @@ function render() {
 
 // Jersey colours for each character, and scoreboard digits built from a 3x5 bulb grid.
 // Each character belongs to a Hogwarts house; the house sets jersey stripes, shields and, for your own character, the whole screen.
-const HOUSE = { harry: "gryffindor", hermione: "gryffindor", draco: "slytherin", luna: "ravenclaw", cedric: "hufflepuff" };
+const HOUSE = { harry: "gryffindor", hermione: "gryffindor", ron: "gryffindor", ginny: "gryffindor", neville: "gryffindor", fred: "gryffindor",
+  draco: "slytherin", snape: "slytherin", luna: "ravenclaw", cho: "ravenclaw", cedric: "hufflepuff", tonks: "hufflepuff" };
 const HOUSES = {
   gryffindor: { n: "Gryffindor", trait: "Courage", c: "#c8282e", c2: "#eeba30", field: "#8b0f14", ink: "#eeba30" },
   slytherin: { n: "Slytherin", trait: "Ambition", c: "#2a9d5c", c2: "#c0c7cf", field: "#1a472a", ink: "#c0c7cf" },
@@ -678,7 +702,7 @@ function renderHome() {
   const focus = document.activeElement && document.activeElement.id;
   $app.innerHTML = `
   <header class="mast"><div><h1>Wizard's<span>Deal</span></h1>
-    <p>Collect magical items, cast spells on your friends, and be the first to finish three sets of different colours. 2 to 5 players, each on their own phone or computer, playing by the rules of Monopoly Deal: Harry Potter.</p>
+    <p>Collect magical items, cast spells on your friends, and be the first to finish three sets of different colours. 2 to 12 players, each on their own phone or computer, playing by the rules of Monopoly Deal: Harry Potter.</p>
     <div class="race" aria-label="First to three complete sets wins">${bulbs(3, "big")}<p>Complete sets to win</p></div></div>
     <div class="fanwrap" aria-hidden="true"><div class="fan">${FAN.map(id => cardHTML(id)).join("")}</div></div></header>
   <div class="home-grid">
@@ -693,7 +717,7 @@ function renderHome() {
         <form id="joinForm" class="joinrow"><label class="lbl" for="joincode" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Game code</label><input type="text" id="joincode" maxlength="4" placeholder="ABCD" autocomplete="off" value="${esc(codeVal)}"><button class="btn">Join</button></form></div>
     </section>
     <section class="fixtures"><header><h2>Open tables</h2><span class="lbl">${lobbies.length ? lobbies.length + " waiting" : "Live"}</span></header>
-      ${lobbies.length ? `<ul class="fixlist">${lobbies.map(g => `<li><span class="code">${esc(g.code)}</span><span class="host">${esc(g.host)}'s table<span class="pips" aria-label="${g.count} of 5 seats taken">${Array.from({ length: 5 }, (_, i) => `<i${i < g.count ? ' class="on"' : ""}></i>`).join("")}</span></span><button class="btn small" data-a="joinCode" data-code="${esc(g.code)}">Join</button></li>`).join("")}</ul>`
+      ${lobbies.length ? `<ul class="fixlist">${lobbies.map(g => `<li><span class="code">${esc(g.code)}</span><span class="host">${esc(g.host)}'s table<span class="seatcount">${g.count} of ${E.MAX_PLAYERS} seated</span></span><button class="btn small" data-a="joinCode" data-code="${esc(g.code)}">Join</button></li>`).join("")}</ul>`
         : `<p class="nofix">No open tables right now. Create one and share the code with your friends.</p>`}</section>
   </div>
   ${refHTML()}
@@ -710,10 +734,9 @@ function renderLobby() {
   $app.innerHTML = `<div class="lobby">
     <div class="codeboard"><span class="lbl">Table code</span><span class="bigcode">${esc(S.code)}</span><button class="btn small" data-a="copy">Copy code</button></div>
     <p class="hint">Friends open this website on their own device, type their name, then join with this code.</p>
-    <div><h2>Seated at the table · ${S.players.length}/5</h2>
-    <ul class="seats">${Array.from({ length: 5 }, (_, i) => { const p = S.players[i];
-      return p ? `<li><span class="no">${i + 1}</span><b>${esc(nameOf(i))}</b><span class="tag">${p.uid === S.host ? "Table owner" : ""}${p.uid === me ? (p.uid === S.host ? " · you" : "You") : ""}</span></li>`
-        : `<li class="open"><span class="no">${i + 1}</span><span>Open seat, waiting for a player</span></li>`; }).join("")}</ul></div>
+    <div><h2>Seated at the table · ${S.players.length}/${E.MAX_PLAYERS}</h2>
+    <ul class="seats">${S.players.map((p, i) => `<li><span class="no">${i + 1}</span><b>${esc(nameOf(i))}</b><span class="tag">${p.uid === S.host ? "Table owner" : ""}${p.uid === me ? (p.uid === S.host ? " · you" : "You") : ""}</span></li>`).join("")}
+      ${S.players.length < E.MAX_PLAYERS ? `<li class="open"><span class="no">${S.players.length + 1}</span><span>Waiting for players · ${E.MAX_PLAYERS - S.players.length} more can join · ${E.decksFor(S.players.length)} deck${E.decksFor(S.players.length) > 1 ? "s" : ""} in play</span></li>` : ""}</ul></div>
     ${mine ? `<label class="namefield"><span class="lbl">Your name at the table</span><input type="text" id="nick" maxlength="20" value="${esc(typing ?? mine.nick ?? "")}"></label>` : `<p class="muted">This table is full or has started.</p>`}
     <p class="muted">When everyone is seated, the table owner presses Start. Each player is then dealt a different character at random, with its own power: ${CHAR_KEYS.map(c => E.CHARS[c].n).join(", ")}.</p>
     <div class="row">${isHost ? `<button class="btn primary" data-a="start" ${S.players.length < 2 ? "disabled" : ""}>Start and deal characters</button>${S.players.length < 2 ? `<span class="muted">Waiting for at least one more player…</span>` : ""}` : `<span class="muted">Waiting for ${esc(nameOf(S.players.findIndex(p => p.uid === S.host)))}, the table owner, to start…</span>`}
@@ -811,7 +834,7 @@ function tableGeom(n, bh, narrow) {
     return { rect: true, hw, hh, c: [50, cy], verts, seats: [{ mid: [50, cy + hh], out: [0, 1], len: 2 * hw, rot: 0 }, { mid: [50, cy - hh], out: [0, -1], len: 2 * hw, rot: 0 }] };
   }
   // a regular polygon fitted to the width, then stretched upright to use the height (gently on wide screens, more on phones)
-  const m = narrow ? (n >= 5 ? 11 : n === 4 ? 9 : 6) : 4, top = narrow ? 13 : 9;
+  const m = narrow ? (n >= 6 ? 13 : n === 5 ? 11 : n === 4 ? 9 : 6) : n >= 6 ? 7 : 4, top = narrow ? (n >= 6 ? 11 : 13) : 9;
   const unit = Array.from({ length: n }, (_, j) => { const a = rad(90 + 180 / n + 360 * j / n); return [Math.cos(a), Math.sin(a)]; });
   const xs = unit.map(p => p[0]), ys = unit.map(p => p[1]), ux = Math.max(...xs) - Math.min(...xs), uy = Math.max(...ys) - Math.min(...ys);
   const R = Math.min((100 - 2 * m) / ux, (bh - 2 * top) / uy), sy = Math.min(narrow ? 1.5 : 1.1, (bh - 2 * top) / (R * uy));
@@ -875,6 +898,7 @@ function tableSVG(g, bh, id, cls) {
 // Placement on the table: a plate just outside its side, played cards inside along that side, turned to follow it.
 const pct = (bh, [x, y]) => [+x.toFixed(2), +(y / bh * 100).toFixed(2)];
 const ZONE_IN = { 2: .74, 3: .84, 4: .68, 5: .66 }, ZONE_IN_N = { 2: .7, 3: .8, 4: .64, 5: .6 }, ZONE_W = { 2: .5, 3: .5, 4: .62, 5: .64 };
+for (let n = 6; n <= 12; n++) { ZONE_IN[n] = .72; ZONE_IN_N[n] = .66; ZONE_W[n] = .8; }
 // slide moves a spot along its side: positive toward the side's upper end, negative toward its lower end
 function seatSpot(g, bh, s, out, lo, hi, slide = 0) { const u = s.up || [0, -1]; return pct(bh, [Math.min(hi, Math.max(lo, s.mid[0] + s.out[0] * out + u[0] * slide)), s.mid[1] + s.out[1] * out + u[1] * slide]); }
 function zoneSpot(g, bh, s, f, slide = 0) { const u = s.up || [0, -1]; return pct(bh, [g.c[0] + (s.mid[0] - g.c[0]) * f + u[0] * slide, g.c[1] + (s.mid[1] - g.c[1]) * f + u[1] * slide]); }
@@ -934,7 +958,7 @@ function renderGame() {
   if (ui.seat !== v) { ui = freshUI(); ui.seat = v; }
   if (ui.sel != null && (!P || !P.hand.includes(ui.sel))) { ui.sel = null; ui.step = {}; }
   if (P) ui.picks = ui.picks.filter(id => P.hand.includes(id));
-  if (ui.mode && (!P || S.turn !== v || S.pending || (ui.mode === "discard" && P.hand.length <= 7) || (ui.mode === "unpetrify" && P.petrified == null))) { ui.mode = null; ui.picks = []; }
+  if (ui.mode && (!P || S.turn !== v || S.pending || (ui.mode === "discard" && P.hand.length <= E.handLimit(P)) || (ui.mode === "unpetrify" && P.petrified == null))) { ui.mode = null; ui.picks = []; }
   const pk = S.pending ? `${S.pending.card}:${S.pending.caster}` : "";
   if (pk !== ui.payKey) { ui.payKey = pk; ui.pay = []; }
 
@@ -953,11 +977,11 @@ function renderGame() {
   renderGame.prevSets = now;
   const rose = i => prev.length === now.length && now[i] > prev[i];
   // Everyone round a table shaped to the player count: you take the bottom side, the rest follow clockwise.
-  const seated = P ? [v, ...order] : order, nT = Math.max(2, Math.min(5, seated.length));
+  const seated = P ? [v, ...order] : order, nT = Math.max(2, Math.min(E.MAX_PLAYERS, seated.length));
   const BW = nT <= 2 ? 80 : 100, BN = 122, gw = tableGeom(nT, BW, false), gn = tableGeom(nT, BN, true);
   const spot = j => { const sw = gw.seats[j], sn = gn.seats[j];
     // phones: side seats of a square or pentagon lift their plate to the upper corner; a triangle's slanted seats slide down to the base corners
-    const side = nT >= 4 && sideSeat(sn), slant = nT === 3 && j > 0;
+    const side = nT >= 4 && nT <= 5 && sideSeat(sn), slant = nT === 3 && j > 0;
     const pslide = side ? sn.len * .34 : slant ? -sn.len * .34 : 0, zslide = side ? -sn.len * .14 : slant ? sn.len * .14 : 0;
     return { plate: seatPos(...seatSpot(gw, BW, sw, nT <= 2 ? 6 : 7, 6, 94), ...seatSpot(gn, BN, sn, side ? 2 : slant ? 4 : 5, 14, 86, pslide)),
       zone: `${seatPos(...zoneSpot(gw, BW, sw, ZONE_IN[nT]), ...zoneSpot(gn, BN, sn, side ? .66 : slant ? .74 : ZONE_IN_N[nT], zslide))};--w:${(sw.len * ZONE_W[nT]).toFixed(1)}%;--nw:${(sn.len * (side ? .5 : ZONE_W[nT])).toFixed(1)}%;--rot:${sw.rot}deg;--nrot:${sn.rot}deg` }; };
@@ -967,7 +991,7 @@ function renderGame() {
   ${boardHTML(v, waiting)}
   ${S.status === "over" ? winnerHTML(v) : ""}
   <div class="arena${sideOpen() ? " side-open" : ""}">
-    <div class="table n${nT}${flashNow ? " flash" : ""}" style="--cx:${ccx}%;--cy:${ccy}%;--ncx:${ncx}%;--ncy:${ncy}%;--cw:${nT === 3 ? 30 : 34}%;--ncw:${nT === 3 ? 42 : 48}%">
+    <div class="table n${nT}${nT >= 6 ? " many" : ""}${flashNow ? " flash" : ""}" style="--cx:${ccx}%;--cy:${ccy}%;--ncx:${ncx}%;--ncy:${ncy}%;--cw:${nT === 3 ? 30 : 34}%;--ncw:${nT === 3 ? 42 : 48}%">
       ${tableSVG(gw, BW, "w", "wd")}${tableSVG(gn, BN, "n", "nw")}
       ${seated.map((i, j) => { const sp = spot(j); return plateHTML(i, v, waiting, rose(i), sp.plate) + playedHTML(S.players[i], sp.zone, i === v ? " mine" : ""); }).join("")}
       <div class="center">
@@ -1036,8 +1060,8 @@ function panelHTML(v) {
     return `<h3>Draw ${n} cards</h3><div class="opts">${opt("draw", { src: "deck" }, "Draw from the pile")}${E.active(P, "cedric") && S.discard.length ? opt("draw", { src: "discard" }, "Draw from the discard pile", `Cedric's ability · top card: ${esc(E.card(S.discard[S.discard.length - 1]).name)}`) : ""}</div>`;
   }
   if (ui.mode === "discard") {
-    const need = P.hand.length - 7;
-    return `<h3>Discard ${need} card${need > 1 ? "s" : ""}</h3><p class="muted">You can keep 7. Tap cards in your hand to choose. ${ui.picks.length}/${need} chosen.</p><div class="row"><button class="btn primary" data-a="confirmDiscard" ${ui.picks.length !== need ? "disabled" : ""}>Discard and end turn</button><button class="btn ghost" data-a="cancelMode">Back</button></div>`;
+    const need = P.hand.length - E.handLimit(P);
+    return `<h3>Discard ${need} card${need > 1 ? "s" : ""}</h3><p class="muted">You can keep ${E.handLimit(P)}. Tap cards in your hand to choose. ${ui.picks.length}/${need} chosen.</p><div class="row"><button class="btn primary" data-a="confirmDiscard" ${ui.picks.length !== need ? "disabled" : ""}>Discard and end turn</button><button class="btn ghost" data-a="cancelMode">Back</button></div>`;
   }
   if (ui.mode === "unpetrify") {
     const sum = ui.picks.reduce((s, id) => s + E.card(id).val, 0);
@@ -1093,21 +1117,21 @@ function castOptions(v, c) {
   const itemName = e => { const k = E.card(e.c); return esc(k.type === "item" ? k.name : k.type === "any" ? "Any-colour wild" : "Wild item"); };
   switch (c.k) {
     case "protego": return none("Keep it in your hand. You'll be offered it when someone casts a spell at you.");
-    case "geminio": return opt("cast", {}, "Cast Geminio", "Draw two more cards.");
-    case "alohomora": return opt("cast", {}, "Cast Alohomora", "Every other player pays you 2.");
+    case "geminio": return opt("cast", {}, "Cast Geminio", `Draw ${E.active(P, "tonks") ? "three" : "two"} more cards.`);
+    case "alohomora": return opt("cast", {}, "Cast Alohomora", `Every other player pays you ${E.active(P, "fred") ? 3 : 2}.`);
     case "accio2": { const cols = c.cols.filter(col => E.colCount(P, col));
-      return cols.length ? cols.map(col => opt("cast", { col }, `${swatch(col)}Accio ${colName(col)}`, `Everyone pays you ${E.rent(P, col)}`)).join("") : none(`You need ${colName(c.cols[0])} or ${colName(c.cols[1])} items on your table to cast this.`); }
+      return cols.length ? cols.map(col => opt("cast", { col }, `${swatch(col)}Accio ${colName(col)}`, `Everyone pays you ${E.rent(P, col) + (E.active(P, "ginny") ? 1 : 0)}`)).join("") : none(`You need ${colName(c.cols[0])} or ${colName(c.cols[1])} items on your table to cast this.`); }
     case "accioAny": {
       const cols = E.COLOR_KEYS.filter(col => E.colCount(P, col));
       if (!cols.length) return none("You need items on your table to cast this.");
-      return cols.map(col => opt("cast", { col }, `${swatch(col)}Accio ${colName(col)}`, `Everyone pays you ${E.rent(P, col)}`)).join("");
+      return cols.map(col => opt("cast", { col }, `${swatch(col)}Accio ${colName(col)}`, `Everyone pays you ${E.rent(P, col) + (E.active(P, "ginny") ? 1 : 0)}`)).join("");
     }
-    case "stupefy": return others.map(p => opt("cast", { p }, `Stupefy ${esc(nameOf(p))}`, "They pay you 5")).join("");
+    case "stupefy": return others.map(p => opt("cast", { p }, `Stupefy ${esc(nameOf(p))}`, `They pay you ${E.owes(S.players[p], E.active(P, "ron") ? 7 : 5)}`)).join("");
     case "petrificus": { const ok = others.filter(p => S.players[p].petrified == null);
       return ok.length ? ok.map(p => opt("cast", { p }, `Freeze ${esc(nameOf(p))}`, E.CHARS[S.players[p].char].n)).join("") : none("Every other character is already frozen."); }
     case "levicorpus": case "wingardium": {
       const list = [];
-      others.forEach(p => S.players[p].table.forEach(e => { if (c.k === "levicorpus" ? E.canTake(S.players[p], e, P) : E.canBanish(S.players[p], e)) list.push(opt("cast", { p, target: e.c }, `${swatch(e.col)}${itemName(e)}`, `${esc(nameOf(p))} · ${colName(e.col)}`)); }));
+      others.forEach(p => S.players[p].table.forEach(e => { if (c.k === "levicorpus" ? E.canTake(S.players[p], e, P) : E.canBanish(S.players[p], e, P)) list.push(opt("cast", { p, target: e.c }, `${swatch(e.col)}${itemName(e)}`, `${esc(nameOf(p))} · ${colName(e.col)}`)); }));
       return list.join("") || none("No items can be targeted right now.");
     }
     case "confundo": {
@@ -1153,7 +1177,7 @@ $app.addEventListener("click", async e => {
     case "again": return call("again");
     case "sel": {
       const id = num("id");
-      if (ui.mode === "discard" && !ui.picks.includes(id) && ui.picks.length >= S.players[v].hand.length - 7) return flash("That's enough cards. Tap a chosen card to put it back.");
+      if (ui.mode === "discard" && !ui.picks.includes(id) && ui.picks.length >= S.players[v].hand.length - E.handLimit(S.players[v])) return flash("That's enough cards. Tap a chosen card to put it back.");
       if (ui.mode === "discard" || ui.mode === "unpetrify") { ui.picks = ui.picks.includes(id) ? ui.picks.filter(x => x !== id) : [...ui.picks, id]; return render(); }
       if (S.turn !== v || !S.drew || S.pending) return flash(S.turn !== v ? "Wait for your turn to play cards." : S.pending ? "Wait for the spell to resolve." : "Draw your cards first.");
       ui.sel = ui.sel === id ? null : id; ui.step = {}; return render();
@@ -1165,7 +1189,7 @@ $app.addEventListener("click", async e => {
     case "cast": return act({ t: "cast", card: ui.sel, col: d.col, p: num("p"), target: num("target"), mine: num("mine"), pick: num("pick") });
     case "draw": return act({ t: "draw", src: d.src });
     case "end": {
-      if (S.players[v].hand.length > 7) { ui.mode = "discard"; ui.picks = []; ui.sel = null; return render(); }
+      if (S.players[v].hand.length > E.handLimit(S.players[v])) { ui.mode = "discard"; ui.picks = []; ui.sel = null; return render(); }
       return act({ t: "end" });
     }
     case "confirmDiscard": return act({ t: "end", discard: ui.picks });

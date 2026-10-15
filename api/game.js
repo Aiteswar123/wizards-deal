@@ -67,7 +67,7 @@ async function lobbies() {
   const codes = await redis(["ZRANGEBYSCORE", "wd:lobbies", String(Date.now() - 6 * 3600e3), "+inf"]);
   if (!codes || !codes.length) return [];
   const docs = await redis(["MGET", ...codes.slice(0, 30).map(key)]);
-  return docs.map(d => d && JSON.parse(d)).filter(g => g && g.status === "lobby" && g.players.length < 5)
+  return docs.map(d => d && JSON.parse(d)).filter(g => g && g.status === "lobby" && g.players.length < E.MAX_PLAYERS)
     .map(g => ({ code: g.code, host: (g.players.find(p => p.uid === g.host) || {}).nick || "A wizard", count: g.players.length }));
 }
 
@@ -129,7 +129,7 @@ async function handle(req) {
       case "join":
         if (seat < 0) {
           if (g.status !== "lobby") return { game: view(g, pid), watching: true };
-          if (g.players.length >= 5) fail("That table is full (5 players).");
+          if (g.players.length >= E.MAX_PLAYERS) fail(`That table is full (${E.MAX_PLAYERS} players).`);
           g.players.push({ uid: pid, nick: cleanNick(q.nick) }); g.tokens[pid] = token;
         }
         break;

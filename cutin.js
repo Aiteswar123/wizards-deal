@@ -8,10 +8,18 @@
     hermione: { c: "#b3202a", c2: "#eeba30", hair: "#6b4423", skin: "#e9c4a0" },
     draco:    { c: "#2a9d5c", c2: "#c0c7cf", hair: "#ece4c4", skin: "#f1d8c4" },
     luna:     { c: "#3a64c8", c2: "#c48a4b", hair: "#f0dc9a", skin: "#f0d6c0" },
-    cedric:   { c: "#ecb939", c2: "#2b2420", hair: "#5a3a22", skin: "#e6c09c" }
+    cedric:   { c: "#ecb939", c2: "#2b2420", hair: "#5a3a22", skin: "#e6c09c" },
+    ron:      { c: "#c8282e", c2: "#eeba30", hair: "#c4521f", skin: "#f3d2b6" },
+    ginny:    { c: "#b3202a", c2: "#eeba30", hair: "#b8461c", skin: "#f3d4ba" },
+    neville:  { c: "#a8242b", c2: "#eeba30", hair: "#6a4a2c", skin: "#efcfb0" },
+    fred:     { c: "#d03530", c2: "#eeba30", hair: "#c9561f", skin: "#f2d0b2" },
+    snape:    { c: "#1f6b40", c2: "#c0c7cf", hair: "#0f0d10", skin: "#e8d6c4" },
+    cho:      { c: "#3a64c8", c2: "#c48a4b", hair: "#141016", skin: "#efd2b2" },
+    tonks:    { c: "#ecb939", c2: "#2b2420", hair: "#e6489a", skin: "#f1d4c0" }
   };
   // House colours: they paint the burst and the scarf. The house name joins the sorting reveal.
-  const HOUSE = { harry: "Gryffindor", hermione: "Gryffindor", draco: "Slytherin", luna: "Ravenclaw", cedric: "Hufflepuff" };
+  const HOUSE = { harry: "Gryffindor", hermione: "Gryffindor", ron: "Gryffindor", ginny: "Gryffindor", neville: "Gryffindor", fred: "Gryffindor",
+    draco: "Slytherin", snape: "Slytherin", luna: "Ravenclaw", cho: "Ravenclaw", cedric: "Hufflepuff", tonks: "Hufflepuff" };
   const SPARK = { stupefy: "#ff5a4f", petrificus: "#bfe7ff", obliviate: "#b98cff", protego: "#9fd8ff", levicorpus: "#ffd36b",
     confundo: "#ff9df0", wingardium: "#c6ffb0", accio2: "#ffe08a", accioAny: "#ffe08a", alohomora: "#ffcf7a", geminio: "#8affea", reparo: "#ffffff" };
   const CALL = { accio2: "Accio!", accioAny: "Accio!", alohomora: "Alohomora!", stupefy: "Stupefy!", levicorpus: "Levicorpus!", confundo: "Confundo!",
@@ -22,7 +30,7 @@
   function hairBack(ch, L) {
     if (ch === "hermione") return [[82,112,30],[158,112,30],[92,80,32],[148,80,32],[120,66,34],[76,146,24],[164,146,24],[88,170,18],[152,170,18]]
       .map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${L.hair}"/>`).join("");
-    if (ch === "luna") return `<path d="M76 112 Q76 66 120 66 Q164 66 164 112 L172 214 Q160 222 150 212 L146 126 Q120 108 94 126 L90 212 Q80 222 68 214 Z" fill="${L.hair}"/>`;
+    if (ch === "luna" || ch === "ginny" || ch === "snape" || ch === "cho") return `<path d="M76 112 Q76 66 120 66 Q164 66 164 112 L172 214 Q160 222 150 212 L146 126 Q120 108 94 126 L90 212 Q80 222 68 214 Z" fill="${L.hair}"/>`;
     return "";
   }
   function hairFront(ch, L) {
@@ -33,6 +41,10 @@
       case "hermione": return `<path d="M82 112 Q86 76 120 74 Q154 76 158 112 Q146 92 120 92 Q96 92 82 112 Z" fill="${L.hair}"/>`;
       case "draco": return `<path d="M80 114 Q78 70 120 70 Q162 70 160 114 Q152 90 122 88 Q98 88 80 114 Z" fill="${L.hair}"/><path d="M96 84 Q120 78 150 90" stroke="#fff8dc" stroke-width="2" fill="none" opacity=".6"/>`;
       case "luna": return `<path d="M82 112 Q86 76 120 74 Q154 76 158 112 Q140 96 120 96 Q100 96 82 112 Z" fill="${L.hair}"/><circle cx="80" cy="146" r="5.5" fill="#ff8a3d"/><path d="M80 140 l-3 -6 m3 6 l3 -6" stroke="#4fa36b" stroke-width="2"/>`;
+      case "ron": case "fred": case "neville": return `<path d="M80 114 Q78 70 120 70 Q162 70 160 114 Q150 92 130 90 L126 98 L118 88 L110 98 Q96 92 80 114 Z" fill="${L.hair}"/>`;
+      case "ginny": case "cho": return `<path d="M82 112 Q86 76 120 74 Q154 76 158 112 Q146 92 120 92 Q96 92 82 112 Z" fill="${L.hair}"/>`;
+      case "snape": return `<path d="M80 118 Q80 72 120 72 Q160 72 160 118 Q150 90 120 90 Q100 90 80 118 Z" fill="${L.hair}"/>`;
+      case "tonks": return `<path d="M78 114 Q76 72 120 70 Q166 70 162 114 L156 96 L150 108 L144 88 L136 102 L128 84 L120 100 L110 84 L104 102 L94 90 L88 108 Z" fill="${L.hair}"/>`;
       case "cedric": return `<path d="M80 114 Q80 72 120 72 Q160 72 160 114 Q156 94 134 90 Q132 96 120 96 Q100 96 80 114 Z" fill="${L.hair}"/>`;
     }
     return "";

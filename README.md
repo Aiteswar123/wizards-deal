@@ -1,9 +1,10 @@
 # Wizard's Deal
 
-An online table for playing Monopoly Deal: Harry Potter edition with 2 to 5 friends, each on their own phone or computer.
+An online table for playing Monopoly Deal: Harry Potter edition with 2 to 12 friends, each on their own phone or computer.
 
 - Create a table, share the 4-letter code, and friends join from their own devices.
-- Each player is dealt a different character at random: Harry, Hermione, Draco, Luna or Cedric.
+- Each player is dealt a different character at random from twelve: Harry, Hermione, Ron, Ginny, Neville, Fred, Draco, Snape, Luna, Cho, Cedric or Tonks.
+- Bigger tables shuffle in more decks: one for up to 5 players, two for 6 to 10, three for 11 or 12.
 - Everyone sits around one table: items and banks are visible to all, your hand is visible only to you.
 - The server runs every move through the rules engine, so other players' hands never reach your browser.
 

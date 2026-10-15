@@ -8,7 +8,7 @@ web
 
 ## Users
 
-Groups of 2 to 5 friends playing Monopoly Deal: Harry Potter edition together. They play equally often in the same room (each on their own phone, talking out loud) and apart (usually on laptops with a voice or video call running). Each player sees one shared table plus their own private hand.
+Groups of 2 to 12 friends playing Monopoly Deal: Harry Potter edition together. They play equally often in the same room (each on their own phone, talking out loud) and apart (usually on laptops with a voice or video call running). Each player sees one shared table plus their own private hand.
 
 ## Product Purpose
 
@@ -29,7 +29,9 @@ Each player holds a real private hand on their own device while the table (items
 
 - Static `index.html` + `engine.js` + `cutin.js`, served by `dev.js` locally and a Vercel function (`api/game.js`) with Upstash Redis in production. No build step, no framework.
 - Views: home (name, create/join, open tables, how to play), lobby (code, seats, start), game (opponents around the table, draw/discard piles, your character/table/bank, action panel, hand, table talk log, winner).
-- 10 item colours with fixed hexes in `engine.js`; 12 spells; 5 characters (Harry, Hermione, Draco, Luna, Cedric); points are Galleons.
+- 10 item colours with fixed hexes in `engine.js`; 12 spells; 12 characters (Harry, Hermione, Ron, Ginny, Neville, Fred, Draco, Snape, Luna, Cho, Cedric, Tonks), each in a house; points are Galleons.
+- 2 to 12 players. The deck grows with the table: one 106-card deck for up to 5 players, two for 6 to 10, three for 11 or 12 (`decksFor`).
+- New powers: Ron's Stupefy takes 7; Ginny's Accio charges 1 more; Neville keeps up to 9 cards; Fred's Alohomora takes 3; Snape's Wingardium can hit complete sets; Cho pays 1 less on every debt; Tonks's Geminio draws three. A frozen character loses its power.
 - Rules and game flow change only on request. Added rules so far: Harry never has to pay with his protected colour. Each turn has 3 minutes; when it runs out the turn ends (drawing first if needed, discarding at random down to 7). A spell that needs answers pauses the turn clock and gives the players asked one shared 30-second window. If someone doesn't answer, a payment is made automatically (bank notes first, then items outside complete sets, then complete sets, random within each, never Harry's protected colour), other spells go through, and a blocked caster lets it go. The server enforces the clock on every poll.
 
 ## Brand Commitments
