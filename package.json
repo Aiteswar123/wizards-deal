@@ -1,0 +1,8 @@
+{
+  "name": "wizards-deal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Online multiplayer table for Monopoly Deal: Harry Potter rules",
+  "scripts": { "dev": "node dev.js" },
+  "engines": { "node": ">=18" }
+}
