@@ -82,6 +82,12 @@ House kit colours (`HOUSES`) for jersey stripes and shields: Gryffindor `#c8282e
   - **Ravenclaw tower's star-painted dome:** constellations that draw themselves segment by segment (air).
   - **Hufflepuff's cellar:** golden light shafts from the round windows, and drifting seeds (earth).
 - **House animals** (`EMBLEM`, `emblem()`): the lion, serpent, eagle and badger as single-colour emblems. Your house's animal rides in the house banner and breathes faintly as a watermark on the table cloth.
+- **Real textures** (`assets/`, all CC0, listed in `assets/CREDITS.md`):
+  - **Stone** (Poly Haven, castle_wall_slates) on the table rim under the runes.
+  - **Wood** (Poly Haven, medieval_wood) on the home and Hall of Fame panels, like the Great Hall's long tables.
+  - **Leather** (Poly Haven, brown_leather) on the spellbook panel.
+  - **Parchment** (ambientCG, Paper005) on the cards, the Daily Prophet line and the Hogwarts letter.
+- **Optional crests**: a `crest-<house>.png` placed in `assets/` (only with the rights to use it) replaces the drawn shield and emblem for that house.
 - **House shields** (`shield(ch)`): an inline SVG shield in the house field colour with a metal band and the character's initial. Used wherever a player is named.
 - **House banner** (`.houseband`): the first thing on your screen in a game, a full-width band in your house colour with your shield, the house name, your character and the house trait.
 - **House bar**: your own seat opens with "House Gryffindor" and the house trait.

@@ -19,7 +19,8 @@ http.createServer((req, res) => {
   const f = path.join(__dirname, u.pathname === "/" ? "index.html" : u.pathname);
   fs.readFile(f, (e, d) => {
     if (e) { res.statusCode = 404; return res.end("Not found"); }
-    res.setHeader("Content-Type", f.endsWith(".js") ? "text/javascript" : "text/html; charset=utf-8");
+    const types = { ".js": "text/javascript", ".jpg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml", ".md": "text/plain; charset=utf-8" };
+    res.setHeader("Content-Type", types[path.extname(f)] || "text/html; charset=utf-8");
     res.end(d);
   });
 }).listen(PORT, () => console.log("Wizard's Deal on http://localhost:" + PORT));
