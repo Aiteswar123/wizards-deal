@@ -842,14 +842,16 @@ function respondHTML(v, pd, t) {
   const caster = esc(nameOf(pd.caster));
   const prot = has ? opt("protego", {}, "Cast Protego", "Block this spell. The caster may answer with their own Protego.") : "";
   if (E.PAY_KINDS.includes(pd.k)) {
-    const owned = [...P.bank, ...P.table.map(e => e.c)];
+    const owned = E.payable(P);
+    const guarded = P.table.filter(e => E.harryGuards(P, e.col));
     const sum = ui.pay.reduce((s, id) => s + E.card(id).val, 0);
     const allValuable = owned.filter(id => E.card(id).val > 0).every(id => ui.pay.includes(id));
     const ok = sum >= t.amt || allValuable;
     return `<h3>You owe ${t.amt}</h3><p>${caster} cast ${spellLabel(pd)}.</p>${prot ? `<div class="opts">${prot}</div>` : ""}
       ${owned.length ? `<p class="muted" style="font-size:.92rem">Choose what to pay with from your bank and table:</p><div class="paylist">${owned.map(id => { const c = E.card(id); const e = P.table.find(x => x.c === id);
         return `<button class="paybtn" data-a="payToggle" data-id="${id}" aria-pressed="${ui.pay.includes(id)}"><b>${c.val}</b>${esc(e ? (c.type === "item" ? c.name : "Wild (" + colName(e.col) + ")") : c.name)}</button>`; }).join("")}</div>`
-        : `<p class="muted">You have nothing in your bank or on the table, so you pay nothing.</p>`}
+        : `<p class="muted">You have nothing in your bank or on the table${guarded.length ? " that you can pay with" : ""}, so you pay nothing.</p>`}
+      ${guarded.length ? `<p class="muted" style="font-size:.88rem"><span class="guard"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5l5.5 2v4.2c0 3.2-2.3 5.6-5.5 6.8-3.2-1.2-5.5-3.6-5.5-6.8V3.5z"/></svg>Protected by Harry</span> Your ${colName(P.harryCol)} items are safe: you never have to pay with them.</p>` : ""}
       <div class="row"><button class="btn primary" data-a="pay" ${ok ? "" : "disabled"}>Pay ${sum}${sum < t.amt && ok ? " (all you have)" : ""}</button>${sum > t.amt ? `<span class="muted" style="font-size:.88rem">No change is given.</span>` : ""}</div>`;
   }
   const nm = id => { const c = E.card(id); return esc(c.type === "item" ? c.name : "a wild item"); };

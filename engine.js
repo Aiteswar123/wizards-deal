@@ -48,7 +48,7 @@
   const PAY_KINDS = ["accio2", "accioAny", "alohomora", "stupefy"];
 
   const CHARS = {
-    harry:    { n: "Harry Potter",     d: "Choose one colour. Nobody can take or banish your items of that colour." },
+    harry:    { n: "Harry Potter",     d: "Choose one colour. Nobody can take or banish your items of that colour, and you never have to pay with them." },
     hermione: { n: "Hermione Granger", d: "Play up to four cards on your turn instead of three." },
     draco:    { n: "Draco Malfoy",     d: "Levicorpus and Confundo can take items from complete sets." },
     luna:     { n: "Luna Lovegood",    d: "Draw three cards at the start of your turn instead of two." },
@@ -85,6 +85,8 @@
   const canTake = (target, entry, thief) => !harryGuards(target, entry.col) && (!complete(target, entry.col) || active(thief, "draco"));
   const canBanish = (target, entry) => !harryGuards(target, entry.col) && !complete(target, entry.col);
   const canObliviate = (target, col) => complete(target, col) && !harryGuards(target, col);
+  // What a player can pay debts with: their bank and table, except items Harry is protecting.
+  const payable = p => [...p.bank, ...p.table.filter(e => !harryGuards(p, e.col)).map(e => e.c)];
   const entryOf = (p, id) => p.table.find(t => t.c === id);
   const clone = o => JSON.parse(JSON.stringify(o));
 
@@ -317,8 +319,9 @@
       if (PAY_KINDS.includes(pd.k)) {
         const ids = act.pay || [];
         if (new Set(ids).size !== ids.length) return "Each card can be paid once.";
-        const owned = [...P.bank, ...P.table.map(e => e.c)];
-        if (!ids.every(id => owned.includes(id))) return "Pay only with cards in your bank or on the table.";
+        const owned = payable(P);
+        if (!ids.every(id => owned.includes(id))) return P.table.some(e => ids.includes(e.c) && harryGuards(P, e.col))
+          ? "Your protected items can't be used to pay." : "Pay only with cards in your bank or on the table.";
         const sum = ids.reduce((x, id) => x + card(id).val, 0);
         const allValuable = owned.filter(id => card(id).val > 0).every(id => ids.includes(id));
         if (sum < t.amt && !allValuable) return `Pick at least ${t.amt} points.`;
@@ -414,5 +417,5 @@
     return [s.turn];
   }
 
-  G.Engine = { COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, harryGuards, newGame, apply, waitingOn, shuffle };
+  G.Engine = { COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, payable, harryGuards, newGame, apply, waitingOn, shuffle };
 })(typeof window !== "undefined" ? window : globalThis);
