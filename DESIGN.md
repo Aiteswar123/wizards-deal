@@ -44,6 +44,10 @@ House kit colours (`HOUSES`) for jersey stripes and shields: Gryffindor `#c8282e
 - **Pitch** (`.pitch`): a capsule of mown stripes with a chalk outline, centre line and circle, and three hoops at each end. When it becomes your move, a floodlight sweeps across once (`.flash`).
 - **Sets at one fixed scale**: every set shows fixed-width slots (`.slots`) on a shared baseline, so progress compares across players at a glance.
 - **Stamps** (`.stamp`): blocked spells and chosen cards are stamped, never silently removed ("Protego", "Blocked", "Chosen", "Full time").
+- **Enchanted ceiling** (`sky.js`): a canvas behind every screen with twinkling stars, drifting cloud, an occasional shooting star and floating candles. It reads its light from `--board`, `--stand` and `--crest`, so it changes with your house. Candles float on the home and lobby screens and fade out during a game. It runs at about 30fps, stops while the tab is hidden, and holds a single still frame when reduced motion is on.
+- **Collector's cards**: every card has a gold-foil frame (`--foil`) and an art window with a drawn emblem. Each item set has its own emblem (tankard, orb, potion, Snitch, Sorting Hat, Time-Turner, locket, wand, train, Hallows), and each spell has one too. Wilds use a star, Galleons a coin. Icons use a 24px grid and a 1.6 stroke. Hand cards tilt in 3D toward the pointer (`--rx`, `--ry`), and a foil shine follows it (`--mx`, `--my`); spells and the any-colour wild get a holographic shine.
+- **Card back**: the draw pile is a foil-framed back lit in your house colour, with a blackletter W and the count in a pill.
+- **Home showcase**: a fan of three real cards (Elder Wand, Stupefy, 10 Galleons) floats beside the title and tilts toward the pointer.
 - **House shields** (`shield(ch)`): an inline SVG shield in the house field colour with a metal band and the character's initial. Used wherever a player is named.
 - **House banner** (`.houseband`): the first thing on your screen in a game, a full-width band in your house colour with your shield, the house name, your character and the house trait.
 - **House bar**: your own seat opens with "House Gryffindor" and the house trait.
@@ -58,7 +62,7 @@ House kit colours (`HOUSES`) for jersey stripes and shields: Gryffindor `#c8282e
 
 ## Shape and depth
 
-Corners are 4px for controls, 6–8px for panels and cards, and capsule-shaped for the pitch. Depth comes from soft offset shadows (`0 18px 30px -18px`). There are no glows, except the bulbs' own radial fill.
+Corners are 4px for controls, 6–8px for panels and cards, and capsule-shaped for the pitch. Depth comes from soft offset shadows (`0 18px 30px -18px`). The only glows are real light sources: scoreboard bulbs, candles and stars.
 
 ## Motion
 
