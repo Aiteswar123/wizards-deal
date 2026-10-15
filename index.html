@@ -303,6 +303,23 @@ input::placeholder{color:var(--dim);opacity:1}
 .st{font:600 .82rem/1 var(--label);color:var(--muted);text-align:right}.st b{color:var(--chalk);font-size:1rem}
 @media (max-width:760px){.ranklist li{grid-template-columns:2rem minmax(0,1fr) auto;grid-template-areas:"rk rn lv" "rk st st"}.ranklist .st{display:none}.ranklist .st:first-of-type{display:block;grid-column:2/4;text-align:left}}
 .awards{display:flex;flex-direction:column;gap:.35rem;width:min(28rem,100%);margin:.3rem auto}
+.awards li .ap{grid-area:1/1}.awards li b{grid-area:1/2}.awards li .ax{grid-area:1/3}.awards li .al{grid-area:1/4}
+.abreak{grid-area:2/2/3/5;text-align:left;font:500 .8rem/1.2 var(--body);color:var(--muted);margin-top:-.1rem}
+.xpdetails .xpguide h3{display:none}
+.xpdetails{margin-top:.8rem;border-top:1px solid var(--board-2)}
+.xpdetails summary{cursor:pointer;padding:.8rem 0;font:700 1.25rem/1 var(--magic);color:var(--crest)}
+.xpguide{padding:.4rem 0 1rem}
+.xpguide h3{font:700 1.5rem/1 var(--magic);margin:0 0 .5rem;color:var(--crest);text-transform:none;letter-spacing:0}
+.ref .xpguide{border-top:1px solid var(--line);margin-top:.2rem;padding-top:1.1rem}
+.xpcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:1.2rem;margin-top:.9rem}
+.xpcols h4{font:700 .95rem/1.2 var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--chalk);margin:0 0 .5rem}
+.xptable{width:100%;border-collapse:collapse;font-size:.92rem}
+.xptable td{padding:.42rem .2rem;border-bottom:1px solid var(--board-2);color:var(--ink-2);vertical-align:top}
+.xptable td:last-child{text-align:right}
+.xptable b{font:700 1.05rem/1 var(--display);color:var(--crest)}
+.xpnote{font-size:.84rem;color:var(--muted);margin-top:.5rem}
+.xpexample{margin-top:1rem;padding:.8rem 1rem;border-radius:6px;background:color-mix(in srgb,var(--crest) 9%,transparent);font-size:.94rem}
+.xpexample b{color:var(--crest)}
 .awards li{display:grid;grid-template-columns:1.8rem 1fr auto auto;align-items:center;gap:.7rem;padding:.45rem .7rem;border-radius:6px;background:var(--board-2);animation:awardin .5s var(--ease) both}
 .awards li:nth-child(2){animation-delay:.12s}.awards li:nth-child(3){animation-delay:.24s}.awards li:nth-child(n+4){animation-delay:.36s}
 @keyframes awardin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -846,7 +863,30 @@ function refHTML() {
       <h3 style="margin-top:1.25rem">Characters (dealt at random)</h3><ul>${chars}</ul></div>
     <div><h3>Spells</h3><ul>${spells}</ul></div>
     <div><h3>Item sets</h3><ul>${sets}</ul><p class="muted" style="font-size:.88rem;margin-top:.6rem">The charge is what each player pays when you cast Accio on that colour, by how many items you hold.</p></div>
-  </div></details>`;
+  </div>${xpGuideHTML()}</details>`;
+}
+
+// How EXP works, in plain words, built from the engine's own numbers so the guide can never drift from the rules.
+function xpGuideHTML() {
+  const X = E.XP, ex = { n: 4, sets: 3, casts: 4, gal: 12 }, exPlace = X.win + X.perPlayer * (ex.n - 2), exTotal = exPlace + X.perSet * ex.sets + Math.min(X.castCap, X.perCast * ex.casts) + Math.min(X.galleonCap, ex.gal);
+  return `<div class="xpguide"><h3>How EXP works</h3>
+    <p class="muted">Every player earns EXP when a game finishes, not only the winner. Your EXP adds up across every game you play, and your total decides your level and your place in the Hall of Fame.</p>
+    <div class="xpcols">
+      <div><h4>1. Your finishing place</h4><table class="xptable"><tbody>
+        <tr><td>1st (the winner)</td><td><b>${X.win}</b> + ${X.perPlayer} for each player beyond 2</td></tr>
+        <tr><td>2nd</td><td><b>${X.second}</b></td></tr><tr><td>3rd</td><td><b>${X.third}</b></td></tr><tr><td>4th and below</td><td><b>${X.rest}</b></td></tr></tbody></table>
+        <p class="xpnote">After the winner, places go to whoever has more complete sets. If that's a tie, the player with more total value (bank plus table) places higher.</p></div>
+      <div><h4>2. Bonuses for everyone</h4><table class="xptable"><tbody>
+        <tr><td>Each complete set</td><td><b>+${X.perSet}</b></td></tr>
+        <tr><td>Each spell you cast</td><td><b>+${X.perCast}</b>, up to +${X.castCap}</td></tr>
+        <tr><td>Each Galleon in your bank at the end</td><td><b>+${X.perGalleon}</b>, up to +${X.galleonCap}</td></tr></tbody></table>
+        <p class="xpnote">Games that are left unfinished give no EXP.</p></div>
+      <div><h4>3. Levels</h4><table class="xptable"><tbody>
+        ${[2, 3, 4, 5, 6].map(l => { let need = 100, floor = 0; for (let k = 2; k < l; k++) { floor += need; need += 50; } return `<tr><td>Level ${l}</td><td><b>${floor + need}</b> EXP in total</td></tr>`; }).join("")}</tbody></table>
+        <p class="xpnote">Each level needs 50 more EXP than the one before.</p></div>
+    </div>
+    <p class="xpexample"><b>Example:</b> you win a ${ex.n}-player game with ${ex.sets} complete sets, having cast ${ex.casts} spells, with ${ex.gal} Galleons in your bank.
+      That's ${exPlace} (winning) + ${X.perSet * ex.sets} (sets) + ${Math.min(X.castCap, X.perCast * ex.casts)} (spells) + ${Math.min(X.galleonCap, ex.gal)} (Galleons) = <b>${exTotal} EXP</b>.</p></div>`;
 }
 
 // The leaderboard: everyone who has finished a game, by total EXP.
@@ -860,7 +900,8 @@ function rankingHTML() {
       <span class="lv">Level <b>${r.level}</b></span>
       <span class="st"><b>${r.xp}</b> EXP</span><span class="st"><b>${r.wins}</b> wins</span><span class="st"><b>${r.games}</b> games</span><span class="st"><b>${r.games ? Math.round(100 * r.wins / r.games) : 0}%</b> won</span></li>`).join("")}</ol>`
       : `<p class="muted">No finished games yet. Every player earns EXP when a game ends; the winner earns the most.</p>`}
-    <p class="fine" style="margin-top:.9rem">EXP per game: winner 100 + 10 for each player beyond 2 · 2nd 60 · 3rd 45 · others 30 · +10 per complete set · +3 per spell cast (up to 15). Players are matched by name.</p></section>`;
+    <p class="fine" style="margin-top:.9rem">Players are matched by name, ignoring capitals, so always play under the same name.</p>
+    <details class="xpdetails"><summary>How EXP works</summary>${xpGuideHTML()}</details></section>`;
 }
 
 function renderHome() {
@@ -1230,7 +1271,7 @@ function winnerHTML(v) {
   const sets = E.completeCols(S.players[S.winner]);
   return `<div class="winner${v === S.winner ? " you" : ""}"><span class="lbl">Full time</span><h2>${v === S.winner ? "You win!" : esc(nameOf(S.winner)) + " wins!"}</h2>
     <p class="muted">${sets.map(c => swatch(c) + colName(c)).join(", ")} sets completed.</p>
-    ${S.awards && S.awards.length ? `<ol class="awards">${S.awards.slice().sort((a, b) => a.place - b.place).map(a => `<li class="${a.p === v ? "me" : ""}"><span class="ap">${a.place}</span><b>${esc(a.p === v ? "You" : nameOf(a.p))}</b><span class="ax">+${a.xp} EXP</span><span class="al">${a.level ? `Level ${a.level}${a.levelUp ? ` <em>Level up!</em>` : ""}` : ""}</span></li>`).join("")}</ol>` : ""}
+    ${S.awards && S.awards.length ? `<ol class="awards">${S.awards.slice().sort((a, b) => a.place - b.place).map(a => `<li class="${a.p === v ? "me" : ""}"><span class="ap">${a.place}</span><b>${esc(a.p === v ? "You" : nameOf(a.p))}</b><span class="ax">+${a.xp} EXP</span>${a.parts ? `<span class="abreak">Place ${a.parts.place} · Sets ${a.parts.sets} · Spells ${a.parts.spells} · Galleons ${a.parts.galleons}</span>` : ""}<span class="al">${a.level ? `Level ${a.level}${a.levelUp ? ` <em>Level up!</em>` : ""}` : ""}</span></li>`).join("")}</ol>` : ""}
     <div class="row" style="justify-content:center">${S.host === me ? `<button class="btn primary" data-a="again">Play again with this table</button>` : `<span class="muted">The table owner can start a rematch.</span>`}<button class="btn ghost" data-a="home">Leave table</button></div></div>`;
 }
 function charControls(v) {

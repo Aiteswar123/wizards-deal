@@ -608,17 +608,19 @@
 
   // ---- ranking ----
   // EXP for a finished game. Places: the winner first, then everyone else by complete sets, then total value on the table.
-  // Winner 100 + 10 per player beyond 2; 2nd 60; 3rd 45; everyone else 30. Everyone adds 10 per complete set and
-  // 3 per spell cast (up to 15).
+  // Winner 100 + 10 per player beyond 2; 2nd 60; 3rd 45; everyone else 30. Everyone adds 10 per complete set,
+  // 3 per spell cast (up to 15) and 1 per Galleon in the bank (up to 25).
+  const XP = { win: 100, perPlayer: 10, second: 60, third: 45, rest: 30, perSet: 10, perCast: 3, castCap: 15, perGalleon: 1, galleonCap: 25 };
   function awards(s) {
     if (s.status !== "over" || s.winner == null) return [];
     const n = s.players.length, others = s.players.map((p, i) => i).filter(i => i !== s.winner)
       .sort((x, y) => completeCols(s.players[y]).length - completeCols(s.players[x]).length || worth(s.players[y]) - worth(s.players[x]));
     const order = [s.winner, ...others];
     return s.players.map((p, i) => {
-      const place = order.indexOf(i) + 1, sets = completeCols(p).length, casts = p.casts || 0;
-      const base = place === 1 ? 100 + 10 * (n - 2) : place === 2 ? 60 : place === 3 ? 45 : 30;
-      return { p: i, nick: p.nick || "", place, sets, casts, xp: base + 10 * sets + Math.min(15, 3 * casts), won: place === 1 };
+      const place = order.indexOf(i) + 1, sets = completeCols(p).length, casts = p.casts || 0, galleons = bankTotal(p);
+      const parts = { place: place === 1 ? XP.win + XP.perPlayer * (n - 2) : place === 2 ? XP.second : place === 3 ? XP.third : XP.rest,
+        sets: XP.perSet * sets, spells: Math.min(XP.castCap, XP.perCast * casts), galleons: Math.min(XP.galleonCap, XP.perGalleon * galleons) };
+      return { p: i, nick: p.nick || "", place, sets, casts, galleons, parts, xp: parts.place + parts.sets + parts.spells + parts.galleons, won: place === 1 };
     });
   }
   // Level 2 at 100 EXP; each level needs 50 more than the last (100, 150, 200...).
@@ -628,5 +630,5 @@
     return { level, into: xp - floor, need };
   }
 
-  G.Engine = { awards, levelFor, BASE, MAX_PLAYERS, decksFor, handLimit, has, copyReady, umbridgeLimits, TURN_MS, RESPOND_MS, autoPay, syncClock, expire, COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, payable, harryGuards, newGame, apply, waitingOn, shuffle };
+  G.Engine = { XP, awards, levelFor, BASE, MAX_PLAYERS, decksFor, handLimit, has, copyReady, umbridgeLimits, TURN_MS, RESPOND_MS, autoPay, syncClock, expire, COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, payable, harryGuards, newGame, apply, waitingOn, shuffle };
 })(typeof window !== "undefined" ? window : globalThis);
