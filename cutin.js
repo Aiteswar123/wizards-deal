@@ -1,5 +1,7 @@
-/* Spell cut-in: a slanted panel bursts across the screen with the caster's character,
-   their colour and the spell they shouted. Plays once per cast on every player's screen. */
+/* Spell cut-in: a duel. A slanted panel bursts across the screen with the caster on the left and their target
+   on the right; the spell leaves the caster's wand as a bolt in its own colour and strikes the target, who recoils.
+   Spells on everyone split the bolt across every opponent; Protego shows the blocker's shield deflecting it;
+   self spells (Geminio, Reparo) light the caster alone. Plays once per cast on every player's screen. */
 (function () {
   "use strict";
   const E = window.Engine;
@@ -52,13 +54,15 @@
     }
     return "";
   }
+  let figN = 0;
   function figure(ch, spark) {
+    const gid = "ci-sp" + (++figN);
     const L = LOOK[ch] || LOOK.harry;
     const scarf = ch === "cedric"
       ? `<path d="M92 170 Q120 192 148 170 L146 186 Q120 206 94 186Z" fill="${L.c}"/><path d="M100 178 l6 12 M114 184 l4 12 M128 184 l-2 12 M140 178 l-6 12" stroke="${L.c2}" stroke-width="4"/>`
       : `<path d="M92 170 Q120 192 148 170 L146 186 Q120 206 94 186Z" fill="${L.c}"/><path d="M98 182 Q120 198 142 182" stroke="${L.c2}" stroke-width="3" fill="none"/>`;
     return `<svg viewBox="0 0 270 320" class="ci-fig" aria-hidden="true">
-      <defs><radialGradient id="ci-sp" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="${spark}"/><stop offset="1" stop-color="${spark}" stop-opacity="0"/></radialGradient></defs>
+      <defs><radialGradient id="${gid}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="${spark}"/><stop offset="1" stop-color="${spark}" stop-opacity="0"/></radialGradient></defs>
       ${hairBack(ch, L)}
       <path d="M58 320 L78 178 Q120 150 162 178 L188 320 Z" fill="#17131f" stroke="${L.c}" stroke-width="4"/>
       <path d="M120 200 L120 320" stroke="${L.c}" stroke-width="2" opacity=".5"/>
@@ -70,7 +74,7 @@
       ${hairFront(ch, L)}
       <circle cx="220" cy="124" r="10" fill="${L.skin}"/>
       <path d="M222 122 L248 78" stroke="#4a2e18" stroke-width="5" stroke-linecap="round"/>
-      <circle class="ci-spark" cx="250" cy="74" r="30" fill="url(#ci-sp)"/>
+      <circle class="ci-spark" cx="250" cy="74" r="30" fill="url(#${gid})"/>
     </svg>`;
   }
 
@@ -91,18 +95,60 @@
     const job = queue.shift(); if (!job) return;
     playing = true;
     if (job.reveal) return showReveal(job);
-    const L = LOOK[job.ch] || LOOK.harry, spark = SPARK[job.k] || "#fff";
-    const sub = job.k === "protego" ? `${job.name} block${job.name === "You" ? "" : "s"}${job.target ? " " + job.target : ""}`
-      : `${job.name} cast${job.name === "You" ? "" : "s"}${job.target ? " at " + job.target : ""}${job.col ? " · " + E.COLORS[job.col].n : ""}`;
-    const streaks = Array.from({ length: 14 }, (_, i) => `<i style="top:${4 + i * 6.8}%;animation-delay:${(i * 37) % 260}ms;opacity:${0.25 + (i % 4) * 0.15}"></i>`).join("");
+    if (job.banner) return showBanner(job);
+    return showDuel(job);
+  }
+
+  const charName = ch => E.CHARS[ch] ? E.CHARS[ch].n : "";
+  const streaksHTML = n => Array.from({ length: n }, (_, i) => `<i style="top:${4 + i * (92 / n)}%;animation-delay:${(i * 37) % 260}ms;opacity:${0.2 + (i % 4) * 0.13}"></i>`).join("");
+  function play(hold) {
+    layer.hidden = false; void layer.offsetWidth; layer.classList.add("on");
+    timer = setTimeout(() => { layer.classList.add("out"); timer = setTimeout(finish, reduce() ? 150 : 380); }, reduce() ? Math.min(hold, 1400) : hold);
+  }
+
+  // The duel: caster left, target(s) right, a bolt between them.
+  function showDuel(job) {
+    const L = LOOK[job.ch] || LOOK.harry, spark = SPARK[job.k] || "#fff", block = job.k === "protego", self = !job.targets.length;
+    const many = job.targets.length > 1, shown = job.targets.slice(0, 5), extra = job.targets.length - shown.length;
     layer.style.setProperty("--ci", L.c); layer.style.setProperty("--ci2", spark);
-    layer.innerHTML = `<div class="ci-band"><div class="ci-burst"></div><div class="ci-streaks">${streaks}</div>
-      <div class="ci-art">${figure(job.ch, spark)}</div>
-      <div class="ci-text"><span class="ci-who">${esc(sub)}</span><span class="ci-call">${esc(CALL[job.k] || "Spell!")}</span><span class="ci-char">${esc(E.CHARS[job.ch] ? E.CHARS[job.ch].n : "")}</span></div></div>`;
-    layer.hidden = false;
-    void layer.offsetWidth;
-    layer.classList.add("on");
-    timer = setTimeout(() => { layer.classList.add("out"); timer = setTimeout(finish, reduce() ? 150 : 380); }, reduce() ? 1100 : 1400);
+    const verb = block ? (job.you ? "You block" : `${job.name} blocks`) : (job.you ? "You cast" : `${job.name} casts`);
+    const on = self ? "" : block ? `and turns away ${shown[0].name}'s spell`
+      : many ? `on everyone${job.col ? " · " + E.COLORS[job.col].n : ""}` : `on ${shown[0].name}${job.col ? " · " + E.COLORS[job.col].n : ""}`;
+    layer.innerHTML = `<div class="ci-band ci-duel${block ? " block" : ""}${self ? " self" : ""}${many ? " many" : ""}"><div class="ci-burst"></div><div class="ci-streaks">${streaksHTML(14)}</div>
+      <div class="d-caster"><div class="d-fig">${figure(job.ch, spark)}</div>${block ? `<i class="d-shield"></i>` : ""}<span class="d-name">${esc(charName(job.ch))}</span></div>
+      ${self ? "" : `<div class="d-targets">${shown.map((t, i) => `<div class="d-target" style="--d:${i * 70}ms;--tc:${(LOOK[t.ch] || LOOK.harry).c}"><div class="d-fig">${figure(t.ch, block ? (SPARK.stupefy) : "#ffffff00")}</div><i class="d-hit"></i><span class="d-name">${esc(t.name)}</span></div>`).join("")}${extra > 0 ? `<span class="d-more">+${extra}</span>` : ""}</div>`}
+      <svg class="d-bolts" aria-hidden="true"></svg>
+      <div class="d-text"><span class="ci-who">${esc(verb)}</span><span class="ci-call">${esc(CALL[job.k] || "Spell!")}</span>${on ? `<span class="d-on">${esc(on)}</span>` : ""}</div></div>`;
+    play(self ? 1700 : 2300);
+    // aim once the panel has finished sliding in (the bolt itself fires at 0.55s)
+    if (!self) setTimeout(() => aim(block), reduce() ? 30 : 400);
+  }
+  // Draw the bolts from the real wand tip to each target's chest, measured on screen.
+  function aim(block) {
+    const band = layer.querySelector(".ci-band"), svg = layer.querySelector(".d-bolts");
+    if (!band || !svg) return;
+    const B = band.getBoundingClientRect(), pt = (el, fx, fy) => { const r = el.getBoundingClientRect(); return [r.left - B.left + r.width * fx, r.top - B.top + r.height * fy]; };
+    const casterFig = band.querySelector(".d-caster .d-fig");
+    const wand = pt(casterFig, 250 / 270, 74 / 320);
+    const targets = [...band.querySelectorAll(".d-target .d-fig")];
+    svg.setAttribute("viewBox", `0 0 ${B.width} ${B.height}`);
+    const spark = getComputedStyle(layer).getPropertyValue("--ci2").trim() || "#fff";
+    svg.innerHTML = targets.map((t, i) => {
+      // targets face left (mirrored), so their wand tip is on their left; their chest is the hit point
+      const chest = pt(t, .5, .62), twand = pt(t, 1 - 250 / 270, 74 / 320);
+      const [a, b] = block ? [twand, [wand[0] + 40, wand[1] + 10]] : [wand, chest];
+      const mx = (a[0] + b[0]) / 2, my = Math.min(a[1], b[1]) - 30 - i * 10;
+      const d = `M${a[0].toFixed(1)},${a[1].toFixed(1)} Q${mx.toFixed(1)},${my.toFixed(1)} ${b[0].toFixed(1)},${b[1].toFixed(1)}`;
+      const deflect = block ? `<path class="d-deflect" d="M${b[0].toFixed(1)},${b[1].toFixed(1)} q60,-90 160,-140" pathLength="1"/>` : "";
+      return `<g style="--d:${i * 70}ms;--sp:${spark}"><path class="d-glow" d="${d}" pathLength="1"/><path class="d-core" d="${d}" pathLength="1"/>${deflect}</g>`;
+    }).join("");
+  }
+  // A short banner: "Your turn".
+  function showBanner(job) {
+    layer.style.setProperty("--ci", job.color || "#ffb23e"); layer.style.setProperty("--ci2", "#fff3c8");
+    layer.innerHTML = `<div class="ci-band ci-banner"><div class="ci-burst"></div><div class="ci-streaks">${streaksHTML(10)}</div>
+      <div class="d-text"><span class="ci-call">${esc(job.text)}</span>${job.sub ? `<span class="d-on">${esc(job.sub)}</span>` : ""}</div></div>`;
+    play(1050);
   }
 
   // Game start: each player is shown the character they were dealt and its power.
@@ -135,9 +181,9 @@
       if (lc.n <= seen) return;
       seen = lc.n;
       const P = S.players[lc.p]; if (!P) return;
-      const who = i => (i === meSeat ? "you" : nameOf(i));
-      queue.push({ ch: P.char, name: lc.p === meSeat ? "You" : nameOf(lc.p), k: lc.k, col: lc.col,
-        target: lc.t == null ? "" : lc.t === -1 ? "everyone" : who(lc.t) });
+      const tgt = i => ({ ch: S.players[i].char, name: i === meSeat ? "you" : nameOf(i) });
+      const targets = lc.t == null ? [] : lc.t === -1 ? S.players.map((_, i) => i).filter(i => i !== lc.p).map(tgt) : S.players[lc.t] ? [tgt(lc.t)] : [];
+      queue.push({ ch: P.char, name: nameOf(lc.p), you: lc.p === meSeat, k: lc.k, col: lc.col, targets });
       if (!playing) next();
     },
     /** Show the dealt character once per game on this device. */
@@ -149,6 +195,8 @@
       queue.unshift({ reveal: true, ch: S.players[meSeat].char, others });
       if (!playing) next();
     },
-    preview(ch, k) { queue.push({ ch, name: "Preview", k, target: "everyone" }); if (!playing) next(); }
+    /** A short banner, such as "Your turn". */
+    banner(text, sub, color) { if (queue.some(j => j.banner)) return; queue.push({ banner: true, text, sub, color }); if (!playing) next(); },
+    preview(ch, k, targetChars) { queue.push({ ch, name: charName(ch), k, targets: (targetChars || []).map(t => ({ ch: t, name: charName(t) })) }); if (!playing) next(); }
   };
 })();

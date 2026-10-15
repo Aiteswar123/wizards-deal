@@ -80,7 +80,10 @@ a{color:var(--chalk);text-underline-offset:3px}
 .btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:2.75rem;border:1px solid var(--line-2);background:var(--stand-3);border-radius:4px;
   padding:.55rem 1.1rem;font:700 1rem/1 var(--label);letter-spacing:.07em;text-transform:uppercase;transition:background-color .15s,border-color .15s,transform .15s var(--ease)}
 .btn:hover:not(:disabled){border-color:var(--chalk);background:var(--line)}
-.btn:active:not(:disabled){transform:translateY(1px)}
+.btn{box-shadow:0 3px 0 color-mix(in srgb,var(--board) 85%,#000),0 6px 12px -6px rgba(0,0,0,.6)}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 0 0 color-mix(in srgb,var(--board) 85%,#000),0 2px 6px -4px rgba(0,0,0,.6)}
+.btn.primary{box-shadow:0 4px 0 color-mix(in srgb,var(--chalk) 55%,#4a3a20),0 8px 16px -8px rgba(0,0,0,.7)}
+.btn.ghost{box-shadow:none}
 .btn.primary{background:var(--chalk);color:var(--board);border-color:var(--chalk)}
 .btn.primary:hover:not(:disabled){background:#fff}
 .btn.ghost{background:transparent;border-color:var(--line-2)}
@@ -246,6 +249,8 @@ input::placeholder{color:var(--dim);opacity:1}
 .plate .resp{color:var(--warn);box-shadow:inset 0 0 0 1px var(--warn)}
 .plate.live{box-shadow:0 0 0 2px var(--live),0 14px 26px -8px rgba(0,0,0,.9),inset 0 3px 0 var(--c)}
 .plate.live b{color:var(--live)}
+.plate.live::after{content:"";position:absolute;inset:-4px;border-radius:15px;border:2px solid var(--live);opacity:0;animation:turnpulse 1.8s ease-out infinite;pointer-events:none}
+@keyframes turnpulse{0%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(1.18)}}
 .plate.live .setpips{--lit:var(--live)}
 .plate.acting{box-shadow:0 0 0 2px var(--warn),0 14px 26px -8px rgba(0,0,0,.9),inset 0 3px 0 var(--c)}
 .plate.rise .setpips i.on{animation:bulb .55s var(--ease) calc(var(--i) * 90ms) both}
@@ -255,6 +260,8 @@ input::placeholder{color:var(--dim);opacity:1}
 .mini{display:grid;place-items:center;width:1.75rem;height:2.45rem;border-radius:4px;border:1.5px solid transparent;flex:none;
   background:var(--mf) padding-box,var(--foil) border-box;box-shadow:-3px 5px 9px -4px rgba(0,0,0,.7)}
 .mini+.mini{margin-left:-1.2rem}
+.mini.fresh{animation:popin .7s var(--ease) both}
+@keyframes popin{0%{transform:translateY(-22px) scale(1.7) rotate(-8deg);opacity:0;filter:brightness(2.2)}60%{opacity:1}100%{transform:none;filter:none}}
 .mini svg{width:1.05rem;height:1.05rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:0}
 .mini:last-child svg{opacity:1}
 .stack small{font:700 .72rem/1 var(--label);letter-spacing:.05em;color:var(--chalk);display:inline-flex;align-items:center;text-shadow:0 1px 2px rgba(0,0,0,.6)}
@@ -408,11 +415,14 @@ input::placeholder{color:var(--dim);opacity:1}
 .panel.live{box-shadow:0 0 0 1px color-mix(in srgb,var(--live) 55%,transparent),0 18px 30px -18px rgba(0,0,0,.8)}
 .panel h3{font:700 2rem/1 var(--magic)}
 .panel.live h3{color:var(--live)}
-.panel.live .btn.primary{background:var(--live);border-color:var(--live);color:var(--live-ink)}
+.panel.live .btn.primary{box-shadow:0 4px 0 color-mix(in srgb,var(--live) 55%,#2a1700),0 8px 16px -8px rgba(0,0,0,.7);background:var(--live);border-color:var(--live);color:var(--live-ink)}
 .panel.live .btn.primary:hover:not(:disabled){background:color-mix(in srgb,var(--live) 82%,#fff)}
 .panel p{color:var(--ink-2)}
 .opts{display:flex;flex-direction:column;gap:.4rem}
 .opt{appearance:none;text-align:left;background:var(--board-2);border:1px solid var(--line);border-radius:4px;padding:.65rem .8rem;font:600 1rem/1.25 var(--body);min-height:2.9rem;transition:border-color .15s,background-color .15s}
+.opt{box-shadow:0 3px 0 rgba(0,0,0,.45);transition:border-color .15s,background-color .15s,transform .12s var(--ease),box-shadow .12s}
+.opt:active:not(:disabled){transform:translateY(3px);box-shadow:0 0 0 rgba(0,0,0,.45)}
+.opt:disabled{opacity:.45;cursor:not-allowed}
 .opt:hover:not(:disabled){border-color:var(--chalk);background:color-mix(in srgb,var(--board-2) 60%,var(--line))}
 .opt small{display:block;color:var(--muted);font-size:.84rem;font-weight:400;margin-top:.1rem}
 .paylist{display:flex;flex-wrap:wrap;gap:.35rem}
@@ -522,7 +532,53 @@ button.card:hover::before,.card.tilting::before,.card.sel::before{opacity:1}
 .ci-go:hover{background:#fff}
 @media (max-width:640px){.ci-band.ci-tall{height:min(78vh,36rem)}.ci-tall .ci-art{opacity:.5}.ci-tall .ci-text{max-width:88%}}
 @media (max-width:640px){.ci-band{height:min(40vh,18rem)}.ci-art{left:-6%}.ci-text{max-width:66%;right:4%}}
-@media (prefers-reduced-motion:reduce){.ci .ci-band{transform:none}.ci-streaks{display:none}}
+/* the duel */
+.ci-band.ci-duel{height:min(64vh,30rem);clip-path:polygon(0 10%,100% 0,100% 90%,0 100%)}
+.ci-duel .ci-burst{background:radial-gradient(ellipse 45% 85% at 18% 60%,rgba(255,255,255,.45),var(--ci) 22%,color-mix(in srgb,var(--ci) 34%,#0b0f17) 55%,#0b0f17 85%),radial-gradient(ellipse 40% 80% at 82% 60%,color-mix(in srgb,var(--ci2) 30%,transparent),transparent 70%)}
+.d-caster{position:absolute;left:3%;bottom:0;height:84%;aspect-ratio:270/320;animation:d-enter-l .55s var(--ease) both}
+.d-targets{position:absolute;right:3%;bottom:0;height:84%;display:flex;align-items:flex-end;justify-content:flex-end;gap:1%;width:44%}
+.d-target{position:relative;height:100%;aspect-ratio:270/320;flex:none;animation:d-enter-r .55s var(--ease) var(--d,0ms) both}
+.ci-duel.many .d-target{height:58%}
+.ci-duel.many .d-target:nth-child(even){margin-bottom:9%}
+.d-target .d-fig{width:100%;height:100%;transform:scaleX(-1)}
+.d-fig{width:100%;height:100%}
+.d-name{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);white-space:nowrap;font:700 .78rem/1 var(--label);letter-spacing:.12em;text-transform:uppercase;color:#fff;background:rgba(6,9,16,.72);padding:.32rem .55rem;border-radius:3px}
+.d-target .d-name{background:color-mix(in srgb,var(--tc) 60%,#06090f)}
+.d-more{align-self:center;font:800 1.6rem/1 var(--display);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.d-bolts{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.d-bolts path{fill:none;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1}
+.d-glow{stroke:var(--sp);stroke-width:12;opacity:.55;filter:blur(4px);animation:d-fire .38s cubic-bezier(.5,0,.75,0) calc(.55s + var(--d,0ms)) forwards}
+.d-core{stroke:#fff;stroke-width:3.5;animation:d-fire .38s cubic-bezier(.5,0,.75,0) calc(.55s + var(--d,0ms)) forwards}
+.d-deflect{stroke:var(--sp);stroke-width:4;opacity:.8;animation:d-fire .3s ease-out calc(.95s + var(--d,0ms)) forwards}
+@keyframes d-fire{to{stroke-dashoffset:0}}
+.d-hit{position:absolute;left:50%;top:62%;width:60%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%) scale(0);opacity:0;
+  background:radial-gradient(circle,#fff 0 12%,var(--ci2) 30%,transparent 68%);animation:d-impact .5s var(--ease) calc(.93s + var(--d,0ms)) both}
+@keyframes d-impact{0%{transform:translate(-50%,-50%) scale(.2);opacity:1}100%{transform:translate(-50%,-50%) scale(1.8);opacity:0}}
+.ci-duel:not(.block) .d-target .d-fig{animation:d-recoil .5s var(--ease) calc(.93s + var(--d,0ms)) both}
+@keyframes d-recoil{0%{transform:scaleX(-1)}25%{transform:scaleX(-1) translateX(-9%) rotate(6deg);filter:brightness(2.2)}100%{transform:scaleX(-1)}}
+.d-shield{position:absolute;left:62%;top:6%;width:85%;aspect-ratio:1;border-radius:50%;border:3px solid var(--ci2);
+  background:radial-gradient(circle,transparent 55%,color-mix(in srgb,var(--ci2) 35%,transparent));box-shadow:0 0 30px color-mix(in srgb,var(--ci2) 60%,transparent);animation:d-shield .5s var(--ease) .3s both}
+@keyframes d-shield{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
+.ci-duel.self .d-caster{left:50%;transform:translateX(-50%);animation:d-enter-c .55s var(--ease) both}
+.ci-duel.self .d-caster .d-fig{filter:drop-shadow(0 0 26px var(--ci2))}
+@keyframes d-enter-l{from{transform:translateX(-40%);opacity:0}to{transform:none;opacity:1}}
+@keyframes d-enter-r{from{transform:translateX(40%);opacity:0}to{transform:none;opacity:1}}
+@keyframes d-enter-c{from{transform:translateX(-50%) scale(.85);opacity:0}to{transform:translateX(-50%);opacity:1}}
+.d-text{position:absolute;left:50%;top:13%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;text-align:center;gap:.3rem;width:min(40rem,62%);z-index:2}
+.d-text .ci-call{font-size:clamp(2.4rem,7vw,5rem)}
+.d-on{font:700 .95rem/1.2 var(--label);letter-spacing:.1em;text-transform:uppercase;color:#fff;background:rgba(6,9,16,.6);padding:.35rem .7rem;border-radius:3px;animation:ci-slam .5s var(--ease) .95s both}
+.ci-band.ci-banner{height:min(30vh,13rem);clip-path:polygon(0 14%,100% 0,100% 86%,0 100%)}
+.ci-banner .d-text{top:50%;transform:translate(-50%,-50%)}
+.ci-banner .ci-call{font-size:clamp(3rem,10vw,6.5rem)}
+@media (max-width:640px){
+  .ci-band.ci-duel{height:min(70vh,30rem)}
+  .d-caster{height:50%;left:0}
+  .d-targets{height:50%;width:52%;right:0}
+  .ci-duel.many .d-target{height:52%}
+  .d-text{top:9%;width:92%}
+  .d-name{font-size:.62rem}
+}
+@media (prefers-reduced-motion:reduce){.ci .ci-band{transform:none}.ci-streaks{display:none}.d-bolts path{stroke-dashoffset:0}.d-hit{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -919,12 +975,15 @@ function plateHTML(i, v, waiting, rise, pos) {
     ${acting ? `<em class="resp">Responding · <span data-clock="resp">0:30</span></em>` : live ? `<em class="turnlight">On turn · <span data-clock="turn">3:00</span></em>` : ""}</div>`;
 }
 // The cards a player has played, laid on the cloth as small foil cards stacked by colour.
+// Cards that weren't on the table at the last render pop in; the first render of a page shows everything as it is.
+const seenMini = new Set(); let miniPrimed = false;
 function miniHTML(e) {
-  const c = E.card(e.c), hex = E.COLORS[e.col].hex;
+  const c = E.card(e.c), hex = E.COLORS[e.col].hex, key = e.c + ":" + e.col, fresh = miniPrimed && !seenMini.has(key);
+  seenMini.add(key);
   const face = c.type === "item" ? `linear-gradient(${hex},${hex})` : c.type === "wild" ? `linear-gradient(135deg,${E.COLORS[c.cols[0]].hex} 50%,${E.COLORS[c.cols[1]].hex} 50%)`
     : `conic-gradient(${E.COLOR_KEYS.map(k => E.COLORS[k].hex).join(",")},${E.COLORS.brown.hex})`;
   const ink = c.type === "item" && lum(hex) > .4 ? "#1d1606" : "#fff";
-  return `<span class="mini" style="--mf:${face};color:${ink}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON[c.type === "item" ? SET_ICON[e.col] : "star"]}</svg></span>`;
+  return `<span class="mini${fresh ? " fresh" : ""}" style="--mf:${face};color:${ink}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON[c.type === "item" ? SET_ICON[e.col] : "star"]}</svg></span>`;
 }
 function playedHTML(p, pos, cls = "") {
   const stacks = E.COLOR_KEYS.filter(col => E.colCount(p, col)).map(col => {
@@ -963,6 +1022,7 @@ function renderGame() {
   if (ui.mode && (!P || S.turn !== v || S.pending || (ui.mode === "discard" && P.hand.length <= E.handLimit(P)) || (ui.mode === "unpetrify" && P.petrified == null))) { ui.mode = null; ui.picks = []; }
   const pk = S.pending ? `${S.pending.card}:${S.pending.caster}` : "";
   if (pk !== ui.payKey) { ui.payKey = pk; ui.pay = []; }
+  if (flashNow && S.turn === v && !S.pending && !S.snitch && window.CutIn) CutIn.banner("Your turn", P ? `${houseOf(P.char).n} · ${E.CHARS[P.char].n}` : "", getComputedStyle(document.documentElement).getPropertyValue("--band").trim() || undefined);
 
   // Opponents in clockwise order starting from the player after you.
   const base = v >= 0 ? v : 0;
@@ -1024,6 +1084,7 @@ function renderGame() {
   </div>
   <section class="log"><h2>Table talk</h2><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}${/blocked|Protego!/.test(m) ? `<span class="stamp">Blocked</span>` : /wins!$/.test(m) ? `<span class="stamp win">Full time</span>` : ""}</li>`).join("")}</ol></section>
   ${refHTML()}`;
+  miniPrimed = true;
 }
 
 function spellLabel(pd) { return (pd.k === "accio2" || pd.k === "accioAny") ? `Accio (${colName(pd.prm.col)})` : E.card(pd.card).name; }
