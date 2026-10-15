@@ -65,7 +65,7 @@
   const reduce = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   function finish() {
-    clearTimeout(timer); layer.classList.remove("on", "out"); layer.hidden = true; playing = false;
+    clearTimeout(timer); layer.classList.remove("reveal"); layer.classList.remove("on", "out"); layer.hidden = true; playing = false;
     if (queue.length) setTimeout(next, 80);
   }
   layer.addEventListener("click", finish);
@@ -73,6 +73,7 @@
   function next() {
     const job = queue.shift(); if (!job) return;
     playing = true;
+    if (job.reveal) return showReveal(job);
     const L = LOOK[job.ch] || LOOK.harry, spark = SPARK[job.k] || "#fff";
     const sub = job.k === "protego" ? `${job.name} block${job.name === "You" ? "" : "s"}${job.target ? " " + job.target : ""}`
       : `${job.name} cast${job.name === "You" ? "" : "s"}${job.target ? " at " + job.target : ""}${job.col ? " · " + E.COLORS[job.col].n : ""}`;
@@ -85,6 +86,24 @@
     void layer.offsetWidth;
     layer.classList.add("on");
     timer = setTimeout(() => { layer.classList.add("out"); timer = setTimeout(finish, reduce() ? 150 : 380); }, reduce() ? 1100 : 1400);
+  }
+
+  // Game start: each player is shown the character they were dealt and its power.
+  function showReveal(job) {
+    const L = LOOK[job.ch] || LOOK.harry, C = E.CHARS[job.ch];
+    layer.style.setProperty("--ci", L.c); layer.style.setProperty("--ci2", "#ffe9a8");
+    const streaks = Array.from({ length: 10 }, (_, i) => `<i style="top:${6 + i * 9}%;animation-delay:${(i * 53) % 300}ms;opacity:${0.2 + (i % 3) * 0.15}"></i>`).join("");
+    layer.innerHTML = `<div class="ci-band ci-tall"><div class="ci-burst"></div><div class="ci-streaks">${streaks}</div>
+      <div class="ci-art">${figure(job.ch, "#ffe9a8")}</div>
+      <div class="ci-text"><span class="ci-who">The sorting is done. You are</span><span class="ci-call">${esc(C.n)}</span>
+        <span class="ci-power"><b>Your power:</b> ${esc(C.d)}</span>
+        ${job.others.length ? `<span class="ci-others">${job.others.map(o => `${esc(o.name)}: ${esc(E.CHARS[o.ch].n)}`).join(" · ")}</span>` : ""}
+        <button class="ci-go" type="button">Let's play</button></div></div>`;
+    layer.classList.add("reveal");
+    layer.hidden = false;
+    void layer.offsetWidth;
+    layer.classList.add("on");
+    timer = setTimeout(() => { layer.classList.add("out"); timer = setTimeout(finish, 380); }, 9000);
   }
 
   let seen = null;
@@ -102,6 +121,15 @@
       const who = i => (i === meSeat ? "you" : nameOf(i));
       queue.push({ ch: P.char, name: lc.p === meSeat ? "You" : nameOf(lc.p), k: lc.k, col: lc.col,
         target: lc.t == null ? "" : lc.t === -1 ? "everyone" : who(lc.t) });
+      if (!playing) next();
+    },
+    /** Show the dealt character once per game on this device. */
+    reveal(S, nameOf, meSeat) {
+      if (!S || S.status !== "play" || meSeat < 0) return;
+      const key = "wd-reveal-" + S.code + "-" + S.created;
+      try { if (localStorage.getItem(key)) return; localStorage.setItem(key, "1"); } catch (e) {}
+      const others = S.players.map((p, i) => ({ name: nameOf(i), ch: p.char, i })).filter(o => o.i !== meSeat);
+      queue.unshift({ reveal: true, ch: S.players[meSeat].char, others });
       if (!playing) next();
     },
     preview(ch, k) { queue.push({ ch, name: "Preview", k, target: "everyone" }); if (!playing) next(); }

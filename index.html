@@ -200,6 +200,13 @@ button.card:hover{transform:translateY(-4px)}
 .ci-call{font-family:var(--display);font-size:clamp(2rem,7.2vw,4.8rem);line-height:.95;color:#fff;text-wrap:balance;text-shadow:0 0 22px var(--ci2),0 6px 14px rgba(0,0,0,.55);animation:ci-slam .5s cubic-bezier(.16,1,.3,1) .12s both}
 @keyframes ci-slam{from{transform:scale(1.6);opacity:0;filter:blur(8px)}to{transform:none;opacity:1;filter:none}}
 .ci-char{font:700 .9rem/1 var(--body);color:#fff;background:color-mix(in srgb,var(--ci) 70%,#0d0a14);padding:.3rem .6rem;border-radius:4px}
+.ci-band.ci-tall{height:min(70vh,34rem);clip-path:polygon(0 10%,100% 0,100% 90%,0 100%)}
+.ci.reveal{background:rgba(8,6,14,.78)}
+.ci-power{font-size:1.05rem;line-height:1.4;color:#fff;max-width:28rem;transform:skewX(8deg);text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.ci-others{font-size:.85rem;color:#e9e3f5;max-width:28rem;transform:skewX(8deg);opacity:.9}
+.ci-go{appearance:none;margin-top:.6rem;transform:skewX(8deg);background:#ffe9a8;color:#1c1505;border:0;border-radius:8px;padding:.7rem 1.4rem;font:800 1rem/1 var(--body);cursor:pointer;box-shadow:0 10px 20px -10px rgba(0,0,0,.8)}
+.ci-go:hover{filter:brightness(1.06)}
+@media (max-width:640px){.ci-band.ci-tall{height:min(78vh,36rem)}.ci-tall .ci-art{opacity:.55}.ci-tall .ci-text{max-width:88%}}
 @media (max-width:640px){.ci-band{height:min(40vh,18rem)}.ci-art{left:-6%}.ci-text{max-width:66%;right:4%}}
 @media (prefers-reduced-motion:reduce){.ci .ci-band{transform:none}.ci-streaks{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -281,7 +288,7 @@ async function pollLobbies() {
     await sleep(4000);
   }
 }
-function gotState() { if (window.CutIn) window.CutIn.observe(S, nameOf, mySeat()); }
+function gotState() { if (window.CutIn) { window.CutIn.reveal(S, nameOf, mySeat()); window.CutIn.observe(S, nameOf, mySeat()); } }
 function enter(c) { code = c; poll(); }
 function goHome() { pollGen++; code = null; S = null; view = "home"; ui = freshUI(); render(); pollLobbies(); }
 function myName() {
@@ -374,10 +381,10 @@ function renderLobby() {
     <div><span class="eyebrow">Table code</span><div class="row" style="margin-top:.4rem"><span class="bigcode">${esc(S.code)}</span><button class="btn small" data-a="copy">Copy code</button></div>
     <p class="muted" style="margin-top:.4rem">Friends open this website on their own device, type their name, then join with this code.</p></div>
     <div><span class="eyebrow">Seated at the table · ${S.players.length}/5</span>
-    <ul class="seats" style="margin-top:.5rem">${S.players.map((p, i) => `<li><span class="crest seatno">${i + 1}</span><div><b>${esc(nameOf(i))}</b></div><span class="tag">${p.uid === S.host ? "Host" : ""}${p.uid === me ? (p.uid === S.host ? " · you" : "You") : ""}</span></li>`).join("")}</ul></div>
+    <ul class="seats" style="margin-top:.5rem">${S.players.map((p, i) => `<li><span class="crest seatno">${i + 1}</span><div><b>${esc(nameOf(i))}</b></div><span class="tag">${p.uid === S.host ? "Table owner" : ""}${p.uid === me ? (p.uid === S.host ? " · you" : "You") : ""}</span></li>`).join("")}</ul></div>
     ${mine ? `<label style="display:flex;flex-direction:column;gap:.3rem"><span class="eyebrow">Your name at the table</span><input type="text" id="nick" maxlength="20" value="${esc(typing ?? mine.nick ?? "")}"></label>` : `<p class="muted">This table is full or has started.</p>`}
-    <p class="muted">When the host starts, each player is dealt a different character at random: ${CHAR_KEYS.map(c => E.CHARS[c].n).join(", ")}.</p>
-    <div class="row">${isHost ? `<button class="btn primary" data-a="start" ${S.players.length < 2 ? "disabled" : ""}>Start the game</button>${S.players.length < 2 ? `<span class="muted">Waiting for at least one more player…</span>` : ""}` : `<span class="muted">Waiting for the host to start…</span>`}
+    <p class="muted">When everyone is seated, the table owner presses Start. Each player is then dealt a different character at random, with its own power: ${CHAR_KEYS.map(c => E.CHARS[c].n).join(", ")}.</p>
+    <div class="row">${isHost ? `<button class="btn primary" data-a="start" ${S.players.length < 2 ? "disabled" : ""}>Start and deal characters</button>${S.players.length < 2 ? `<span class="muted">Waiting for at least one more player…</span>` : ""}` : `<span class="muted">Waiting for ${esc(nameOf(S.players.findIndex(p => p.uid === S.host)))}, the table owner, to start…</span>`}
       <button class="btn ghost" data-a="leaveLobby">Leave table</button></div>
     ${netDown ? `<p class="conn">Reconnecting…</p>` : ""}</div>`;
   if (typing != null) { const el = document.getElementById("nick"); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
@@ -481,7 +488,7 @@ function spellLabel(pd) { return (pd.k === "accio2" || pd.k === "accioAny") ? `A
 function winnerHTML(v) {
   return `<div class="winner"><h2>${v === S.winner ? "You win!" : esc(nameOf(S.winner)) + " wins!"}</h2>
     <p class="muted">${E.completeCols(S.players[S.winner]).map(colName).join(", ")} sets completed.</p>
-    <div class="row">${S.host === me ? `<button class="btn primary" data-a="again">Play again with this table</button>` : `<span class="muted">The host can start a rematch.</span>`}<button class="btn ghost" data-a="home">Leave table</button></div></div>`;
+    <div class="row">${S.host === me ? `<button class="btn primary" data-a="again">Play again with this table</button>` : `<span class="muted">The table owner can start a rematch.</span>`}<button class="btn ghost" data-a="home">Leave table</button></div></div>`;
 }
 function charControls(v) {
   const P = S.players[v];
@@ -575,8 +582,7 @@ function castOptions(v, c) {
     case "accioAny": {
       const cols = E.COLOR_KEYS.filter(col => E.colCount(P, col));
       if (!cols.length) return none("You need items on your table to cast this.");
-      if (!st.col) return cols.map(col => opt("step", { col }, `${swatch(col)}${colName(col)}`, `Charge ${E.rent(P, col)}`)).join("");
-      return `<p class="muted" style="font-size:.9rem">Who pays ${E.rent(P, st.col)}?</p>` + others.map(p => opt("cast", { col: st.col, p }, esc(nameOf(p)), `${E.bankTotal(S.players[p])} banked`)).join("");
+      return cols.map(col => opt("cast", { col }, `${swatch(col)}Accio ${colName(col)}`, `Everyone pays you ${E.rent(P, col)}`)).join("");
     }
     case "stupefy": return others.map(p => opt("cast", { p }, `Stupefy ${esc(nameOf(p))}`, "They pay you 5")).join("");
     case "petrificus": { const ok = others.filter(p => S.players[p].petrified == null);

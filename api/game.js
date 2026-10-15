@@ -129,13 +129,13 @@ async function handle(req) {
         if (!g.players.length) { g.status = "closed"; await redis(["ZREM", "wd:lobbies", code]); }
         break;
       case "start":
-        if (g.host !== pid || g.status !== "lobby") fail("Only the host can start.");
+        if (g.host !== pid || g.status !== "lobby") fail("Only the table owner can start the game.");
         if (g.players.length < 2) fail("You need at least 2 players.");
         next = Object.assign({ code, host: g.host, created: g.created, tokens: g.tokens }, E.newGame(g.players));
         await redis(["ZREM", "wd:lobbies", code]);
         break;
       case "again":
-        if (g.host !== pid || g.status !== "over") fail("Only the host can start a rematch.");
+        if (g.host !== pid || g.status !== "over") fail("Only the table owner can start a rematch.");
         next = { status: "lobby", code, host: g.host, created: Date.now(), tokens: g.tokens, players: g.players.map(p => ({ uid: p.uid, nick: p.nick })) };
         await redis(["ZADD", "wd:lobbies", String(next.created), code]);
         break;

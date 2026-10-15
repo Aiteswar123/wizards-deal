@@ -33,7 +33,7 @@
 
   const SPELLS = {
     accio2:     { n: "Accio",              val: 1, d: "Pick one of this card's two colours. Every other player pays you the charge for your items of that colour." },
-    accioAny:   { n: "Accio",              val: 3, d: "Pick any colour you have items in. One player of your choice pays you the charge for it." },
+    accioAny:   { n: "Accio",              val: 3, d: "Pick any colour you have items in. Every other player pays you the charge for it." },
     alohomora:  { n: "Alohomora",          val: 2, d: "Every other player pays you 2 points." },
     stupefy:    { n: "Stupefy",            val: 3, d: "One player of your choice pays you 5 points." },
     levicorpus: { n: "Levicorpus",         val: 3, d: "Take one item from another player. Not from a complete set." },
@@ -251,8 +251,7 @@
       }
       case "accioAny": {
         if (!COLORS[act.col] || !colCount(P, act.col)) return "Pick a colour you have items in.";
-        const e = needTarget(); if (e) return e;
-        tg = [{ p: act.p, amt: rent(P, act.col), st: "respond" }]; prm.col = act.col; break;
+        tg = others.map(p => ({ p, amt: rent(P, act.col), st: "respond" })); prm.col = act.col; break;
       }
       case "stupefy": { const e = needTarget(); if (e) return e; tg = [{ p: act.p, amt: 5, st: "respond" }]; break; }
       case "petrificus": {
