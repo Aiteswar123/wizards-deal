@@ -88,6 +88,14 @@ House kit colours (`HOUSES`) for jersey stripes and shields: Gryffindor `#c8282e
   - **Leather** (Poly Haven, brown_leather) on the spellbook panel.
   - **Parchment** (ambientCG, Paper005) on the cards, the Daily Prophet line and the Hogwarts letter.
 - **Optional crests**: a `crest-<house>.png` placed in `assets/` (only with the rights to use it) replaces the drawn shield and emblem for that house.
+- **A painted place behind each screen** (`paintCastle`, `paintHall`, `paintCommon` in `sky.js`): each scene is painted once per size, cached, and crossfaded when the screen or house changes. Windows and ceilings are cut out so the night sky shows through.
+  - **Home: Hogwarts across the Black Lake.** The castle on its cliff with lit windows that twinkle, mountains behind, its reflection broken by ripples, the moon's path on the water, Forbidden Forest pines, and Hagrid's hut with smoke from its chimney.
+  - **Lobby: the Great Hall.** Stone walls, Gothic windows with leaded glass and moonlight on the floor, house banners on a gilt beam, flickering wall torches, floating candles, the four long tables, and a ceiling that dissolves into the night sky.
+  - **Game: your common room.**
+    - Gryffindor: scarlet tapestries, tower windows and a roaring fireplace with armchairs.
+    - Slytherin: dungeon arches, windows looking out under the lake, green lamps and leather sofas.
+    - Ravenclaw: a bronze-ribbed dome painted with twinkling stars, arched windows with blue silk drapes, and bookshelves.
+    - Hufflepuff: wood panelling, round windows at grass level, a round door, trailing plants and copper lamps.
 - **House shields** (`shield(ch)`): an inline SVG shield in the house field colour with a metal band and the character's initial. Used wherever a player is named.
 - **House banner** (`.houseband`): the first thing on your screen in a game, a full-width band in your house colour with your shield, the house name, your character and the house trait.
 - **House bar**: your own seat opens with "House Gryffindor" and the house trait.

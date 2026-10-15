@@ -1,4 +1,5 @@
-/* The sky behind every screen: the enchanted ceiling of the Great Hall, drawn for realism rather than cartoon.
+/* The world behind every screen, drawn for realism rather than cartoon: Hogwarts across the Black Lake on the home
+   page, the Great Hall in the lobby, and your house's common room in a game, all under one night sky.
    A deep starfield with the Milky Way and a cratered moon, soft moonlit cloud, the four house banners hanging from
    the ceiling, floating candles, owls carrying letters across the night, and the Golden Snitch.
    Static layers (sky, stars, Milky Way, moon, stadium) are painted once per size or house change; only the moving parts
@@ -169,7 +170,7 @@
     }
     if (atmos.slytherin > .01) {
       const a = atmos.slytherin;
-      ctx.globalAlpha = .22 * a; ctx.fillStyle = "#0e5a3a"; ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = .08 * a; ctx.fillStyle = "#0e5a3a"; ctx.fillRect(0, 0, W, H);
       ctx.globalCompositeOperation = "lighter";
       // caustics: soft wavering bands of light, as through lake water
       for (let i = 0; i < 9; i++) {
@@ -190,7 +191,7 @@
     }
     if (atmos.ravenclaw > .01) {
       const a = atmos.ravenclaw;
-      ctx.globalAlpha = .12 * a; ctx.fillStyle = "#1d3fa8"; ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = .04 * a; ctx.fillStyle = "#1d3fa8"; ctx.fillRect(0, 0, W, H);
       for (const c of consts) {
         const cycle = ((t / 1000 + c.off) % 14) / 14, reveal = Math.min(1, cycle * 2.2), fade = cycle > .8 ? (1 - cycle) / .2 : 1, n = c.pts.length - 1;
         ctx.globalAlpha = .55 * a * fade; ctx.strokeStyle = "#cfa86a"; ctx.lineWidth = .9; ctx.setLineDash([3, 4]);
@@ -204,7 +205,7 @@
     }
     if (atmos.hufflepuff > .01) {
       const a = atmos.hufflepuff;
-      ctx.globalAlpha = .1 * a; ctx.fillStyle = "#b8860b"; ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = .04 * a; ctx.fillStyle = "#b8860b"; ctx.fillRect(0, 0, W, H);
       ctx.globalCompositeOperation = "lighter";
       for (let i = 0; i < 4; i++) {   // light shafts slanting down from round windows
         const x = W * (.15 + i * .25) + Math.sin(t * .0003 + i) * 20, sh = ctx.createLinearGradient(x, 0, x + W * .15, H);
@@ -261,7 +262,7 @@
     W = innerWidth; H = innerHeight;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    colKey = ""; seed(); seedCandles(); seedAtmos(); paintStadium(); readColours(performance.now(), true);
+    colKey = ""; for (const k in scenes) delete scenes[k]; seed(); seedCandles(); seedAtmos(); paintStadium(); readColours(performance.now(), true);
     draw(performance.now(), 0);
   }
 
@@ -344,6 +345,328 @@
     ctx.fillStyle = ball; ctx.beginPath(); ctx.arc(sn.x, sn.y, 3.2, 0, TAU); ctx.fill();
   }
 
+  // ================= scenes: a painted place behind each screen =================
+  // Home: Hogwarts on its cliff across the Black Lake. Lobby: inside the Great Hall. Game: your house's common room.
+  // Each scene is painted once per size into its own canvas (windows and the enchanted ceiling are cut out so the sky
+  // shows through), cached, and crossfaded when the screen or house changes; small animations run on top.
+  const scenes = {}, sdata = {};
+  let curScene = "", prevScene = "", sceneMix = 1;
+  const sceneKey = () => { const sc = root.dataset.screen; return sc === "game" ? (root.dataset.house && root.dataset.house !== "hogwarts" ? root.dataset.house : "hall") : sc === "lobby" ? "hall" : "castle"; };
+  const cut = (g, fn) => { g.save(); g.globalCompositeOperation = "destination-out"; g.beginPath(); fn(); g.fill(); g.restore(); };
+  const gothic = (g, x, y, w, h) => { g.moveTo(x, y + h); g.lineTo(x, y + w * .55); g.quadraticCurveTo(x, y + w * .05, x + w / 2, y); g.quadraticCurveTo(x + w, y + w * .05, x + w, y + w * .55); g.lineTo(x + w, y + h); g.closePath(); };
+  const roundTop = (g, x, y, w, h) => { g.moveTo(x, y + h); g.lineTo(x, y + w / 2); g.arc(x + w / 2, y + w / 2, w / 2, Math.PI, 0); g.lineTo(x + w, y + h); g.closePath(); };
+  function stone(g, x0, y0, x1, y1, bh, base, seed) {
+    g.fillStyle = base; g.fillRect(x0, y0, x1 - x0, y1 - y0);
+    let r = seed || 1; const R = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+    for (let y = y0, row = 0; y < y1; y += bh, row++) {
+      const off = row % 2 ? 0 : bh * 1.1;
+      for (let x = x0 - off; x < x1; x += bh * 2.2) {
+        const v = R(); g.fillStyle = `rgba(${v < .5 ? "0,0,0" : "255,240,220"},${.03 + R() * .06})`; g.fillRect(x + 1, y + 1, bh * 2.2 - 2, bh - 2);
+        g.strokeStyle = "rgba(0,0,0,.35)"; g.lineWidth = 1; g.strokeRect(x + .5, y + .5, bh * 2.2 - 1, bh - 1);
+      }
+    }
+  }
+  function banner(g, x, y, bw, bh, colr) {
+    g.fillStyle = "#6e5a34"; g.fillRect(x - 5, y - 3, bw + 10, 4);
+    g.fillStyle = colr; g.globalAlpha = .9;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + bw, y); g.lineTo(x + bw, y + bh); g.lineTo(x + bw / 2, y + bh - bw * .32); g.lineTo(x, y + bh); g.closePath(); g.fill();
+    const fold = g.createLinearGradient(x, 0, x + bw, 0);
+    fold.addColorStop(0, "rgba(0,0,0,.5)"); fold.addColorStop(.3, "rgba(0,0,0,.05)"); fold.addColorStop(.55, "rgba(255,255,255,.08)"); fold.addColorStop(.75, "rgba(0,0,0,.2)"); fold.addColorStop(1, "rgba(0,0,0,.55)");
+    g.globalAlpha = 1; g.fillStyle = fold; g.fill();
+    g.strokeStyle = "rgba(214,180,100,.6)"; g.lineWidth = 1.2;
+    g.beginPath(); g.moveTo(x + 4, y + 4); g.lineTo(x + bw - 4, y + 4); g.lineTo(x + bw - 4, y + bh - 6); g.lineTo(x + bw / 2, y + bh - bw * .32 - 4); g.lineTo(x + 4, y + bh - 6); g.closePath(); g.stroke();
+    const ey = y + bh * .4; g.fillStyle = "rgba(214,180,100,.55)";
+    g.beginPath(); g.moveTo(x + bw / 2, ey - bw * .26); g.lineTo(x + bw * .78, ey); g.lineTo(x + bw / 2, ey + bw * .26); g.lineTo(x + bw * .22, ey); g.closePath(); g.fill();
+  }
+  const vignette = (g, a) => { const v = g.createRadialGradient(W / 2, H * .55, Math.min(W, H) * .2, W / 2, H * .55, Math.max(W, H) * .75); v.addColorStop(0, `rgba(0,0,0,${a})`); v.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = v; g.fillRect(0, 0, W, H); };
+  const edgeDark = g => { const e = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .45, W / 2, H / 2, Math.max(W, H) * .8); e.addColorStop(0, "rgba(0,0,0,0)"); e.addColorStop(1, "rgba(0,0,0,.55)"); g.fillStyle = e; g.fillRect(0, 0, W, H); };
+
+  // ---- Hogwarts across the Black Lake ----
+  function paintCastle() {
+    const [c, g] = layer(), small = W < 700, s = Math.min(1.25, Math.max(.55, W / 1300));
+    const horizon = H * (small ? .6 : .5), cx = W * (small ? .5 : .6);
+    const win = [];
+    // far mountains in two layers
+    [[horizon - H * .1, "#0e1426", .9, 60], [horizon - H * .04, "#0a0f1d", 1, 34]].forEach(([y, colr, a, amp], k) => {
+      g.globalAlpha = a; g.fillStyle = colr; g.beginPath(); g.moveTo(0, horizon + 2);
+      for (let x = 0; x <= W + 40; x += 40) g.lineTo(x, y - Math.abs(Math.sin(x * .004 + k * 2)) * amp - Math.sin(x * .013 + k) * amp * .3);
+      g.lineTo(W, horizon + 2); g.closePath(); g.fill();
+    });
+    g.globalAlpha = 1;
+    // the castle on its cliff, drawn by a function so the lake can mirror it
+    let rr = 7; const R = () => (rr = (rr * 9301 + 49297) % 233280) / 233280;
+    const towers = [];
+    const cliffTop = horizon - H * .1;
+    const add = (dx, w, h, roof) => towers.push({ x: cx + dx * s, w: w * s, h: h * s, roof });
+    add(-170, 26, 120, "cone"); add(-128, 20, 90, "cone"); add(-92, 70, 70, "hall"); add(-40, 22, 150, "cone"); add(-12, 30, 110, "flat");
+    add(20, 90, 80, "hall"); add(70, 16, 210, "cone"); add(100, 28, 130, "cone"); add(132, 22, 100, "flat"); add(160, 18, 150, "cone"); add(190, 30, 90, "cone");
+    if (!small) { add(-215, 18, 80, "cone"); add(232, 22, 110, "cone"); }
+    function drawCastle(gg, mirror) {
+      // the cliff
+      gg.fillStyle = "#05070d"; gg.beginPath(); gg.moveTo(cx - 290 * s, horizon + 1);
+      gg.lineTo(cx - 250 * s, cliffTop + 30 * s); gg.lineTo(cx - 180 * s, cliffTop + 8 * s); gg.lineTo(cx - 60 * s, cliffTop); gg.lineTo(cx + 120 * s, cliffTop + 4 * s);
+      gg.lineTo(cx + 250 * s, cliffTop + 22 * s); gg.lineTo(cx + 300 * s, horizon + 1); gg.closePath(); gg.fill();
+      for (const t of towers) {
+        const top = cliffTop + 6 * s - t.h, x = t.x - t.w / 2;
+        gg.fillStyle = "#070912"; gg.fillRect(x, top, t.w, t.h);
+        if (t.roof === "cone") { gg.beginPath(); gg.moveTo(x - 2 * s, top); gg.lineTo(t.x, top - t.w * 1.5); gg.lineTo(x + t.w + 2 * s, top); gg.closePath(); gg.fill(); }
+        else if (t.roof === "hall") { gg.beginPath(); gg.moveTo(x, top); gg.lineTo(t.x, top - t.w * .28); gg.lineTo(x + t.w, top); gg.closePath(); gg.fill(); }
+        else { for (let k = 0; k < t.w; k += 6 * s) gg.fillRect(x + k, top - 4 * s, 3 * s, 4 * s); }
+        if (!mirror) { gg.strokeStyle = "rgba(170,182,225,.16)"; gg.lineWidth = 1; gg.beginPath(); gg.moveTo(x + .5, top); gg.lineTo(x + .5, top + t.h); gg.stroke(); }
+      }
+      // the bridge
+      gg.fillStyle = "#070912"; const by = cliffTop - 10 * s;
+      gg.fillRect(cx - 260 * s, by, 110 * s, 6 * s);
+      for (let k = 0; k < 4; k++) { gg.beginPath(); gg.moveTo(cx - 260 * s + k * 28 * s, by + 6 * s); gg.lineTo(cx - 260 * s + k * 28 * s, horizon); gg.lineTo(cx - 252 * s + k * 28 * s, horizon); gg.lineTo(cx - 252 * s + k * 28 * s, by + 6 * s); gg.fill(); }
+    }
+    drawCastle(g, false);
+    // lit windows: warm, many, some in rows on the halls
+    for (const t of towers) {
+      const top = cliffTop + 6 * s - t.h;
+      if (t.roof === "hall") { for (let k = 0; k < 5; k++) { const wx = t.x - t.w / 2 + (k + .5) * t.w / 5 - 2 * s; win.push([wx, top + t.h * .3, 3.5 * s, 12 * s, .9]); } }
+      for (let y = top + 8 * s; y < top + t.h - 6 * s; y += 11 * s) { if (R() < .55) win.push([t.x - 1.5 * s + (R() - .5) * t.w * .5, y, 2.6 * s, 4.2 * s, .5 + R() * .45]); }
+    }
+    for (const [x, y, w, h, a] of win) { g.globalAlpha = a; g.fillStyle = "#ffcf7a"; g.fillRect(x, y, w, h); g.globalAlpha = a * .25; g.fillStyle = "#ffb04a"; g.fillRect(x - w, y - h * .4, w * 3, h * 1.8); }
+    g.globalAlpha = 1;
+    // the Black Lake: deep water, the castle and its windows reflected and broken by ripples, the moon's path
+    const lake = g.createLinearGradient(0, horizon, 0, H);
+    lake.addColorStop(0, "#0b1226"); lake.addColorStop(1, "#02040a");
+    g.fillStyle = lake; g.fillRect(0, horizon, W, H - horizon);
+    g.save(); g.translate(0, horizon * 2); g.scale(1, -1); g.globalAlpha = .55; drawCastle(g, true); g.restore();
+    g.globalAlpha = 1;
+    for (const [x, y, w, h, a] of win) { const ry = horizon + (horizon - y); g.globalAlpha = a * .35; g.fillStyle = "#ffbf5a"; g.fillRect(x - 1, ry, w + 2, h * 2.4); }
+    const fade = g.createLinearGradient(0, horizon, 0, H); fade.addColorStop(0, "rgba(6,10,22,.35)"); fade.addColorStop(1, "rgba(2,4,10,.9)");
+    g.globalAlpha = 1; g.fillStyle = fade; g.fillRect(0, horizon, W, H - horizon);
+    // the shore and the edge of the Forbidden Forest, with Hagrid's hut
+    g.fillStyle = "#020306";
+    g.beginPath(); g.moveTo(0, H); g.lineTo(0, H * .86); g.quadraticCurveTo(W * .18, H * .84, W * .34, H * .93); g.lineTo(W * .34, H); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(W, H); g.lineTo(W, H * .88); g.quadraticCurveTo(W * .88, H * .9, W * .8, H * .96); g.lineTo(W * .8, H); g.closePath(); g.fill();
+    const pine = (x, y, h) => { g.beginPath(); for (let k = 0; k < 4; k++) { const ty = y - h + k * h * .22, w = h * (.16 + k * .07); g.moveTo(x, ty); g.lineTo(x - w, ty + h * .32); g.lineTo(x + w, ty + h * .32); } g.fill(); g.fillRect(x - h * .02, y - h * .1, h * .04, h * .12); };
+    for (let k = 0; k < (small ? 6 : 12); k++) pine(W * (.01 + k * (small ? .045 : .022)), H * (.87 + (k % 3) * .012), H * (.12 + ((k * 37) % 7) * .012));
+    for (let k = 0; k < (small ? 3 : 6); k++) pine(W * (.99 - k * .025), H * (.9 + (k % 2) * .01), H * (.1 + ((k * 23) % 5) * .012));
+    const hx = W * (small ? .3 : .22), hy = H * .875;
+    g.beginPath(); g.moveTo(hx - 22, hy); g.lineTo(hx - 22, hy - 16); g.quadraticCurveTo(hx, hy - 40, hx + 22, hy - 16); g.lineTo(hx + 22, hy); g.closePath(); g.fill();
+    g.fillRect(hx + 8, hy - 38, 6, 14);
+    g.fillStyle = "#ffbe5c"; g.fillRect(hx - 12, hy - 13, 6, 6); g.globalAlpha = .3; g.fillRect(hx - 18, hy - 18, 18, 16); g.globalAlpha = 1;
+    edgeDark(g);
+    sdata.castle = { win, horizon, cx, s, chimney: [hx + 11, hy - 38] };
+    return c;
+  }
+
+  // ---- the Great Hall ----
+  function paintHall() {
+    const [c, g] = layer(), small = W < 700;
+    const beamY = H * .2;
+    stone(g, 0, 0, W, H, small ? 18 : 24, "#25201b", 3);
+    const warm = g.createLinearGradient(0, H, 0, 0); warm.addColorStop(0, "rgba(255,170,80,.12)"); warm.addColorStop(1, "rgba(0,0,0,.25)"); g.fillStyle = warm; g.fillRect(0, 0, W, H);
+    // the enchanted ceiling: the roof dissolves into the night sky
+    g.save(); g.globalCompositeOperation = "destination-out";
+    const ceil = g.createLinearGradient(0, 0, 0, beamY + 30); ceil.addColorStop(0, "rgba(0,0,0,1)"); ceil.addColorStop(.85, "rgba(0,0,0,1)"); ceil.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = ceil; g.fillRect(0, 0, W, beamY + 30); g.restore();
+    // the great beam with a gilt edge
+    g.fillStyle = "#1a120b"; g.fillRect(0, beamY, W, 14); g.fillStyle = "rgba(214,180,100,.5)"; g.fillRect(0, beamY + 14, W, 2);
+    // tall Gothic windows letting in moonlight
+    const ww = Math.max(small ? 46 : 62, W * (small ? .12 : .06)), wy = H * .28, wh = H * .5;
+    const xs = small ? [.12, .88] : [.06, .2, .8, .94];
+    const lights = [];
+    xs.forEach(fx => {
+      const x = W * fx - ww / 2;
+      cut(g, () => gothic(g, x, wy, ww, wh));
+      g.fillStyle = "rgba(110,135,200,.14)"; g.beginPath(); gothic(g, x, wy, ww, wh); g.fill();
+      g.strokeStyle = "#0d0a07"; g.lineWidth = 3; g.beginPath(); gothic(g, x, wy, ww, wh); g.stroke();
+      g.lineWidth = 2; g.beginPath(); g.moveTo(x + ww / 2, wy + 4); g.lineTo(x + ww / 2, wy + wh); g.moveTo(x, wy + wh * .55); g.lineTo(x + ww, wy + wh * .55); g.stroke();
+      g.strokeStyle = "rgba(20,16,12,.55)"; g.lineWidth = .8;
+      for (let k = -wh; k < wh; k += 12) { g.beginPath(); g.moveTo(x, wy + ww * .5 + k); g.lineTo(x + ww, wy + ww * .5 + k + ww); g.moveTo(x + ww, wy + ww * .5 + k); g.lineTo(x, wy + ww * .5 + k + ww); g.stroke(); }
+      g.strokeStyle = "rgba(170,160,140,.35)"; g.lineWidth = 6; g.beginPath(); gothic(g, x - 5, wy - 5, ww + 10, wh + 5); g.stroke();
+      // moonlight falling on the floor
+      const ml = g.createLinearGradient(x, wy + wh, x, H); ml.addColorStop(0, "rgba(160,180,240,.12)"); ml.addColorStop(1, "rgba(160,180,240,0)");
+      g.fillStyle = ml; g.beginPath(); g.moveTo(x, wy + wh); g.lineTo(x + ww, wy + wh); g.lineTo(x + ww * 1.6, H); g.lineTo(x + ww * .4, H); g.closePath(); g.fill();
+    });
+    // house banners hanging from the beam, between the windows
+    const bw = Math.max(26, W * .035), bh = H * .32;
+    (small ? [[.32, 0], [.68, 2]] : [[.13, 0], [.27, 3], [.73, 2], [.87, 1]]).forEach(([fx, hi]) => banner(g, W * fx - bw / 2, beamY + 18, bw, bh, BANNERS[hi]));
+    // wall torches
+    const torches = (small ? [.24, .76] : [.13, .27, .73, .87]).map(fx => [W * fx, H * .66]);
+    for (const [x, y] of torches) { g.fillStyle = "#2a1d10"; g.fillRect(x - 3, y, 6, 18); g.fillRect(x - 7, y + 16, 14, 4); }
+    // the floor and the four long house tables, running away toward the staff table
+    const fy = H * .82, fl = g.createLinearGradient(0, fy, 0, H); fl.addColorStop(0, "#15100b"); fl.addColorStop(1, "#070503");
+    g.fillStyle = fl; g.fillRect(0, fy, W, H - fy);
+    const vx = W / 2, vy = H * .7;
+    [-.38, -.13, .13, .38].forEach(o => {
+      const bx = W / 2 + o * W * 1.3, w = W * .06, nx = vx + o * W * .18;
+      g.fillStyle = "#3a2614"; g.beginPath(); g.moveTo(bx - w, H); g.lineTo(bx + w, H); g.lineTo(nx + w * .18, fy); g.lineTo(nx - w * .18, fy); g.closePath(); g.fill();
+      g.strokeStyle = "rgba(255,200,120,.18)"; g.lineWidth = 1; g.stroke();
+    });
+    g.fillStyle = "#2e1e10"; g.fillRect(W * .35, fy - 6, W * .3, 8);
+    vignette(g, .35); edgeDark(g);
+    sdata.hall = { torches };
+    return c;
+  }
+
+  // ---- the four common rooms ----
+  function paintCommon(house) {
+    const [c, g] = layer(), small = W < 700, d = { lamps: [], stars: [] };
+    if (house === "gryffindor") {
+      stone(g, 0, 0, W, H, small ? 18 : 24, "#3a1714", 5);
+      // tall windows high on the tower wall
+      const ww = small ? 40 : 56, wh = H * .3;
+      [[.07, H * .06], [.93, H * .06]].forEach(([fx, y]) => { const x = W * fx - ww / 2; cut(g, () => roundTop(g, x, y, ww, wh)); g.strokeStyle = "#1a0c08"; g.lineWidth = 3; g.beginPath(); roundTop(g, x, y, ww, wh); g.stroke(); g.lineWidth = 1.5; g.beginPath(); g.moveTo(x + ww / 2, y); g.lineTo(x + ww / 2, y + wh); g.stroke(); });
+      // scarlet tapestries with gold borders
+      (small ? [.2, .8] : [.17, .3, .7, .83]).forEach((fx, k) => {
+        const tw = small ? 40 : 70, x = W * fx - tw / 2, y = H * .08, th = H * .52;
+        g.fillStyle = "#8e1a1f"; g.fillRect(x, y, tw, th);
+        const f = g.createLinearGradient(x, 0, x + tw, 0); f.addColorStop(0, "rgba(0,0,0,.45)"); f.addColorStop(.5, "rgba(255,255,255,.06)"); f.addColorStop(1, "rgba(0,0,0,.45)"); g.fillStyle = f; g.fillRect(x, y, tw, th);
+        g.strokeStyle = "#d9a83e"; g.lineWidth = 2; g.strokeRect(x + 5, y + 5, tw - 10, th - 10);
+        g.fillStyle = "rgba(217,168,62,.55)"; for (let yy = y + 30; yy < y + th - 20; yy += 34) { g.beginPath(); g.moveTo(x + tw / 2, yy - 9); g.lineTo(x + tw / 2 + 8, yy); g.lineTo(x + tw / 2, yy + 9); g.lineTo(x + tw / 2 - 8, yy); g.closePath(); g.fill(); }
+        g.fillStyle = "#d9a83e"; for (let k2 = 0; k2 < tw; k2 += 6) g.fillRect(x + k2, y + th, 2, 8);
+      });
+      // the great fireplace
+      const fw = Math.min(W * .4, 520), fh = H * .3, fx = W / 2 - fw / 2, fy0 = H - fh;
+      g.fillStyle = "#4a3a30"; g.fillRect(fx - 26, fy0 - 26, fw + 52, fh + 26);
+      g.fillStyle = "#2d211b"; g.fillRect(fx - 40, fy0 - 40, fw + 80, 16);
+      cut(g, () => roundTop(g, fx, fy0, fw, fh + 4));
+      g.fillStyle = "#120604"; g.beginPath(); roundTop(g, fx, fy0, fw, fh + 4); g.fill();
+      d.fire = [W / 2, H - 6, fw * .7];
+      // armchairs either side of the fire
+      [[W / 2 - fw * .85, 1], [W / 2 + fw * .85, -1]].forEach(([x, dir]) => { g.fillStyle = "#5a1416"; g.beginPath(); g.ellipse(x, H - 30, 48, 26, 0, 0, TAU); g.fill(); g.fillRect(x - 46, H - 30, 92, 30); g.beginPath(); g.ellipse(x + dir * 10, H - 66, 40, 44, 0, 0, TAU); g.fill(); g.fillStyle = "rgba(255,140,60,.18)"; g.beginPath(); g.ellipse(x - dir * 20, H - 60, 18, 40, 0, 0, TAU); g.fill(); });
+      vignette(g, .3); edgeDark(g);
+    }
+    if (house === "slytherin") {
+      stone(g, 0, 0, W, H, small ? 18 : 22, "#1c2a24", 8);
+      // windows looking out under the lake
+      const ww = small ? 50 : 80, wh = H * .2;
+      (small ? [.25, .75] : [.12, .32, .68, .88]).forEach(fx => {
+        const x = W * fx - ww / 2, y = H * .05;
+        cut(g, () => roundTop(g, x, y, ww, wh));
+        const water = g.createLinearGradient(0, y, 0, y + wh); water.addColorStop(0, "#2f8a6a"); water.addColorStop(1, "#08261c");
+        g.fillStyle = water; g.beginPath(); roundTop(g, x, y, ww, wh); g.fill();
+        g.strokeStyle = "rgba(200,255,230,.25)"; g.lineWidth = 1; for (let k = 0; k < 4; k++) { g.beginPath(); g.moveTo(x + ww * (.15 + k * .22), y); g.lineTo(x + ww * (.05 + k * .22), y + wh); g.stroke(); }
+        g.strokeStyle = "#0b120f"; g.lineWidth = 4; g.beginPath(); roundTop(g, x, y, ww, wh); g.stroke();
+        d.lamps.push([x + ww / 2, y + wh + 40]);
+      });
+      // low stone arches along the dungeon
+      const aw = small ? 120 : 220;
+      for (let x = -aw / 2; x < W + aw; x += aw) {
+        g.strokeStyle = "rgba(0,0,0,.55)"; g.lineWidth = 16; g.beginPath(); g.arc(x, H * .62, aw * .55, Math.PI, 0); g.stroke();
+        g.strokeStyle = "rgba(160,190,175,.12)"; g.lineWidth = 2; g.beginPath(); g.arc(x, H * .62, aw * .55 - 8, Math.PI, 0); g.stroke();
+        g.fillStyle = "#121b17"; g.fillRect(x - 12, H * .62, 24, H * .38);
+      }
+      // hanging lamps on chains
+      for (const [x, y] of d.lamps) { g.strokeStyle = "#2a2a2a"; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, H * .27); g.lineTo(x, y - 10); g.stroke(); g.fillStyle = "#1d2b25"; g.beginPath(); g.moveTo(x - 8, y - 10); g.lineTo(x + 8, y - 10); g.lineTo(x + 5, y + 10); g.lineTo(x - 5, y + 10); g.closePath(); g.fill(); }
+      // black leather sofas
+      [[W * .18, 1], [W * .82, -1]].forEach(([x]) => { g.fillStyle = "#0a0f0d"; g.fillRect(x - 70, H - 46, 140, 46); g.beginPath(); g.ellipse(x, H - 50, 74, 18, 0, Math.PI, 0); g.fill(); });
+      vignette(g, .3); edgeDark(g);
+    }
+    if (house === "ravenclaw") {
+      g.fillStyle = "#16213f"; g.fillRect(0, 0, W, H);
+      // the domed ceiling, painted with stars, ribbed in bronze
+      const domeH = H * .42, dome = g.createRadialGradient(W / 2, 0, 0, W / 2, 0, Math.max(W, domeH) * .9);
+      dome.addColorStop(0, "#1c2f6e"); dome.addColorStop(1, "#0b1433");
+      g.fillStyle = dome; g.fillRect(0, 0, W, domeH);
+      g.strokeStyle = "rgba(196,138,75,.55)"; g.lineWidth = 2;
+      for (let k = -4; k <= 4; k++) { g.beginPath(); g.moveTo(W / 2, -H * .2); g.quadraticCurveTo(W / 2 + k * W * .12, domeH * .3, W / 2 + k * W * .16, domeH); g.stroke(); }
+      for (let i = 0; i < (small ? 40 : 110); i++) { const x = rnd() * W, y = rnd() * domeH * .95, r = 1 + rnd() * 2.2; d.stars.push([x, y, r, rnd() * TAU]);
+        g.fillStyle = "rgba(240,210,150,.85)"; g.beginPath(); g.moveTo(x, y - r * 2); g.lineTo(x + r * .5, y - r * .5); g.lineTo(x + r * 2, y); g.lineTo(x + r * .5, y + r * .5); g.lineTo(x, y + r * 2); g.lineTo(x - r * .5, y + r * .5); g.lineTo(x - r * 2, y); g.lineTo(x - r * .5, y - r * .5); g.closePath(); g.fill(); }
+      g.fillStyle = "#b07a3e"; g.fillRect(0, domeH, W, 6); g.fillStyle = "#3a2a18"; g.fillRect(0, domeH + 6, W, 4);
+      // arched windows round the tower, with blue silk drapes
+      const ww = small ? 44 : 64, wh = H * .32;
+      (small ? [.1, .9] : [.08, .22, .78, .92]).forEach(fx => {
+        const x = W * fx - ww / 2, y = domeH + 26;
+        cut(g, () => gothic(g, x, y, ww, wh));
+        g.strokeStyle = "#0a1026"; g.lineWidth = 3; g.beginPath(); gothic(g, x, y, ww, wh); g.stroke();
+        g.strokeStyle = "rgba(196,138,75,.6)"; g.lineWidth = 2; g.beginPath(); gothic(g, x - 4, y - 4, ww + 8, wh + 4); g.stroke();
+        g.fillStyle = "#2a4aa0"; [[x - 14, 1], [x + ww + 14, -1]].forEach(([dx, dir]) => { g.beginPath(); g.moveTo(dx, y - 6); g.quadraticCurveTo(dx + dir * 20, y + wh * .5, dx + dir * 4, y + wh + 10); g.lineTo(dx - dir * 6, y + wh + 10); g.quadraticCurveTo(dx - dir * 2, y + wh * .5, dx - dir * 8, y - 6); g.closePath(); g.fill(); });
+      });
+      // bookshelves low on the walls
+      for (let x = 0; x < W; x += small ? 70 : 110) { if (x > W * .3 && x < W * .7) continue; g.fillStyle = "#1a1410"; g.fillRect(x, H * .8, (small ? 60 : 96), H * .2); for (let k = 0; k < 4; k++) for (let b = 0; b < 8; b++) { g.fillStyle = ["#2a3f7a", "#6a4a24", "#3a2a5a", "#7a5a2a"][(k + b) % 4]; g.fillRect(x + 4 + b * (small ? 7 : 11), H * .82 + k * H * .045, small ? 5 : 8, H * .035); } }
+      vignette(g, .32); edgeDark(g);
+    }
+    if (house === "hufflepuff") {
+      g.fillStyle = "#3a2a14"; g.fillRect(0, 0, W, H);
+      // warm wooden panelling
+      for (let x = 0; x < W; x += 46) { g.fillStyle = `rgba(${x % 92 ? "0,0,0" : "255,220,150"},.06)`; g.fillRect(x, H * .3, 46, H * .7); g.strokeStyle = "rgba(0,0,0,.35)"; g.beginPath(); g.moveTo(x, H * .3); g.lineTo(x, H); g.stroke(); }
+      // low ceiling beams with trailing plants
+      g.fillStyle = "#1e1408"; g.fillRect(0, 0, W, H * .06); for (let x = 30; x < W; x += small ? 120 : 200) { g.fillRect(x, 0, 18, H * .3); }
+      for (let x = 60; x < W; x += small ? 90 : 140) { g.strokeStyle = "#3f6b2a"; g.lineWidth = 2; g.beginPath(); g.moveTo(x, H * .06); for (let y = H * .06; y < H * .06 + 40 + (x % 5) * 14; y += 6) g.lineTo(x + Math.sin(y * .1) * 5, y); g.stroke(); g.fillStyle = "#5c8a3a"; for (let y = H * .1; y < H * .06 + 40 + (x % 5) * 14; y += 10) { g.beginPath(); g.ellipse(x + Math.sin(y * .1) * 5 + 4, y, 4, 2.4, .5, 0, TAU); g.fill(); } }
+      // round windows looking out at grass level
+      const r = small ? 34 : 54;
+      (small ? [.18, .82] : [.12, .3, .7, .88]).forEach(fx => {
+        const x = W * fx, y = H * .2;
+        cut(g, () => g.arc(x, y, r, 0, TAU));
+        g.fillStyle = "#3f7a2c"; g.beginPath(); g.arc(x, y, r, Math.PI * .15, Math.PI * .85); g.closePath(); g.fill();
+        g.strokeStyle = "#1a1206"; g.lineWidth = 6; g.beginPath(); g.arc(x, y, r, 0, TAU); g.stroke();
+        g.strokeStyle = "#c98f32"; g.lineWidth = 2; g.beginPath(); g.arc(x, y, r + 5, 0, TAU); g.stroke();
+        g.lineWidth = 2; g.strokeStyle = "#1a1206"; g.beginPath(); g.moveTo(x - r, y); g.lineTo(x + r, y); g.moveTo(x, y - r); g.lineTo(x, y + r); g.stroke();
+        d.lamps.push([x, y + r + 36]);
+      });
+      // the round door
+      const dr = small ? 46 : 70, dx = W * (small ? .12 : .08), dy = H - dr * .2;
+      g.fillStyle = "#6a4518"; g.beginPath(); g.arc(dx, dy, dr, 0, TAU); g.fill();
+      g.strokeStyle = "rgba(0,0,0,.4)"; g.lineWidth = 2; for (let k = -dr; k < dr; k += 12) { g.beginPath(); g.moveTo(dx + k, dy - Math.sqrt(dr * dr - k * k)); g.lineTo(dx + k, dy + Math.sqrt(dr * dr - k * k)); g.stroke(); }
+      g.strokeStyle = "#c98f32"; g.lineWidth = 3; g.beginPath(); g.arc(dx, dy, dr, 0, TAU); g.stroke(); g.fillStyle = "#e0b14a"; g.beginPath(); g.arc(dx, dy, 5, 0, TAU); g.fill();
+      // copper lamps
+      for (const [x, y] of d.lamps) { g.strokeStyle = "#5a3a16"; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, y - 30); g.lineTo(x, y - 8); g.stroke(); g.fillStyle = "#b8742a"; g.beginPath(); g.arc(x, y, 7, Math.PI, 0); g.fill(); }
+      vignette(g, .3); edgeDark(g);
+    }
+    sdata[house] = d;
+    return c;
+  }
+  function getScene(key) {
+    if (!scenes[key]) scenes[key] = key === "castle" ? paintCastle() : key === "hall" ? paintHall() : paintCommon(key);
+    return scenes[key];
+  }
+  // small motion on top of each scene
+  function animScene(key, t, a) {
+    const d = sdata[key]; if (!d || a <= .01) return;
+    if (key === "castle") {
+      ctx.globalCompositeOperation = "lighter";
+      for (let i = 0; i < d.win.length; i += 3) { const [x, y, w, h] = d.win[i], f = .5 + .5 * Math.sin(t * .0013 * (1 + i % 5) + i); ctx.globalAlpha = a * f * .45; ctx.fillStyle = "#ffd88a"; ctx.fillRect(x - w * .6, y - h * .3, w * 2.2, h * 1.6); }
+      // the moon's path and ripples on the lake
+      for (let k = 0; k < 26; k++) { const y = d.horizon + 6 + (k * k) * (H - d.horizon) / 700, x = W * (W < 600 ? .78 : .66) + Math.sin(t * .0012 + k * 1.7) * (8 + k * 2.2), w = 10 + k * 3.2;
+        ctx.globalAlpha = a * .35 * (1 - k / 30); ctx.fillStyle = "#d8def5"; ctx.fillRect(x - w / 2, y, w, 1.2); }
+      ctx.globalCompositeOperation = "source-over";
+      // smoke curling from Hagrid's chimney
+      const [cx0, cy0] = d.chimney;
+      for (let k = 0; k < 6; k++) { const p = ((t * .00012 + k / 6) % 1); ctx.globalAlpha = a * .18 * (1 - p); ctx.fillStyle = "#9aa0b4"; ctx.beginPath(); ctx.arc(cx0 + Math.sin(p * 6 + k) * 6 + p * 20, cy0 - p * 70, 4 + p * 14, 0, TAU); ctx.fill(); }
+    }
+    if (key === "hall") {
+      for (const [x, y] of d.torches) { const fl = 1 + Math.sin(t * .013 + x) * .15 + Math.sin(t * .029 + y) * .08;
+        const gl = ctx.createRadialGradient(x, y - 6, 0, x, y - 6, 60); gl.addColorStop(0, `rgba(255,170,70,${.35 * a})`); gl.addColorStop(1, "rgba(255,170,70,0)"); ctx.globalAlpha = 1; ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(x, y - 6, 60, 0, TAU); ctx.fill();
+        ctx.globalAlpha = a; ctx.fillStyle = "#ff9a3a"; ctx.beginPath(); ctx.ellipse(x, y - 8 * fl, 5, 12 * fl, 0, 0, TAU); ctx.fill(); ctx.fillStyle = "#ffe6a6"; ctx.beginPath(); ctx.ellipse(x, y - 5, 2.2, 6, 0, 0, TAU); ctx.fill(); }
+    }
+    if (key === "gryffindor" && d.fire) {
+      const [x, y, w] = d.fire;
+      const gl = ctx.createRadialGradient(x, y, 0, x, y, w * 1.2); gl.addColorStop(0, `rgba(255,150,60,${.4 * a})`); gl.addColorStop(1, "rgba(255,90,30,0)");
+      ctx.globalAlpha = 1; ctx.fillStyle = gl; ctx.fillRect(x - w * 1.2, y - w * 1.2, w * 2.4, w * 1.2);
+      ctx.globalCompositeOperation = "lighter";
+      for (let k = 0; k < 9; k++) { const fx = x + (k - 4) * w / 10, h = (40 + (k % 3) * 22) * (1 + .25 * Math.sin(t * .012 + k * 1.3)), sway = Math.sin(t * .008 + k) * 6;
+        ctx.globalAlpha = a * .8; ctx.fillStyle = k % 2 ? "#ff7a26" : "#ffb347";
+        ctx.beginPath(); ctx.moveTo(fx - 14, y); ctx.quadraticCurveTo(fx - 10 + sway, y - h * .6, fx + sway * 1.6, y - h); ctx.quadraticCurveTo(fx + 10 + sway, y - h * .6, fx + 14, y); ctx.closePath(); ctx.fill(); }
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = a; ctx.fillStyle = "#2a1408"; ctx.fillRect(x - w * .4, y - 8, w * .8, 8);
+    }
+    if ((key === "slytherin" || key === "hufflepuff") && d.lamps) {
+      const colr = key === "slytherin" ? "120,255,170" : "255,190,90";
+      for (const [x, y] of d.lamps) { const f = .75 + .25 * Math.sin(t * .004 + x);
+        const gl = ctx.createRadialGradient(x, y, 0, x, y, 70); gl.addColorStop(0, `rgba(${colr},${.32 * a * f})`); gl.addColorStop(1, `rgba(${colr},0)`);
+        ctx.globalAlpha = 1; ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(x, y, 70, 0, TAU); ctx.fill(); ctx.globalAlpha = a; ctx.fillStyle = `rgb(${colr})`; ctx.beginPath(); ctx.arc(x, y, 3, 0, TAU); ctx.fill(); }
+    }
+    if (key === "ravenclaw" && d.stars) {
+      ctx.globalCompositeOperation = "lighter";
+      for (const [x, y, r, p] of d.stars) { const f = .5 + .5 * Math.sin(t * .002 + p); ctx.globalAlpha = a * f * .4; ctx.fillStyle = "#ffe0a0"; ctx.beginPath(); ctx.arc(x, y, r * 2.4, 0, TAU); ctx.fill(); }
+      ctx.globalCompositeOperation = "source-over";
+    }
+    ctx.globalAlpha = 1;
+  }
+  function drawScenes(t, dt) {
+    const key = sceneKey();
+    if (key !== curScene) { prevScene = curScene; curScene = key; sceneMix = prevScene ? 0 : 1; }
+    sceneMix = Math.min(1, sceneMix + (dt ? dt / 900 : 1));
+    if (prevScene && sceneMix < 1) { ctx.globalAlpha = 1 - sceneMix; ctx.drawImage(getScene(prevScene), 0, 0, W, H); animScene(prevScene, t, 1 - sceneMix); }
+    ctx.globalAlpha = sceneMix; ctx.drawImage(getScene(curScene), 0, 0, W, H); animScene(curScene, t, sceneMix);
+    ctx.globalAlpha = 1;
+  }
+
   function draw(t, dt) {
     readColours(t);
     if (bg) ctx.drawImage(bg, 0, 0, W, H);
@@ -378,8 +701,8 @@
     }
     for (const f of flyers) if (f.far && f.wait <= 0) rider(f, t);
     ctx.globalAlpha = 1;
-    if (stad) ctx.drawImage(stad, 0, 0, W, H);
-    const want = root.dataset.screen === "game" ? 0 : 1;
+    drawScenes(t, dt);
+    const want = curScene === "hall" ? 1 : 0;
     candleAlpha += (want - candleAlpha) * (dt ? Math.min(1, dt / 400) : 1);
     if (candleAlpha > .02) { ctx.globalAlpha = candleAlpha; for (const cd of candles) candle(cd, t); ctx.globalAlpha = 1; }
     for (const f of flyers) if (!f.far && f.wait <= 0) rider(f, t);
