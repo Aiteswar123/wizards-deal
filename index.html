@@ -8,16 +8,28 @@
 <meta name="theme-color" content="#0b0f17">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Grenze+Gotisch:wght@500;700;800&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
 <style>
-/* Quidditch matchday: a bulb-lit scoreboard races everyone to three sets, the shared table is a floodlit pitch,
-   your hand sits at the thumb. Amber is reserved for the live move: your turn and the active turn light. */
+/* Quidditch matchday in house colours: a bulb-lit scoreboard races everyone to three sets, the shared table is a floodlit pitch,
+   your hand sits at the thumb. Each player's screen takes the colours of their character's Hogwarts house (data-house on <html>);
+   before the sorting it is the Great Hall at night. --live is reserved for the live move: your turn and the active turn light. */
+@property --stand{syntax:"<color>";inherits:true;initial-value:#17132b}
+@property --stand-2{syntax:"<color>";inherits:true;initial-value:#201a3a}
+@property --line{syntax:"<color>";inherits:true;initial-value:#352c5c}
+@property --board{syntax:"<color>";inherits:true;initial-value:#0b0916}
+@property --board-2{syntax:"<color>";inherits:true;initial-value:#151127}
+@property --live{syntax:"<color>";inherits:true;initial-value:#ffb23e}
+@property --crest{syntax:"<color>";inherits:true;initial-value:#d8b25a}
 :root{
-  --stand:#14213f; --stand-2:#1a2a50; --stand-3:#22366a; --line:#2c4078; --line-2:#3a5296;
-  --board:#0b0f17; --board-2:#141a27; --bulb-off:#222a3b;
+  --stand:#17132b; --stand-2:#201a3a; --stand-3:#2a234b; --line:#352c5c; --line-2:#463b76;
+  --board:#0b0916; --board-2:#151127; --bulb-off:#262041;
+  --live:#ffb23e; --live-ink:#2a1700; --crest:#d8b25a;
+  --muted:#b5acd6; --dim:#8d84b6;
   --pitch:#2e7d46; --pitch-2:#286e3d; --chalk:#f4f1e8; --chalk-2:rgba(244,241,232,.62);
-  --amber:#ffb23e; --amber-ink:#2a1700;
-  --ink:#f4f1e8; --muted:#a9b4d2; --dim:#7f8bb0;
+  --ink:#f4f1e8; --ink-2:color-mix(in srgb,var(--chalk) 82%,var(--muted));
+  --galleon:#e2b23a; --galleon-ink:#2b1d00;
+  --magic:"Grenze Gotisch","Big Shoulders Display",serif;
+  transition:--stand .9s ease,--stand-2 .9s ease,--line .9s ease,--board .9s ease,--board-2 .9s ease,--live .9s ease,--crest .9s ease;
   --card:#f6f3ea; --card-ink:#141a27; --card-muted:#59607a;
   --spell:#8e6ad8; --spell-face:#efe9fb; --ok:#6fd49a; --warn:#ff9f5e; --bad:#ff6b6b;
   --display:"Big Shoulders Display","Barlow Condensed",sans-serif;
@@ -26,16 +38,28 @@
   --ease:cubic-bezier(.16,1,.3,1);
   color-scheme:dark;
 }
+/* Gryffindor: scarlet and gold */
+:root[data-house=gryffindor]{--stand:#2a0b0f;--stand-2:#3a1016;--stand-3:#4d1620;--line:#5e1d28;--line-2:#7a2734;--board:#130406;--board-2:#200a0e;--bulb-off:#3b1a1f;
+  --live:#f6c344;--live-ink:#2b1a00;--crest:#eeba30;--muted:#e0b7b3;--dim:#bf8f8b}
+/* Slytherin: green and silver */
+:root[data-house=slytherin]{--stand:#071c16;--stand-2:#0c281f;--stand-3:#12352a;--line:#184536;--line-2:#225a47;--board:#030c09;--board-2:#091712;--bulb-off:#163027;
+  --live:#5fe3a0;--live-ink:#02200f;--crest:#c0c7cf;--muted:#a9cdbf;--dim:#7ea596}
+/* Ravenclaw: blue and bronze */
+:root[data-house=ravenclaw]{--stand:#0b1533;--stand-2:#111e45;--stand-3:#18295a;--line:#20346e;--line-2:#2c4488;--board:#050a1a;--board-2:#0b132b;--bulb-off:#1c2644;
+  --live:#e8a065;--live-ink:#2a1300;--crest:#c48a4b;--muted:#adb9dc;--dim:#8492bf}
+/* Hufflepuff: yellow and black */
+:root[data-house=hufflepuff]{--stand:#16130a;--stand-2:#211c0e;--stand-3:#2c2512;--line:#3a3117;--line-2:#50441f;--board:#0a0905;--board-2:#14120a;--bulb-off:#2b2614;
+  --live:#ffd43f;--live-ink:#221900;--crest:#ecb939;--muted:#d4c89f;--dim:#ab9f77}
 *{box-sizing:border-box}
 ::selection{background:var(--chalk);color:var(--board)}
 html{scrollbar-color:var(--line-2) var(--stand);accent-color:var(--chalk);-webkit-text-size-adjust:100%}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:10px;border:2px solid var(--stand)}
-input,select{caret-color:var(--amber)}
+input,select{caret-color:var(--live)}
 html,body{min-height:100%}
 body{margin:0;background:var(--stand);color:var(--ink);font:400 1rem/1.5 var(--body);padding-inline:16px;
   padding-block:env(safe-area-inset-top,0px) calc(56px + env(safe-area-inset-bottom,0px));
-  background-image:linear-gradient(180deg,#101a33 0,var(--stand) 28rem)}
+  background-image:radial-gradient(ellipse 70rem 30rem at 50% -10rem,color-mix(in srgb,var(--crest) 16%,transparent),transparent 70%),linear-gradient(180deg,var(--board) 0,var(--stand) 30rem)}
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:2px solid var(--chalk);outline-offset:3px}
@@ -53,7 +77,7 @@ a{color:var(--chalk);text-underline-offset:3px}
 /* Controls */
 .btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:2.75rem;border:1px solid var(--line-2);background:var(--stand-3);border-radius:4px;
   padding:.55rem 1.1rem;font:700 1rem/1 var(--label);letter-spacing:.07em;text-transform:uppercase;transition:background-color .15s,border-color .15s,transform .15s var(--ease)}
-.btn:hover:not(:disabled){border-color:var(--chalk);background:#2a4280}
+.btn:hover:not(:disabled){border-color:var(--chalk);background:var(--line)}
 .btn:active:not(:disabled){transform:translateY(1px)}
 .btn.primary{background:var(--chalk);color:var(--board);border-color:var(--chalk)}
 .btn.primary:hover:not(:disabled){background:#fff}
@@ -74,8 +98,9 @@ input::placeholder{color:var(--dim);opacity:1}
 
 /* Home */
 .mast{padding-block:2.5rem 1.75rem;display:grid;gap:1.5rem;align-items:end}
-.mast h1{font-size:clamp(3.4rem,15vw,6rem);font-weight:900;text-transform:uppercase;line-height:.86;letter-spacing:-.005em}
-.mast h1 span{display:block;color:transparent;-webkit-text-stroke:2px var(--chalk)}
+.mast{position:relative;padding-top:7rem}
+.mast h1{font:700 clamp(3.6rem,16vw,6rem)/.85 var(--magic);letter-spacing:0}
+.mast h1 span{display:block;color:var(--crest);padding-left:.35em}
 .mast p{max-width:58ch;color:var(--muted);font-size:1.1rem;margin-top:1rem}
 .race{display:flex;align-items:center;gap:1rem;background:var(--board);padding:1rem 1.25rem;border-radius:6px;box-shadow:0 18px 30px -18px rgba(0,0,0,.8);justify-self:start}
 .race p{margin:0;font:700 1rem/1.15 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--chalk);max-width:11ch}
@@ -83,7 +108,7 @@ input::placeholder{color:var(--dim);opacity:1}
 .home-grid{display:grid;gap:1rem;grid-template-columns:minmax(0,1fr)}
 @media (min-width:860px){.home-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .kit{background:var(--stand-2);border:1px solid var(--line);border-radius:8px;padding:1.4rem;display:flex;flex-direction:column;gap:1.4rem;min-width:0}
-.kit h2,.fixtures h2,.lobby h2{font-size:1.65rem;text-transform:uppercase}
+.kit h2,.fixtures h2,.lobby h2{font:700 1.9rem/1 var(--magic)}
 .field{display:flex;flex-direction:column;gap:.55rem}
 .field p{font-size:.92rem;color:var(--muted)}
 #myname{width:100%;max-width:22rem;font-size:1.1rem}
@@ -106,13 +131,13 @@ input::placeholder{color:var(--dim);opacity:1}
 
 /* How to play */
 .ref{margin-top:1.5rem;background:var(--stand-2);border:1px solid var(--line);border-radius:8px;padding:0 1.25rem}
-.ref summary{cursor:pointer;padding:1.05rem 0;font:800 1.35rem/1 var(--display);text-transform:uppercase;list-style:none;display:flex;align-items:center;justify-content:space-between}
+.ref summary{cursor:pointer;padding:1.05rem 0;font:700 1.6rem/1 var(--magic);list-style:none;display:flex;align-items:center;justify-content:space-between}
 .ref summary::-webkit-details-marker{display:none}
 .ref summary::after{content:"";width:.6rem;height:.6rem;border-right:2px solid var(--chalk);border-bottom:2px solid var(--chalk);transform:rotate(45deg) translateY(-3px);transition:transform .2s var(--ease)}
 .ref[open] summary::after{transform:rotate(225deg) translate(-2px,-2px)}
 .ref .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr));gap:1.5rem;padding-bottom:1.4rem}
 .ref h3{font:700 1rem/1 var(--label);letter-spacing:.1em;text-transform:uppercase;margin:0 0 .6rem;color:var(--chalk)}
-.ref li{font-size:.94rem;margin-bottom:.4rem;color:#d7dcea}
+.ref li{font-size:.94rem;margin-bottom:.4rem;color:var(--ink-2)}
 .ref li b{color:var(--chalk)}
 
 /* Lobby */
@@ -133,30 +158,30 @@ input::placeholder{color:var(--dim);opacity:1}
 /* Scoreboard */
 .board{background:var(--board);margin-inline:-16px;padding:.7rem 16px .85rem;box-shadow:0 18px 30px -20px rgba(0,0,0,.9);position:relative}
 .board-top{display:flex;align-items:center;gap:.5rem .9rem;flex-wrap:wrap}
-.mark{font:900 1.35rem/1 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.mark{font:700 1.6rem/1 var(--magic);color:var(--crest)}
 .tcode{font:600 .85rem/1 var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .tcode b{color:var(--chalk);font-family:var(--display);font-size:1.05rem;letter-spacing:.16em;margin-left:.2rem}
 .cols{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));margin-top:.7rem;border-top:1px solid var(--board-2)}
 .col{position:relative;padding:.7rem .4rem .55rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.3rem;min-width:0}
 .col+.col{border-left:1px solid var(--board-2)}
-.col::before{content:"";position:absolute;inset:0 .4rem auto;height:4px;background:var(--c);border-radius:0 0 2px 2px}
+.col::before{content:"";position:absolute;inset:0 .4rem auto;height:6px;background:linear-gradient(var(--c) 0 4px,var(--c2,var(--c)) 4px);border-radius:0 0 2px 2px}
 .col .nm{font:700 1rem/1.05 var(--label);text-transform:uppercase;letter-spacing:.05em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .col .ch{font:500 .78rem/1 var(--label);color:var(--dim);letter-spacing:.05em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .col .bulbs{margin:.25rem 0 .1rem}
 .col .of{font:500 .74rem/1.15 var(--label);color:var(--dim);letter-spacing:.04em}
 .col em{font:700 .7rem/1 var(--label);font-style:normal;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:.3rem}
 .col em::before{content:"";width:.45rem;height:.45rem;border-radius:50%;background:currentColor}
-.col.live{background:linear-gradient(180deg,rgba(255,178,62,.1),transparent 70%)}
-.col.live .bulbs{--lit:var(--amber)}
-.col.live .nm{color:var(--amber)}
-.col .turnlight{color:var(--amber)}
+.col.live{background:linear-gradient(180deg,color-mix(in srgb,var(--live) 13%,transparent),transparent 70%)}
+.col.live .bulbs{--lit:var(--live)}
+.col.live .nm{color:var(--live)}
+.col .turnlight{color:var(--live)}
 .col .resp{color:var(--warn)}
 .col.rise .bulbs i.on{animation:bulb .55s var(--ease) calc(var(--i) * 40ms) both}
 .frozen{color:var(--warn)}
-.ticker{display:flex;gap:.6rem;align-items:baseline;margin-top:.55rem;background:var(--board-2);border-radius:4px;padding:.45rem .65rem;font-size:.9rem;color:#d7dcea;min-width:0}
+.ticker{display:flex;gap:.6rem;align-items:baseline;margin-top:.55rem;background:var(--board-2);border-radius:4px;padding:.45rem .65rem;font-size:.9rem;color:var(--ink-2);min-width:0}
 .ticker .tl{flex:none;font:700 .72rem/1 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .ticker b{color:var(--chalk)}
-@media (max-width:480px){.col .hn{display:none}.col .ch{display:none}.col .nm{font-size:.9rem}.bulbs{--b:7px;--g:2px}.col .of{font-size:.68rem}}
+@media (max-width:480px){.mark{font-size:1.25rem}.tcode{font-size:.75rem}.board-top .btn.small{padding:.35rem .55rem;font-size:.78rem}.col .hn{display:none}.col .ch{display:none}.col .nm{font-size:.9rem}.bulbs{--b:7px;--g:2px}.col .of{font-size:.68rem}}
 .conn{font:600 .85rem/1 var(--label);letter-spacing:.06em;color:var(--warn)}
 
 /* Arena */
@@ -173,15 +198,15 @@ input::placeholder{color:var(--dim);opacity:1}
 .piles{display:flex;gap:1.1rem;align-items:flex-end;justify-content:center}
 .pile{display:flex;flex-direction:column;align-items:center;gap:.3rem;font:600 .78rem/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--chalk)}
 .back{position:relative;width:4.2rem;height:5.8rem;border-radius:6px;background:var(--board);display:grid;place-items:center;font:900 1.6rem/1 var(--display);color:var(--chalk);
-  box-shadow:0 1px 0 var(--board),0 3px 0 #2a3246,0 5px 0 var(--board),0 10px 16px -6px rgba(0,0,0,.6)}
+  box-shadow:0 1px 0 var(--board),0 3px 0 var(--bulb-off),0 5px 0 var(--board),0 10px 16px -6px rgba(0,0,0,.6)}
 .back::before{content:"";position:absolute;inset:4px;border:1px solid rgba(244,241,232,.35);border-radius:3px}
 .slot{width:4.2rem;height:5.8rem;border-radius:6px;border:2px dashed var(--chalk-2)}
-.say{font:900 clamp(1.9rem,7vw,2.6rem)/.95 var(--display);text-transform:uppercase;text-shadow:0 2px 6px rgba(0,0,0,.4);max-width:22ch}
-.say.mine{color:var(--amber)}
+.say{font:700 clamp(2.2rem,8.5vw,3.1rem)/.95 var(--magic);text-shadow:0 2px 6px rgba(0,0,0,.4);max-width:22ch}
+.say.mine{color:var(--live)}
 .sub{font:500 .95rem/1.3 var(--body);color:var(--chalk);opacity:.9;max-width:36ch}
 .dots{display:flex;gap:5px;justify-content:center}
 .dots i{width:1.5rem;height:.45rem;border-radius:2px;background:rgba(11,15,23,.55)}
-.dots i.used{background:var(--amber)}
+.dots i.used{background:var(--live)}
 .pitch.flash::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(100deg,transparent 30%,rgba(255,246,220,.38) 50%,transparent 70%);animation:flood 1.1s var(--ease) both}
 @keyframes flood{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 .pitch.flash .say{animation:sayin .7s var(--ease)}
@@ -190,15 +215,23 @@ input::placeholder{color:var(--dim);opacity:1}
 
 /* Seats: opponents and you */
 .opps{grid-area:opps;display:flex;flex-direction:column;gap:.75rem;min-width:0}
-.opps>h2,.zone h2,.log h2{font-size:1.35rem;text-transform:uppercase}
+.opps>h2,.zone h2,.log h2{font:700 1.7rem/1 var(--magic)}
 .seat{position:relative;background:var(--stand-2);border:1px solid var(--line);border-radius:8px;padding:.95rem .9rem .85rem;display:flex;flex-direction:column;gap:.7rem;min-width:0;overflow:hidden}
-.seat::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--c)}
-.seat.turn{border-color:rgba(255,178,62,.7)}
+.seat::before{content:"";position:absolute;inset:0 0 auto;height:6px;background:linear-gradient(var(--c) 0 4px,var(--c2,var(--c)) 4px)}
+.seat.turn{border-color:color-mix(in srgb,var(--live) 70%,transparent)}
 .seat.acting{border-color:var(--warn)}
 .who{display:flex;align-items:center;gap:.65rem;min-width:0}
 .who b{display:block;font:700 1.1rem/1.1 var(--label);text-transform:uppercase;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .who small{display:block;color:var(--muted);font-size:.84rem}
-.crest{flex:none;width:2.4rem;height:2.4rem;border-radius:50%;display:grid;place-items:center;font:900 1.25rem/1 var(--display);color:var(--board);background:var(--c)}
+.shield{flex:none;width:2.4rem;height:2.76rem;filter:drop-shadow(0 4px 5px rgba(0,0,0,.45))}
+.shield text{font:700 17px var(--magic)}
+.housebar{display:flex;align-items:baseline;flex-wrap:wrap;gap:.2rem .6rem;padding-bottom:.7rem;border-bottom:1px solid var(--line)}
+.housebar b{font:700 1.7rem/1 var(--magic);color:var(--crest)}
+.candles{position:absolute;inset:0 0 auto;height:7rem;pointer-events:none}
+.candle{position:absolute;width:calc(15px * var(--s));animation:float 6s ease-in-out var(--d) infinite alternate}
+.candle .flame{transform-box:fill-box;transform-origin:50% 100%;animation:flick 1.4s ease-in-out var(--d) infinite alternate}
+@keyframes float{to{transform:translateY(-9px)}}
+@keyframes flick{to{transform:scale(.82,1.14)}}
 .seathead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem}
 .stats{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;font:600 .82rem/1 var(--label);letter-spacing:.04em;color:var(--muted)}
 .stats span{background:var(--board-2);border-radius:3px;padding:.3rem .5rem;display:inline-flex;align-items:center;gap:.3rem}
@@ -206,7 +239,7 @@ input::placeholder{color:var(--dim);opacity:1}
 .minihand{display:inline-flex;gap:2px}
 .minihand i{width:.42rem;height:.68rem;border-radius:1px;background:var(--chalk);opacity:.85}
 .me{grid-area:me;background:var(--stand-2)}
-.me .power{color:#d7dcea;font-size:.95rem}
+.me .power{color:var(--ink-2);font-size:.95rem}
 .mychar{display:flex;gap:.6rem 1rem;align-items:flex-start;flex-wrap:wrap}
 .mychar .txt{flex:1;min-width:14rem}
 .mycols{display:grid;grid-template-columns:minmax(0,1fr);gap:1rem}
@@ -231,11 +264,11 @@ input::placeholder{color:var(--dim);opacity:1}
 .chip .v{font:800 .85rem/1 var(--display);min-width:.7rem}
 .chip .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip button{appearance:none;border:0;background:var(--card-ink);color:var(--card);border-radius:2px;font:700 .7rem/1 var(--label);letter-spacing:.06em;text-transform:uppercase;padding:.28rem .4rem}
-.chip button:hover{background:#2a3350}
+.chip button:hover{background:color-mix(in srgb,var(--card-ink) 75%,#fff)}
 .charge{font:600 .75rem/1 var(--label);letter-spacing:.06em;color:var(--muted)}
 .empty{color:var(--muted);font-size:.9rem}
 .bankrow{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center}
-.coin{display:inline-grid;place-items:center;min-width:1.7rem;height:1.7rem;padding:0 .35rem;background:var(--chalk);color:var(--board);border-radius:999px;font:800 .95rem/1 var(--display)}
+.coin{display:inline-grid;place-items:center;min-width:1.7rem;height:1.7rem;padding:0 .35rem;background:radial-gradient(circle at 35% 30%,#ffeaa6,var(--galleon) 55%,#a87a14);color:var(--galleon-ink);border-radius:999px;font:800 .95rem/1 var(--display);box-shadow:inset 0 0 0 1.5px #8a6410}
 .coin.spell{background:var(--spell);color:#fff}
 .total{font:600 .85rem/1 var(--label);letter-spacing:.06em;color:var(--muted);margin-left:.25rem}
 .total b{font-family:var(--display);font-size:1rem;color:var(--chalk)}
@@ -245,18 +278,18 @@ input::placeholder{color:var(--dim);opacity:1}
 .zone{grid-area:zone;display:grid;gap:.9rem;grid-template-columns:minmax(0,1fr);min-width:0}
 @media (min-width:1000px){.hand{flex-wrap:wrap;overflow:visible;padding-top:1.1rem}}
 .panel{position:relative;background:var(--board);border-radius:8px;padding:1.05rem 1rem 1rem;display:flex;flex-direction:column;gap:.75rem;min-width:0;box-shadow:0 18px 30px -18px rgba(0,0,0,.8);overflow:hidden}
-.panel.live{box-shadow:0 0 0 1px rgba(255,178,62,.55),0 18px 30px -18px rgba(0,0,0,.8)}
-.panel h3{font-size:1.75rem;font-weight:900;text-transform:uppercase}
-.panel.live h3{color:var(--amber)}
-.panel.live .btn.primary{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
-.panel.live .btn.primary:hover:not(:disabled){background:#ffc265}
-.panel p{color:#d7dcea}
+.panel.live{box-shadow:0 0 0 1px color-mix(in srgb,var(--live) 55%,transparent),0 18px 30px -18px rgba(0,0,0,.8)}
+.panel h3{font:700 2rem/1 var(--magic)}
+.panel.live h3{color:var(--live)}
+.panel.live .btn.primary{background:var(--live);border-color:var(--live);color:var(--live-ink)}
+.panel.live .btn.primary:hover:not(:disabled){background:color-mix(in srgb,var(--live) 82%,#fff)}
+.panel p{color:var(--ink-2)}
 .opts{display:flex;flex-direction:column;gap:.4rem}
-.opt{appearance:none;text-align:left;background:var(--board-2);border:1px solid #273049;border-radius:4px;padding:.65rem .8rem;font:600 1rem/1.25 var(--body);min-height:2.9rem;transition:border-color .15s,background-color .15s}
-.opt:hover:not(:disabled){border-color:var(--chalk);background:#1b2234}
+.opt{appearance:none;text-align:left;background:var(--board-2);border:1px solid var(--line);border-radius:4px;padding:.65rem .8rem;font:600 1rem/1.25 var(--body);min-height:2.9rem;transition:border-color .15s,background-color .15s}
+.opt:hover:not(:disabled){border-color:var(--chalk);background:color-mix(in srgb,var(--board-2) 60%,var(--line))}
 .opt small{display:block;color:var(--muted);font-size:.84rem;font-weight:400;margin-top:.1rem}
 .paylist{display:flex;flex-wrap:wrap;gap:.35rem}
-.paybtn{appearance:none;display:inline-flex;align-items:center;gap:.45rem;border:1px solid #273049;background:var(--board-2);border-radius:4px;padding:.45rem .6rem;font-size:.88rem;text-align:left;min-height:2.5rem}
+.paybtn{appearance:none;display:inline-flex;align-items:center;gap:.45rem;border:1px solid var(--line);background:var(--board-2);border-radius:4px;padding:.45rem .6rem;font-size:.88rem;text-align:left;min-height:2.5rem}
 .paybtn b{font:800 1rem/1 var(--display)}
 .paybtn:hover{border-color:var(--chalk)}
 .paybtn[aria-pressed=true]{background:var(--chalk);color:var(--board);border-color:var(--chalk)}
@@ -275,7 +308,7 @@ input::placeholder{color:var(--dim);opacity:1}
 .card{appearance:none;flex:none;position:relative;width:8rem;min-height:11.2rem;background:var(--card);color:var(--card-ink);border:0;border-radius:7px;padding:1.45rem .6rem .6rem;text-align:left;
   display:flex;flex-direction:column;gap:.28rem;overflow:hidden;transition:transform .2s var(--ease),box-shadow .2s var(--ease);box-shadow:0 10px 18px -10px rgba(0,0,0,.8)}
 button.card:hover{transform:translateY(-5px);box-shadow:0 16px 24px -12px rgba(0,0,0,.9)}
-.card.sel{transform:translateY(-12px);outline:3px solid var(--amber);outline-offset:2px;box-shadow:0 20px 28px -14px rgba(0,0,0,.95)}
+.card.sel{transform:translateY(-12px);outline:3px solid var(--live);outline-offset:2px;box-shadow:0 20px 28px -14px rgba(0,0,0,.95)}
 .card.picked{transform:translateY(-8px);outline:3px solid var(--bad);outline-offset:2px}
 .card.picked::after{content:"Chosen";position:absolute;left:50%;top:55%;transform:translate(-50%,-50%) rotate(-12deg);font:800 .95rem/1 var(--label);letter-spacing:.16em;text-transform:uppercase;color:#c62f2f;border:2px solid currentColor;border-radius:3px;padding:.3rem .45rem;background:rgba(246,243,234,.85)}
 .card .band{position:absolute;inset:0 0 auto 0;height:.95rem}
@@ -286,10 +319,10 @@ button.card:hover{transform:translateY(-5px);box-shadow:0 16px 24px -12px rgba(0
 .card .rent{display:flex;flex-wrap:wrap;gap:2px;margin-top:auto}
 .card .rent span{font:700 .68rem/1 var(--label);background:var(--card-ink);color:var(--card);border-radius:2px;padding:.2rem .28rem;font-variant-numeric:tabular-nums}
 .card.t-spell{background:var(--spell-face)}
-.card.t-point{background:var(--board);color:var(--chalk);box-shadow:inset 0 0 0 1px #2a3246,0 10px 18px -10px rgba(0,0,0,.8)}
-.card.t-point .cn{font:900 1.8rem/.95 var(--display);padding-right:0;margin-top:.8rem}
+.card.t-point{background:var(--board);color:var(--chalk);box-shadow:inset 0 0 0 1px var(--bulb-off),0 10px 18px -10px rgba(0,0,0,.8)}
+.card.t-point .cn{font:900 1.8rem/.95 var(--display);padding-right:0;margin-top:.8rem;color:var(--galleon)}
 .card.t-point .cs{color:var(--muted)}
-.card.t-point .val{background:var(--chalk);color:var(--board)}
+.card.t-point .val{background:var(--galleon);color:var(--galleon-ink)}
 .card.small{width:4.2rem;min-height:5.8rem;padding:1.05rem .3rem .3rem;font-size:.6rem;box-shadow:0 8px 14px -8px rgba(0,0,0,.7)}
 .card.small .cn{font-size:.72rem;padding-right:0}
 .card.t-point.small .cn{font-size:1rem;margin-top:.2rem}
@@ -308,8 +341,8 @@ button.card:hover{transform:translateY(-5px);box-shadow:0 16px 24px -12px rgba(0
 .log .stamp.win{color:var(--ok)}
 .winner{text-align:center;padding:2rem 1rem 1.6rem;display:flex;flex-direction:column;gap:.9rem;align-items:center;background:var(--board);border-radius:8px;margin-top:1rem;box-shadow:0 18px 30px -18px rgba(0,0,0,.9)}
 .winner .lbl{color:var(--muted)}
-.winner h2{font:900 clamp(2.6rem,10vw,4.6rem)/.9 var(--display);text-transform:uppercase}
-.winner.you h2{color:var(--amber)}
+.winner h2{font:700 clamp(3rem,11vw,5rem)/.9 var(--magic);color:var(--crest)}
+.winner.you h2{color:var(--live)}
 .toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--board);color:var(--chalk);font-weight:600;padding:.8rem 1.1rem .8rem 1rem;border-radius:6px;
   max-width:calc(100% - 32px);z-index:30;border:1px solid var(--bad);box-shadow:0 14px 28px -10px rgba(0,0,0,.9);animation:toastin .35s var(--ease)}
 .toast.good{border-color:var(--ok)}
@@ -336,7 +369,7 @@ button.card:hover{transform:translateY(-5px);box-shadow:0 16px 24px -12px rgba(0
 @keyframes ci-pulse{from{transform:scale(.75)}to{transform:scale(1.3)}}
 .ci-text{position:absolute;right:5%;top:50%;transform:translateY(-50%) skewX(-8deg);text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:.4rem;max-width:58%}
 .ci-who{font:700 .9rem/1.2 var(--label);letter-spacing:.14em;text-transform:uppercase;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6)}
-.ci-call{font:900 clamp(2.4rem,8vw,5.6rem)/.88 var(--display);text-transform:uppercase;color:#fff;text-wrap:balance;text-shadow:0 0 24px var(--ci2),0 6px 14px rgba(0,0,0,.55);animation:ci-slam .5s var(--ease) .12s both}
+.ci-call{font:700 clamp(2.8rem,9vw,6rem)/.88 var(--magic);color:#fff;text-wrap:balance;text-shadow:0 0 24px var(--ci2),0 6px 14px rgba(0,0,0,.55);animation:ci-slam .5s var(--ease) .12s both}
 @keyframes ci-slam{from{transform:scale(1.6);opacity:0;filter:blur(8px)}to{transform:none;opacity:1;filter:none}}
 .ci-char{font:700 .85rem/1 var(--label);letter-spacing:.12em;text-transform:uppercase;color:#fff;background:color-mix(in srgb,var(--ci) 70%,#0b0f17);padding:.4rem .65rem;border-radius:3px}
 .ci-band.ci-tall{height:min(70vh,34rem);clip-path:polygon(0 9%,100% 0,100% 91%,0 100%)}
@@ -462,13 +495,34 @@ const mySeat = () => S && S.players ? S.players.findIndex(p => p.uid === me) : -
 
 // ---------- rendering ----------
 function render() {
+  const seat = view === "game" && S && S.players ? mySeat() : -1;
+  setHouse(seat >= 0 && S.status !== "lobby" ? HOUSE[S.players[seat].char] : "hogwarts");
   if (view === "home" || !S) return renderHome();
   if (S.status === "lobby") return renderLobby();
   renderGame();
 }
 
 // Jersey colours for each character, and scoreboard digits built from a 3x5 bulb grid.
-const CHAR_HEX = { harry: "#d65a5a", hermione: "#d9a441", draco: "#4fa36b", luna: "#6f95e0", cedric: "#e6c74a" };
+// Each character belongs to a Hogwarts house; the house sets jersey stripes, shields and, for your own character, the whole screen.
+const HOUSE = { harry: "gryffindor", hermione: "gryffindor", draco: "slytherin", luna: "ravenclaw", cedric: "hufflepuff" };
+const HOUSES = {
+  gryffindor: { n: "Gryffindor", trait: "Courage", c: "#c8282e", c2: "#eeba30", field: "#8b0f14", ink: "#eeba30" },
+  slytherin: { n: "Slytherin", trait: "Ambition", c: "#2a9d5c", c2: "#c0c7cf", field: "#1a472a", ink: "#c0c7cf" },
+  ravenclaw: { n: "Ravenclaw", trait: "Wit", c: "#3a64c8", c2: "#c48a4b", field: "#1d2f6f", ink: "#c48a4b" },
+  hufflepuff: { n: "Hufflepuff", trait: "Loyalty", c: "#ecb939", c2: "#3b3226", field: "#ecb939", ink: "#2b2420" }
+};
+const THEME_META = { hogwarts: "#0b0916", gryffindor: "#130406", slytherin: "#030c09", ravenclaw: "#050a1a", hufflepuff: "#0a0905" };
+const houseOf = ch => HOUSES[HOUSE[ch]] || HOUSES.gryffindor;
+const kit = ch => `--c:${houseOf(ch).c};--c2:${houseOf(ch).c2}`;
+const shield = ch => { const H = houseOf(ch); return `<svg class="shield" viewBox="0 0 40 46" aria-hidden="true"><path d="M3 3h34v17c0 11-8 18-17 23C11 38 3 31 3 20z" fill="${H.field}"/><path d="M3 12h34v5H3z" fill="${H.ink}"/><path d="M3 3h34v17c0 11-8 18-17 23C11 38 3 31 3 20z" fill="none" stroke="${H.ink}" stroke-width="2.4"/><text x="20" y="35" text-anchor="middle" fill="${H.ink}">${E.CHARS[ch].n[0]}</text></svg>`; };
+function setHouse(house) {
+  const root = document.documentElement;
+  if (root.dataset.house === house) return;
+  root.dataset.house = house;
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = THEME_META[house] || THEME_META.hogwarts;
+}
+const CANDLES = `<div class="candles" aria-hidden="true">${[[4, 18, 1.1], [15, 52, .8], [27, 6, 1], [41, 40, .9], [56, 12, 1.15], [69, 46, .85], [82, 8, 1], [93, 38, .9]].map(([x, y, s], i) =>
+  `<svg class="candle" style="left:${x}%;top:${y}%;--s:${s};--d:${(i * .7).toFixed(1)}s" viewBox="0 0 20 66"><circle cx="10" cy="11" r="9" fill="#ffd36b" opacity=".16"/><path class="flame" d="M10 1c3.4 5.5 4.4 9.6 0 14.6C5.6 10.6 6.6 6.5 10 1z" fill="#ffc94a"/><path d="M10 7c1.4 2.6 1.8 4.6 0 7-1.8-2.4-1.4-4.4 0-7z" fill="#fff6d8"/><rect x="5.5" y="17" width="9" height="47" rx="1.5" fill="#efe6cf"/><path d="M5.5 19.5c1.2 0 1.4 7 2.6 7s1-4.5 2.2-4.5 1 9 2.4 9 1.8-9.5 1.8-11.5v-1.5h-9z" fill="#fff9ea"/></svg>`).join("")}</div>`;
 const DIGITS = ["111101101101111", "010110010010111", "111001111100111", "111001111001111", "101101111001001", "111100111001111", "111100111101111", "111001001001001", "111101111101111", "111101111001111"];
 const bulbs = (n, cls = "") => `<span class="bulbs ${cls}" role="img" aria-label="${n}">${[...DIGITS[Math.max(0, Math.min(9, n))]].map((b, i) => b === "1" ? `<i class="on" style="--i:${i}"></i>` : "<i></i>").join("")}</span>`;
 const HOOPS = side => `<svg class="hoops ${side}" viewBox="0 0 44 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="8" cy="34" r="5.5"/><path d="M8 39.5V100"/><circle cx="22" cy="12" r="6.5"/><path d="M22 18.5V100"/><circle cx="36" cy="44" r="5"/><path d="M36 49V100"/></g></svg>`;
@@ -497,7 +551,7 @@ function renderHome() {
   const codeVal = document.getElementById("joincode")?.value || "";
   const focus = document.activeElement && document.activeElement.id;
   $app.innerHTML = `
-  <header class="mast"><div><h1>Wizard's<span>Deal</span></h1>
+  <header class="mast">${CANDLES}<div><h1>Wizard's<span>Deal</span></h1>
     <p>Collect magical items, cast spells on your friends, and be the first to finish three sets of different colours. 2 to 5 players, each on their own phone or computer, playing by the rules of Monopoly Deal: Harry Potter.</p></div>
     <div class="race" aria-label="First to three complete sets wins">${bulbs(3, "big")}<p>Complete sets to win</p></div></header>
   <div class="home-grid">
@@ -572,7 +626,7 @@ function bankHTML(p) {
 }
 function whoHTML(i, you) {
   const p = S.players[i];
-  return `<div class="who"><span class="crest" style="--c:${CHAR_HEX[p.char]}">${E.CHARS[p.char].n[0]}</span><div style="min-width:0"><b>${esc(nameOf(i))}${you ? " (you)" : ""}</b><small>${E.CHARS[p.char].n}${p.petrified != null ? ` · <span class="frozen">Frozen</span>` : ""}</small></div></div>`;
+  return `<div class="who">${shield(p.char)}<div style="min-width:0"><b>${esc(nameOf(i))}${you ? " (you)" : ""}</b><small>${E.CHARS[p.char].n} · ${houseOf(p.char).n}${p.petrified != null ? ` · <span class="frozen">Frozen</span>` : ""}</small></div></div>`;
 }
 function statsHTML(p) {
   return `<div class="stats"><span title="${p.hand.length} cards in hand"><span class="minihand">${p.hand.slice(0, 10).map(() => "<i></i>").join("")}</span><b>${p.hand.length}</b> in hand</span><span><b>${E.completeCols(p).length}</b> of 3 sets</span>${p.char === "harry" && p.harryCol ? `<span>${swatch(p.harryCol)}guarded</span>` : ""}</div>`;
@@ -587,7 +641,7 @@ function boardHTML(v, waiting) {
     const live = S.status === "play" && S.turn === i && !S.pending;
     const acting = S.status === "play" && S.pending && waiting.includes(i);
     const rise = prev.length === now.length && now[i] > prev[i];
-    return `<li class="col${live ? " live" : ""}${acting ? " acting" : ""}${rise ? " rise" : ""}" style="--c:${CHAR_HEX[p.char]}">
+    return `<li class="col${live ? " live" : ""}${acting ? " acting" : ""}${rise ? " rise" : ""}" style="${kit(p.char)}">
       <b class="nm">${esc(i === v ? "You" : nameOf(i))}</b><span class="ch">${E.CHARS[p.char].n}${p.petrified != null ? ` · <span class="frozen">Frozen</span>` : ""}</span>
       ${bulbs(now[i])}<span class="of">of 3 sets<span class="hn"> · ${p.hand.length} in hand</span></span>${acting ? `<em class="resp">Responding</em>` : live ? `<em class="turnlight">On turn</em>` : ""}</li>`;
   }).join("");
@@ -645,12 +699,13 @@ function renderGame() {
       <div class="handwrap"><div class="handhead"><h2>Your hand</h2><small>Only you can see it · ${P.hand.length} card${P.hand.length === 1 ? "" : "s"}</small></div>
         <div class="hand">${P.hand.map(id => cardHTML(id, { tag: "button", attrs: `data-a="sel" data-id="${id}"`, cls: (ui.sel === id ? "sel" : "") + (ui.picks.includes(id) ? " picked" : "") })).join("") || `<p class="empty">No cards in hand.</p>`}</div></div>
     </div>
-    <section class="seat me${S.turn === v ? " turn" : ""}" style="--c:${CHAR_HEX[P.char]}">
+    <section class="seat me${S.turn === v ? " turn" : ""}" style="${kit(P.char)}">
+      <div class="housebar"><b>House ${houseOf(P.char).n}</b><span class="lbl">${houseOf(P.char).trait}</span></div>
       <div class="mychar">${whoHTML(v, true)}<div class="txt"><p class="power">${esc(E.CHARS[P.char].d)}</p>${charControls(v)}</div></div>
       <div class="mycols"><div><h3>Your table</h3>${tableHTML(P, true, S.status === "play" && S.turn === v && !S.pending)}</div>
       <div><h3>Your bank</h3><div class="bankrow">${bankHTML(P)}</div></div></div></section>` : `<p class="muted" style="grid-area:zone">You're watching this game.</p>`}
     <div class="opps"><h2>Other players</h2>
-    ${order.map(i => `<section class="seat${S.turn === i ? " turn" : ""}${waiting.includes(i) && S.pending ? " acting" : ""}" style="--c:${CHAR_HEX[S.players[i].char]}">
+    ${order.map(i => `<section class="seat${S.turn === i ? " turn" : ""}${waiting.includes(i) && S.pending ? " acting" : ""}" style="${kit(S.players[i].char)}">
       <div class="seathead">${whoHTML(i)}${statsHTML(S.players[i])}</div>
       ${tableHTML(S.players[i], false, false)}<div class="bankrow"><span class="lbl" style="margin-right:.35rem">Bank</span>${bankHTML(S.players[i])}</div></section>`).join("")}</div>
   </div>

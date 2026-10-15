@@ -4,12 +4,14 @@
   "use strict";
   const E = window.Engine;
   const LOOK = {
-    harry:    { c: "#d65a5a", c2: "#f2c14e", hair: "#1c1612", skin: "#ecc9a6" },
-    hermione: { c: "#d9a441", c2: "#8c2f2f", hair: "#6b4423", skin: "#e9c4a0" },
-    draco:    { c: "#4fa36b", c2: "#c9ced8", hair: "#ece4c4", skin: "#f1d8c4" },
-    luna:     { c: "#6f95e0", c2: "#c7a64a", hair: "#f0dc9a", skin: "#f0d6c0" },
-    cedric:   { c: "#e6c74a", c2: "#262130", hair: "#5a3a22", skin: "#e6c09c" }
+    harry:    { c: "#c8282e", c2: "#eeba30", hair: "#1c1612", skin: "#ecc9a6" },
+    hermione: { c: "#b3202a", c2: "#eeba30", hair: "#6b4423", skin: "#e9c4a0" },
+    draco:    { c: "#2a9d5c", c2: "#c0c7cf", hair: "#ece4c4", skin: "#f1d8c4" },
+    luna:     { c: "#3a64c8", c2: "#c48a4b", hair: "#f0dc9a", skin: "#f0d6c0" },
+    cedric:   { c: "#ecb939", c2: "#2b2420", hair: "#5a3a22", skin: "#e6c09c" }
   };
+  // House colours: they paint the burst and the scarf. The house name joins the sorting reveal.
+  const HOUSE = { harry: "Gryffindor", hermione: "Gryffindor", draco: "Slytherin", luna: "Ravenclaw", cedric: "Hufflepuff" };
   const SPARK = { stupefy: "#ff5a4f", petrificus: "#bfe7ff", obliviate: "#b98cff", protego: "#9fd8ff", levicorpus: "#ffd36b",
     confundo: "#ff9df0", wingardium: "#c6ffb0", accio2: "#ffe08a", accioAny: "#ffe08a", alohomora: "#ffcf7a", geminio: "#8affea", reparo: "#ffffff" };
   const CALL = { accio2: "Accio!", accioAny: "Accio!", alohomora: "Alohomora!", stupefy: "Stupefy!", levicorpus: "Levicorpus!", confundo: "Confundo!",
@@ -95,7 +97,7 @@
     const streaks = Array.from({ length: 10 }, (_, i) => `<i style="top:${6 + i * 9}%;animation-delay:${(i * 53) % 300}ms;opacity:${0.2 + (i % 3) * 0.15}"></i>`).join("");
     layer.innerHTML = `<div class="ci-band ci-tall"><div class="ci-burst"></div><div class="ci-streaks">${streaks}</div>
       <div class="ci-art">${figure(job.ch, "#ffe9a8")}</div>
-      <div class="ci-text"><span class="ci-who">The sorting is done. You are</span><span class="ci-call">${esc(C.n)}</span>
+      <div class="ci-text"><span class="ci-who">The sorting is done. You are</span><span class="ci-call">${esc(C.n)}</span><span class="ci-char">House ${esc(HOUSE[job.ch] || "")}</span>
         <span class="ci-power"><b>Your power:</b> ${esc(C.d)}</span>
         ${job.others.length ? `<span class="ci-others">${job.others.map(o => `${esc(o.name)}: ${esc(E.CHARS[o.ch].n)}`).join(" · ")}</span>` : ""}
         <button class="ci-go" type="button">Let's play</button></div></div>`;
