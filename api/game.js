@@ -57,6 +57,8 @@ function view(g, pid) {
   delete out.tokens;
   if (Array.isArray(out.deck)) out.deck = out.deck.map(() => -1);
   if (out.players) out.players.forEach(p => { if (p.uid !== pid && Array.isArray(p.hand)) p.hand = p.hand.map(() => -1); });
+  // Moaning Myrtle's three cards are for her eyes only
+  if (out.peek && out.players[out.peek.p] && out.players[out.peek.p].uid !== pid) out.peek.cards = out.peek.cards.map(() => -1);
   return out;
 }
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";

@@ -53,13 +53,13 @@
     draco:    { n: "Draco Malfoy",     d: "Levicorpus and Confundo can take items from complete sets." },
     luna:     { n: "Luna Lovegood",    d: "Draw three cards at the start of your turn instead of two." },
     cedric:   { n: "Cedric Diggory",   d: "You may draw your cards from the top of the discard pile instead." },
-    ron:      { n: "Ron Weasley",      d: "When you cast Stupefy, the target pays you 7 instead of 5." },
-    ginny:    { n: "Ginny Weasley",    d: "When you cast Accio, everyone pays you 1 more." },
-    neville:  { n: "Neville Longbottom", d: "You may keep up to 9 cards at the end of your turn instead of 7." },
-    fred:     { n: "Fred Weasley",     d: "When you cast Alohomora, everyone pays you 3 instead of 2." },
-    snape:    { n: "Severus Snape",    d: "Your Wingardium Leviosa can send items from complete sets to the discard pile." },
-    cho:      { n: "Cho Chang",        d: "You pay 1 less on every debt." },
-    tonks:    { n: "Nymphadora Tonks", d: "Geminio draws you three cards instead of two." }
+    lupin:    { n: "Remus Lupin",      d: "At the start of your turn you may skip drawing. If you do, you can play up to 5 cards this turn." },
+    hagrid:   { n: "Rubeus Hagrid",    d: "At the start of your turn, copy another player's character power for this turn (not Cho's Snitch). A power you copy can't be copied again for your next 3 turns." },
+    umbridge: { n: "Dolores Umbridge", d: "Any player with more complete sets than you can play at most 2 cards on their turn." },
+    cho:      { n: "Cho Chang",        d: "Catch the Snitch, twice per game: when a player would win by completing their third set, send the card that completed it back to their hand." },
+    ron:      { n: "Ron Weasley",      d: "At the start of your turn, draw one card from the pile and one at random from an opponent's hand of your choice." },
+    peeves:   { n: "Peeves",           d: "Once per turn, blind-swap a random card from your hand with a random card from an opponent's hand." },
+    myrtle:   { n: "Moaning Myrtle",   d: "At the start of your turn you may draw 3 cards instead, keep 2, and put the third back into the deck." }
   };
 
   // ---- deck: 106 playing cards (plus 5 character cards = 111) ----
@@ -86,7 +86,15 @@
   const isItem = c => c.type === "item" || c.type === "wild" || c.type === "any";
   const colsFor = c => c.type === "item" ? [c.col] : c.type === "wild" ? c.cols : c.type === "any" ? COLOR_KEYS : [];
   const active = (p, ch) => p.char === ch && p.petrified == null;
-  const maxPlays = p => active(p, "hermione") ? 4 : 3;
+  // has: the character's own power, or the one Hagrid copied for this turn
+  const has = (p, ch) => active(p, ch) || (active(p, "hagrid") && p.copy === ch);
+  // plays per turn: Lupin's skipped draw gives 5, Hermione 4, everyone else 3; Umbridge caps anyone ahead of her at 2
+  function maxPlays(p, s) {
+    let m = p.turnPlays || (has(p, "hermione") ? 4 : 3);
+    if (s && s.players.some(u => u !== p && active(u, "umbridge") && completeCols(u).length < completeCols(p).length)) m = Math.min(m, 2);
+    return m;
+  }
+  const umbridgeLimits = (p, s) => s.players.some(u => u !== p && active(u, "umbridge") && completeCols(u).length < completeCols(p).length);
   const colCount = (p, col) => p.table.filter(t => t.col === col).length;
   const complete = (p, col) => colCount(p, col) >= COLORS[col].size && p.table.some(t => t.col === col && card(t.c).type !== "any");
   const completeCols = p => COLOR_KEYS.filter(col => complete(p, col));
@@ -94,11 +102,12 @@
   const bankTotal = p => p.bank.reduce((s, id) => s + card(id).val, 0);
   const worth = p => bankTotal(p) + p.table.reduce((s, t) => s + card(t.c).val, 0);
   const harryGuards = (p, col) => active(p, "harry") && p.harryCol === col;
-  const canTake = (target, entry, thief) => !harryGuards(target, entry.col) && (!complete(target, entry.col) || active(thief, "draco"));
-  const canBanish = (target, entry, caster) => !harryGuards(target, entry.col) && (!complete(target, entry.col) || !!(caster && active(caster, "snape")));
+  const canTake = (target, entry, thief) => !harryGuards(target, entry.col) && (!complete(target, entry.col) || has(thief, "draco"));
+  const canBanish = (target, entry) => !harryGuards(target, entry.col) && !complete(target, entry.col);
   // character powers that change numbers
-  const handLimit = p => active(p, "neville") ? 9 : 7;
-  const owes = (p, amt) => active(p, "cho") ? Math.max(0, amt - 1) : amt;
+  const handLimit = () => 7;
+  // Hagrid may copy a character once its 3-turn cooldown has passed
+  const copyReady = (p, ch) => !(p.copied && p.copied[ch] != null) || (p.turnNo || 0) - p.copied[ch] > 3;
   const canObliviate = (target, col) => complete(target, col) && !harryGuards(target, col);
   // What a player can pay debts with: their bank and table, except items Harry is protecting.
   const payable = p => [...p.bank, ...p.table.filter(e => !harryGuards(p, e.col)).map(e => e.c)];
@@ -146,14 +155,42 @@
     if (s.status !== "play") return fail("The game is over.");
     if (!P) return fail("You are not in this game.");
     const myTurn = s.turn === a;
-    const canPlay = () => myTurn && s.drew && !s.pending && s.plays < maxPlays(P);
+    if (s.snitch && act.t !== "snitch") return fail("Waiting for Cho Chang to decide on the Snitch.");
+    if (s.peek && s.peek.p === a && act.t !== "keep") return fail("Choose the 2 cards you keep first.");
+    const canPlay = () => myTurn && s.drew && !s.pending && s.plays < maxPlays(P, s);
 
     switch (act.t) {
       case "draw": {
-        if (!myTurn || s.drew || s.pending) return fail("You can't draw now.");
-        const n = P.hand.length === 0 ? 5 : active(P, "luna") ? 3 : 2;
+        if (!myTurn || s.drew || s.pending || s.peek) return fail("You can't draw now.");
+        const n = P.hand.length === 0 ? 5 : has(P, "luna") ? 3 : 2;
+        const holders = s.players.map((q, i) => i).filter(i => i !== a && s.players[i].hand.length);
+        if (act.src === "skip") {
+          if (!has(P, "lupin")) return fail("Only Lupin can skip drawing.");
+          P.turnPlays = 5; s.drew = true;
+          log(s, `@${a} skipped drawing to play up to 5 cards.`);
+          break;
+        }
+        if (act.src === "myrtle") {
+          if (!has(P, "myrtle")) return fail("Only Moaning Myrtle can look at three.");
+          const look = { hand: [] }; drawN(s, look, 3);
+          s.peek = { p: a, cards: look.hand };
+          log(s, `@${a} looked at the top ${look.hand.length} cards.`);
+          return finish(s, a, null, s0);
+        }
+        if (has(P, "ron") && holders.length && act.src !== "ron") return fail("Choose whose hand to draw from.");
+        if (act.src === "ron") {
+          if (!has(P, "ron")) return fail("Only Ron draws from another hand.");
+          const T = s.players[act.p];
+          if (act.p === a || !T || !T.hand.length) return fail("Choose a player who has cards.");
+          drawN(s, P, n - 1);
+          const pick = T.hand[Math.floor(Math.random() * T.hand.length)];
+          take(T.hand, pick); P.hand.push(pick);
+          log(s, `@${a} drew ${n - 1} card${n - 1 === 1 ? "" : "s"} and took one from @${act.p}'s hand.`);
+          s.drew = true;
+          break;
+        }
         if (act.src === "discard") {
-          if (!active(P, "cedric")) return fail("Only Cedric can draw from the discard pile.");
+          if (!has(P, "cedric")) return fail("Only Cedric can draw from the discard pile.");
           const k = Math.min(n, s.discard.length);
           for (let i = 0; i < k; i++) P.hand.push(s.discard.pop());
           drawN(s, P, n - k);
@@ -187,8 +224,8 @@
         if (r) return fail(r);
         break;
       }
-      case "respond": return finish(s, a, respond(s, a, act));
-      case "counter": return finish(s, a, counter(s, a, act));
+      case "respond": return finish(s, a, respond(s, a, act), s0);
+      case "counter": return finish(s, a, counter(s, a, act), s0);
       case "recolor": {
         if (!myTurn || s.pending) return fail("You can only move wild items on your own turn.");
         const e = entryOf(P, act.card);
@@ -196,8 +233,52 @@
         e.col = act.col;
         break;
       }
+      case "keep": {
+        const pk = s.peek;
+        if (!pk || pk.p !== a) return fail("Nothing to keep.");
+        const want = Math.min(2, pk.cards.length), ids = act.cards || [];
+        if (ids.length !== want || new Set(ids).size !== want || !ids.every(id => pk.cards.includes(id))) return fail(`Choose ${want} of the cards.`);
+        ids.forEach(id => P.hand.push(id));
+        pk.cards.filter(id => !ids.includes(id)).forEach(id => s.deck.splice(Math.floor(Math.random() * (s.deck.length + 1)), 0, id));
+        s.peek = null; s.drew = true;
+        log(s, `@${a} kept ${want} and put the rest back into the deck.`);
+        break;
+      }
+      case "copy": {
+        if (!myTurn || s.drew || s.pending || !active(P, "hagrid")) return fail("Hagrid copies a power at the start of his turn.");
+        if (P.copy) return fail("You've already copied a power this turn.");
+        if (act.ch === "hagrid" || act.ch === "cho" || !s.players.some((q, i) => i !== a && q.char === act.ch)) return fail("Copy another player's character (Cho's Snitch can't be copied).");
+        if (!copyReady(P, act.ch)) return fail("You copied that power too recently.");
+        P.copy = act.ch; P.copied = Object.assign({}, P.copied, { [act.ch]: P.turnNo || 0 });
+        log(s, `@${a} copied ${CHARS[act.ch].n}'s power for this turn.`);
+        break;
+      }
+      case "peeves": {
+        if (!myTurn || !s.drew || s.pending || !has(P, "peeves")) return fail("Peeves swaps on his own turn, after drawing.");
+        if (P.peeved) return fail("Peeves has already swapped this turn.");
+        const T = s.players[act.p];
+        if (act.p === a || !T || !T.hand.length || !P.hand.length) return fail("You both need a card in hand.");
+        const mine = P.hand[Math.floor(Math.random() * P.hand.length)], theirs = T.hand[Math.floor(Math.random() * T.hand.length)];
+        take(P.hand, mine); take(T.hand, theirs); P.hand.push(theirs); T.hand.push(mine); P.peeved = true;
+        log(s, `@${a} and @${act.p} blind-swapped a card.`);
+        break;
+      }
+      case "snitch": {
+        const sn = s.snitch;
+        if (!sn || sn.cho !== a) return fail("Nothing to catch.");
+        s.snitch = null;
+        if (act.use) {
+          const T = s.players[sn.p], e = entryOf(T, sn.c);
+          if (e) { T.table.splice(T.table.indexOf(e), 1); T.hand.push(sn.c); }
+          P.snitches = (P.snitches || 0) + 1;
+          log(s, `@${a} caught the Snitch! @${sn.p}'s winning card goes back to their hand.`);
+          return finish(s, a, null, s);
+        }
+        s.status = "over"; s.winner = sn.p; log(s, `@${sn.p} completed three sets and wins!`);
+        return { state: s };
+      }
       case "harry": {
-        if (!myTurn || !active(P, "harry")) return fail("Only Harry can choose a protected colour, on his turn.");
+        if (!myTurn || !has(P, "harry")) return fail("Only Harry can choose a protected colour, on his turn.");
         if (!COLORS[act.col]) return fail("Unknown colour.");
         P.harryCol = act.col;
         log(s, `@${a} now protects ${COLORS[act.col].n} items.`);
@@ -221,20 +302,30 @@
           if (ids.length !== extra || new Set(ids).size !== extra || !ids.every(id => P.hand.includes(id))) return fail(`Discard exactly ${extra} card${extra > 1 ? "s" : ""} first.`);
           ids.forEach(id => { take(P.hand, id); s.discard.push(id); });
         }
+        P.turnPlays = 0; P.copy = null; P.peeved = false; P.turnNo = (P.turnNo || 0) + 1;
         s.turn = (s.turn + 1) % s.players.length; s.drew = false; s.plays = 0;
         log(s, `@${s.turn}'s turn.`);
         break;
       }
       default: return fail("Unknown action.");
     }
-    return finish(s, a);
+    return finish(s, a, null, s0);
   }
 
-  function finish(s, a, err) {
+  // A third complete set wins, unless Cho can catch the Snitch: then the game waits for her answer.
+  function finish(s, a, err, s0) {
     if (err && typeof err === "string") return { error: err };
-    if (s.status === "play") {
+    if (s.status === "play" && !s.snitch) {
       const order = [a, ...s.players.map((_, i) => i).filter(i => i !== a)];
       for (const i of order) if (completeCols(s.players[i]).length >= 3) {
+        const before = s0 && s0.players[i] ? s0.players[i].table.map(e => e.c + ":" + e.col) : [];
+        const added = s.players[i].table.filter(e => !before.includes(e.c + ":" + e.col)).pop();
+        const cho = s.players.findIndex((q, k) => k !== i && active(q, "cho") && (q.snitches || 0) < 2);
+        if (cho >= 0 && added && complete(s.players[i], added.col)) {
+          s.snitch = { p: i, c: added.c, cho };
+          log(s, `@${i} is about to win! @${cho} can catch the Snitch.`);
+          break;
+        }
         s.status = "over"; s.winner = i; log(s, `@${i} completed three sets and wins!`); break;
       }
     }
@@ -244,7 +335,7 @@
   function cast(s, a, act) {
     const P = s.players[a];
     const c = card(act.card);
-    if (!(s.turn === a && s.drew && !s.pending && s.plays < maxPlays(P))) return "You can't play a card now.";
+    if (!(s.turn === a && s.drew && !s.pending && s.plays < maxPlays(P, s))) return "You can't play a card now.";
     if (!P.hand.includes(act.card) || c.type !== "spell") return "That isn't a spell in your hand.";
     const k = c.k;
     if (k === "protego") return "Protego can only be played to block a spell.";
@@ -261,16 +352,16 @@
         if (isItem(pc) && !colsFor(pc).includes(act.col)) return "Pick a colour for that item.";
         break;
       }
-      case "alohomora": tg = others.map(p => ({ p, amt: active(P, "fred") ? 3 : 2, st: "respond" })); break;
+      case "alohomora": tg = others.map(p => ({ p, amt: 2, st: "respond" })); break;
       case "accio2": {
         if (!c.cols.includes(act.col) || !colCount(P, act.col)) return "Pick a colour on this card that you have items in.";
-        tg = others.map(p => ({ p, amt: rent(P, act.col) + (active(P, "ginny") ? 1 : 0), st: "respond" })); prm.col = act.col; break;
+        tg = others.map(p => ({ p, amt: rent(P, act.col), st: "respond" })); prm.col = act.col; break;
       }
       case "accioAny": {
         if (!COLORS[act.col] || !colCount(P, act.col)) return "Pick a colour you have items in.";
-        tg = others.map(p => ({ p, amt: rent(P, act.col) + (active(P, "ginny") ? 1 : 0), st: "respond" })); prm.col = act.col; break;
+        tg = others.map(p => ({ p, amt: rent(P, act.col), st: "respond" })); prm.col = act.col; break;
       }
-      case "stupefy": { const e = needTarget(); if (e) return e; tg = [{ p: act.p, amt: active(P, "ron") ? 7 : 5, st: "respond" }]; break; }
+      case "stupefy": { const e = needTarget(); if (e) return e; tg = [{ p: act.p, amt: 5, st: "respond" }]; break; }
       case "petrificus": {
         const e = needTarget(); if (e) return e;
         if (T.petrified != null) return "That character is already frozen.";
@@ -280,7 +371,7 @@
         const e = needTarget(); if (e) return e;
         const en = entryOf(T, act.target);
         if (!en) return "Choose one of their items.";
-        if (k === "levicorpus" ? !canTake(T, en, P) : !canBanish(T, en, P)) return "That item is protected.";
+        if (k === "levicorpus" ? !canTake(T, en, P) : !canBanish(T, en)) return "That item is protected.";
         tg = [{ p: act.p, st: "respond" }]; prm.target = act.target; break;
       }
       case "confundo": {
@@ -303,9 +394,8 @@
     stamp(s, a, k, { col: prm.col || null, t: tg ? (tg.length > 1 ? -1 : tg[0].p) : null });
     const label = k === "accio2" || k === "accioAny" ? `Accio (${COLORS[prm.col].n})` : c.name;
     if (k === "geminio") {
-      const g = active(P, "tonks") ? 3 : 2;
-      drawN(s, P, g); s.discard.push(act.card);
-      log(s, `@${a} cast Geminio and drew ${g === 3 ? "three" : "two"} cards.`);
+      drawN(s, P, 2); s.discard.push(act.card);
+      log(s, `@${a} cast Geminio and drew two cards.`);
     } else if (k === "reparo") {
       take(s.discard, act.pick);
       const pc = card(act.pick);
@@ -313,7 +403,6 @@
       s.discard.push(act.card);
       log(s, `@${a} cast Reparo and recovered ${pc.name} from the discard pile.`);
     } else {
-      if (tg) tg.forEach(t => { if (t.amt != null) t.amt = owes(s.players[t.p], t.amt); });
       s.pending = { k, caster: a, card: act.card, prm, tg };
       const who = tg.length > 1 ? "everyone" : `@${tg[0].p}`;
       log(s, `@${a} cast ${label} on ${who}.`);
@@ -426,6 +515,7 @@
   /** Who has to act right now: pending responders first, otherwise the current player. */
   function waitingOn(s) {
     if (s.status !== "play") return [];
+    if (s.snitch) return [s.snitch.cho];
     if (s.pending) {
       const r = s.pending.tg.filter(t => t.st === "respond").map(t => t.p);
       if (s.pending.tg.some(t => t.st === "counter")) r.push(s.pending.caster);
@@ -453,7 +543,7 @@
     if (s.status !== "play") { s.clock = null; return s; }
     const fresh = !prev || prev.status !== "play" || !prev.clock || prev.created !== s.created;
     const c = fresh ? { turn: -1 } : Object.assign({}, prev.clock);
-    const wait = s.pending ? waitingOn(s) : [];
+    const wait = (s.pending || s.snitch) ? waitingOn(s) : [];
     if (fresh || c.turn !== s.turn) Object.assign(c, { turn: s.turn, left: TURN_MS, since: s.pending ? null : now, resp: null, wait: [] });
     if (wait.length) {
       if (c.since != null) { c.left = Math.max(0, c.left - (now - c.since)); c.since = null; }   // pause the turn
@@ -466,13 +556,26 @@
     s.clock = c;
     return s;
   }
+  // The draw a player would have made: Myrtle keeps the first two she looked at, Ron takes from a random opponent.
+  function autoDraw(s, a) {
+    const P = s.players[a];
+    if (s.peek && s.peek.p === a) { const r = apply(s, a, { t: "keep", cards: s.peek.cards.slice(0, 2) }); return r.error ? s : r.state; }
+    if (s.drew) return s;
+    const holders = s.players.map((q, i) => i).filter(i => i !== a && s.players[i].hand.length);
+    const act = has(P, "ron") && holders.length ? { t: "draw", src: "ron", p: holders[Math.floor(Math.random() * holders.length)] } : { t: "draw", src: "deck" };
+    const r = apply(s, a, act); return r.error ? s : r.state;
+  }
   // Applies whatever the clock says is overdue. Returns the new state, or null when nothing has run out.
   function expire(s0, now) {
     let s = s0, changed = false;
     for (let guard = 0; guard < 8 && s.status === "play" && s.clock; guard++) {
       const c = s.clock, pd = s.pending;
       let next = null;
-      if (pd && c.resp != null && now >= c.resp) {
+      if (s.snitch && c.resp != null && now >= c.resp) {
+        const r = apply(s, s.snitch.cho, { t: "snitch", use: false });   // out of time: the win stands
+        if (r.error) break;
+        next = r.state;
+      } else if (pd && c.resp != null && now >= c.resp) {
         next = clone(s);
         for (const t of next.pending.tg.filter(x => x.st === "respond")) {
           if (!next.pending) break;
@@ -491,7 +594,7 @@
         const a = s.turn;
         next = clone(s);
         log(next, `@${a} ran out of time.`);
-        if (!next.drew) { const r = apply(next, a, { t: "draw", src: "deck" }); if (!r.error) next = r.state; }
+        next = autoDraw(next, a);
         const P = next.players[a], extra = P.hand.length - handLimit(P);
         const r = apply(next, a, { t: "end", discard: extra > 0 ? shuffled(P.hand).slice(0, extra) : [] });
         if (r.error) break;
@@ -503,5 +606,5 @@
     return changed ? s : null;
   }
 
-  G.Engine = { BASE, MAX_PLAYERS, decksFor, handLimit, owes, TURN_MS, RESPOND_MS, autoPay, syncClock, expire, COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, payable, harryGuards, newGame, apply, waitingOn, shuffle };
+  G.Engine = { BASE, MAX_PLAYERS, decksFor, handLimit, has, copyReady, umbridgeLimits, TURN_MS, RESPOND_MS, autoPay, syncClock, expire, COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, payable, harryGuards, newGame, apply, waitingOn, shuffle };
 })(typeof window !== "undefined" ? window : globalThis);

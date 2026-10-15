@@ -238,6 +238,8 @@ input::placeholder{color:var(--dim);opacity:1}
 .tclock.resp .tbar i{background:var(--warn)}
 .tclock.low b,.plate em.low span{color:var(--bad);animation:urgent 1s steps(2) infinite}
 @keyframes urgent{50%{opacity:.45}}
+.peek{display:flex;gap:.5rem;flex-wrap:wrap;padding:.6rem 0}
+.peek .card{width:6.4rem;min-height:9.6rem}
 .answerclock{font:600 .9rem/1.3 var(--label);letter-spacing:.03em;color:var(--warn)}
 .answerclock b{font-family:var(--display);font-size:1.05rem;font-variant-numeric:tabular-nums}
 .plate .turnlight{color:var(--live);box-shadow:inset 0 0 0 1px var(--live)}
@@ -565,7 +567,7 @@ function setSide(open) {
   const a = document.querySelector(".arena"); if (a) a.classList.toggle("side-open", open);
   document.querySelectorAll(".sidebtn").forEach(b => b.setAttribute("aria-expanded", String(open)));
 }
-function freshUI() { return { sel: null, step: {}, mode: null, picks: [], pay: [], payKey: "", seat: -2 }; }
+function freshUI() { return { sel: null, step: {}, mode: null, picks: [], pay: [], keep: [], payKey: "", seat: -2 }; }
 
 // ---------- server ----------
 async function call(op, extra = {}) {
@@ -656,8 +658,8 @@ function render() {
 
 // Jersey colours for each character, and scoreboard digits built from a 3x5 bulb grid.
 // Each character belongs to a Hogwarts house; the house sets jersey stripes, shields and, for your own character, the whole screen.
-const HOUSE = { harry: "gryffindor", hermione: "gryffindor", ron: "gryffindor", ginny: "gryffindor", neville: "gryffindor", fred: "gryffindor",
-  draco: "slytherin", snape: "slytherin", luna: "ravenclaw", cho: "ravenclaw", cedric: "hufflepuff", tonks: "hufflepuff" };
+const HOUSE = { harry: "gryffindor", hermione: "gryffindor", ron: "gryffindor", lupin: "gryffindor", hagrid: "gryffindor",
+  draco: "slytherin", umbridge: "slytherin", luna: "ravenclaw", cho: "ravenclaw", myrtle: "ravenclaw", cedric: "hufflepuff", peeves: "hufflepuff" };
 const HOUSES = {
   gryffindor: { n: "Gryffindor", trait: "Courage", c: "#c8282e", c2: "#eeba30", field: "#8b0f14", ink: "#eeba30" },
   slytherin: { n: "Slytherin", trait: "Ambition", c: "#2a9d5c", c2: "#c0c7cf", field: "#1a472a", ink: "#c0c7cf" },
@@ -965,9 +967,10 @@ function renderGame() {
   // Opponents in clockwise order starting from the player after you.
   const base = v >= 0 ? v : 0;
   const order = Array.from({ length: n }, (_, k) => (base + k) % n).filter(i => i !== v);
-  const max = E.maxPlays(S.players[S.turn]);
+  const max = E.maxPlays(S.players[S.turn], S);
   const topCard = S.discard.length ? S.discard[S.discard.length - 1] : null;
   const say = S.status === "over" ? `${esc(nameOf(S.winner))} wins!`
+    : S.snitch ? `${esc(nameOf(S.snitch.p))} is about to win`
     : S.pending ? `${esc(nameOf(S.pending.caster))} cast ${spellLabel(S.pending)}`
     : S.turn === v ? (S.drew ? "Your turn" : "Your turn: draw") : `${esc(nameOf(S.turn))}'s turn`;
   const sub = S.status !== "play" ? "" : S.pending ? `Waiting on ${waiting.map(i => esc(i === v ? "you" : nameOf(i))).join(", ")}`
@@ -1043,6 +1046,13 @@ const opt = (a, data, label, sub) => `<button class="opt" data-a="${a}" ${Object
 function panelHTML(v) {
   const P = S.players[v];
   if (S.status !== "play") return `<h3>Game over</h3><p class="muted">Thanks for playing.</p>`;
+  if (S.snitch) {
+    const sn = S.snitch, card = E.card(sn.c), left = 2 - (S.players[sn.cho].snitches || 0);
+    if (v === sn.cho) return `<p class="answerclock">Decide within <b data-clock="resp">0:30</b>, or the win stands</p><h3>Catch the Snitch?</h3>
+      <p>${esc(nameOf(sn.p))} is about to win with ${esc(card.type === "item" ? card.name : "a wild item")}. You can send that card back to their hand. ${left} catch${left === 1 ? "" : "es"} left this game.</p>
+      <div class="opts">${opt("snitch", { use: 1 }, "Catch the Snitch", "Their winning card goes back to their hand.")}${opt("snitch", { use: 0 }, "Let them win")}</div>`;
+    return `<h3>Wait…</h3><p class="muted">${esc(nameOf(sn.p))} is about to win. ${esc(nameOf(sn.cho))} can catch the Snitch.</p>`;
+  }
   const pd = S.pending;
   if (pd) {
     const t = pd.tg.find(x => x.p === v && x.st === "respond");
@@ -1055,9 +1065,31 @@ function panelHTML(v) {
     return `<h3>Waiting…</h3><p class="muted">${E.waitingOn(S).map(i => esc(nameOf(i))).join(", ")} must respond to ${esc(nameOf(pd.caster))}'s ${spellLabel(pd)}.</p>`;
   }
   if (S.turn !== v) return `<h3>${esc(nameOf(S.turn))}'s turn</h3><p class="muted">Keep a Protego ready in case a spell comes your way.</p>`;
+  if (S.peek && S.peek.p === v) {
+    const want = Math.min(2, S.peek.cards.length);
+    return `<h3>Keep ${want}</h3><p class="muted">Myrtle's ability: tap the ${want} cards you keep. The other goes back into the deck.</p>
+      <div class="peek">${S.peek.cards.map(id => cardHTML(id, { tag: "button", attrs: `data-a="peekpick" data-id="${id}"`, cls: ui.keep.includes(id) ? "sel" : "" })).join("")}</div>
+      <div class="row"><button class="btn primary" data-a="keep" ${ui.keep.length !== want ? "disabled" : ""}>Keep these</button></div>`;
+  }
   if (!S.drew) {
-    const n = P.hand.length === 0 ? 5 : E.active(P, "luna") ? 3 : 2;
-    return `<h3>Draw ${n} cards</h3><div class="opts">${opt("draw", { src: "deck" }, "Draw from the pile")}${E.active(P, "cedric") && S.discard.length ? opt("draw", { src: "discard" }, "Draw from the discard pile", `Cedric's ability · top card: ${esc(E.card(S.discard[S.discard.length - 1]).name)}`) : ""}</div>`;
+    const n = P.hand.length === 0 ? 5 : E.has(P, "luna") ? 3 : 2;
+    const holders = S.players.map((q, i) => i).filter(i => i !== v && S.players[i].hand.length);
+    // Hagrid: copy someone's power before drawing
+    let copy = "";
+    if (E.active(P, "hagrid") && !P.copy) {
+      const chars = [...new Set(S.players.filter((q, i) => i !== v).map(q => q.char))].filter(ch => ch !== "hagrid" && ch !== "cho");
+      copy = `<p class="muted" style="font-size:.9rem">Hagrid's ability: copy a power for this turn first, if you like.</p><div class="opts">${chars.map(ch => E.copyReady(P, ch)
+        ? opt("copy", { ch }, `Copy ${E.CHARS[ch].n}`, E.CHARS[ch].d)
+        : `<button class="opt" disabled>${E.CHARS[ch].n}<small>Copied recently · ready in ${3 - ((P.turnNo || 0) - P.copied[ch]) + 1} turn${3 - ((P.turnNo || 0) - P.copied[ch]) + 1 === 1 ? "" : "s"}</small></button>`).join("")}</div>`;
+    }
+    const copied = P.copy ? `<p class="muted" style="font-size:.9rem">Copied for this turn: <b>${E.CHARS[P.copy].n}</b> · ${esc(E.CHARS[P.copy].d)}</p>` : "";
+    let draws;
+    if (E.has(P, "ron") && holders.length) draws = holders.map(p => opt("draw", { src: "ron", p }, `Draw ${n - 1} from the pile and 1 from ${esc(nameOf(p))}`, `Ron's ability · a random card from their ${S.players[p].hand.length}`)).join("");
+    else draws = opt("draw", { src: "deck" }, "Draw from the pile");
+    if (E.has(P, "cedric") && S.discard.length) draws += opt("draw", { src: "discard" }, "Draw from the discard pile", `Cedric's ability · top card: ${esc(E.card(S.discard[S.discard.length - 1]).name)}`);
+    if (E.has(P, "myrtle")) draws += opt("draw", { src: "myrtle" }, "Look at 3, keep 2", "Myrtle's ability · the third goes back into the deck");
+    if (E.has(P, "lupin")) draws += opt("draw", { src: "skip" }, "Skip drawing", "Lupin's ability · play up to 5 cards this turn");
+    return `<h3>Draw ${n} cards</h3>${copy}${copied}<div class="opts">${draws}</div>`;
   }
   if (ui.mode === "discard") {
     const need = P.hand.length - E.handLimit(P);
@@ -1067,10 +1099,13 @@ function panelHTML(v) {
     const sum = ui.picks.reduce((s, id) => s + E.card(id).val, 0);
     return `<h3>Break free</h3><p class="muted">Tap hand cards worth 10 or more to discard. Selected: ${sum} points.</p><div class="row"><button class="btn primary" data-a="confirmUnpet" ${sum < 10 ? "disabled" : ""}>Discard and break free</button><button class="btn ghost" data-a="cancelMode">Back</button></div>`;
   }
-  const max = E.maxPlays(P);
+  const max = E.maxPlays(P, S);
   const endBtn = `<button class="btn" data-a="end">End turn</button>`;
-  if (S.plays >= max) return `<h3>All ${max} plays used</h3><p class="muted">Move wild items if you like, then end your turn.</p><div class="row"><button class="btn primary" data-a="end">End turn</button></div>`;
-  if (ui.sel == null) return `<h3>Choose a card</h3><p class="muted">Tap a card in your hand to see what you can do with it. ${max - S.plays} play${max - S.plays === 1 ? "" : "s"} left.</p><div class="row">${endBtn}</div>`;
+  const notes = (E.umbridgeLimits(P, S) ? `<p class="answerclock">Umbridge limits you to 2 plays while you have more complete sets than her.</p>` : "")
+    + (P.copy ? `<p class="muted" style="font-size:.88rem">Copied for this turn: <b>${E.CHARS[P.copy].n}</b></p>` : "")
+    + (E.has(P, "peeves") && !P.peeved && P.hand.length ? `<div class="opts">${S.players.map((q, i) => i).filter(i => i !== v && S.players[i].hand.length).map(p => opt("peeves", { p }, `Blind-swap with ${esc(nameOf(p))}`, "Peeves's ability · a random card each way, once per turn, free")).join("")}</div>` : "");
+  if (S.plays >= max) return notes + `<h3>All ${max} plays used</h3><p class="muted">Move wild items if you like, then end your turn.</p><div class="row"><button class="btn primary" data-a="end">End turn</button></div>`;
+  if (ui.sel == null) return notes + `<h3>Choose a card</h3><p class="muted">Tap a card in your hand to see what you can do with it. ${max - S.plays} play${max - S.plays === 1 ? "" : "s"} left.</p><div class="row">${endBtn}</div>`;
   return selectedHTML(v) + `<div class="row" style="margin-top:.2rem"><button class="btn ghost small" data-a="unsel">Cancel</button>${endBtn.replace('class="btn"', 'class="btn small"')}</div>`;
 }
 
@@ -1117,21 +1152,21 @@ function castOptions(v, c) {
   const itemName = e => { const k = E.card(e.c); return esc(k.type === "item" ? k.name : k.type === "any" ? "Any-colour wild" : "Wild item"); };
   switch (c.k) {
     case "protego": return none("Keep it in your hand. You'll be offered it when someone casts a spell at you.");
-    case "geminio": return opt("cast", {}, "Cast Geminio", `Draw ${E.active(P, "tonks") ? "three" : "two"} more cards.`);
-    case "alohomora": return opt("cast", {}, "Cast Alohomora", `Every other player pays you ${E.active(P, "fred") ? 3 : 2}.`);
+    case "geminio": return opt("cast", {}, "Cast Geminio", "Draw two more cards.");
+    case "alohomora": return opt("cast", {}, "Cast Alohomora", "Every other player pays you 2.");
     case "accio2": { const cols = c.cols.filter(col => E.colCount(P, col));
-      return cols.length ? cols.map(col => opt("cast", { col }, `${swatch(col)}Accio ${colName(col)}`, `Everyone pays you ${E.rent(P, col) + (E.active(P, "ginny") ? 1 : 0)}`)).join("") : none(`You need ${colName(c.cols[0])} or ${colName(c.cols[1])} items on your table to cast this.`); }
+      return cols.length ? cols.map(col => opt("cast", { col }, `${swatch(col)}Accio ${colName(col)}`, `Everyone pays you ${E.rent(P, col)}`)).join("") : none(`You need ${colName(c.cols[0])} or ${colName(c.cols[1])} items on your table to cast this.`); }
     case "accioAny": {
       const cols = E.COLOR_KEYS.filter(col => E.colCount(P, col));
       if (!cols.length) return none("You need items on your table to cast this.");
-      return cols.map(col => opt("cast", { col }, `${swatch(col)}Accio ${colName(col)}`, `Everyone pays you ${E.rent(P, col) + (E.active(P, "ginny") ? 1 : 0)}`)).join("");
+      return cols.map(col => opt("cast", { col }, `${swatch(col)}Accio ${colName(col)}`, `Everyone pays you ${E.rent(P, col)}`)).join("");
     }
-    case "stupefy": return others.map(p => opt("cast", { p }, `Stupefy ${esc(nameOf(p))}`, `They pay you ${E.owes(S.players[p], E.active(P, "ron") ? 7 : 5)}`)).join("");
+    case "stupefy": return others.map(p => opt("cast", { p }, `Stupefy ${esc(nameOf(p))}`, "They pay you 5")).join("");
     case "petrificus": { const ok = others.filter(p => S.players[p].petrified == null);
       return ok.length ? ok.map(p => opt("cast", { p }, `Freeze ${esc(nameOf(p))}`, E.CHARS[S.players[p].char].n)).join("") : none("Every other character is already frozen."); }
     case "levicorpus": case "wingardium": {
       const list = [];
-      others.forEach(p => S.players[p].table.forEach(e => { if (c.k === "levicorpus" ? E.canTake(S.players[p], e, P) : E.canBanish(S.players[p], e, P)) list.push(opt("cast", { p, target: e.c }, `${swatch(e.col)}${itemName(e)}`, `${esc(nameOf(p))} · ${colName(e.col)}`)); }));
+      others.forEach(p => S.players[p].table.forEach(e => { if (c.k === "levicorpus" ? E.canTake(S.players[p], e, P) : E.canBanish(S.players[p], e)) list.push(opt("cast", { p, target: e.c }, `${swatch(e.col)}${itemName(e)}`, `${esc(nameOf(p))} · ${colName(e.col)}`)); }));
       return list.join("") || none("No items can be targeted right now.");
     }
     case "confundo": {
@@ -1187,7 +1222,12 @@ $app.addEventListener("click", async e => {
     case "place": return act({ t: "place", card: ui.sel, col: d.col });
     case "bank": return act({ t: "bank", card: ui.sel });
     case "cast": return act({ t: "cast", card: ui.sel, col: d.col, p: num("p"), target: num("target"), mine: num("mine"), pick: num("pick") });
-    case "draw": return act({ t: "draw", src: d.src });
+    case "draw": return act({ t: "draw", src: d.src, p: num("p") });
+    case "peekpick": { const id = num("id"), want = Math.min(2, S.peek.cards.length); ui.keep = ui.keep.includes(id) ? ui.keep.filter(x => x !== id) : [...ui.keep, id].slice(-want); return render(); }
+    case "keep": return act({ t: "keep", cards: ui.keep });
+    case "copy": return act({ t: "copy", ch: d.ch });
+    case "peeves": return act({ t: "peeves", p: num("p") });
+    case "snitch": return act({ t: "snitch", use: d.use === "1" });
     case "end": {
       if (S.players[v].hand.length > E.handLimit(S.players[v])) { ui.mode = "discard"; ui.picks = []; ui.sel = null; return render(); }
       return act({ t: "end" });

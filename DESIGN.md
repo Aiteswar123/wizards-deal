@@ -4,7 +4,7 @@ Every game is a match, played in your house colours. A bulb-lit stadium scoreboa
 
 ## Colour: your house paints your screen
 
-Each player's screen takes the colours of their own character's Hogwarts house. `render()` sets `data-house` on `<html>` (`HOUSE` maps Harry, Hermione, Ron, Ginny, Neville and Fred to Gryffindor, Draco and Snape to Slytherin, Luna and Cho to Ravenclaw, Cedric and Tonks to Hufflepuff). Before the sorting (home, lobby, spectators) the screen is the Great Hall at night (`hogwarts`). The main tokens are registered with `@property`, so when the sorting reveal lands the page fades into the house colours.
+Each player's screen takes the colours of their own character's Hogwarts house. `render()` sets `data-house` on `<html>` (`HOUSE` maps Harry, Hermione, Ron, Lupin and Hagrid to Gryffindor, Draco and Umbridge to Slytherin, Luna, Cho and Myrtle to Ravenclaw, Cedric and Peeves to Hufflepuff). Before the sorting (home, lobby, spectators) the screen is the Great Hall at night (`hogwarts`). The main tokens are registered with `@property`, so when the sorting reveal lands the page fades into the house colours.
 
 | Token | Great Hall | Gryffindor | Slytherin | Ravenclaw | Hufflepuff | Job |
 | --- | --- | --- | --- | --- | --- | --- |
