@@ -246,6 +246,13 @@ input::placeholder{color:var(--dim);opacity:1}
 @keyframes urgent{50%{opacity:.45}}
 .peek{display:flex;gap:.5rem;flex-wrap:wrap;padding:.6rem 0}
 .peek .card{width:6.4rem;min-height:9.6rem}
+.fxghost{position:fixed;z-index:35;pointer-events:none;will-change:transform}
+.fxghost>.card{width:100%!important;min-height:0!important;height:100%;margin:0;box-shadow:0 18px 30px -10px rgba(0,0,0,.8)}
+.fxghost>.coin{width:100%;height:100%;display:grid;place-items:center;min-width:0;padding:0}
+.fxghost>.mini{width:100%;height:100%}
+.fxspark{position:fixed;z-index:36;width:7px;height:7px;border-radius:50%;pointer-events:none;box-shadow:0 0 8px currentColor}
+.fxtext{position:fixed;z-index:36;pointer-events:none;font:700 1.5rem/1 var(--magic);text-shadow:0 3px 10px rgba(0,0,0,.7);white-space:nowrap}
+.fxcanvas{position:fixed;inset:0;z-index:34;pointer-events:none;width:100%;height:100%}
 .answerclock{font:600 .9rem/1.3 var(--label);letter-spacing:.03em;color:var(--warn)}
 .answerclock b{font-family:var(--display);font-size:1.05rem;font-variant-numeric:tabular-nums}
 .plate .turnlight{color:var(--live);box-shadow:inset 0 0 0 1px var(--live)}
@@ -981,7 +988,7 @@ const seatPos = (wx, wy, nx, ny) => `--x:${wx}%;--y:${wy}%;--nx:${nx}%;--ny:${ny
 function plateHTML(i, v, waiting, rise, pos) {
   const p = S.players[i], sets = E.completeCols(p).length;
   const live = S.status === "play" && S.turn === i && !S.pending, acting = S.status === "play" && S.pending && waiting.includes(i);
-  return `<div class="plate${live ? " live" : ""}${acting ? " acting" : ""}${rise ? " rise" : ""}${i === v ? " mine" : ""}" style="${kit(p.char)};${pos}">
+  return `<div data-p="${i}" class="plate${live ? " live" : ""}${acting ? " acting" : ""}${rise ? " rise" : ""}${i === v ? " mine" : ""}" style="${kit(p.char)};${pos}">
     ${shield(p.char)}<div class="pl"><b>${esc(i === v ? "You" : nameOf(i))}</b><small>${E.CHARS[p.char].n}${p.petrified != null ? ` · <span class="frozen">Frozen</span>` : ""}</small></div>
     <div class="pm"><span class="setpips" role="img" aria-label="${sets} of 3 sets complete">${[0, 1, 2].map(n => `<i${n < sets ? ` class="on" style="--i:${n}"` : ""}></i>`).join("")}</span><span class="hc" title="${p.hand.length} cards in hand"><i></i>${p.hand.length}</span><span class="bk" title="Bank: ${E.bankTotal(p)} points">${E.bankTotal(p)}</span></div>
     ${acting ? `<em class="resp">Responding · <span data-clock="resp">0:30</span></em>` : live ? `<em class="turnlight">On turn · <span data-clock="turn">3:00</span></em>` : ""}</div>`;
@@ -995,7 +1002,7 @@ function miniHTML(e) {
   const face = c.type === "item" ? `linear-gradient(${hex},${hex})` : c.type === "wild" ? `linear-gradient(135deg,${E.COLORS[c.cols[0]].hex} 50%,${E.COLORS[c.cols[1]].hex} 50%)`
     : `conic-gradient(${E.COLOR_KEYS.map(k => E.COLORS[k].hex).join(",")},${E.COLORS.brown.hex})`;
   const ink = c.type === "item" && lum(hex) > .4 ? "#1d1606" : "#fff";
-  return `<span class="mini${fresh ? " fresh" : ""}" style="--mf:${face};color:${ink}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON[c.type === "item" ? SET_ICON[e.col] : "star"]}</svg></span>`;
+  return `<span data-c="${e.c}" class="mini${fresh ? " fresh" : ""}" style="--mf:${face};color:${ink}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON[c.type === "item" ? SET_ICON[e.col] : "star"]}</svg></span>`;
 }
 function playedHTML(p, pos, cls = "") {
   const stacks = E.COLOR_KEYS.filter(col => E.colCount(p, col)).map(col => {
@@ -1004,7 +1011,7 @@ function playedHTML(p, pos, cls = "") {
     return `<div class="stack${done ? " done" : ""}" title="${esc(C.n)}: ${esc(names)}"><div class="minis">${ents.map(miniHTML).join("")}</div>
       <small>${Math.min(ents.length, C.size)}/${C.size}${done ? `<svg class="check" viewBox="0 0 16 16" aria-label="complete"><path d="M3 8.5l3.2 3L13 4.5"/></svg>` : ""}</small></div>`;
   }).join("");
-  return `<div class="played${cls}" style="${pos}">${stacks || `<span class="nothing">No cards played yet</span>`}</div>`;
+  return `<div data-p="${S.players.indexOf(p)}" class="played${cls}" style="${pos}">${stacks || `<span class="nothing">No cards played yet</span>`}</div>`;
 }
 
 // The top bar: your house banner, the table code and the latest move.
@@ -1097,6 +1104,7 @@ function renderGame() {
   <section class="log"><h2>Table talk</h2><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}${/blocked|Protego!/.test(m) ? `<span class="stamp">Blocked</span>` : /wins!$/.test(m) ? `<span class="stamp win">Full time</span>` : ""}</li>`).join("")}</ol></section>
   ${refHTML()}`;
   miniPrimed = true;
+  fxAfterRender(v, P);
 }
 
 function spellLabel(pd) { return (pd.k === "accio2" || pd.k === "accioAny") ? `Accio (${colName(pd.prm.col)})` : E.card(pd.card).name; }
@@ -1350,6 +1358,110 @@ document.addEventListener("pointermove", e => {
   });
 }, { passive: true });
 document.addEventListener("pointerout", e => { if (tiltEl && !(e.relatedTarget && tiltEl.contains(e.relatedTarget))) untilt(); });
+
+// ---------- in-game motion ----------
+// After each new game state, compare with the last one and animate what changed: cards dealt into your hand fly
+// from the draw pile, cards you play fly to the table, bank or discard, other players' cards fly from their seat,
+// Galleons fly from payer to payee, completed sets burst, the panel slides in, and a win sets off fireworks.
+const FX = { prev: null, cards: new Map(), panel: "" };
+const noMotion = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+const box = el => el && el.getBoundingClientRect();
+const mid = r => [r.left + r.width / 2, r.top + r.height / 2];
+function ghost(html, from, to, o = {}) {
+  const g = document.createElement("div"); g.className = "fxghost " + (o.cls || ""); g.innerHTML = html;
+  const w = o.w || from.width, hh = o.h || from.height;
+  Object.assign(g.style, { left: from.left + (from.width - w) / 2 + "px", top: from.top + (from.height - hh) / 2 + "px", width: w + "px", height: hh + "px" });
+  document.body.appendChild(g);
+  const [fx, fy] = mid(from), [tx, ty] = mid(to), dx = tx - fx, dy = ty - fy;
+  const a = g.animate([{ transform: "translate(0,0) scale(1) rotate(0deg)", opacity: 1 },
+    { transform: `translate(${dx * .5}px,${dy * .5 - (o.arc ?? 70)}px) scale(${o.mid || 1.08}) rotate(${o.spin ?? 10}deg)`, opacity: 1, offset: .5 },
+    { transform: `translate(${dx}px,${dy}px) scale(${o.end ?? .35}) rotate(0deg)`, opacity: o.fade ? 0 : .95 }],
+    { duration: o.dur || 700, delay: o.delay || 0, easing: "cubic-bezier(.3,.7,.2,1)", fill: "both" });
+  a.onfinish = () => { g.remove(); if (o.land) o.land(); };
+}
+function burst(r, colour, n = 16) {
+  const [cx, cy] = mid(r);
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement("i"); s.className = "fxspark"; s.style.left = cx + "px"; s.style.top = cy + "px"; s.style.background = colour;
+    document.body.appendChild(s);
+    const a = Math.PI * 2 * i / n + Math.random() * .4, d = 50 + Math.random() * 60;
+    s.animate([{ transform: "translate(-50%,-50%) scale(1)", opacity: 1 }, { transform: `translate(calc(-50% + ${Math.cos(a) * d}px),calc(-50% + ${Math.sin(a) * d}px)) scale(.2)`, opacity: 0 }],
+      { duration: 800 + Math.random() * 300, easing: "cubic-bezier(.2,.7,.3,1)", fill: "both" }).onfinish = () => s.remove();
+  }
+}
+function floatText(r, text, colour) {
+  const t = document.createElement("div"); t.className = "fxtext"; t.textContent = text; t.style.color = colour;
+  const [cx, cy] = mid(r); t.style.left = cx + "px"; t.style.top = cy + "px"; document.body.appendChild(t);
+  t.animate([{ transform: "translate(-50%,-30%) scale(.6)", opacity: 0 }, { transform: "translate(-50%,-90%) scale(1.1)", opacity: 1, offset: .25 }, { transform: "translate(-50%,-190%) scale(1)", opacity: 0 }],
+    { duration: 1700, easing: "cubic-bezier(.2,.7,.3,1)", fill: "both" }).onfinish = () => t.remove();
+}
+function fireworks(colours) {
+  const cv = document.createElement("canvas"); cv.className = "fxcanvas"; document.body.appendChild(cv);
+  const ctx = cv.getContext("2d"), W = cv.width = innerWidth, H = cv.height = innerHeight, parts = [];
+  let t0 = performance.now(), nextShell = 0;
+  (function tick(now) {
+    const t = now - t0;
+    if (t < 3200 && now > nextShell) {
+      const x = W * (.15 + Math.random() * .7), y = H * (.12 + Math.random() * .35), c = colours[Math.floor(Math.random() * colours.length)];
+      for (let i = 0; i < 70; i++) { const a = Math.random() * Math.PI * 2, sp = 1.5 + Math.random() * 4.5; parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1, c }); }
+      nextShell = now + 260 + Math.random() * 300;
+    }
+    ctx.globalCompositeOperation = "destination-out"; ctx.fillStyle = "rgba(0,0,0,.22)"; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = "lighter";
+    for (const p of parts) { p.x += p.vx; p.y += p.vy; p.vy += .06; p.vx *= .985; p.life -= .012; if (p.life > 0) { ctx.globalAlpha = p.life; ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, 2.4, 2.4); } }
+    if (t < 5200) requestAnimationFrame(tick); else cv.remove();
+  })(t0);
+}
+function fxAfterRender(v, P) {
+  const snap = { v: S.v, code: S.code, created: S.created, status: S.status, turn: S.turn, deck: S.deck.length, hand: P ? P.hand.slice() : [],
+    tables: S.players.map(p => p.table.map(e => e.c)), sets: S.players.map(p => E.completeCols(p).length), last: S.log[S.log.length - 1] };
+  const prev = FX.prev, same = prev && prev.code === snap.code && prev.created === snap.created;
+  const panel = document.querySelector(".panel"), key = panel ? (panel.querySelector("h3") || {}).textContent || "" : "";
+  if (!noMotion() && same && prev.v !== snap.v) {
+    const pile = box(document.querySelector(".center .back"));
+    // new cards in your hand fly in from the draw pile, flipping over
+    const added = snap.hand.filter(id => !prev.hand.includes(id));
+    added.forEach((id, k) => { const el = document.querySelector(`.hand button.card[data-id="${id}"]`); if (!el || !pile) return;
+      const r = box(el), [px, py] = mid(pile), [ex, ey] = mid(r);
+      el.animate([{ transform: `translate(${px - ex}px,${py - ey}px) scale(.45) rotateY(180deg)`, opacity: 0 }, { transform: "translate(0,0) scale(1.06) rotateY(0deg)", opacity: 1, offset: .75 }, { transform: "none", opacity: 1 }],
+        { duration: 650, delay: k * 110, easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" }); });
+    if (added.length && pile) document.querySelector(".center .back").animate([{ transform: "rotate(0)" }, { transform: "rotate(-4deg) translateY(-3px)" }, { transform: "rotate(3deg)" }, { transform: "none" }], { duration: 420 });
+    // cards that left your hand fly to where they went
+    const gone = prev.hand.filter(id => !snap.hand.includes(id));
+    gone.forEach((id, k) => { const was = FX.cards.get(id); if (!was) return;
+      const onTable = document.querySelector(`.played.mine .mini[data-c="${id}"]`);
+      const dest = onTable ? box(onTable) : P && P.bank.includes(id) ? box(document.querySelector(`.plate[data-p="${v}"] .bk`) || document.querySelector(`.plate[data-p="${v}"]`)) : box(document.querySelector(".center .pile:last-child > *"));
+      if (!dest) return;
+      if (onTable) onTable.style.opacity = "0";
+      ghost(was.html, was.rect, dest, { delay: k * 90, end: onTable ? .22 : .3, land: () => { if (onTable) { onTable.style.opacity = ""; onTable.animate([{ transform: "scale(1.6)", filter: "brightness(2)" }, { transform: "none", filter: "none" }], { duration: 380, easing: "ease-out" }); } } }); });
+    // other players' new items fly from their seat onto the table
+    S.players.forEach((p, i) => { if (i === v) return; const before = prev.tables[i] || [];
+      p.table.filter(e => !before.includes(e.c)).forEach((e, k) => { const m = document.querySelector(`.played[data-p="${i}"] .mini[data-c="${e.c}"]`), seat = box(document.querySelector(`.plate[data-p="${i}"]`));
+        if (!m || !seat) return; m.style.opacity = "0";
+        ghost(m.outerHTML.replace(' fresh', ''), seat, box(m), { w: m.offsetWidth, h: m.offsetHeight, end: 1, mid: 1.6, delay: k * 120, land: () => { m.style.opacity = ""; } }); }); });
+    // payments: Galleons fly from payer to payee
+    const idx = S.log.lastIndexOf(prev.last), fresh = idx >= 0 ? S.log.slice(idx + 1) : [];
+    fresh.forEach((m, k) => { const pay = /^@(\d+) paid @(\d+) (\d+) point/.exec(m); if (!pay) return;
+      const from = box(document.querySelector(`.plate[data-p="${pay[1]}"]`)), to = box(document.querySelector(`.plate[data-p="${pay[2]}"]`)), n = Math.min(8, +pay[3]);
+      if (!from || !to) return;
+      for (let c = 0; c < n; c++) ghost('<span class="coin">G</span>', from, to, { w: 26, h: 26, end: .8, arc: 40 + c * 6, spin: 180, delay: k * 300 + c * 70, dur: 760, fade: true });
+      floatText(to, `+${pay[3]} Galleons`, "var(--galleon)"); });
+    // completed sets burst
+    snap.sets.forEach((n, i) => { if (n > (prev.sets[i] || 0)) { const z = box(document.querySelector(`.played[data-p="${i}"]`)); if (z) { burst(z, "var(--crest)", 22); floatText(z, "Set complete!", "var(--crest)"); } } });
+    // the player now on turn
+    if (snap.turn !== prev.turn) { const pl = document.querySelector(`.plate[data-p="${snap.turn}"]`); if (pl) pl.animate([{ transform: "translate(-50%,-50%) scale(1)" }, { transform: "translate(-50%,-50%) scale(1.16)" }, { transform: "translate(-50%,-50%) scale(1)" }], { duration: 600, easing: "cubic-bezier(.3,.7,.2,1)" }); }
+    // a win sets off fireworks in the winner's house colours
+    if (snap.status === "over" && prev.status !== "over") { const w = S.players[S.winner], H = houseOf(w.char); fireworks([H.c, H.c2, "#fff3c8", "#ffd27a"]); }
+  }
+  // the panel slides in when its content changes
+  if (panel && key !== FX.panel && !noMotion()) {
+    panel.animate([{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "none" }], { duration: 380, easing: "cubic-bezier(.2,.8,.2,1)" });
+    panel.querySelectorAll(".opt").forEach((o, k) => o.animate([{ opacity: 0, transform: "translateX(-8px)" }, { opacity: 1, transform: "none" }], { duration: 320, delay: 80 + k * 45, easing: "ease-out", fill: "backwards" }));
+  }
+  FX.panel = key;
+  FX.prev = snap;
+  FX.cards = new Map([...document.querySelectorAll(".hand button.card[data-id]")].map(el => [+el.dataset.id, { rect: el.getBoundingClientRect(), html: el.outerHTML.replace(/<button/, "<div").replace(/<\/button>$/, "</div>") }]));
+}
 
 // Countdowns: the turn clock and the answer clock, worked out from the server's timestamps.
 const mmss = ms => { const t = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; };
