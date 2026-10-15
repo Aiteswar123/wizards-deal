@@ -8,12 +8,13 @@ Each player's screen takes the colours of their own character's Hogwarts house. 
 
 | Token | Great Hall | Gryffindor | Slytherin | Ravenclaw | Hufflepuff | Job |
 | --- | --- | --- | --- | --- | --- | --- |
-| `--stand` | `#17132b` | `#2a0b0f` | `#071c16` | `#0b1533` | `#16130a` | Page ground |
-| `--stand-2` | `#201a3a` | `#3a1016` | `#0c281f` | `#111e45` | `#211c0e` | Seats, panels |
-| `--board` | `#0b0916` | `#130406` | `#030c09` | `#050a1a` | `#0a0905` | Scoreboard, action panel |
-| `--live` | `#ffb23e` | `#f6c344` | `#5fe3a0` | `#e8a065` | `#ffd43f` | **Reserved for the live move**: turn call, turn light, selected card, live panel, play lights |
-| `--crest` | `#d8b25a` | `#eeba30` | `#c0c7cf` | `#c48a4b` | `#ecb939` | House metal: wordmark, house name, winner, torchlight glow |
-| `--muted` / `--dim` | `#b5acd6` / `#8d84b6` | `#e0b7b3` / `#bf8f8b` | `#a9cdbf` / `#7ea596` | `#adb9dc` / `#8492bf` | `#d4c89f` / `#ab9f77` | Secondary text, tinted to the house |
+| `--stand` | `#17132b` | `#3d0a12` | `#04301f` | `#0b2266` | `#1f1a08` | Page ground |
+| `--stand-2` | `#201a3a` | `#520e19` | `#08402a` | `#102d80` | `#2c250b` | Seats, panels |
+| `--board` | `#0b0916` | `#22050a` | `#011c12` | `#061545` | `#110e03` | Scoreboard, action panel |
+| `--live` | `#ffb23e` | `#ffc94a` | `#6ff0ad` | `#ffab6b` | `#ffd43f` | **Reserved for the live move**: turn call, turn light, selected card, live panel, play lights |
+| `--crest` | `#d8b25a` | `#f0c040` | `#d3d9df` | `#d9944f` | `#f2c230` | House metal: wordmark, house name, winner, torchlight glow |
+| `--band` / `--band-ink` | none | `#a3121c` / `#f6cf55` | `#1a5c37` / `#e2e7ec` | `#1f3f9e` / `#eaa866` | `#ecb939` / `#1a1400` | House banner across the top of your screen |
+| `--muted` / `--dim` | `#b5acd6` / `#8d84b6` | `#f0c4c0` / `#d29d98` | `#b3dccb` / `#8cbfaa` | `#c3d0f5` / `#9fb2e6` | `#e4d6a2` / `#bfae74` | Secondary text, tinted to the house |
 
 Every house also sets `--stand-3`, `--line`, `--line-2`, `--board-2` and `--bulb-off`. These stay the same in every house:
 
@@ -44,6 +45,7 @@ House kit colours (`HOUSES`) for jersey stripes and shields: Gryffindor `#c8282e
 - **Sets at one fixed scale**: every set shows fixed-width slots (`.slots`) on a shared baseline, so progress compares across players at a glance.
 - **Stamps** (`.stamp`): blocked spells and chosen cards are stamped, never silently removed ("Protego", "Blocked", "Chosen", "Full time").
 - **House shields** (`shield(ch)`): an inline SVG shield in the house field colour with a metal band and the character's initial. Used wherever a player is named.
+- **House banner** (`.houseband`): the first thing on your screen in a game, a full-width band in your house colour with your shield, the house name, your character and the house trait.
 - **House bar**: your own seat opens with "House Gryffindor" and the house trait.
 - **Floating candles**: the home screen has Great Hall candles that bob and flicker (authored SVG, `CANDLES`).
 - **Spell cut-in**: the burst and the scarf use the caster's house colours, and the sorting reveal names your house.

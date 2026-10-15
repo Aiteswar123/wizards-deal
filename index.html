@@ -39,17 +39,17 @@
   color-scheme:dark;
 }
 /* Gryffindor: scarlet and gold */
-:root[data-house=gryffindor]{--stand:#2a0b0f;--stand-2:#3a1016;--stand-3:#4d1620;--line:#5e1d28;--line-2:#7a2734;--board:#130406;--board-2:#200a0e;--bulb-off:#3b1a1f;
-  --live:#f6c344;--live-ink:#2b1a00;--crest:#eeba30;--muted:#e0b7b3;--dim:#bf8f8b}
+:root[data-house=gryffindor]{--stand:#3d0a12;--stand-2:#520e19;--stand-3:#6a1422;--line:#7e1b2a;--line-2:#9b2636;--board:#22050a;--board-2:#330810;--bulb-off:#4a1820;
+  --live:#ffc94a;--live-ink:#2b1a00;--crest:#f0c040;--muted:#f0c4c0;--dim:#d29d98;--band:#a3121c;--band-ink:#f6cf55}
 /* Slytherin: green and silver */
-:root[data-house=slytherin]{--stand:#071c16;--stand-2:#0c281f;--stand-3:#12352a;--line:#184536;--line-2:#225a47;--board:#030c09;--board-2:#091712;--bulb-off:#163027;
-  --live:#5fe3a0;--live-ink:#02200f;--crest:#c0c7cf;--muted:#a9cdbf;--dim:#7ea596}
+:root[data-house=slytherin]{--stand:#04301f;--stand-2:#08402a;--stand-3:#0d5236;--line:#126444;--line-2:#1a7d55;--board:#011c12;--board-2:#04281a;--bulb-off:#0f3d2b;
+  --live:#6ff0ad;--live-ink:#02200f;--crest:#d3d9df;--muted:#b3dccb;--dim:#8cbfaa;--band:#1a5c37;--band-ink:#e2e7ec}
 /* Ravenclaw: blue and bronze */
-:root[data-house=ravenclaw]{--stand:#0b1533;--stand-2:#111e45;--stand-3:#18295a;--line:#20346e;--line-2:#2c4488;--board:#050a1a;--board-2:#0b132b;--bulb-off:#1c2644;
-  --live:#e8a065;--live-ink:#2a1300;--crest:#c48a4b;--muted:#adb9dc;--dim:#8492bf}
+:root[data-house=ravenclaw]{--stand:#0b2266;--stand-2:#102d80;--stand-3:#163a99;--line:#1d47b0;--line-2:#2a5bd0;--board:#061545;--board-2:#0b1f5c;--bulb-off:#1a2f70;
+  --live:#ffab6b;--live-ink:#2a1300;--crest:#d9944f;--muted:#c3d0f5;--dim:#9fb2e6;--band:#1f3f9e;--band-ink:#eaa866}
 /* Hufflepuff: yellow and black */
-:root[data-house=hufflepuff]{--stand:#16130a;--stand-2:#211c0e;--stand-3:#2c2512;--line:#3a3117;--line-2:#50441f;--board:#0a0905;--board-2:#14120a;--bulb-off:#2b2614;
-  --live:#ffd43f;--live-ink:#221900;--crest:#ecb939;--muted:#d4c89f;--dim:#ab9f77}
+:root[data-house=hufflepuff]{--stand:#1f1a08;--stand-2:#2c250b;--stand-3:#3a300e;--line:#4a3d12;--line-2:#66541a;--board:#110e03;--board-2:#1c1806;--bulb-off:#3a3212;
+  --live:#ffd43f;--live-ink:#221900;--crest:#f2c230;--muted:#e4d6a2;--dim:#bfae74;--band:#ecb939;--band-ink:#1a1400}
 *{box-sizing:border-box}
 ::selection{background:var(--chalk);color:var(--board)}
 html{scrollbar-color:var(--line-2) var(--stand);accent-color:var(--chalk);-webkit-text-size-adjust:100%}
@@ -59,7 +59,7 @@ input,select{caret-color:var(--live)}
 html,body{min-height:100%}
 body{margin:0;background:var(--stand);color:var(--ink);font:400 1rem/1.5 var(--body);padding-inline:16px;
   padding-block:env(safe-area-inset-top,0px) calc(56px + env(safe-area-inset-bottom,0px));
-  background-image:radial-gradient(ellipse 70rem 30rem at 50% -10rem,color-mix(in srgb,var(--crest) 16%,transparent),transparent 70%),linear-gradient(180deg,var(--board) 0,var(--stand) 30rem)}
+  background-image:radial-gradient(ellipse 70rem 30rem at 50% -10rem,color-mix(in srgb,var(--crest) 22%,transparent),transparent 70%),linear-gradient(180deg,var(--board) 0,var(--stand) 30rem)}
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:2px solid var(--chalk);outline-offset:3px}
@@ -225,6 +225,10 @@ input::placeholder{color:var(--dim);opacity:1}
 .who small{display:block;color:var(--muted);font-size:.84rem}
 .shield{flex:none;width:2.4rem;height:2.76rem;filter:drop-shadow(0 4px 5px rgba(0,0,0,.45))}
 .shield text{font:700 17px var(--magic)}
+.houseband{display:flex;align-items:center;gap:.65rem;margin:-.7rem -16px .75rem;padding:.5rem 16px;background:var(--band,var(--stand-2));color:var(--band-ink,var(--crest));border-bottom:2px solid var(--crest)}
+.houseband .shield{width:1.9rem;height:2.2rem}
+.houseband b{font:700 1.75rem/1 var(--magic)}
+.houseband span{margin-left:auto;font:700 .78rem/1.2 var(--label);letter-spacing:.12em;text-transform:uppercase;text-align:right}
 .housebar{display:flex;align-items:baseline;flex-wrap:wrap;gap:.2rem .6rem;padding-bottom:.7rem;border-bottom:1px solid var(--line)}
 .housebar b{font:700 1.7rem/1 var(--magic);color:var(--crest)}
 .candles{position:absolute;inset:0 0 auto;height:7rem;pointer-events:none}
@@ -646,7 +650,9 @@ function boardHTML(v, waiting) {
       ${bulbs(now[i])}<span class="of">of 3 sets<span class="hn"> · ${p.hand.length} in hand</span></span>${acting ? `<em class="resp">Responding</em>` : live ? `<em class="turnlight">On turn</em>` : ""}</li>`;
   }).join("");
   const last = S.log.length ? S.log[S.log.length - 1] : "";
+  const mine = v >= 0 ? S.players[v] : null, H = mine && houseOf(mine.char);
   return `<header class="board">
+    ${H ? `<div class="houseband">${shield(mine.char)}<b>${H.n}</b><span>${E.CHARS[mine.char].n} · ${H.trait}</span></div>` : ""}
     <div class="board-top"><span class="mark">Wizard's Deal</span><span class="tcode">Table <b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}<button class="btn ghost small" data-a="home">Leave table</button></div>
     <ol class="cols" style="--n:${S.players.length}" aria-label="Scoreboard">${cols}</ol>
     ${last ? `<p class="ticker"><span class="tl">Latest</span><span>${fmt(last)}</span></p>` : ""}
