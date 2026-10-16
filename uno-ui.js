@@ -244,7 +244,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
   };
   // action cards that carry a picture instead of the drawing; if a file is missing the drawing shows through
   // (the Wild's flag has a see-through background, so the four-colour board shows behind it)
-  const ART_IMG = { skip: { img: "assets/card-skip.jpg", pos: "50% 50%", zoom: 1.8, at: "51% 60%", mark: "skip" }, rev: { img: "assets/card-rev.png", pos: "42% 50%", zoom: 1.15, at: "42% 50%", mark: "rev" }, wild: { img: "assets/card-wild.png", fit: "contain", zoom: .94 },
+  const ART_IMG = { skip: { img: "assets/card-skip.jpg", pos: "50% 50%", zoom: 1.8, at: "51% 60%" }, rev: { img: "assets/card-rev.png", pos: "42% 50%", zoom: 1.15, at: "42% 50%" }, wild: { img: "assets/card-wild.png", fit: "contain", zoom: .94 },
     d2: { img: "assets/card-d2.jpg", pos: "50% 22%", mark: "+2" },
     w4: { img: "assets/card-w4.png", pos: "47% 15%", zoom: 1.1, at: "47% 20%", mark: "+4" } };
   const imgHTML = a => `<img class="custom" src="${a.img}" style="${a.fit ? `object-fit:${a.fit};` : ""}object-position:${a.pos || "50% 50%"}${a.zoom ? `;transform:scale(${a.zoom});transform-origin:${a.at || "50% 50%"}` : ""}" alt="" onerror="this.remove()">`;
