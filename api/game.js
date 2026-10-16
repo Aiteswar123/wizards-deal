@@ -123,7 +123,21 @@ async function recordGame(g) {
     await redis(["SET", rankKey(g.kind), JSON.stringify(r)]);
   });
 }
+// The overall ranking adds each player's Wizard's Deal and Grand Line UNO records together, matched by name.
+async function overallRanking() {
+  await fixRanking();
+  const [deal, uno] = await Promise.all([loadRanking("deal"), loadRanking("uno")]);
+  const all = {};
+  for (const [src, r] of [["deal", deal], ["uno", uno]]) for (const [k, p] of Object.entries(r)) {
+    const t = all[k] || (all[k] = { name: p.name, xp: 0, games: 0, wins: 0, deal: 0, uno: 0, last: -1 });
+    t.xp += p.xp; t.games += p.games; t.wins += p.wins; t[src] = p.xp;
+    if ((p.last || 0) > t.last) { t.last = p.last || 0; t.name = p.name; }   // show the name they used most recently
+  }
+  return Object.values(all).sort((a, b) => b.xp - a.xp || b.wins - a.wins).slice(0, 100)
+    .map(p => Object.assign({ name: p.name, xp: p.xp, games: p.games, wins: p.wins, deal: p.deal, uno: p.uno }, E.levelFor(p.xp)));
+}
 async function ranking(kind) {
+  if (kind === "all") return overallRanking();
   if (kind !== "uno") await fixRanking();
   const r = await loadRanking(kind);
   return Object.values(r).sort((a, b) => b.xp - a.xp || b.wins - a.wins).slice(0, 100)
@@ -149,7 +163,7 @@ async function handle(req) {
   const q = req.method === "GET" ? req.query : (req.body || {});
   if (req.method === "GET") {
     if (q.list) return { lobbies: await lobbies() };
-    if (q.ranking) return { ranking: await ranking(q.kind === "uno" ? "uno" : "deal") };
+    if (q.ranking) return { ranking: await ranking(q.kind === "uno" || q.kind === "all" ? q.kind : "deal") };
     const code = String(q.code || "").toUpperCase();
     const g = await settleClock(code, await load(code));
     if (!g) return { gone: true };

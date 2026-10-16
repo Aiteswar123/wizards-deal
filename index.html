@@ -291,6 +291,14 @@ input::placeholder{color:var(--dim);opacity:1}
 .fxcanvas{position:fixed;inset:0;z-index:34;pointer-events:none;width:100%;height:100%}
 .ranks{margin-top:1.5rem;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(0 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") top left/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(90 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") top right/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(270 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") bottom left/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(180 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") bottom right/34px 34px no-repeat,linear-gradient(rgba(16,11,22,.86),rgba(16,11,22,.92)),url(assets/medieval_wood.jpg) center/480px,var(--board);border-radius:8px;padding:1.4rem;box-shadow:0 18px 30px -18px rgba(0,0,0,.8)}
 .ranks header{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:.6rem}
+.rtabs{display:flex;gap:.5rem;margin:.2rem 0 .8rem;flex-wrap:wrap}
+.rtabs button{display:flex;flex-direction:column;align-items:flex-start;gap:.15rem;padding:.5rem .85rem;border-radius:8px;border:1px solid var(--line-2);background:color-mix(in srgb,var(--board) 70%,transparent);color:var(--chalk);font:700 .95rem/1 var(--label);letter-spacing:.04em}
+.rtabs button small{font:500 .72rem/1 var(--body);letter-spacing:0;color:var(--muted)}
+.rtabs button[aria-pressed=true]{border-color:var(--crest);color:var(--crest);box-shadow:0 0 0 1px var(--crest)}
+.rtabs button:hover{border-color:var(--chalk)}
+.rnote{font-size:.9rem;margin:-.2rem 0 .6rem}
+.rsplit{display:block;font:500 .78rem/1.3 var(--body);color:var(--muted);margin-top:.15rem}
+.ranklist .rsplit b{display:inline;font:700 .78rem/1.3 var(--body);color:var(--chalk)}
 .ranks h2{font:700 1.9rem/1 var(--magic)}
 .ranklist li{display:grid;grid-template-columns:2.2rem minmax(8rem,1fr) 5.5rem repeat(4,minmax(4rem,auto));align-items:center;gap:.4rem 1rem;padding:.7rem .2rem;border-top:1px solid var(--board-2)}
 .ranklist li.me{background:color-mix(in srgb,var(--crest) 9%,transparent);border-radius:6px}
@@ -777,7 +785,7 @@ async function poll() {
 let rankingList = [];
 async function pollLobbies() {
   while (view === "home") {
-    try { const r = (await (await fetch(`/api/game?ranking=1${homeGame() === "uno" ? "&kind=uno" : ""}`, { cache: "no-store" })).json()).ranking || []; if (JSON.stringify(r) !== JSON.stringify(rankingList)) { rankingList = r; if (view === "home") renderHome(); } } catch (e) {}
+    await refreshRanking();
     try { const j = await (await fetch("/api/game?list=1", { cache: "no-store" })).json(); const next = j.lobbies || []; if (JSON.stringify(next) !== JSON.stringify(lobbies)) { lobbies = next; if (view === "home") renderHome(); } } catch (e) {}
     await sleep(4000);
   }
@@ -788,6 +796,11 @@ function enter(c) { code = c; poll(); }
 function goHome() { pollGen++; code = null; S = null; view = "home"; ui = freshUI(); if (window.UnoUI) UnoUI.reset(); render(); pollLobbies(); }
 // Which game the home page shows: Wizard's Deal or Grand Line UNO, remembered per device.
 const homeGame = () => LS.get("wd-game") === "uno" ? "uno" : "deal";
+// The home ranking shows the chosen game's list or the overall one (both games added together), remembered per device.
+const rankKind = () => LS.get("wd-rank") === "all" ? "all" : homeGame();
+async function refreshRanking() {
+  try { const r = (await (await fetch(`/api/game?ranking=1&kind=${rankKind()}`, { cache: "no-store" })).json()).ranking || []; if (JSON.stringify(r) !== JSON.stringify(rankingList)) { rankingList = r; if (view === "home") renderHome(); } } catch (e) {}
+}
 function myName() {
   const el = document.getElementById("myname");
   const n = (el ? el.value : LS.get("wd-nick") || "").trim().slice(0, 20);
@@ -920,16 +933,18 @@ function xpGuideHTML() {
 function rankingHTML() {
   const mine = (LS.get("wd-nick") || "").trim().toLowerCase().replace(/s+/g, " ");
   const medal = ["#e8c25a", "#c9ced8", "#c58a52"];
-  const uno = homeGame() === "uno";
-  return `<section class="ranks"><header><h2>${uno ? "Most Wanted" : "Hall of Fame"}</h2><span class="lbl">${rankingList.length ? rankingList.length + (uno ? " pirates" : " wizards") : "All-time"}</span></header>
+  const uno = homeGame() === "uno", all = rankKind() === "all", own = uno ? "Most Wanted" : "Hall of Fame";
+  return `<section class="ranks"><header><h2>${all ? "Overall Ranking" : own}</h2><span class="lbl">${rankingList.length ? rankingList.length + (all ? " players" : uno ? " pirates" : " wizards") : "All-time"}</span></header>
+    <div class="rtabs" role="group" aria-label="Which ranking"><button data-a="rankScope" data-s="game" aria-pressed="${!all}">${own}<small>${uno ? "Grand Line UNO" : "Wizard's Deal"}</small></button><button data-a="rankScope" data-s="all" aria-pressed="${all}">Overall<small>Both games together</small></button></div>
+    ${all ? `<p class="muted rnote">Your EXP from Wizard's Deal and Grand Line UNO added together. Your level here comes from the combined total.</p>` : ""}
     ${rankingList.length ? `<ol class="ranklist">${rankingList.map((r, i) => `<li class="${r.name.trim().toLowerCase().replace(/s+/g, " ") === mine ? "me" : ""}">
       <span class="rk" style="${i < 3 ? `--m:${medal[i]}` : ""}">${i + 1}</span>
-      <span class="rn"><b>${esc(r.name)}</b><span class="lvbar" title="${r.into} of ${r.need} EXP to level ${r.level + 1}"><i style="width:${Math.round(100 * r.into / r.need)}%"></i></span></span>
+      <span class="rn"><b>${esc(r.name)}</b>${all ? `<span class="rsplit">Wizard's Deal <b>${r.deal}</b> · UNO <b>${r.uno}</b></span>` : ""}<span class="lvbar" title="${r.into} of ${r.need} EXP to level ${r.level + 1}"><i style="width:${Math.round(100 * r.into / r.need)}%"></i></span></span>
       <span class="lv">Level <b>${r.level}</b></span>
       <span class="st"><b>${r.xp}</b> EXP</span><span class="st"><b>${r.wins}</b> wins</span><span class="st"><b>${r.games}</b> games</span><span class="st"><b>${r.games ? Math.round(100 * r.wins / r.games) : 0}%</b> won</span></li>`).join("")}</ol>`
       : `<p class="muted">No finished games yet. Every player earns EXP when a game ends; the winner earns the most.</p>`}
     <p class="fine" style="margin-top:.9rem">Players are matched by name, ignoring capitals, so always play under the same name.</p>
-    ${uno ? "" : `<details class="xpdetails"><summary>How EXP works</summary>${xpGuideHTML()}</details>`}</section>`;
+    ${uno || all ? "" : `<details class="xpdetails"><summary>How EXP works</summary>${xpGuideHTML()}</details>`}</section>`;
 }
 
 function renderHome() {
@@ -1481,7 +1496,8 @@ $app.addEventListener("click", async e => {
     case "copy": try { await navigator.clipboard.writeText(S.code); flash("Code copied", true); } catch (err) { flash("Copy didn't work here. The code is " + S.code + "."); } return;
     case "leaveLobby": { await call("leave"); LS.del("wd-last"); return goHome(); }
     case "start": return call("start");
-    case "pickGame": LS.set("wd-game", d.g); rankingList = []; render(); try { const rk = (await (await fetch(`/api/game?ranking=1${d.g === "uno" ? "&kind=uno" : ""}`, { cache: "no-store" })).json()).ranking || []; rankingList = rk; if (view === "home") renderHome(); } catch (err) {} return;
+    case "pickGame": LS.set("wd-game", d.g); if (rankKind() !== "all") rankingList = []; render(); return refreshRanking();
+    case "rankScope": LS.set("wd-rank", d.s); rankingList = []; renderHome(); return refreshRanking();
     case "again": return call("again");
     case "sel": {
       const id = num("id");
