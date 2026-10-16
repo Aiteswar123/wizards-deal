@@ -1,6 +1,6 @@
 // Grand Line UNO: the rules engine, shared by the browser and the server (like engine.js).
 // Plays like UNO with stacking: answer a Draw 2 with a Draw 2, or a Draw 2 / Wild Draw 4 with a Wild Draw 4, to pass
-// the growing pile to the next player. Pirate flavour only: the cards are still red, yellow, green and blue numbers,
+// the growing pile to the next player. A card that fits can take every other card of the same number or symbol with it (not Wilds). Pirate flavour only: the cards are still red, yellow, green and blue numbers,
 // Skip, Reverse, Draw 2, Wild and Wild Draw 4.
 (function (G) {
   "use strict";
@@ -9,9 +9,9 @@
   const COLORS = { r: { n: "Red", sea: "Red Line", hex: "#d6342c" }, y: { n: "Yellow", sea: "South Blue", hex: "#f2b51c" },
     g: { n: "Green", sea: "West Blue", hex: "#2f9a52" }, b: { n: "Blue", sea: "East Blue", hex: "#1f6fd1" } };
   const COLOR_KEYS = ["r", "y", "g", "b"];
-  // Action cards and their pirate names.
-  const KINDS = { skip: { n: "Skip", alias: "Seastone Cuffs", pts: 20 }, rev: { n: "Reverse", alias: "Log Pose", pts: 20 }, d2: { n: "Draw 2", alias: "Message Gull", pts: 20 },
-    wild: { n: "Wild", alias: "Devil Fruit", pts: 50 }, w4: { n: "Wild Draw 4", alias: "Conqueror's Haki", pts: 50 } };
+  // Action cards and the names printed on their posters.
+  const KINDS = { skip: { n: "Skip", alias: "Skip", pts: 20 }, rev: { n: "Reverse", alias: "Reverse", pts: 20 }, d2: { n: "Draw 2", alias: "Draw Two", pts: 20 },
+    wild: { n: "Wild", alias: "Wild Card", pts: 50 }, w4: { n: "Wild Draw 4", alias: "Wild Draw Four", pts: 50 } };
   // One deck: per colour one 0, two each of 1-9, Skip, Reverse and Draw 2; plus four Wild and four Wild Draw 4 (108 cards).
   const BASE = 108;
   const CARDS = [];
@@ -109,16 +109,31 @@
       if (!playable(s, id)) return err(s.stack > 0 ? `Answer with a ${s.stackKind === "d2" ? "Draw 2 or Wild Draw 4" : "Wild Draw 4"}, or draw ${s.stack}.` : "That card doesn't match the colour or the symbol.");
       const c = card(id);
       if (isWild(c) && !COLOR_KEYS.includes(act.col)) return err("Choose a colour.");
-      P.hand.splice(P.hand.indexOf(id), 1); s.discard.push(id); P.played = (P.played || 0) + 1; s.plays++;
-      s.col = isWild(c) ? act.col : c.c;
-      s.last = { k: "play", p: a, card: id, col: s.col, n: s.plays };
-      log(s, `@${a} played ${label(id)}${isWild(c) ? ` and chose ${COLORS[s.col].n}` : ""}.`);
+      // more cards with the same number, in any colour, can go down with it; the last one sets the colour
+      const more = Array.isArray(act.more) ? act.more : [];
+      if (more.length) {
+        if (isWild(c)) return err("Wild cards are played one at a time.");
+        if (s.drew != null) return err("After drawing you can only play the card you drew.");
+        const seen = new Set([id]);
+        for (const m of more) {
+          if (seen.has(m) || !P.hand.includes(m)) return err("That card isn't in your hand.");
+          if (card(m).v !== c.v) return err("Cards played together must have the same number or symbol.");
+          seen.add(m);
+        }
+      }
+      for (const x of [id, ...more]) { P.hand.splice(P.hand.indexOf(x), 1); s.discard.push(x); P.played = (P.played || 0) + 1; s.plays++; }
+      const lastId = more.length ? more[more.length - 1] : id;
+      s.col = isWild(c) ? act.col : card(lastId).c;
+      s.last = { k: "play", p: a, card: lastId, cards: [id, ...more], col: s.col, n: s.plays };
+      log(s, more.length ? `@${a} played ${[id, ...more].map(label).join(", ")}.` : `@${a} played ${label(id)}${isWild(c) ? ` and chose ${COLORS[s.col].n}` : ""}.`);
       if (!P.hand.length) { s.status = "over"; s.winner = a; log(s, `@${a} played their last card and wins!`); return { state: s }; }
       if (P.hand.length === 1) { if (act.uno) log(s, `@${a} called UNO!`); else s.unoMiss = a; }
+      // each card counts: two Skips skip two players, two Draw 2s add 4, two Reverses turn back again
+      const n = 1 + more.length;
       let steps = 1;
-      if (c.v === "skip") { steps = 2; log(s, `@${nextSeat(s, a)} is skipped.`); }
-      if (c.v === "rev") { if (s.players.length === 2) steps = 2; else s.dir *= -1; }
-      if (c.v === "d2" || c.v === "w4") { s.stack += c.v === "d2" ? 2 : 4; s.stackKind = c.v === "w4" ? "w4" : (s.stackKind === "w4" ? "w4" : "d2"); }
+      if (c.v === "skip") { steps = 1 + n; for (let k = 1; k <= n; k++) log(s, `@${nextSeat(s, a, k)} is skipped.`); }
+      if (c.v === "rev") { if (s.players.length === 2) steps = 1 + n; else if (n % 2) s.dir *= -1; }
+      if (c.v === "d2" || c.v === "w4") { s.stack += (c.v === "d2" ? 2 : 4) * n; s.stackKind = c.v === "w4" ? "w4" : (s.stackKind === "w4" ? "w4" : "d2"); }
       advance(s, steps);
       return { state: s };
     }

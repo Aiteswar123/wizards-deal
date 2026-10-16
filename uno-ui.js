@@ -72,6 +72,8 @@
 .ucard .ph.crew svg{width:100%;height:100%;filter:none}
 .ucard .ph img.custom + svg{display:none}
 .ucard .numc{position:absolute;right:calc(var(--w)*.015);bottom:calc(var(--w)*-.035);z-index:1;font:400 calc(var(--w)*.26)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.014) var(--ink);paint-order:stroke fill;text-shadow:calc(var(--w)*.012) calc(var(--w)*.016) 0 rgba(0,0,0,.45);transform:rotate(-6deg)}
+.ucard .numc.sg{right:calc(var(--w)*.02);bottom:calc(var(--w)*.015);width:calc(var(--w)*.27);height:calc(var(--w)*.27);transform:none;filter:drop-shadow(calc(var(--w)*.01) calc(var(--w)*.014) 0 rgba(0,0,0,.45))}
+.ucard .numc.sg svg{width:100%;height:100%;display:block}
 .ucard .num{font:400 calc(var(--w)*.5)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.016) var(--ink);paint-order:stroke fill;
   text-shadow:calc(var(--w)*.018) calc(var(--w)*.026) 0 rgba(0,0,0,.4);transform:rotate(-4deg);margin-top:calc(var(--w)*.02)}
 .ucard .doa{position:absolute;left:calc(var(--w)*.12);right:calc(var(--w)*.12);top:calc(var(--w)*.865);padding:calc(var(--w)*.012) 0;text-align:center;
@@ -167,6 +169,9 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
 .uhand.mine-turn .ucard.ok{cursor:pointer;transform:translateY(-14px);box-shadow:0 0 0 3px var(--live),0 14px 24px -8px rgba(0,0,0,.8)}
 .uhand.mine-turn .ucard.ok:hover{transform:translateY(-24px) rotate(-2deg);z-index:3}
 .uhand.mine-turn .ucard.no{filter:brightness(.55) saturate(.6)}
+.uhand.mine-turn .ucard.sel{transform:translateY(-30px);box-shadow:0 0 0 3px #fff,0 0 22px var(--live),0 14px 24px -8px rgba(0,0,0,.8);z-index:4}
+.uhand .ucard.sel::before{content:attr(data-ord);inset:auto;right:calc(var(--w)*.04);top:calc(var(--w)*.04);width:calc(var(--w)*.26);height:calc(var(--w)*.26);padding:0;border-radius:50%;display:grid;place-items:center;
+  background:var(--live);color:var(--live-ink);font:400 calc(var(--w)*.17)/1 "Alfa Slab One",serif;-webkit-mask:none;mask:none;z-index:4;box-shadow:0 2px 6px rgba(0,0,0,.6)}
 .uhand .ucard.justdrew{box-shadow:0 0 0 3px #fff,0 0 22px #fff}
 /* colour picker */
 .upick{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(3,8,14,.7);backdrop-filter:blur(3px)}
@@ -200,7 +205,8 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
 
   // ---- card art: Marine WANTED posters ----
   // The poster's "photo" holds the numeral, or for action cards an illustration of a One Piece item, drawn here:
-  // Seastone Cuffs (Skip), Log Pose (Reverse), Message Gull (Draw 2), Devil Fruit (Wild), Conqueror's Haki (Wild Draw 4).
+  // Seastone Cuffs (Skip), Log Pose (Reverse), Message Gull (Draw 2), Devil Fruit (Wild), Conqueror's Haki (Wild Draw 4);
+  // these drawings show only where a card's picture is missing.
   const INK = "#24170e";
   const ART = {
     skip: `<svg viewBox="0 0 100 100" aria-hidden="true">
@@ -238,19 +244,21 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
   };
   // action cards that carry a picture instead of the drawing; if a file is missing the drawing shows through
   // (the Wild's flag has a see-through background, so the four-colour board shows behind it)
-  const ART_IMG = { skip: { img: "assets/card-skip.jpg", pos: "50% 50%", zoom: 1.8, at: "51% 60%" }, rev: { img: "assets/card-rev.png", pos: "42% 50%", zoom: 1.15, at: "42% 50%" }, wild: { img: "assets/card-wild.png", fit: "contain", zoom: .94 },
+  const ART_IMG = { skip: { img: "assets/card-skip.jpg", pos: "50% 50%", zoom: 1.8, at: "51% 60%", mark: "skip" }, rev: { img: "assets/card-rev.png", pos: "42% 50%", zoom: 1.15, at: "42% 50%", mark: "rev" }, wild: { img: "assets/card-wild.png", fit: "contain", zoom: .94 },
     d2: { img: "assets/card-d2.jpg", pos: "50% 22%", mark: "+2" },
     w4: { img: "assets/card-w4.png", pos: "47% 15%", zoom: 1.1, at: "47% 20%", mark: "+4" } };
   const imgHTML = a => `<img class="custom" src="${a.img}" style="${a.fit ? `object-fit:${a.fit};` : ""}object-position:${a.pos || "50% 50%"}${a.zoom ? `;transform:scale(${a.zoom});transform-origin:${a.at || "50% 50%"}` : ""}" alt="" onerror="this.remove()">`;
   // gradients the card art shares, defined once in a visible zero-size SVG (ids repeated per card would break when the first copy is hidden)
   document.body.insertAdjacentHTML("afterbegin", `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="ssA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b9c4c9"/><stop offset=".55" stop-color="#6f7f88"/><stop offset="1" stop-color="#3b474e"/></linearGradient><radialGradient id="dfA" cx=".38" cy=".35" r=".75"><stop offset="0" stop-color="#c58ae6"/><stop offset=".6" stop-color="#7d33a8"/><stop offset="1" stop-color="#3f1460"/></radialGradient><radialGradient id="hkA"><stop offset="0" stop-color="#ff5240"/><stop offset=".45" stop-color="#8a0c14"/><stop offset="1" stop-color="#1a0204" stop-opacity="0"/></radialGradient></defs></svg>`);
-  // small single-colour marks for the wax-seal pip
-  const PIP = {
-    skip: `<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#fbf1d8" stroke-width="2.6"><circle cx="7" cy="13" r="4.5"/><circle cx="17" cy="13" r="4.5"/><path d="M10.5 11.5h3"/></g></svg>`,
-    rev: `<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#fbf1d8" stroke-width="2.6" stroke-linecap="round"><path d="M5 9h12l-3-3M19 15H7l3 3"/></g></svg>`,
-    d2: "+2", w4: "+4",
-    wild: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7c-5-2-9 1-8.5 6 .5 4 4 7 8.5 7s8-3 8.5-7C21 8 17 5 12 7z" fill="#fbf1d8"/><path d="M12 7c0-2 1-4 3-5" stroke="#fbf1d8" stroke-width="2" fill="none"/></svg>`
+  // the standard UNO signs: Skip is a circle with a slash, Reverse two opposed arrows, Wild an oval. Drawn in cream,
+  // with an ink outline when they sit large on a picture
+  const SIGN = {
+    skip: '<circle cx="12" cy="12" r="7.5"/><path d="M6.8 17.2 17.2 6.8"/>',
+    rev: '<path d="M3.5 15.5 12 7"/><path d="M7 6.5H12.5V12"/><path d="M20.5 8.5 12 17"/><path d="M17 17.5H11.5V12"/>',
+    wild: '<ellipse cx="12" cy="12" rx="9" ry="5.6" transform="rotate(-35 12 12)"/>'
   };
+  const sign = (v, big) => `<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke-linecap="round" stroke-linejoin="round">${big ? `<g stroke="${INK}" stroke-width="5.4">${SIGN[v]}</g>` : ""}<g stroke="#fbf1d8" stroke-width="${big ? 2.8 : 2.6}">${SIGN[v]}</g></g></svg>`;
+  const PIP = { skip: sign("skip"), rev: sign("rev"), wild: sign("wild"), d2: "+2", w4: "+4" };
   const BERRY = `<svg viewBox="0 0 12 16" aria-hidden="true"><path d="M3 3h4.2a2.6 2.6 0 0 1 0 5.2H3zM3 8.2h5a2.9 2.9 0 0 1 0 5.8H3z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 1v14M8 1v2M8 13v2" stroke="currentColor" stroke-width="1.6"/></svg>`;
   const SKULL = (band = "#c8281e") => `<svg viewBox="0 0 60 60" aria-hidden="true"><g stroke-linecap="round"><path d="M12 48 44 14" stroke="#d8dde0" stroke-width="3.4"/><path d="M48 48 16 14" stroke="#d8dde0" stroke-width="3.4"/><path d="M14 42l4 4M46 42l-4 4" stroke="#c9952f" stroke-width="4"/></g><circle cx="30" cy="31" r="12" fill="#f1e6cc"/><rect x="23" y="37" width="14" height="9" rx="2" fill="#f1e6cc"/><circle cx="25.5" cy="31.5" r="3.3" fill="#111"/><circle cx="34.5" cy="31.5" r="3.3" fill="#111"/><path d="M28.5 37.5h3l-1.5 2.4z" fill="#111"/><path d="M26 42.5v3M30 42.5v3M34 42.5v3" stroke="#111" stroke-width="1"/><path d="M17.6 27c1-8 6-12 12.4-12s11.4 4 12.4 12c-4-2-8-3-12.4-3s-8.4 1-12.4 3z" fill="${band}"/><path d="M41 22l7-3-2 6 5 1-6 3z" fill="${band}"/></svg>`;
   // a compass rose, engraved faintly behind the Jolly Roger on the back
@@ -271,7 +279,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const who = K ? K.alias : mine && mine.name ? mine.name : crew ? crew.name : U.COLORS[c.c].sea;
     return `<${g} class="ucard c-${c.c} v-${c.v} ${o.cls || ""}" ${o.attrs || ""} aria-label="${esc(U.label(id))}"><span class="pw">
         <span class="wt">WANTED</span>
-        <span class="ph${crew || mine ? " crew" : ""}">${K ? (ART_IMG[c.v] ? imgHTML(ART_IMG[c.v]) : "") + ART[c.v] + (ART_IMG[c.v] && ART_IMG[c.v].mark ? `<span class="numc">${ART_IMG[c.v].mark}</span>` : "") : mine ? `<img class="custom" src="${mine.src}" alt=""><span class="numc">${c.v}</span>` : crew ? `${crew.img ? imgHTML(crew) : ""}${crew.art}<span class="numc">${c.v}</span>` : `<span class="num">${c.v}</span>`}</span>
+        <span class="ph${crew || mine ? " crew" : ""}">${K ? (ART_IMG[c.v] ? imgHTML(ART_IMG[c.v]) : "") + ART[c.v] + (ART_IMG[c.v] && ART_IMG[c.v].mark ? `<span class="numc${SIGN[ART_IMG[c.v].mark] ? " sg" : ""}">${SIGN[ART_IMG[c.v].mark] ? sign(ART_IMG[c.v].mark, true) : ART_IMG[c.v].mark}</span>` : "") : mine ? `<img class="custom" src="${mine.src}" alt=""><span class="numc">${c.v}</span>` : crew ? `${crew.img ? imgHTML(crew) : ""}${crew.art}<span class="numc">${c.v}</span>` : `<span class="num">${c.v}</span>`}</span>
         <span class="doa">DEAD OR ALIVE</span><span class="who" style="--ws:${who.length > 13 ? .056 : who.length > 10 ? .068 : .092}">${esc(who.toUpperCase())}</span>
         <span class="bty">${BERRY}${bounty(id)}</span><span class="mar">MARINE</span></span>
       <span class="tack"></span><span class="pip tl">${pip}</span></${g}>`;
@@ -285,7 +293,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const pick = c => U.CARDS.find(k => k.c === c.c && k.v === c.v).id;
     const fan = [{ c: "r", v: "7" }, { c: "b", v: "rev" }, { c: "w", v: "wild" }, { c: "w", v: "w4" }].map(pick);
     return `<header class="umast"><div><h1>Grand Line<span>UNO</span></h1>
-      <p>Set sail with up to 12 friends, each on their own phone or computer. Match the colour or the symbol, cuff your rivals with Seastone, send for backup by Message Gull, stack the draws to sink them, and be the first crew to empty your hand. Don't forget to shout UNO!</p></div>
+      <p>Set sail with up to 12 friends, each on their own phone or computer. Match the colour or the symbol, skip your rivals, reverse the course, stack the draws to sink them, and be the first crew to empty your hand. Don't forget to shout UNO!</p></div>
       <div class="fanu" aria-hidden="true">${fan.map((id, i) => cardHTML(id, { attrs: `style="transform:translate(calc(-50% + ${FAN[i][2]}px),calc(-50% + ${FAN[i][3]}px)) rotate(${FAN[i][1]})"` })).join("")}</div></header>`;
   }
   function rulesHTML() {
@@ -297,16 +305,17 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
         <li>Can't (or won't) play? <b>Draw one card</b>. If it fits, you may play it straight away; otherwise your turn passes.</li>
         <li>Each turn has <b>${U.TURN_MS / 1000} seconds</b>. If time runs out you draw (or take the stack) and pass.</li>
         <li>When you play your second-to-last card, press <b>UNO!</b> first. If you forget, anyone can <b>Catch</b> you before the next move and you draw 2.</li>
+        <li>Holding the <b>same number or symbol in other colours</b>? Once one of them fits, play them all together; the last one sets the colour. Each card counts: two Skips skip two players, two Draw Twos add 4. Wilds go one at a time.</li>
         <li><b>Win</b> by playing your last card.</li></ul></div>
       <div><h3>The cards</h3><ul>
-        <li><span class="mini">${ex("skip")}</span><b>Seastone Cuffs</b> (Skip): the next player is cuffed and loses their turn.</li>
-        <li><span class="mini">${ex("rev")}</span><b>Log Pose</b> (Reverse): the course swings round and play turns the other way. With two players it acts like a Skip.</li>
-        <li><span class="mini">${ex("d2")}</span><b>Message Gull</b> (Draw 2): a gull flies in with word of backup; the next player draws 2, unless they stack.</li>
-        <li><span class="mini">${ex("wild")}</span><b>Devil Fruit</b> (Wild): choose the next colour.</li>
-        <li><span class="mini">${ex("w4")}</span><b>Conqueror's Haki</b> (Wild Draw 4): choose the colour; the next player draws 4, unless they stack.</li></ul></div>
+        <li><span class="mini">${ex("skip")}</span><b>Skip</b>: the next player loses their turn.</li>
+        <li><span class="mini">${ex("rev")}</span><b>Reverse</b>: play turns the other way. With two players it acts like a Skip.</li>
+        <li><span class="mini">${ex("d2")}</span><b>Draw Two</b> (+2): the next player draws 2, unless they stack.</li>
+        <li><span class="mini">${ex("wild")}</span><b>Wild Card</b>: choose the next colour.</li>
+        <li><span class="mini">${ex("w4")}</span><b>Wild Draw Four</b> (+4): choose the colour; the next player draws 4, unless they stack.</li></ul></div>
       <div><h3>Stacking</h3><ul>
-        <li>Hit by a Message Gull? Answer with another <b>Message Gull</b> or a <b>Conqueror's Haki</b> to pass the pile on, bigger.</li>
-        <li>Hit by Conqueror's Haki? Only another <b>Conqueror's Haki</b> passes it on.</li>
+        <li>Hit by a Draw Two? Answer with another <b>Draw Two</b> or a <b>Wild Draw Four</b> to pass the pile on, bigger.</li>
+        <li>Hit by a Wild Draw Four? Only another <b>Wild Draw Four</b> passes it on.</li>
         <li>The player who can't (or won't) stack draws the whole pile and loses their turn.</li></ul>
         <h3 style="margin-top:1rem">EXP (its own Hall of Fame)</h3><ul>
         <li>Winner: <b>${X.win}</b>, plus 1 EXP for every ${X.haulPer} points left in the other hands (up to ${X.haulCap}).</li>
@@ -317,7 +326,12 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
   }
 
   // ---- the table ----
-  const ui = { pick: null, uno: false, prev: null, rects: new Map() };
+  // sel: cards of one number or symbol picked to go down together, in the order picked (the last one sets the colour)
+  const ui = { pick: null, uno: false, sel: [], prev: null, rects: new Map() };
+  // any card but a Wild can go down with its twins (same number or symbol)
+  const isNum = id => U.card(id).c !== "w";
+  const many = v => U.KINDS[v] ? `${U.KINDS[v].alias}s` : `${v}s`;
+  const twins = (hand, id) => hand.filter(k => k !== id && U.card(k).v === U.card(id).v);
   function sortHand(h) { const ord = { r: 0, y: 1, g: 2, b: 3, w: 4 }, vo = v => isNaN(+v) ? ({ skip: 10, rev: 11, d2: 12, wild: 13, w4: 14 })[v] : +v;
     return h.slice().sort((a, b) => { const A = U.card(a), B = U.card(b); return ord[A.c] - ord[B.c] || vo(A.v) - vo(B.v) || a - b; }); }
   function seatPos(k, n, phone) {
@@ -330,7 +344,9 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const v = mySeat(), P = S.players[v], n = S.players.length, phone = matchMedia("(max-width:760px)").matches;
     const myTurn = S.status === "play" && S.turn === v, topId = S.discard[S.discard.length - 1], col = U.COLORS[S.col];
     document.title = myTurn ? "Your move · Grand Line UNO" : "Grand Line UNO";
-    if (!P || P.hand.length !== 2) ui.uno = false;
+    if (!myTurn || !P || S.drew != null || ui.sel.some(id => !P.hand.includes(id))) ui.sel = [];
+    const left = P ? P.hand.length - Math.max(1, ui.sel.length) : 0;
+    if (!P || left !== 1) ui.uno = false;
     const seats = S.players.map((p, i) => {
       const k = v >= 0 ? (i - v + n) % n : i, [x, y] = seatPos(k, n, phone), on = S.status === "play" && S.turn === i, cnt = p.hand.length;
       const catchable = S.unoMiss === i && i !== v && v >= 0;
@@ -346,10 +362,13 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     let say = "", btns = "";
     if (S.status === "play") {
       if (myTurn) {
-        if (S.stack > 0) { say = `Hit for +${S.stack}!<small>Stack a ${S.stackKind === "d2" ? "Message Gull (+2) or Conqueror's Haki (+4)" : "Conqueror's Haki (+4)"} to pass it on, or take all ${S.stack}.</small>`; btns = `<button class="ubtn go" data-u="draw">Take ${S.stack} cards</button>`; }
+        if (S.stack > 0) { say = `Hit for +${S.stack}!<small>Stack a ${S.stackKind === "d2" ? "Draw Two (+2) or Wild Draw Four (+4)" : "Wild Draw Four (+4)"} to pass it on, or take all ${S.stack}.</small>`; btns = `<button class="ubtn go" data-u="draw">Take ${S.stack} cards</button>`; }
         else if (S.drew != null) { say = `You drew a card that fits<small>Play it now, or keep it and end your turn.</small>`; btns = `<button class="ubtn go" data-u="play" data-id="${S.drew}">Play it</button><button class="ubtn" data-u="pass">Keep it</button>`; }
-        else { say = `Your turn<small>Match ${col ? `<b style="color:${col.hex}">${col.n}</b>` : "the colour"} or the symbol, play a Wild, or draw.</small>`; btns = `<button class="ubtn" data-u="draw">Draw a card</button>`; }
-        if (P.hand.length === 2) btns += `<button class="ubtn uno" data-u="arm" aria-pressed="${ui.uno}">${ui.uno ? "UNO called!" : "UNO!"}</button>`;
+        else if (ui.sel.length) { const end = U.COLORS[U.card(ui.sel[ui.sel.length - 1]).c];
+          say = `Play your ${many(U.card(ui.sel[0]).v)} together<small>Tap more ${many(U.card(ui.sel[0]).v)} in any colour, or tap one again to put it back. The last one picked sets the colour: <b style="color:${end.hex}">${end.n}</b>.</small>`;
+          btns = `<button class="ubtn go" data-u="playsel">Play ${ui.sel.length} card${ui.sel.length > 1 ? "s" : ""}</button><button class="ubtn" data-u="nosel">Cancel</button>`; }
+        else { say = `Your turn<small>Match ${col ? `<b style="color:${col.hex}">${col.n}</b>` : "the colour"} or the symbol, play a Wild, or draw. Got the same number or symbol in other colours? Play them together.</small>`; btns = `<button class="ubtn" data-u="draw">Draw a card</button>`; }
+        if (left === 1) btns += `<button class="ubtn uno" data-u="arm" aria-pressed="${ui.uno}">${ui.uno ? "UNO called!" : "UNO!"}</button>`;
       } else if (v >= 0) say = `${esc(nameOf(S.turn))} is on turn<small>${S.stack > 0 ? `They face +${S.stack}.` : "Watch for anyone who forgets to call UNO."}</small>`;
       else say = `You're watching<small>${esc(nameOf(S.turn))} is on turn.</small>`;
       if (S.unoMiss === v && v >= 0) btns = `<button class="ubtn uno loud" data-u="uno">UNO!</button>` + btns;
@@ -357,8 +376,9 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       if (S.clock && myTurn) btns += `<span class="uclock tclock">⏳ <b data-clock="turn">1:00</b></span>`;
     }
     const hand = P ? sortHand(P.hand) : [];
-    const handHTML = hand.map(id => { const ok = myTurn && U.playable(S, id) && (S.drew == null || S.drew === id);
-      return cardHTML(id, { tag: "button", cls: `${myTurn ? (ok ? "ok" : "no") : ""}${S.drew === id ? " justdrew" : ""}`, attrs: `data-u="play" data-id="${id}" ${ok ? "" : 'aria-disabled="true"'}` }); }).join("");
+    const handHTML = hand.map(id => { const ok = myTurn && (ui.sel.length ? U.card(id).v === U.card(ui.sel[0]).v : U.playable(S, id) && (S.drew == null || S.drew === id));
+      const k = ui.sel.indexOf(id);
+      return cardHTML(id, { tag: "button", cls: `${myTurn ? (ok ? "ok" : "no") : ""}${S.drew === id ? " justdrew" : ""}${k >= 0 ? " sel" : ""}`, attrs: `${k >= 0 ? `data-ord="${k + 1}" ` : ""}data-u="play" data-id="${id}" ${ok ? "" : 'aria-disabled="true"'}` }); }).join("");
     const ov = hand.length > 14 ? -46 : hand.length > 9 ? -34 : hand.length > 6 ? -24 : -12;
     const last = S.log[S.log.length - 1] || "";
     $app.innerHTML = `<div class="ugame">
@@ -411,7 +431,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
         if (window.Sfx) Sfx.place();
         const K = U.KINDS[c.v], who = nameOf(L.p), colr = U.COLORS[L.col] ? U.COLORS[L.col].hex : "#ffd23f";
         if (K) {
-          const sub = c.v === "skip" ? `${who} cuffs the next pirate · they lose a turn` : c.v === "rev" ? "The needle swings · the course turns around" : c.v === "d2" ? `Backup is on its way · +${S.stack}` : c.v === "w4" ? `+${S.stack} · the sea turns ${U.COLORS[L.col].n}` : `The sea turns ${U.COLORS[L.col].n}`;
+          const sub = c.v === "skip" ? `${who} skips the next pirate · they lose a turn` : c.v === "rev" ? "Play turns the other way" : c.v === "d2" ? `Draw two · +${S.stack}` : c.v === "w4" ? `+${S.stack} · the sea turns ${U.COLORS[L.col].n}` : `The sea turns ${U.COLORS[L.col].n}`;
           if (window.CutIn) CutIn.banner(`${K.alias}!`, sub, colr);
           if (window.Sfx) setTimeout(() => Sfx.spell("u-" + c.v, { targets: c.v === "rev" || c.v === "wild" ? 0 : 1 }), 120);
           if (!calm && disc) burst(disc, colr, c.v === "w4" ? 30 : 18);
@@ -451,10 +471,24 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     switch (d.u) {
       case "play": {
         const id = +d.id;
+        if (ui.sel.length && S.turn === v) {
+          if (U.card(id).v !== U.card(ui.sel[0]).v) { flash(`Pick more ${many(U.card(ui.sel[0]).v)}, or press Cancel.`); return; }
+          const k = ui.sel.indexOf(id); if (k >= 0) ui.sel.splice(k, 1); else ui.sel.push(id);
+          if (!ui.sel.some(x => U.playable(S, x))) ui.sel = [];
+          return render();
+        }
         if (S.turn !== v || !U.playable(S, id) || (S.drew != null && S.drew !== id)) { if (S.turn === v) { flash(S.stack > 0 ? `Stack a draw card or take ${S.stack}.` : "That card doesn't match."); if (window.Sfx) Sfx.error(); } return; }
         if (U.card(id).c === "w") { ui.pick = id; return render(); }
+        // a number card with twins in hand starts a pick of cards to play together
+        if (isNum(id) && S.drew == null && twins(S.players[v].hand, id).length) { ui.sel = [id]; return render(); }
         return send({ t: "play", card: id, uno: ui.uno });
       }
+      case "playsel": {
+        const lead = ui.sel.find(id => U.playable(S, id)); if (lead == null) return;
+        const more = ui.sel.filter(id => id !== lead); ui.sel = [];
+        return send({ t: "play", card: lead, more, uno: ui.uno });
+      }
+      case "nosel": ui.sel = []; return render();
       case "col": { const id = ui.pick; ui.pick = null; render(); return send({ t: "play", card: id, col: d.c, uno: ui.uno }); }
       case "nopick": ui.pick = null; return render();
       case "draw": return send({ t: "draw" });
@@ -466,5 +500,5 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
   });
   async function send(action) { await act(action); ui.uno = false; }
 
-  window.UnoUI = { render, mastHTML, rulesHTML, cardHTML, backHTML, reset() { ui.prev = null; ui.pick = null; ui.uno = false; } };
+  window.UnoUI = { render, mastHTML, rulesHTML, cardHTML, backHTML, reset() { ui.prev = null; ui.pick = null; ui.uno = false; ui.sel = []; } };
 })();
