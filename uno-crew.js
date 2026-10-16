@@ -110,5 +110,17 @@
       `<path d="M31 30c4-8 11-12 19-12s15 4 19 12c-6-2-12-3-19-3s-13 1-19 3z" fill="#1f6fd1" ${O}/><path d="M68 28l8 2-3 6z" fill="#1f6fd1" ${O}/>` +
       `<g fill="#fff"><circle cx="40" cy="24" r="1.2"/><circle cx="50" cy="22" r="1.2"/><circle cx="60" cy="24" r="1.2"/></g>`) }
   ];
+  // all ten number cards carry pictures instead of the drawings; if a file is missing the drawing shows through
+  Object.assign(CREW[0], { name: "Straw Hat Luffy", img: "assets/card-0.png", pos: "50% 0%", zoom: 1.9, at: "48% 18%" });
+  Object.assign(CREW[1], { name: "Nami", img: "assets/card-1.png", pos: "56% 30%" });
+  Object.assign(CREW[2], { name: "Sanji", img: "assets/card-2.png", pos: "50% 10%", zoom: 1.12, at: "30% 30%" });
+  Object.assign(CREW[3], { name: "Roronoa Zoro", img: "assets/card-3.png", pos: "50% 0%", zoom: 1.35, at: "56% 0%" });
+  Object.assign(CREW[4], { name: "Tony Tony Chopper", img: "assets/card-4.png", pos: "50% 8%", zoom: 1.1, at: "42% 10%" });
+  Object.assign(CREW[5], { name: "Nico Robin", img: "assets/card-5.png", pos: "50% 0%", zoom: 1.3, at: "58% 4%" });
+  // Sanji (2), Jinbe (6) and Usopp (8) have see-through backgrounds, so the poster's own coloured halftone shows behind them
+  Object.assign(CREW[6], { name: "Jinbe", img: "assets/card-6.png", pos: "50% 0%", zoom: 1.25, at: "45% 0%" });
+  Object.assign(CREW[7], { name: "Brook", img: "assets/card-7.png", pos: "48% 30%", zoom: 1.1, at: "48% 20%" });
+  Object.assign(CREW[8], { name: "Usopp", img: "assets/card-8.png", pos: "50% 0%", zoom: 1.1, at: "55% 0%" });
+  Object.assign(CREW[9], { name: "Loki", img: "assets/card-9.png", pos: "50% 12%", zoom: 1.1, at: "50% 20%" });
   window.UnoCrew = CREW;
 })();

@@ -70,6 +70,7 @@
 .ucard .ph svg{width:96%;height:96%;filter:drop-shadow(0 calc(var(--w)*.012) 0 rgba(0,0,0,.35))}
 .ucard .ph.crew{place-items:end center}
 .ucard .ph.crew svg{width:100%;height:100%;filter:none}
+.ucard .ph img.custom + svg{display:none}
 .ucard .numc{position:absolute;right:calc(var(--w)*.015);bottom:calc(var(--w)*-.035);z-index:1;font:400 calc(var(--w)*.26)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.014) var(--ink);paint-order:stroke fill;text-shadow:calc(var(--w)*.012) calc(var(--w)*.016) 0 rgba(0,0,0,.45);transform:rotate(-6deg)}
 .ucard .num{font:400 calc(var(--w)*.5)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.016) var(--ink);paint-order:stroke fill;
   text-shadow:calc(var(--w)*.018) calc(var(--w)*.026) 0 rgba(0,0,0,.4);transform:rotate(-4deg);margin-top:calc(var(--w)*.02)}
@@ -235,6 +236,12 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       <g stroke="#ff3b2f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M50 52 36 30 42 22 30 4"/><path d="M50 52 70 36 66 26 86 14"/><path d="M50 52 76 62 84 56 98 72"/><path d="M50 52 28 66 20 60 4 76"/><path d="M50 52 54 76 46 84 52 98"/></g>
       <circle cx="50" cy="52" r="18" fill="${INK}" stroke="#ff3b2f" stroke-width="2.5"/><text x="50" y="60" text-anchor="middle" font-family="Alfa Slab One,serif" font-size="21" fill="#fbf1d8">+4</text></svg>`
   };
+  // action cards that carry a picture instead of the drawing; if a file is missing the drawing shows through
+  // (the Wild's flag has a see-through background, so the four-colour board shows behind it)
+  const ART_IMG = { skip: { img: "assets/card-skip.jpg", pos: "50% 50%", zoom: 1.8, at: "51% 60%" }, rev: { img: "assets/card-rev.png", pos: "42% 50%", zoom: 1.15, at: "42% 50%" }, wild: { img: "assets/card-wild.png", fit: "contain", zoom: .94 },
+    d2: { img: "assets/card-d2.jpg", pos: "50% 22%", mark: "+2" },
+    w4: { img: "assets/card-w4.png", pos: "47% 15%", zoom: 1.1, at: "47% 20%", mark: "+4" } };
+  const imgHTML = a => `<img class="custom" src="${a.img}" style="${a.fit ? `object-fit:${a.fit};` : ""}object-position:${a.pos || "50% 50%"}${a.zoom ? `;transform:scale(${a.zoom});transform-origin:${a.at || "50% 50%"}` : ""}" alt="" onerror="this.remove()">`;
   // gradients the card art shares, defined once in a visible zero-size SVG (ids repeated per card would break when the first copy is hidden)
   document.body.insertAdjacentHTML("afterbegin", `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="ssA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b9c4c9"/><stop offset=".55" stop-color="#6f7f88"/><stop offset="1" stop-color="#3b474e"/></linearGradient><radialGradient id="dfA" cx=".38" cy=".35" r=".75"><stop offset="0" stop-color="#c58ae6"/><stop offset=".6" stop-color="#7d33a8"/><stop offset="1" stop-color="#3f1460"/></radialGradient><radialGradient id="hkA"><stop offset="0" stop-color="#ff5240"/><stop offset=".45" stop-color="#8a0c14"/><stop offset="1" stop-color="#1a0204" stop-opacity="0"/></radialGradient></defs></svg>`);
   // small single-colour marks for the wax-seal pip
@@ -250,16 +257,21 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
   const ROSE = '<svg class="rose" viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#d4b06a" stroke-width=".7"><circle cx="50" cy="50" r="44"/><circle cx="50" cy="50" r="38"/><circle cx="50" cy="50" r="16"/></g><g fill="#d4b06a"><path d="M50 4l5 42-5 4-5-4zM50 96l5-42-5-4-5 4zM4 50l42-5 4 5-4 5zM96 50l-42-5-4 5 4 5z"/><path d="M50 50l22-22-18 26zM50 50l-22 22 18-26zM50 50l22 22-26-18zM50 50L28 28l26 18z" opacity=".6"/></g></svg>';
   // bounties: points x 10,000,000 Berries, written the way the posters write them, with a trailing dash
   const bounty = id => (U.points(id) * 10000000 || 1000).toLocaleString("en-US") + "-";
+  // the back of a card in the chosen deck design (uno-backs.js); the Sunwake's Jolly Roger is the default
+  function backHTML(k, o = {}) {
+    const g = o.tag || "div", b = window.UnoBacks ? UnoBacks.inner(k) : null;
+    return `<${g} class="ucard uback ${b ? b.cls : ""} ${o.cls || ""}" ${o.attrs || ""}>${b ? b.html : `<span class="fl">${ROSE}${SKULL()}</span><span class="bt2">GRAND LINE</span><span class="bt">UNO</span>`}</${g}>`;
+  }
   function cardHTML(id, o = {}) {
     const g = o.tag || "div";
-    if (id == null || id < 0) return `<${g} class="ucard uback ${o.cls || ""}" ${o.attrs || ""}><span class="fl">${ROSE}${SKULL()}</span><span class="bt2">GRAND LINE</span><span class="bt">UNO</span></${g}>`;
+    if (id == null || id < 0) return backHTML(window.UnoBacks ? UnoBacks.get() : "sunwake", o);
     const c = U.card(id), K = U.KINDS[c.v], pip = K ? PIP[c.v] : c.v;
     // a player's own picture for this number (Card art, this browser only) takes the photo box; otherwise the Sunwake crew
     const mine = !K && window.UnoArt ? UnoArt.get(+c.v) || (window.UnoPhoto ? UnoPhoto.forCard(+c.v) : null) : null, crew = !K && window.UnoCrew ? UnoCrew[+c.v] : null;
     const who = K ? K.alias : mine && mine.name ? mine.name : crew ? crew.name : U.COLORS[c.c].sea;
     return `<${g} class="ucard c-${c.c} v-${c.v} ${o.cls || ""}" ${o.attrs || ""} aria-label="${esc(U.label(id))}"><span class="pw">
         <span class="wt">WANTED</span>
-        <span class="ph${crew || mine ? " crew" : ""}">${K ? ART[c.v] : mine ? `<img class="custom" src="${mine.src}" alt=""><span class="numc">${c.v}</span>` : crew ? `${crew.art}<span class="numc">${c.v}</span>` : `<span class="num">${c.v}</span>`}</span>
+        <span class="ph${crew || mine ? " crew" : ""}">${K ? (ART_IMG[c.v] ? imgHTML(ART_IMG[c.v]) : "") + ART[c.v] + (ART_IMG[c.v] && ART_IMG[c.v].mark ? `<span class="numc">${ART_IMG[c.v].mark}</span>` : "") : mine ? `<img class="custom" src="${mine.src}" alt=""><span class="numc">${c.v}</span>` : crew ? `${crew.img ? imgHTML(crew) : ""}${crew.art}<span class="numc">${c.v}</span>` : `<span class="num">${c.v}</span>`}</span>
         <span class="doa">DEAD OR ALIVE</span><span class="who" style="--ws:${who.length > 13 ? .056 : who.length > 10 ? .068 : .092}">${esc(who.toUpperCase())}</span>
         <span class="bty">${BERRY}${bounty(id)}</span><span class="mar">MARINE</span></span>
       <span class="tack"></span><span class="pip tl">${pip}</span></${g}>`;
@@ -350,7 +362,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const ov = hand.length > 14 ? -46 : hand.length > 9 ? -34 : hand.length > 6 ? -24 : -12;
     const last = S.log[S.log.length - 1] || "";
     $app.innerHTML = `<div class="ugame">
-      <header class="board"><div class="board-top"><span class="mark">Grand Line UNO</span><span class="tcode"><span class="tl2">Table </span><b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}${window.UnoPhoto && v >= 0 ? UnoPhoto.button() : ""}${window.UnoArt ? UnoArt.button() : ""}${window.Radio ? Radio.button() : ""}${sndBtn()}<button class="btn ghost small" data-a="home">Leave table</button></div>
+      <header class="board"><div class="board-top"><span class="mark">Grand Line UNO</span><span class="tcode"><span class="tl2">Table </span><b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}${window.UnoPhoto && v >= 0 ? UnoPhoto.button() : ""}${window.UnoArt ? UnoArt.button() : ""}${window.UnoBacks ? UnoBacks.button() : ""}${window.Radio ? Radio.button() : ""}${sndBtn()}<button class="btn ghost small" data-a="home">Leave table</button></div>
         <div class="uticker">${fmt(last)}</div></header>
       <section class="udeck${n >= 7 ? " many" : ""}" aria-label="The table">
         ${seats}
@@ -454,5 +466,5 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
   });
   async function send(action) { await act(action); ui.uno = false; }
 
-  window.UnoUI = { render, mastHTML, rulesHTML, cardHTML, reset() { ui.prev = null; ui.pick = null; ui.uno = false; } };
+  window.UnoUI = { render, mastHTML, rulesHTML, cardHTML, backHTML, reset() { ui.prev = null; ui.pick = null; ui.uno = false; } };
 })();

@@ -710,6 +710,7 @@ html[data-screen=game] .sndfix{display:none}
 <script src="uno-crew.js"></script>
 <script src="uno-art.js"></script>
 <script src="uno-photo.js"></script>
+<script src="uno-backs.js"></script>
 <script src="uno-ui.js"></script>
 <script>
 "use strict";
@@ -1745,7 +1746,7 @@ setInterval(() => {
 }, 250);
 
 // Start: go straight back to your table if you were seated at one.
-document.body.insertAdjacentHTML("beforeend", `<div class="sndfix">${window.UnoArt ? UnoArt.button() : ""}${window.Radio ? Radio.button() : ""}${sndBtn()}</div>`);
+document.body.insertAdjacentHTML("beforeend", `<div class="sndfix">${window.UnoArt ? UnoArt.button() : ""}${window.UnoBacks ? UnoBacks.button() : ""}${window.Radio ? Radio.button() : ""}${sndBtn()}</div>`);
 (async () => {
   render();
   const last = LS.get("wd-last");
