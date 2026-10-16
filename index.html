@@ -680,6 +680,12 @@ button.card:hover::before,.card.tilting::before,.card.sel::before{opacity:1}
 }
 @media (prefers-reduced-motion:reduce){.ci .ci-band{transform:none}.ci-streaks{display:none}.d-bolts path{stroke-dashoffset:0}.d-hit{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* sound toggle: in the top bar during a game, pinned top-right on home and lobby */
+.sndbtn{display:inline-grid;place-items:center;width:2.4rem;padding:0}
+.sndbtn svg{width:1.15rem;height:1.15rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sndbtn[aria-pressed=false]{opacity:.65}
+.sndfix{position:fixed;top:max(.7rem,env(safe-area-inset-top));right:.8rem;z-index:40;background:color-mix(in srgb,var(--board) 70%,transparent);backdrop-filter:blur(4px)}
+html[data-screen=game] .sndfix{display:none}
 </style>
 </head>
 <body>
@@ -687,6 +693,7 @@ button.card:hover::before,.card.tilting::before,.card.sel::before{opacity:1}
 <div class="toast" id="toast" hidden></div>
 
 <script src="engine.js"></script>
+<script src="sfx.js"></script>
 <script src="cutin.js"></script>
 <script src="sky.js"></script>
 <script>
@@ -771,7 +778,8 @@ async function pollLobbies() {
     await sleep(4000);
   }
 }
-function gotState() { if (window.CutIn) { window.CutIn.reveal(S, nameOf, mySeat()); window.CutIn.observe(S, nameOf, mySeat()); } }
+function gotState() {
+  if (window.Sfx && S && S.players) { const n = S.players.length; if (S.status === "lobby" && gotState.code === S.code && n > gotState.n) Sfx.join(); gotState.n = n; gotState.code = S.code; } if (window.CutIn) { window.CutIn.reveal(S, nameOf, mySeat()); window.CutIn.observe(S, nameOf, mySeat()); } }
 function enter(c) { code = c; poll(); }
 function goHome() { pollGen++; code = null; S = null; view = "home"; ui = freshUI(); render(); pollLobbies(); }
 function myName() {
@@ -802,6 +810,14 @@ function flash(msg, good) {
   t.textContent = msg; t.hidden = false; t.classList.toggle("good", !!good);
   clearTimeout(flash.h); flash.h = setTimeout(() => { t.hidden = true; }, 3200);
 }
+// Sound on/off, remembered per device by sfx.js.
+const sndIcon = on => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/>${on ? '<path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/>' : '<path d="M16 9.5l5 5M21 9.5l-5 5"/>'}</svg>`;
+const sndBtn = (cls = "") => { const on = !window.Sfx || Sfx.enabled; return `<button class="btn ghost small sndbtn ${cls}" data-snd aria-pressed="${on}" aria-label="Sound effects" title="${on ? "Sound on" : "Sound off"}">${sndIcon(on)}</button>`; };
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-snd]"); if (!b || !window.Sfx) return;
+  const on = Sfx.toggle();
+  document.querySelectorAll("[data-snd]").forEach(x => { x.setAttribute("aria-pressed", String(on)); x.title = on ? "Sound on" : "Sound off"; x.innerHTML = sndIcon(on); });
+});
 const mySeat = () => S && S.players ? S.players.findIndex(p => p.uid === me) : -1;
 
 // ---------- rendering ----------
@@ -1178,7 +1194,7 @@ function boardHTML(v, waiting) {
   const mine = v >= 0 ? S.players[v] : null, H = mine && houseOf(mine.char);
   return `<header class="board">
     ${H ? `<div class="houseband">${shield(mine.char)}<b>${H.n}</b>${emblem(HOUSE[mine.char], "bandemblem")}<span>${E.CHARS[mine.char].n} · ${H.trait}</span></div>` : ""}
-    <div class="board-top"><span class="mark">Wizard's Deal</span><span class="tcode"><span class="tl2">Table </span><b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}<button class="btn ghost small sidebtn" data-a="side" aria-controls="side" aria-expanded="${sideOpen()}"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICON.geminio}</svg><span class="sbl">Players' cards</span></button><button class="btn ghost small" data-a="home">Leave table</button></div>
+    <div class="board-top"><span class="mark">Wizard's Deal</span><span class="tcode"><span class="tl2">Table </span><b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}<button class="btn ghost small sidebtn" data-a="side" aria-controls="side" aria-expanded="${sideOpen()}"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${ICON.geminio}</svg><span class="sbl">Players' cards</span></button>${sndBtn()}<button class="btn ghost small" data-a="home">Leave table</button></div>
     ${last ? `<p class="ticker"><span class="tl">Daily Prophet<small>Latest</small></span><span class="hl" key="${S.log.length}">${fmt(last)}</span></p>` : ""}
   </header>`;
 }
@@ -1439,6 +1455,7 @@ function castOptions(v, c) {
 $app.addEventListener("click", async e => {
   const b = e.target.closest("[data-a]");
   if (!b || b.disabled) return;
+  if (window.Sfx) b.dataset.a === "sel" ? Sfx.pick() : Sfx.tap();
   const d = b.dataset, num = k => d[k] != null && d[k] !== "" ? +d[k] : undefined;
   const v = S && S.players ? mySeat() : -1;
   switch (d.a) {
@@ -1588,6 +1605,22 @@ function footsteps(from, to) {
       { duration: 1500, delay: i * 120, easing: "ease-out", fill: "both" }).onfinish = () => f.remove();
   }
 }
+// Sounds for what changed between two states. These play even with reduced motion.
+function sounds(prev, snap, v, P) {
+  if (!window.Sfx) return;
+  const added = snap.hand.filter(id => !prev.hand.includes(id)).length;
+  if (added) Sfx.draw(added);
+  const gone = prev.hand.filter(id => !snap.hand.includes(id)), banked = P ? gone.filter(id => P.bank.includes(id)).length : 0;
+  if (banked) Sfx.coins(1 + banked * 2);
+  const laid = P ? gone.filter(id => P.table.some(e => e.c === id)).length : 0;
+  const othersLaid = S.players.some((p, i) => i !== v && p.table.some(e => !(prev.tables[i] || []).includes(e.c)));
+  if (laid) Sfx.place(); else if (othersLaid) Sfx.place({ soft: true });
+  const idx = S.log.lastIndexOf(prev.last), fresh = idx >= 0 ? S.log.slice(idx + 1) : [];
+  fresh.forEach((m, k) => { const pay = /^@(\d+) paid @(\d+) (\d+) point/.exec(m); if (pay) Sfx.coins(Math.min(8, +pay[3]), { delay: .25 + k * .3, pan: +pay[2] === v ? 0 : .3 }); });
+  if (snap.sets.some((n, i) => n > (prev.sets[i] || 0))) setTimeout(() => Sfx.set(), 280);
+  if (snap.turn !== prev.turn && snap.turn !== v && snap.status === "play") Sfx.turnOther();
+  if (snap.status === "over" && prev.status !== "over") setTimeout(() => Sfx.win(S.winner === v), 300);
+}
 function fxAfterRender(v, P) {
   const hl = document.querySelector(".ticker .hl");
   if (hl) { if (hl.textContent === lastHeadline) hl.style.animation = "none"; lastHeadline = hl.textContent; }
@@ -1595,6 +1628,7 @@ function fxAfterRender(v, P) {
     tables: S.players.map(p => p.table.map(e => e.c)), sets: S.players.map(p => E.completeCols(p).length), last: S.log[S.log.length - 1] };
   const prev = FX.prev, same = prev && prev.code === snap.code && prev.created === snap.created;
   const panel = document.querySelector(".panel"), key = panel ? (panel.querySelector("h3") || {}).textContent || "" : "";
+  if (same && prev.v !== snap.v) sounds(prev, snap, v, P);
   if (!noMotion() && same && prev.v !== snap.v) {
     const pile = box(document.querySelector(".center .back"));
     // new cards in your hand fly in from the draw pile, flipping over
@@ -1655,6 +1689,7 @@ function fxAfterRender(v, P) {
 })();
 
 // Countdowns: the turn clock and the answer clock, worked out from the server's timestamps.
+let tickSec = 0;   // last second ticked, so each second ticks once
 const mmss = ms => { const t = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; };
 setInterval(() => {
   const c = S && S.status === "play" && S.clock;
@@ -1666,10 +1701,15 @@ setInterval(() => {
     const k = el.dataset.clock; el.textContent = mmss(left[k]);
     (el.closest(".tclock") || el.closest("em") || el).classList.toggle("low", left[k] <= lowAt[k]);
   });
+  // tick through the last ten seconds when the clock running is yours
+  const k = S.pending || S.snitch ? "resp" : "turn", sec = Math.ceil(left[k] / 1000);
+  if (window.Sfx && E.waitingOn(S).includes(mySeat()) && sec > 0 && sec <= 10 && sec !== tickSec) Sfx.tick(sec <= 5);
+  tickSec = sec;
   document.querySelectorAll("[data-clockbar]").forEach(el => { const k = el.dataset.clockbar; el.style.setProperty("--p", Math.max(0, Math.min(1, left[k] / full[k])).toFixed(3)); });
 }, 250);
 
 // Start: go straight back to your table if you were seated at one.
+document.body.insertAdjacentHTML("beforeend", sndBtn("sndfix"));
 (async () => {
   render();
   const last = LS.get("wd-last");

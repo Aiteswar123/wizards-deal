@@ -27,7 +27,7 @@ Each player holds a real private hand on their own device while the table (items
 
 ## Capabilities and Constraints
 
-- Static `index.html` + `engine.js` + `cutin.js`, served by `dev.js` locally and a Vercel function (`api/game.js`) with Upstash Redis in production. No build step, no framework.
+- Static `index.html` + `engine.js` + `cutin.js` + `sky.js` + `sfx.js` (synthesised sound effects, toggled per device), served by `dev.js` locally and a Vercel function (`api/game.js`) with Upstash Redis in production. No build step, no framework.
 - Views: home (name, create/join, open tables, how to play), lobby (code, seats, start), game (opponents around the table, draw/discard piles, your character/table/bank, action panel, hand, table talk log, winner).
 - 10 item colours with fixed hexes in `engine.js`; 12 spells; points are Galleons.
 - 2 to 12 players. The deck grows with the table: one 106-card deck for up to 5 players, two for 6 to 10, three for 11 or 12 (`decksFor`).

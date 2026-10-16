@@ -115,3 +115,16 @@ Corners are 4px for controls, 6–8px for panels and cards, and capsule-shaped f
 ## Motion
 
 Exponential ease-out (`--ease`): floodlight sweep, bulb light-up, card lift, toast rise, and the spell cut-in ("replay on the big screen"). Reduced motion turns all of it off.
+
+## Sound
+
+`sfx.js` makes every sound live with the Web Audio API, so there are no sound files and nothing to license. Sounds pass through a soft stone-hall reverb and a limiter, and are tuned to D major pentatonic so overlapping sounds stay in key.
+
+- **Taps**: a light wooden click on buttons; a paper flick when you pick up a card.
+- **Cards**: quick flicks as cards are dealt into your hand; a paper slap and soft thud when an item is laid (quieter when another player lays one).
+- **Galleons**: bright metal clinks when you bank or anyone pays, one clink per Galleon up to eight.
+- **Moments**: a rising peal of bells on a complete set, two castle-bell chimes on "Your turn", one quiet note when another player's turn starts, a shimmering glissando at the sorting, a soft owl hoot when someone joins the lobby, and a bell fanfare at the win (bigger for the winner).
+- **Spells**: a whoosh from the wand, then a sound for each spell (Stupefy zaps, Petrificus crackles like ice, Protego hums as a shield, Obliviate slides away, Levicorpus and Wingardium rise, Accio pulls, Confundo wobbles, Alohomora unlocks, Geminio doubles, Reparo rebuilds), plus a hit on the targets. Each plays with its cut-in.
+- **Clock**: a soft tick through the last ten seconds when the running clock is yours, sharper in the last five.
+
+The speaker button (top bar in a game, top right on home and lobby) turns sound on and off; the setting is remembered per device (`wd-sound`). Sound starts after the first tap, as browsers require, and stays silent while the tab is hidden. Sounds still play with reduced motion.

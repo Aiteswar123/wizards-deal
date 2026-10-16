@@ -259,7 +259,7 @@
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 1.75);
-    W = innerWidth; H = innerHeight;
+    W = Math.max(1, innerWidth); H = Math.max(1, innerHeight);   // a hidden or zero-size window would otherwise break the first paint
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     colKey = ""; for (const k in scenes) delete scenes[k]; seed(); seedCandles(); seedAtmos(); paintStadium(); readColours(performance.now(), true);
