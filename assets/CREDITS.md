@@ -19,3 +19,7 @@ Generated with Piper text-to-speech (https://github.com/OHF-Voice/piper1-gpl), p
 | --- | --- | --- |
 | m-*.wav | Piper "en_GB-northern_english_male", trained on the OpenSLR 83 "Crowdsourced high-quality UK and Ireland English Dialect speech data set" (Demirsahin et al., Google) | CC BY-SA 4.0. These clips are shared under the same licence. |
 | f-*.wav | Piper "en_GB-cori", trained on LibriVox recordings | Public domain |
+
+## Grand Line UNO pictures
+
+The card pictures (`card-*.png`, `card-*.jpg`) and the UNO background plates (`sea-1.jpg`, `sea-2.jpg`, `sea-3.jpg`) are One Piece artwork supplied by the site owner: anime stills and fan art of characters and scenes created by Eiichiro Oda (Shueisha, Toei Animation). They are not covered by an open licence; `sea-2.jpg` is cropped and upscaled, and `sea-3.jpg` upscaled, from smaller stills.

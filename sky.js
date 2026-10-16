@@ -1008,12 +1008,99 @@
     }
     ctx.globalAlpha = 1;
   }
+  // ---- the UNO background: three anime plates in one cinematic sequence ----
+  // The storm with the Thousand Sunny holds longest, then Zunesha over the Marine fleet, then the Sea Kings. Each plate
+  // gets a slow camera push toward its focal point (on narrow screens the crop stays on it) and cross-fades into the
+  // next. All three are graded once on load toward one navy-teal look; grain, a vignette and a scrim go on per frame so
+  // the interface reads over them. With reduced motion it holds still on the storm. The painted sea is the fallback.
+  const PLATES = [
+    { src: "assets/sea-1.jpg", fx: .66, fy: .6, hold: 26000, dim: 0 },
+    { src: "assets/sea-2.jpg", fx: .5, fy: .42, hold: 16000, dim: .06, band: true },
+    { src: "assets/sea-3.jpg", fx: .47, fy: .5, hold: 16000, dim: .2, band: true }
+  ];
+  // (band plates are small and very wide: on tall screens they show whole, as a wide band over a blurred copy of themselves)
+  const FADE = 3200, CYCLE = PLATES.reduce((s, p) => s + p.hold, 0);
+  let platesOn = false, grainPat = null;
+  function loadPlates() {
+    if (platesOn) return; platesOn = true;
+    let start = 0;
+    for (const p of PLATES) {
+      p.start = start; start += p.hold;
+      const im = new Image(); im.decoding = "async";
+      im.onload = () => {
+        p.cv = grade(im, p.dim);
+        // a tiny copy, which drawn large is a soft blur, for behind the band
+        p.blur = document.createElement("canvas"); p.blur.width = 36; p.blur.height = Math.max(1, Math.round(36 * p.cv.height / p.cv.width));
+        p.blur.getContext("2d").drawImage(p.cv, 0, 0, p.blur.width, p.blur.height);
+        if (still.matches || document.hidden) draw(performance.now(), 0);
+      };
+      im.src = p.src;
+    }
+  }
+  // the shared grade: a cool soft-light wash and blacks lifted into navy, plus a dimmer for the brighter daylight plate
+  function grade(im, dim) {
+    const c = document.createElement("canvas"); c.width = im.naturalWidth; c.height = im.naturalHeight;
+    const g = c.getContext("2d"); g.drawImage(im, 0, 0);
+    g.globalCompositeOperation = "soft-light"; g.fillStyle = "rgba(40,92,170,.42)"; g.fillRect(0, 0, c.width, c.height);
+    g.globalCompositeOperation = "source-over"; g.fillStyle = `rgba(6,20,46,${.1 + dim})`; g.fillRect(0, 0, c.width, c.height);
+    return c;
+  }
+  // one plate, covering the screen, pushed in by k (0..1) and drifting toward its focal point
+  let bandCv = null;
+  function drawPlate(p, k, alpha) {
+    const iw = p.cv.width, ih = p.cv.height, zoom = 1.04 + k * .1;
+    if (p.band && W / H < 1.1) {
+      // the blurred copy fills the screen; the plate sits across the middle as a wide band, feathered into it
+      const bs = Math.max(W / p.blur.width, H / p.blur.height) * 1.1;
+      ctx.globalAlpha = alpha; ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(p.blur, (W - p.blur.width * bs) / 2, (H - p.blur.height * bs) / 2, p.blur.width * bs, p.blur.height * bs);
+      const s2 = Math.min(W * 1.45 / iw, H * .6 / ih) * zoom, bw = iw * s2, bh = ih * s2, bx = Math.min(0, Math.max(W - bw, W / 2 - p.fx * bw)), by = H * .42 - bh / 2;
+      if (!bandCv) bandCv = document.createElement("canvas");
+      const bwp = Math.ceil(W * dpr), bhp = Math.ceil(bh * dpr);
+      if (bandCv.width !== bwp || bandCv.height !== bhp) { bandCv.width = bwp; bandCv.height = bhp; }
+      const bg2 = bandCv.getContext("2d"); bg2.setTransform(dpr, 0, 0, dpr, 0, 0); bg2.globalCompositeOperation = "source-over"; bg2.clearRect(0, 0, W, bh);
+      bg2.drawImage(p.cv, bx, 0, bw, bh);
+      bg2.globalCompositeOperation = "destination-in";
+      const fm = bg2.createLinearGradient(0, 0, 0, bh); fm.addColorStop(0, "rgba(0,0,0,0)"); fm.addColorStop(.14, "#000"); fm.addColorStop(.86, "#000"); fm.addColorStop(1, "rgba(0,0,0,0)");
+      bg2.fillStyle = fm; bg2.fillRect(0, 0, W, bh);
+      ctx.drawImage(bandCv, 0, by, W, bh);
+      return;
+    }
+    const s = Math.max(W / iw, H / ih) * zoom, dw = iw * s, dh = ih * s;
+    const cx = (W - dw) / 2, cy = (H - dh) / 2, m = W < 700 ? 1 : .45 + k * .55;
+    const x = Math.min(0, Math.max(W - dw, cx + (W / 2 - p.fx * dw - cx) * m)), y = Math.min(0, Math.max(H - dh, cy + (H / 2 - p.fy * dh - cy) * m));
+    ctx.globalAlpha = alpha; ctx.drawImage(p.cv, x, y, dw, dh);
+  }
+  // returns false until a plate has loaded, so the painted sea shows meanwhile
+  function drawPlates(t, a) {
+    loadPlates();
+    const ready = PLATES.filter(p => p.cv); if (!ready.length) return false;
+    const T = still.matches ? PLATES[0].hold / 2 : t % CYCLE, shown = [];
+    for (const p of ready) for (const off of [0, CYCLE, -CYCLE]) { const rel = T - p.start + off; if (rel > -FADE && rel < p.hold) shown.push([p, rel]); }
+    if (!shown.length) shown.push([ready[0], 0]);
+    shown.sort((q, r) => r[1] - q[1]);   // the plate already showing first, the one fading in on top
+    shown.forEach(([p, rel], i) => drawPlate(p, Math.max(0, (rel + FADE) / (p.hold + FADE)), a * (i && rel < 0 ? (rel + FADE) / FADE : 1)));
+    // scrim and vignette for the interface, then a little moving grain
+    ctx.globalAlpha = a;
+    const sc = ctx.createLinearGradient(0, 0, 0, H); sc.addColorStop(0, "rgba(4,12,28,.5)"); sc.addColorStop(.3, "rgba(4,12,28,.12)"); sc.addColorStop(.7, "rgba(4,12,28,.18)"); sc.addColorStop(1, "rgba(4,12,28,.6)");
+    ctx.fillStyle = sc; ctx.fillRect(0, 0, W, H);
+    const vg = ctx.createRadialGradient(W / 2, H * .5, Math.min(W, H) * .35, W / 2, H * .5, Math.max(W, H) * .8); vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,6,18,.55)");
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+    if (!grainPat) grainPat = ctx.createPattern(grainTile(), "repeat");
+    ctx.save(); ctx.globalAlpha = a * .05; ctx.translate((t * .37) % 128, (t * .23) % 128); ctx.fillStyle = grainPat; ctx.fillRect(-128, -128, W + 256, H + 256); ctx.restore();
+    ctx.globalAlpha = 1;
+    return true;
+  }
+  function paintScene(key, t, a) {
+    if (key === "sea" && drawPlates(t, a)) return;
+    ctx.globalAlpha = a; ctx.drawImage(getScene(key), 0, 0, W, H); animScene(key, t, a);
+  }
   function drawScenes(t, dt) {
     const key = sceneKey();
     if (key !== curScene) { prevScene = curScene; curScene = key; sceneMix = prevScene ? 0 : 1; }
     sceneMix = Math.min(1, sceneMix + (dt ? dt / 900 : 1));
-    if (prevScene && sceneMix < 1) { ctx.globalAlpha = 1 - sceneMix; ctx.drawImage(getScene(prevScene), 0, 0, W, H); animScene(prevScene, t, 1 - sceneMix); }
-    ctx.globalAlpha = sceneMix; ctx.drawImage(getScene(curScene), 0, 0, W, H); animScene(curScene, t, sceneMix);
+    if (prevScene && sceneMix < 1) paintScene(prevScene, t, 1 - sceneMix);
+    paintScene(curScene, t, sceneMix);
     ctx.globalAlpha = 1;
   }
 
