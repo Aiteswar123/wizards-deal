@@ -6,8 +6,8 @@
   "use strict";
   const MAX_PLAYERS = 12, HAND = 7, TURN_MS = 60000;
   // Colours, named for the seas of the Grand Line world, with fixed hexes.
-  const COLORS = { r: { n: "Red", sea: "Red Line", hex: "#d6342c" }, y: { n: "Yellow", sea: "South Blue", hex: "#f2b51c" },
-    g: { n: "Green", sea: "West Blue", hex: "#2f9a52" }, b: { n: "Blue", sea: "East Blue", hex: "#1f6fd1" } };
+  const COLORS = { r: { n: "Red", sea: "Red Line", hex: "#d81f38" }, y: { n: "Yellow", sea: "South Blue", hex: "#f0ae16" },
+    g: { n: "Green", sea: "West Blue", hex: "#12a065" }, b: { n: "Blue", sea: "East Blue", hex: "#1f66e0" } };
   const COLOR_KEYS = ["r", "y", "g", "b"];
   // Action cards and the names printed on their posters.
   const KINDS = { skip: { n: "Skip", alias: "Skip", pts: 20 }, rev: { n: "Reverse", alias: "Reverse", pts: 20 }, d2: { n: "Draw 2", alias: "Draw Two", pts: 20 },

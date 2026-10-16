@@ -24,25 +24,26 @@
 @media (max-width:760px){.umast{grid-template-columns:1fr}.umast .fanu{height:9.5rem}.umast .fanu .ucard{--w:72px}}
 .tagkind{font:600 .66rem/1 var(--label);letter-spacing:.08em;text-transform:uppercase;padding:.2rem .4rem;border-radius:3px;background:var(--stand-3);color:var(--crest);margin-left:.4rem}
 /* cards: every card is a Marine WANTED poster, pinned inside a lacquered, gold-ruled board */
-.ucard{--w:74px;--cc:#444;--ink:#24170e;--gold:linear-gradient(135deg,#f9e7a8 0%,#c9952f 22%,#fff3c6 46%,#a8721c 66%,#f4d98c 84%,#b5822a 100%);
-  width:var(--w);aspect-ratio:5/7.4;border-radius:calc(var(--w)*.09);position:relative;flex:none;display:block;padding:0;border:0;isolation:isolate;
+.ucard{--w:74px;--cc:#444;--ink:#21140b;--gold:linear-gradient(135deg,#fff1c2 0%,#d6a640 18%,#fff8dc 36%,#b07a1e 54%,#f6dc93 72%,#9c6a16 88%,#e8c46e 100%);
+  width:var(--w);aspect-ratio:5/7.4;border-radius:calc(var(--w)*.085);position:relative;flex:none;display:block;padding:0;border:0;isolation:isolate;
   background:
-    repeating-radial-gradient(circle at 50% 118%,rgba(255,255,255,.075) 0 calc(var(--w)*.006),transparent calc(var(--w)*.006) calc(var(--w)*.03)),
-    repeating-radial-gradient(circle at 50% -18%,rgba(0,0,0,.09) 0 calc(var(--w)*.006),transparent calc(var(--w)*.006) calc(var(--w)*.03)),
-    linear-gradient(150deg,rgba(255,255,255,.3),rgba(255,255,255,0) 32%,rgba(0,0,0,0) 62%,rgba(0,0,0,.35)),
-    linear-gradient(165deg,var(--cl) -30%,var(--cc) 42%,var(--cd) 125%);
-  box-shadow:inset 0 calc(var(--w)*.008) 0 rgba(255,255,255,.35),inset 0 calc(var(--w)*-.01) 0 rgba(0,0,0,.35),inset 0 0 0 calc(var(--w)*.01) rgba(0,0,0,.25),
-    0 calc(var(--w)*.01) calc(var(--w)*.015) rgba(0,0,0,.45),0 calc(var(--w)*.09) calc(var(--w)*.2) calc(var(--w)*-.06) rgba(0,0,0,.7);
+    repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.07) 0 calc(var(--w)*.004),transparent calc(var(--w)*.004) calc(var(--w)*.016)),
+    repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,.035) 0 3deg,transparent 3deg 9deg),
+    linear-gradient(118deg,rgba(255,255,255,0) 18%,rgba(255,255,255,.26) 30%,rgba(255,255,255,0) 44%),
+    radial-gradient(130% 90% at 30% 8%,var(--cl) -10%,var(--cc) 46%,var(--cd) 112%);
+  box-shadow:inset 0 calc(var(--w)*.007) 0 rgba(255,255,255,.4),inset 0 calc(var(--w)*-.01) 0 rgba(0,0,0,.4),inset 0 0 0 calc(var(--w)*.008) rgba(0,0,0,.3),
+    inset 0 0 calc(var(--w)*.12) rgba(0,0,0,.35),
+    0 calc(var(--w)*.008) calc(var(--w)*.014) rgba(0,0,0,.45),0 calc(var(--w)*.1) calc(var(--w)*.22) calc(var(--w)*-.07) rgba(0,0,0,.75);
   color:var(--ink);transition:transform .22s var(--ease),filter .18s,box-shadow .22s;overflow:hidden}
-.ucard.c-r{--cc:#b8241f;--cl:#ff7a5c;--cd:#5e0c0a}.ucard.c-y{--cc:#d99a0c;--cl:#ffe07a;--cd:#7a4a00}.ucard.c-g{--cc:#1f7a42;--cl:#5fd48a;--cd:#0a3a1d}.ucard.c-b{--cc:#1a55ad;--cl:#5ca4ff;--cd:#0a2556}
+.ucard.c-r{--cc:#c4162f;--cl:#ff6a6a;--cd:#3d0410}.ucard.c-y{--cc:#e7a20f;--cl:#ffe68f;--cd:#6a3a00}.ucard.c-g{--cc:#0d8a55;--cl:#4fe0a3;--cd:#022e1b}.ucard.c-b{--cc:#1653c9;--cl:#6cb4ff;--cd:#05164a}
 .ucard.c-w{--cc:#1d140d;--cl:#3a2a1d;--cd:#000;background:
     repeating-radial-gradient(circle at 50% 118%,rgba(255,255,255,.08) 0 calc(var(--w)*.006),transparent calc(var(--w)*.006) calc(var(--w)*.03)),
     linear-gradient(150deg,rgba(255,255,255,.28),rgba(255,255,255,0) 32%,rgba(0,0,0,.35)),
-    conic-gradient(from 45deg,#b8241f 0 25%,#1a55ad 0 50%,#1f7a42 0 75%,#d99a0c 0)}
+    conic-gradient(from 45deg,#c4162f 0 25%,#1653c9 0 50%,#0d8a55 0 75%,#e7a20f 0)}
 /* the gold-leaf rule around the poster */
-.ucard::before{content:"";position:absolute;inset:calc(var(--w)*.038);border-radius:calc(var(--w)*.05);padding:calc(var(--w)*.011);background:var(--gold);z-index:0;
+.ucard::before{content:"";position:absolute;inset:calc(var(--w)*.044);border-radius:calc(var(--w)*.055);padding:calc(var(--w)*.016);background:var(--gold);z-index:0;
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
-  filter:drop-shadow(0 calc(var(--w)*.006) 0 rgba(0,0,0,.4))}
+  filter:drop-shadow(0 calc(var(--w)*.006) calc(var(--w)*.004) rgba(0,0,0,.55)) drop-shadow(0 calc(var(--w)*-.002) 0 rgba(255,255,255,.35))}
 /* foil: a holographic sheen on Wilds, the live discard and cards you point at */
 .ucard::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:3;pointer-events:none;opacity:0;mix-blend-mode:soft-light;
   background:linear-gradient(115deg,transparent 28%,rgba(255,255,255,.85) 42%,rgba(255,190,240,.7) 48%,rgba(150,230,255,.7) 54%,transparent 68%) 0 0/260% 260%;
@@ -51,47 +52,49 @@
 .uhand .ucard:hover::after,.uhand .ucard:focus-visible::after{opacity:1;animation:foil 1.6s cubic-bezier(.4,0,.2,1) both}
 @keyframes foil{0%{background-position:120% 0}60%,100%{background-position:-60% 0}}
 /* the poster: deckled parchment, a fold, an inner printed rule, pinned with a brass tack */
-.ucard .pw{position:absolute;inset:calc(var(--w)*.062);z-index:1;clip-path:polygon(0.0% 0.54%,7.1% 0.62%,14.3% 0.13%,21.4% 0.27%,28.6% 0.49%,35.7% 0.56%,42.9% 0.09%,50.0% 0.97%,57.1% 0.65%,64.3% 0.45%,71.4% 0.31%,78.6% 0.86%,85.7% 0.72%,92.9% 0.08%,99.45% 0.0%,99.74% 5.0%,99.26% 10.0%,99.83% 15.0%,99.38% 20.0%,99.46% 25.0%,99.81% 30.0%,99.94% 35.0%,98.97% 40.0%,98.93% 45.0%,99.87% 50.0%,99.51% 55.0%,98.95% 60.0%,99.79% 65.0%,99.54% 70.0%,99.39% 75.0%,99.26% 80.0%,99.69% 85.0%,99.81% 90.0%,98.92% 95.0%,100.0% 99.51%,92.9% 99.74%,85.7% 99.40%,78.6% 99.64%,71.4% 99.83%,64.3% 99.15%,57.1% 99.61%,50.0% 99.61%,42.9% 99.91%,35.7% 98.98%,28.6% 99.74%,21.4% 99.03%,14.3% 99.48%,7.1% 99.74%,0.66% 100.0%,0.44% 95.0%,0.83% 90.0%,0.72% 85.0%,0.15% 80.0%,0.25% 75.0%,0.50% 70.0%,0.10% 65.0%,0.05% 60.0%,0.45% 55.0%,0.75% 50.0%,0.71% 45.0%,1.05% 40.0%,0.36% 35.0%,0.48% 30.0%,0.55% 25.0%,0.48% 20.0%,0.92% 15.0%,0.50% 10.0%,0.48% 5.0%);
+.ucard .pw{position:absolute;inset:calc(var(--w)*.074);z-index:1;clip-path:polygon(0.0% 0.54%,7.1% 0.62%,14.3% 0.13%,21.4% 0.27%,28.6% 0.49%,35.7% 0.56%,42.9% 0.09%,50.0% 0.97%,57.1% 0.65%,64.3% 0.45%,71.4% 0.31%,78.6% 0.86%,85.7% 0.72%,92.9% 0.08%,99.45% 0.0%,99.74% 5.0%,99.26% 10.0%,99.83% 15.0%,99.38% 20.0%,99.46% 25.0%,99.81% 30.0%,99.94% 35.0%,98.97% 40.0%,98.93% 45.0%,99.87% 50.0%,99.51% 55.0%,98.95% 60.0%,99.79% 65.0%,99.54% 70.0%,99.39% 75.0%,99.26% 80.0%,99.69% 85.0%,99.81% 90.0%,98.92% 95.0%,100.0% 99.51%,92.9% 99.74%,85.7% 99.40%,78.6% 99.64%,71.4% 99.83%,64.3% 99.15%,57.1% 99.61%,50.0% 99.61%,42.9% 99.91%,35.7% 98.98%,28.6% 99.74%,21.4% 99.03%,14.3% 99.48%,7.1% 99.74%,0.66% 100.0%,0.44% 95.0%,0.83% 90.0%,0.72% 85.0%,0.15% 80.0%,0.25% 75.0%,0.50% 70.0%,0.10% 65.0%,0.05% 60.0%,0.45% 55.0%,0.75% 50.0%,0.71% 45.0%,1.05% 40.0%,0.36% 35.0%,0.48% 30.0%,0.55% 25.0%,0.48% 20.0%,0.92% 15.0%,0.50% 10.0%,0.48% 5.0%);
   background:
     linear-gradient(180deg,transparent 46.6%,rgba(80,45,15,.13) 47.2%,rgba(255,250,235,.22) 47.8%,transparent 49%),
-    radial-gradient(120% 100% at 50% 45%,transparent 55%,rgba(110,62,20,.42)),
-    #e8d3a1 url(assets/parchment.jpg) center/calc(var(--w)*3)}
+    radial-gradient(120% 100% at 50% 45%,transparent 62%,rgba(110,62,20,.3)),
+    linear-gradient(180deg,rgba(255,250,232,.28),rgba(255,250,232,0) 40%),
+    #ecdcb0 url(assets/parchment.jpg) center/calc(var(--w)*3)}
 .ucard .pw::after{content:"";position:absolute;inset:calc(var(--w)*.032);border:calc(var(--w)*.005) solid rgba(36,23,14,.6);outline:calc(var(--w)*.003) solid rgba(36,23,14,.35);outline-offset:calc(var(--w)*.012);pointer-events:none}
-.ucard .tack{position:absolute;left:50%;top:calc(var(--w)*.058);width:calc(var(--w)*.075);height:calc(var(--w)*.075);margin-left:calc(var(--w)*-.0375);border-radius:50%;z-index:2;
+.ucard .tack{position:absolute;left:50%;top:calc(var(--w)*.07);width:calc(var(--w)*.075);height:calc(var(--w)*.075);margin-left:calc(var(--w)*-.0375);border-radius:50%;z-index:2;
   background:radial-gradient(circle at 35% 30%,#fff4c8,#d9a640 45%,#7a5212 100%);box-shadow:0 calc(var(--w)*.012) calc(var(--w)*.018) rgba(0,0,0,.55)}
-.ucard .wt{position:absolute;left:0;right:0;top:calc(var(--w)*.072);text-align:center;font:400 calc(var(--w)*.158)/1 "Rye",serif;letter-spacing:.03em;color:var(--ink);
-  text-shadow:0 calc(var(--w)*.004) 0 rgba(255,245,220,.5)}
+.ucard .wt{position:absolute;left:0;right:0;top:calc(var(--w)*.074);text-align:center;font:400 calc(var(--w)*.142)/1 "Rye",serif;letter-spacing:.035em;text-indent:.035em;color:var(--ink);
+  text-shadow:0 calc(var(--w)*.005) 0 rgba(255,248,226,.7),0 calc(var(--w)*-.002) 0 rgba(0,0,0,.25)}
 .ucard .ph{position:absolute;left:calc(var(--w)*.09);right:calc(var(--w)*.09);top:calc(var(--w)*.255);height:calc(var(--w)*.585);
-  border:calc(var(--w)*.014) solid var(--ink);display:grid;place-items:center;overflow:hidden;
-  box-shadow:0 0 0 calc(var(--w)*.006) rgba(255,248,226,.6),inset 0 0 0 calc(var(--w)*.008) rgba(255,255,255,.22),inset 0 calc(var(--w)*-.05) calc(var(--w)*.09) rgba(0,0,0,.35);
+  border:calc(var(--w)*.009) solid var(--ink);display:grid;place-items:center;overflow:hidden;
+  box-shadow:0 0 0 calc(var(--w)*.008) #d8ae55,0 0 0 calc(var(--w)*.012) rgba(33,20,11,.9),0 0 0 calc(var(--w)*.02) rgba(255,248,226,.55),
+    0 calc(var(--w)*.014) calc(var(--w)*.024) rgba(70,38,10,.35);
   background:radial-gradient(circle,rgba(0,0,0,.18) 26%,transparent 30%) 0 0/calc(var(--w)*.04) calc(var(--w)*.04),radial-gradient(120% 90% at 50% 30%,var(--cl),var(--cc) 58%,var(--cd))}
-.ucard .ph::after{content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;background:linear-gradient(180deg,rgba(255,226,170,.25),rgba(120,70,20,.28))}
-.ucard.c-w .ph{background:radial-gradient(circle,rgba(0,0,0,.2) 26%,transparent 30%) 0 0/calc(var(--w)*.04) calc(var(--w)*.04),conic-gradient(from 45deg,#e2493c 0 25%,#3a7ee0 0 50%,#38a862 0 75%,#f4c13a 0)}
+.ucard .ph::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:linear-gradient(152deg,rgba(255,255,255,.22),rgba(255,255,255,0) 34%),radial-gradient(130% 100% at 50% 40%,transparent 60%,rgba(0,0,0,.32));
+  box-shadow:inset 0 0 0 calc(var(--w)*.006) rgba(255,236,190,.35)}
+.ucard.c-w .ph{background:radial-gradient(circle,rgba(0,0,0,.2) 26%,transparent 30%) 0 0/calc(var(--w)*.04) calc(var(--w)*.04),conic-gradient(from 45deg,#e23a4c 0 25%,#3d84f0 0 50%,#1fb071 0 75%,#f7c03a 0)}
 .ucard .ph svg{width:96%;height:96%;filter:drop-shadow(0 calc(var(--w)*.012) 0 rgba(0,0,0,.35))}
 .ucard .ph.crew{place-items:end center}
 .ucard .ph.crew svg{width:100%;height:100%;filter:none}
 .ucard .ph img.custom + svg{display:none}
-.ucard .numc{position:absolute;right:calc(var(--w)*.015);bottom:calc(var(--w)*-.035);z-index:1;font:400 calc(var(--w)*.26)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.014) var(--ink);paint-order:stroke fill;text-shadow:calc(var(--w)*.012) calc(var(--w)*.016) 0 rgba(0,0,0,.45);transform:rotate(-6deg)}
-.ucard .numc.sg{right:calc(var(--w)*.02);bottom:calc(var(--w)*.015);width:calc(var(--w)*.27);height:calc(var(--w)*.27);transform:none;filter:drop-shadow(calc(var(--w)*.01) calc(var(--w)*.014) 0 rgba(0,0,0,.45))}
-.ucard .numc.sg svg{width:100%;height:100%;display:block}
 .ucard .num{font:400 calc(var(--w)*.5)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.016) var(--ink);paint-order:stroke fill;
   text-shadow:calc(var(--w)*.018) calc(var(--w)*.026) 0 rgba(0,0,0,.4);transform:rotate(-4deg);margin-top:calc(var(--w)*.02)}
 .ucard .doa{position:absolute;left:calc(var(--w)*.12);right:calc(var(--w)*.12);top:calc(var(--w)*.865);padding:calc(var(--w)*.012) 0;text-align:center;
   font:400 calc(var(--w)*.06)/1 "Alfa Slab One",serif;letter-spacing:.09em;color:var(--ink);white-space:nowrap;
-  border-top:calc(var(--w)*.012) double rgba(36,23,14,.8);border-bottom:calc(var(--w)*.012) double rgba(36,23,14,.8)}
-.ucard .who{position:absolute;left:calc(var(--w)*.05);right:calc(var(--w)*.05);top:calc(var(--w)*.98);text-align:center;font:400 calc(var(--w)*var(--ws,.092))/1 "Alfa Slab One",serif;letter-spacing:.03em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:clip}
+  border-top:calc(var(--w)*.012) double color-mix(in srgb,var(--cc) 55%,#21140b);border-bottom:calc(var(--w)*.012) double color-mix(in srgb,var(--cc) 55%,#21140b)}
+.ucard .who{display:block;position:absolute;left:calc(var(--w)*.05);right:calc(var(--w)*.05);top:calc(var(--w)*.98);text-align:center;text-shadow:0 calc(var(--w)*.004) 0 rgba(255,248,226,.6);font:400 calc(var(--w)*var(--ws,.092))/1 "Alfa Slab One",serif;letter-spacing:.03em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:clip}
 .ucard .bty{position:absolute;left:0;right:0;top:calc(var(--w)*1.09);display:flex;justify-content:center;align-items:center;gap:calc(var(--w)*.015);font:400 calc(var(--w)*.068)/1 "Alfa Slab One",serif;color:#5a140f;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ucard .bty svg{width:calc(var(--w)*.075);height:calc(var(--w)*.1)}
-.ucard .mar{position:absolute;left:0;right:0;bottom:calc(var(--w)*.06);text-align:center;font:700 calc(var(--w)*.046)/1 var(--label);letter-spacing:.34em;color:rgba(36,23,14,.72)}
+.ucard .mar{position:absolute;left:calc(var(--w)*.14);right:calc(var(--w)*.14);bottom:calc(var(--w)*.062);text-align:center;font:700 calc(var(--w)*.046)/1 var(--label);letter-spacing:.34em;text-indent:.34em;color:rgba(33,20,11,.82);
+  background:linear-gradient(90deg,rgba(33,20,11,.5),rgba(33,20,11,.5)) left center/24% calc(var(--w)*.004) no-repeat,linear-gradient(90deg,rgba(33,20,11,.5),rgba(33,20,11,.5)) right center/24% calc(var(--w)*.004) no-repeat}
 /* the wax seal: colour and value, hand-pressed, readable when the hand is fanned */
 .ucard .pip{position:absolute;width:calc(var(--w)*.26);height:calc(var(--w)*.25);border-radius:47% 53% 44% 56% / 55% 45% 55% 45%;display:grid;place-items:center;z-index:2;
   background:radial-gradient(circle at 34% 28%,color-mix(in srgb,var(--cl) 80%,#fff),var(--cc) 52%,var(--cd));
-  box-shadow:inset 0 0 0 calc(var(--w)*.022) rgba(0,0,0,.16),inset 0 calc(var(--w)*.012) calc(var(--w)*.014) rgba(255,255,255,.35),inset 0 calc(var(--w)*-.014) calc(var(--w)*.02) rgba(0,0,0,.3),
-    0 calc(var(--w)*.014) calc(var(--w)*.022) rgba(0,0,0,.55);
+  box-shadow:inset 0 0 0 calc(var(--w)*.014) rgba(0,0,0,.18),inset 0 0 0 calc(var(--w)*.02) rgba(255,255,255,.14),inset 0 calc(var(--w)*.012) calc(var(--w)*.014) rgba(255,255,255,.4),inset 0 calc(var(--w)*-.014) calc(var(--w)*.02) rgba(0,0,0,.35),
+    0 0 0 calc(var(--w)*.006) rgba(33,20,11,.35),0 calc(var(--w)*.016) calc(var(--w)*.024) rgba(0,0,0,.55);
   font:400 calc(var(--w)*.15)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.006) var(--ink);paint-order:stroke fill;text-shadow:0 calc(var(--w)*-.005) 0 rgba(0,0,0,.35)}
 .ucard .pip svg{width:66%;height:66%}
 .ucard .pip.tl{left:calc(var(--w)*.03);top:calc(var(--w)*.2)}
-.ucard.c-w .pip{background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.4),transparent 45%),conic-gradient(from 45deg,#b8241f 0 25%,#1a55ad 0 50%,#1f7a42 0 75%,#d99a0c 0)}
+.ucard.c-w .pip{background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.4),transparent 45%),conic-gradient(from 45deg,#c4162f 0 25%,#1653c9 0 50%,#0d8a55 0 75%,#e7a20f 0)}
 /* the back: a woven black flag with a gold compass rose under the Jolly Roger, in a twisted rope border */
 .ucard.uback{--cc:#3a2410;--cl:#6b4521;--cd:#1a0f06;
   background:repeating-linear-gradient(55deg,#e0b878 0 calc(var(--w)*.012),#a8783e calc(var(--w)*.012) calc(var(--w)*.03),#6b4521 calc(var(--w)*.03) calc(var(--w)*.042),#c99a5a calc(var(--w)*.042) calc(var(--w)*.054))}
@@ -245,8 +248,8 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
   // action cards that carry a picture instead of the drawing; if a file is missing the drawing shows through
   // (the Wild's flag has a see-through background, so the four-colour board shows behind it)
   const ART_IMG = { skip: { img: "assets/card-skip.jpg", pos: "50% 50%", zoom: 1.8, at: "51% 60%" }, rev: { img: "assets/card-rev.png", pos: "42% 50%", zoom: 1.15, at: "42% 50%" }, wild: { img: "assets/card-wild.png", fit: "contain", zoom: .94 },
-    d2: { img: "assets/card-d2.jpg", pos: "50% 22%", mark: "+2" },
-    w4: { img: "assets/card-w4.png", pos: "47% 15%", zoom: 1.1, at: "47% 20%", mark: "+4" } };
+    d2: { img: "assets/card-d2.jpg", pos: "50% 22%" },
+    w4: { img: "assets/card-w4.png", pos: "47% 15%", zoom: 1.1, at: "47% 20%" } };
   const imgHTML = a => `<img class="custom" src="${a.img}" style="${a.fit ? `object-fit:${a.fit};` : ""}object-position:${a.pos || "50% 50%"}${a.zoom ? `;transform:scale(${a.zoom});transform-origin:${a.at || "50% 50%"}` : ""}" alt="" onerror="this.remove()">`;
   // gradients the card art shares, defined once in a visible zero-size SVG (ids repeated per card would break when the first copy is hidden)
   document.body.insertAdjacentHTML("afterbegin", `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="ssA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b9c4c9"/><stop offset=".55" stop-color="#6f7f88"/><stop offset="1" stop-color="#3b474e"/></linearGradient><radialGradient id="dfA" cx=".38" cy=".35" r=".75"><stop offset="0" stop-color="#c58ae6"/><stop offset=".6" stop-color="#7d33a8"/><stop offset="1" stop-color="#3f1460"/></radialGradient><radialGradient id="hkA"><stop offset="0" stop-color="#ff5240"/><stop offset=".45" stop-color="#8a0c14"/><stop offset="1" stop-color="#1a0204" stop-opacity="0"/></radialGradient></defs></svg>`);
@@ -257,7 +260,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     rev: '<path d="M3.5 15.5 12 7"/><path d="M7 6.5H12.5V12"/><path d="M20.5 8.5 12 17"/><path d="M17 17.5H11.5V12"/>',
     wild: '<ellipse cx="12" cy="12" rx="9" ry="5.6" transform="rotate(-35 12 12)"/>'
   };
-  const sign = (v, big) => `<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke-linecap="round" stroke-linejoin="round">${big ? `<g stroke="${INK}" stroke-width="5.4">${SIGN[v]}</g>` : ""}<g stroke="#fbf1d8" stroke-width="${big ? 2.8 : 2.6}">${SIGN[v]}</g></g></svg>`;
+  const sign = v => `<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#fbf1d8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${SIGN[v]}</g></svg>`;
   const PIP = { skip: sign("skip"), rev: sign("rev"), wild: sign("wild"), d2: "+2", w4: "+4" };
   const BERRY = `<svg viewBox="0 0 12 16" aria-hidden="true"><path d="M3 3h4.2a2.6 2.6 0 0 1 0 5.2H3zM3 8.2h5a2.9 2.9 0 0 1 0 5.8H3z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 1v14M8 1v2M8 13v2" stroke="currentColor" stroke-width="1.6"/></svg>`;
   const SKULL = (band = "#c8281e") => `<svg viewBox="0 0 60 60" aria-hidden="true"><g stroke-linecap="round"><path d="M12 48 44 14" stroke="#d8dde0" stroke-width="3.4"/><path d="M48 48 16 14" stroke="#d8dde0" stroke-width="3.4"/><path d="M14 42l4 4M46 42l-4 4" stroke="#c9952f" stroke-width="4"/></g><circle cx="30" cy="31" r="12" fill="#f1e6cc"/><rect x="23" y="37" width="14" height="9" rx="2" fill="#f1e6cc"/><circle cx="25.5" cy="31.5" r="3.3" fill="#111"/><circle cx="34.5" cy="31.5" r="3.3" fill="#111"/><path d="M28.5 37.5h3l-1.5 2.4z" fill="#111"/><path d="M26 42.5v3M30 42.5v3M34 42.5v3" stroke="#111" stroke-width="1"/><path d="M17.6 27c1-8 6-12 12.4-12s11.4 4 12.4 12c-4-2-8-3-12.4-3s-8.4 1-12.4 3z" fill="${band}"/><path d="M41 22l7-3-2 6 5 1-6 3z" fill="${band}"/></svg>`;
@@ -279,7 +282,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const who = K ? K.alias : mine && mine.name ? mine.name : crew ? crew.name : U.COLORS[c.c].sea;
     return `<${g} class="ucard c-${c.c} v-${c.v} ${o.cls || ""}" ${o.attrs || ""} aria-label="${esc(U.label(id))}"><span class="pw">
         <span class="wt">WANTED</span>
-        <span class="ph${crew || mine ? " crew" : ""}">${K ? (ART_IMG[c.v] ? imgHTML(ART_IMG[c.v]) : "") + ART[c.v] + (ART_IMG[c.v] && ART_IMG[c.v].mark ? `<span class="numc${SIGN[ART_IMG[c.v].mark] ? " sg" : ""}">${SIGN[ART_IMG[c.v].mark] ? sign(ART_IMG[c.v].mark, true) : ART_IMG[c.v].mark}</span>` : "") : mine ? `<img class="custom" src="${mine.src}" alt=""><span class="numc">${c.v}</span>` : crew ? `${crew.img ? imgHTML(crew) : ""}${crew.art}<span class="numc">${c.v}</span>` : `<span class="num">${c.v}</span>`}</span>
+        <span class="ph${crew || mine ? " crew" : ""}">${K ? (ART_IMG[c.v] ? imgHTML(ART_IMG[c.v]) : "") + ART[c.v] : mine ? `<img class="custom" src="${mine.src}" alt="">` : crew ? `${crew.img ? imgHTML(crew) : ""}${crew.art}` : `<span class="num">${c.v}</span>`}</span>
         <span class="doa">DEAD OR ALIVE</span><span class="who" style="--ws:${who.length > 13 ? .056 : who.length > 10 ? .068 : .092}">${esc(who.toUpperCase())}</span>
         <span class="bty">${BERRY}${bounty(id)}</span><span class="mar">MARINE</span></span>
       <span class="tack"></span><span class="pip tl">${pip}</span></${g}>`;
