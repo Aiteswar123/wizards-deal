@@ -101,7 +101,8 @@
   const rent = (p, col) => { const n = Math.min(colCount(p, col), COLORS[col].size); return n ? COLORS[col].rent[n - 1] : 0; };
   const bankTotal = p => p.bank.reduce((s, id) => s + card(id).val, 0);
   const worth = p => bankTotal(p) + p.table.reduce((s, t) => s + card(t.c).val, 0);
-  const harryGuards = (p, col) => active(p, "harry") && p.harryCol === col;
+  // Harry's own power, or Hagrid on a turn he copied it
+  const harryGuards = (p, col) => has(p, "harry") && p.harryCol === col;
   const canTake = (target, entry, thief) => !harryGuards(target, entry.col) && (!complete(target, entry.col) || has(thief, "draco"));
   const canBanish = (target, entry) => !harryGuards(target, entry.col) && !complete(target, entry.col);
   // character powers that change numbers

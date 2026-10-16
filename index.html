@@ -999,7 +999,7 @@ function renderLobby() {
   $app.innerHTML = `<div class="lobby">
     <div class="letter${renderLobby.opened === S.code ? " settled" : ""}"><div class="flap"></div><span class="seal" aria-hidden="true">W</span>
       <span class="to">To the players at</span><span class="lettercode">${esc(S.code)}</span><span class="addr">${S.kind === "uno" ? "Aboard ship · The Grand Line" : "The Great Hall · Hogwarts"}</span>
-      <button class="btn small" data-a="copy">Copy code</button></div>
+      <button class="btn small" data-a="copyCode">Copy code</button></div>
     <p class="hint">Friends open this website on their own device, type their name, then join with this code.</p>
     ${S.kind === "uno" && window.UnoPhoto && mySeat() >= 0 ? UnoPhoto.lobbyHTML() : ""}
     <div><h2>Seated at the table · ${S.players.length}/${E.MAX_PLAYERS}</h2>
@@ -1333,7 +1333,7 @@ function charControls(v) {
   const P = S.players[v];
   if (S.status !== "play" || S.turn !== v || S.pending) return "";
   let h = "";
-  if (P.char === "harry" && P.petrified == null) h += `<label class="harrypick">Protect <select id="harrycol"><option value="">choose a colour</option>${E.COLOR_KEYS.map(c => `<option value="${c}"${P.harryCol === c ? " selected" : ""}>${colName(c)}</option>`).join("")}</select></label>`;
+  if (E.has(P, "harry")) h += `<label class="harrypick">Protect <select id="harrycol"><option value="">choose a colour</option>${E.COLOR_KEYS.map(c => `<option value="${c}"${P.harryCol === c ? " selected" : ""}>${colName(c)}</option>`).join("")}</select></label>`;
   if (P.petrified != null && ui.mode !== "unpetrify") h += `<div style="margin-top:.6rem"><button class="btn small" data-a="unpetMode">Break free (discard 10+ points)</button></div>`;
   return h;
 }
@@ -1506,7 +1506,7 @@ $app.addEventListener("click", async e => {
     case "rejoin": return joinGame(LS.get("wd-last"));
     case "home": return goHome();
     case "side": return setSide(!document.querySelector(".arena")?.classList.contains("side-open"));
-    case "copy": try { await navigator.clipboard.writeText(S.code); flash("Code copied", true); } catch (err) { flash("Copy didn't work here. The code is " + S.code + "."); } return;
+    case "copyCode": try { await navigator.clipboard.writeText(S.code); flash("Code copied", true); } catch (err) { flash("Copy didn't work here. The code is " + S.code + "."); } return;
     case "leaveLobby": { await call("leave"); LS.del("wd-last"); return goHome(); }
     case "start": return call("start");
     case "pickGame": LS.set("wd-game", d.g); if (rankKind() !== "all") rankingList = []; render(); return refreshRanking();
