@@ -611,73 +611,152 @@
     sdata[house] = d;
     return c;
   }
-  // ---- the Grand Line at sunset (UNO screens): a full painted scene; the ship, waves, gulls and glitter move on top ----
+  // ---- the Grand Line by day (UNO screens), painted the way the anime paints it: a deep blue sky piled with cel-shaded
+  // cumulus, the Red Line climbing through the clouds with Reverse Mountain, Zunesha wading with Zou on its back, a sky
+  // island, a palm island and a bright sea. The ship, the Sea King, waves, gulls and sparkle move on top ----
   function paintSea() {
-    const [c, g] = layer(), small = W < 700, horizon = H * (small ? .52 : .56), sunX = W * (small ? .62 : .66), sunR = Math.min(W, H) * (small ? .1 : .085);
-    const sky = g.createLinearGradient(0, 0, 0, horizon);
-    sky.addColorStop(0, "#141737"); sky.addColorStop(.35, "#3b2b5e"); sky.addColorStop(.62, "#a8486a"); sky.addColorStop(.82, "#ee7a4c"); sky.addColorStop(1, "#ffc067");
-    g.fillStyle = sky; g.fillRect(0, 0, W, horizon + 1);
-    // the sun and its glow
-    const glow = g.createRadialGradient(sunX, horizon, 0, sunX, horizon, Math.max(W, H) * .55);
-    glow.addColorStop(0, "rgba(255,214,140,.85)"); glow.addColorStop(.12, "rgba(255,170,90,.45)"); glow.addColorStop(.4, "rgba(240,110,80,.12)"); glow.addColorStop(1, "rgba(0,0,0,0)");
-    g.fillStyle = glow; g.fillRect(0, 0, W, horizon);
-    const sun = g.createRadialGradient(sunX, horizon - sunR * .2, 0, sunX, horizon - sunR * .2, sunR);
-    sun.addColorStop(0, "#fff6d8"); sun.addColorStop(.7, "#ffd27a"); sun.addColorStop(1, "#ffab4a");
-    g.save(); g.beginPath(); g.rect(0, 0, W, horizon); g.clip(); g.fillStyle = sun; g.beginPath(); g.arc(sunX, horizon - sunR * .2, sunR, 0, TAU); g.fill(); g.restore();
-    // long streaky clouds lit from below
+    const [c, g] = layer(), small = W < 700, horizon = H * (small ? .5 : .55);
+    const sunX = W * (small ? .82 : .8), sunY = horizon * .2, sunR = Math.min(W, H) * .04;
     let rr = 11; const R = () => (rr = (rr * 9301 + 49297) % 233280) / 233280;
-    for (let k = 0; k < (small ? 9 : 16); k++) {
-      const y = horizon * (.12 + R() * .7), x = R() * W, w = W * (.18 + R() * .35), h = 6 + R() * 16, lit = y / horizon;
-      const cg = g.createLinearGradient(0, y - h, 0, y + h);
-      cg.addColorStop(0, `rgba(70,40,90,${.25 + lit * .2})`); cg.addColorStop(1, `rgba(255,${Math.round(140 + lit * 60)},${Math.round(110 + lit * 30)},${.25 + lit * .45})`);
-      g.fillStyle = cg; g.beginPath(); g.ellipse(x, y, w / 2, h, 0, 0, TAU); g.fill();
-      g.beginPath(); g.ellipse(x + w * .2, y - h * .5, w * .3, h * .8, 0, 0, TAU); g.fill();
+    // the sky: deep ultramarine overhead, paling to a bright haze at the horizon
+    const sky = g.createLinearGradient(0, 0, 0, horizon);
+    sky.addColorStop(0, "#0a3a92"); sky.addColorStop(.4, "#1f6fd6"); sky.addColorStop(.78, "#6dbcf2"); sky.addColorStop(1, "#d6f1ff");
+    g.fillStyle = sky; g.fillRect(0, 0, W, horizon + 1);
+    // the sun: a white disc, a wide glare and faint rays
+    const glow = g.createRadialGradient(sunX, sunY, 0, sunX, sunY, Math.max(W, H) * .5);
+    glow.addColorStop(0, "rgba(255,255,240,.95)"); glow.addColorStop(.06, "rgba(255,250,222,.6)"); glow.addColorStop(.22, "rgba(255,244,210,.16)"); glow.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = glow; g.fillRect(0, 0, W, horizon);
+    g.save(); g.globalCompositeOperation = "lighter";
+    for (let k = 0; k < 12; k++) { const a = k / 12 * TAU + .2; g.fillStyle = "rgba(255,250,225,.045)"; g.beginPath(); g.moveTo(sunX, sunY); g.arc(sunX, sunY, Math.max(W, H) * .7, a, a + .05); g.closePath(); g.fill(); }
+    g.restore();
+    g.fillStyle = "#fffef6"; g.beginPath(); g.arc(sunX, sunY, sunR, 0, TAU); g.fill();
+
+    // an anime cumulus: a flat base, piled round lobes, white where the sun strikes and a cool blue in shadow,
+    // a darker underside; far ones fade toward the sky
+    function cumulus(x, base, w, h, far = 0) {
+      // lobes piled in rows that narrow toward the top, so tall towers billow and wide banks stay low
+      const lobes = [], rows = Math.max(1, Math.round(h / (w * .3)));
+      for (let ri = 0; ri <= rows; ri++) {
+        const fy = ri / rows, rw = w * (1 - fy * .6), ry = base - h * fy * .78, r0 = Math.min(w * .2, h * .3) * (1 - fy * .25), m = Math.max(2, Math.round(rw / (r0 * 1.25)));
+        for (let k = 0; k < m; k++) lobes.push([x - rw / 2 + (k + .5) / m * rw + (R() - .5) * r0 * .5, ry - r0 * (.35 + R() * .35), r0 * (.75 + R() * .45)]);
+      }
+      lobes.push([x + (R() - .5) * w * .1, base - h * .82, Math.min(w * .2, h * .3) * .8]);
+      const dir = Math.sign(sunX - x) || 1;
+      g.save();
+      g.beginPath(); g.rect(x - w, -H, w * 2, base + H); g.clip();
+      g.beginPath(); lobes.forEach(([lx, ly, r]) => { g.moveTo(lx + r, ly); g.arc(lx, ly, r, 0, TAU); }); g.clip();
+      g.globalAlpha = 1 - far * .45;
+      g.fillStyle = far ? "#b9d6f3" : "#a3c2ea"; g.fillRect(x - w, base - h * 1.4, w * 2, h * 1.5);
+      g.fillStyle = "#ffffff"; lobes.forEach(([lx, ly, r]) => { g.beginPath(); g.arc(lx + dir * r * .16, ly - r * .2, r * .84, 0, TAU); g.fill(); });
+      const ug = g.createLinearGradient(0, base - h * .32, 0, base);
+      ug.addColorStop(0, "rgba(120,160,215,0)"); ug.addColorStop(1, far ? "rgba(160,195,235,.8)" : "rgba(110,150,210,.95)");
+      g.fillStyle = ug; g.fillRect(x - w, base - h * .32, w * 2, h * .33);
+      g.restore();
     }
-    // a sky island: a bank of cumulus lit gold from below, with an island, a little temple and a palm riding on top
-    const kx = W * (small ? .3 : .4), ky = horizon * (small ? .2 : .2), kr = Math.min(W, H) * (small ? .07 : .06);
-    for (let k = 0; k < 14; k++) {
-      const a = k / 14 * Math.PI, x = kx + Math.cos(a) * kr * 2.4 * (R() * .3 + .85), y = ky - Math.sin(a) * kr * .55 + kr * .2, r = kr * (.45 + R() * .45);
-      const cg = g.createRadialGradient(x, y - r * .4, r * .1, x, y, r);
-      cg.addColorStop(0, "rgba(255,240,226,.95)"); cg.addColorStop(.6, "rgba(255,190,170,.85)"); cg.addColorStop(1, "rgba(200,120,150,.0)");
-      g.fillStyle = cg; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    // a far bank of cloud along the horizon
+    for (let x = -W * .05; x < W * 1.05; x += W * (.1 + R() * .08)) cumulus(x, horizon - 1, W * (.12 + R() * .1), horizon * (.07 + R() * .08), 1);
+
+    // the Red Line: a wall of red rock that rings the world, climbing far above the clouds on the left, lit from the right,
+    // fading into haze toward the sea. Reverse Mountain stands out of it, with the four seas' currents running up its face
+    const rx1 = W * (small ? .34 : .27), rtop = horizon * .2, mx = rx1 * .58, mtop = horizon * .02;
+    const rg = g.createLinearGradient(0, 0, 0, horizon);
+    rg.addColorStop(0, "#a8383a"); rg.addColorStop(.5, "#c2524a"); rg.addColorStop(.85, "#d9877a"); rg.addColorStop(1, "#e6b4a8");
+    g.fillStyle = rg; g.beginPath(); g.moveTo(-4, horizon + 1); g.lineTo(-4, rtop + 8);
+    for (let x = 0; x <= rx1 * .9; x += Math.max(3, W * .008)) {
+      const near = Math.max(0, 1 - Math.abs(x - mx) / (rx1 * .3)), peak = (1 - Math.cos(near * Math.PI)) / 2;
+      g.lineTo(x, rtop + (R() - .5) * 6 - peak * (rtop - mtop));
     }
-    g.fillStyle = "rgba(255,170,120,.55)"; g.beginPath(); g.ellipse(kx, ky + kr * .55, kr * 2.6, kr * .28, 0, 0, TAU); g.fill();
-    g.fillStyle = "#4d3a5c"; g.beginPath(); g.moveTo(kx - kr * 1.1, ky - kr * .45); g.quadraticCurveTo(kx - kr * .2, ky - kr * 1.05, kx + kr * .9, ky - kr * .45); g.closePath(); g.fill();
-    g.fillStyle = "#5c4668"; g.fillRect(kx - kr * .28, ky - kr * 1.05, kr * .5, kr * .32);
-    g.beginPath(); g.moveTo(kx - kr * .36, ky - kr * 1.05); g.lineTo(kx - kr * .03, ky - kr * 1.32); g.lineTo(kx + kr * .3, ky - kr * 1.05); g.fill();
-    g.strokeStyle = "#4d3a5c"; g.lineWidth = 2; g.beginPath(); g.moveTo(kx + kr * .55, ky - kr * .6); g.quadraticCurveTo(kx + kr * .6, ky - kr * 1, kx + kr * .75, ky - kr * 1.25); g.stroke();
-    g.fillStyle = "#4d3a5c"; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * .6; g.beginPath(); g.ellipse(kx + kr * .75 + Math.cos(a) * kr * .16, ky - kr * 1.25 + Math.sin(a) * kr * .1, kr * .2, kr * .05, a, 0, TAU); g.fill(); }
-    // the Red Line: the wall of red rock that rings the world, rising off the left of the horizon, with Reverse Mountain
-    // and the four streams of sea water climbing its face
-    const rx1 = W * (small ? .46 : .36), rtop = horizon - horizon * (small ? .26 : .3), mx = rx1 * .6, mtop = rtop - horizon * .14;
-    const rg = g.createLinearGradient(0, mtop, 0, horizon);
-    rg.addColorStop(0, "#c25a4c"); rg.addColorStop(.35, "#8e3440"); rg.addColorStop(1, "#4f2546");
-    g.fillStyle = rg; g.beginPath(); g.moveTo(-4, horizon + 1); g.lineTo(-4, rtop + 6);
-    for (let x = 0; x <= rx1 * .92; x += Math.max(3, W * .008)) {
-      const nearM = Math.max(0, 1 - Math.abs(x - mx) / (rx1 * .32)), peak = (1 - Math.cos(nearM * Math.PI)) / 2;
-      g.lineTo(x, rtop + (R() - .5) * 5 - peak * (rtop - mtop));
-    }
-    g.quadraticCurveTo(rx1 * .97, rtop + 4, rx1, horizon + 1); g.closePath(); g.fill();
-    g.strokeStyle = "rgba(40,10,30,.25)"; g.lineWidth = 1;
-    for (let k = 0; k < 40; k++) { const x = R() * rx1 * .95; g.beginPath(); g.moveTo(x, rtop + 10 + R() * 20); g.lineTo(x + (R() - .5) * 6, horizon - R() * 10); g.stroke(); }
-    g.strokeStyle = "rgba(170,225,255,.6)"; g.lineWidth = Math.max(1, W / 1100);
-    for (let k = 0; k < 4; k++) { const bx = mx - rx1 * .16 + k * rx1 * .105; g.beginPath(); g.moveTo(bx, horizon - 2); g.quadraticCurveTo(bx + (mx - bx) * .3, rtop + (horizon - rtop) * .3, mx + (k - 1.5) * 2, mtop + 4); g.stroke(); }
-    const mist = g.createLinearGradient(0, rtop, 0, horizon);
-    mist.addColorStop(0, "rgba(255,180,140,0)"); mist.addColorStop(1, "rgba(255,170,130,.42)");
-    g.fillStyle = mist; g.fillRect(0, rtop, rx1 + 4, horizon - rtop + 1);
-    // a far island with palms
-    const ix = W * (small ? .86 : .86), iw = W * (small ? .26 : .16);
-    g.fillStyle = "#3a1e3e"; g.beginPath(); g.moveTo(ix - iw / 2, horizon + 1); g.quadraticCurveTo(ix - iw * .2, horizon - H * .05, ix, horizon - H * .055); g.quadraticCurveTo(ix + iw * .3, horizon - H * .05, ix + iw / 2, horizon + 1); g.closePath(); g.fill();
-    const palm = (x, y, h, lean) => { g.strokeStyle = "#2c1630"; g.lineWidth = 3; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + lean * .5, y - h * .6, x + lean, y - h); g.stroke();
-      g.fillStyle = "#2c1630"; for (let k = 0; k < 6; k++) { const a = -Math.PI / 2 + (k - 2.5) * .55; g.beginPath(); g.moveTo(x + lean, y - h); g.quadraticCurveTo(x + lean + Math.cos(a) * h * .3, y - h + Math.sin(a) * h * .3 - 6, x + lean + Math.cos(a) * h * .5, y - h + Math.sin(a) * h * .2 + 8); g.quadraticCurveTo(x + lean + Math.cos(a) * h * .25, y - h + Math.sin(a) * h * .15, x + lean, y - h); g.fill(); } };
-    palm(ix - iw * .08, horizon - H * .05, H * .07, 8); palm(ix + iw * .06, horizon - H * .052, H * .055, -6);
-    // the sea: sunset colour near the horizon, deep blue below
+    g.bezierCurveTo(rx1 * .96, rtop + horizon * .1, rx1 * 1.02, horizon * .6, rx1 * 1.06, horizon + 1); g.closePath(); g.fill();
+    g.save(); g.clip();
+    for (let k = 0; k < 60; k++) { const x = R() * rx1 * 1.05, w = 1 + R() * 3; g.fillStyle = R() < .5 ? "rgba(90,20,30,.18)" : "rgba(255,190,170,.14)"; g.fillRect(x, rtop - 30 + R() * 40, w, horizon); }
+    const lit = g.createLinearGradient(rx1 * .8, 0, rx1 * 1.06, 0); lit.addColorStop(0, "rgba(255,200,170,0)"); lit.addColorStop(1, "rgba(255,214,190,.55)");
+    g.fillStyle = lit; g.fillRect(rx1 * .8, 0, rx1 * .3, horizon);
+    g.strokeStyle = "rgba(200,235,255,.85)"; g.lineWidth = Math.max(1.4, W / 800);
+    for (let k = 0; k < 4; k++) { const bx = mx - rx1 * .2 + k * rx1 * .13; g.beginPath(); g.moveTo(bx, horizon); g.quadraticCurveTo(bx + (mx - bx) * .25, horizon * .45, mx + (k - 1.5) * 1.5, mtop + 6); g.stroke(); }
+    g.restore();
+    const haze = g.createLinearGradient(0, horizon * .45, 0, horizon);
+    haze.addColorStop(0, "rgba(214,241,255,0)"); haze.addColorStop(1, "rgba(214,241,255,.6)");
+    g.fillStyle = haze; g.fillRect(0, horizon * .45, rx1 * 1.1, horizon * .55 + 1);
+    // a belt of cloud wrapped round the Red Line's waist
+    cumulus(rx1 * .5, horizon * .58, rx1 * 1.3, horizon * .12);
+
+    // a tall tower of cumulus to the right, behind Zunesha
+    cumulus(W * (small ? .96 : .9), horizon - 2, W * (small ? .42 : .3), horizon * .5);
+    // Zunesha: the vast elephant, wading far out with the forests of Zou on its back, pale with distance
+    // (drawn on its own layer so the haze can lie over the animal alone, then laid onto the scene)
+    const zx = W * (small ? .63 : .6), zh = horizon * (small ? .4 : .46), zs = zh / 100, zb = horizon + 1, [zc] = layer();
+    { const g = zc.getContext("2d");
+    g.save(); g.translate(zx, zb); g.scale(zs, zs);
+    const hide = "#8ea6c8", shade = "#748db4";
+    g.fillStyle = shade;   // far legs
+    g.beginPath(); g.moveTo(-26, -40); g.lineTo(-20, 0); g.lineTo(-8, 0); g.lineTo(-10, -40); g.fill();
+    g.beginPath(); g.moveTo(26, -40); g.lineTo(30, 0); g.lineTo(42, 0); g.lineTo(40, -40); g.fill();
+    g.fillStyle = hide;    // body
+    g.beginPath(); g.ellipse(8, -52, 46, 26, 0, 0, TAU); g.fill();
+    g.beginPath(); g.moveTo(-30, -44); g.lineTo(-34, 0); g.lineTo(-20, 0); g.lineTo(-16, -40); g.fill();   // near legs
+    g.beginPath(); g.moveTo(36, -44); g.lineTo(40, 0); g.lineTo(54, 0); g.lineTo(50, -44); g.fill();
+    g.beginPath(); g.ellipse(-40, -58, 16, 18, -.2, 0, TAU); g.fill();   // head
+    g.strokeStyle = hide; g.lineWidth = 8; g.lineCap = "round";        // trunk, curling down into the sea
+    g.beginPath(); g.moveTo(-52, -52); g.bezierCurveTo(-64, -40, -60, -20, -66, -4); g.stroke();
+    g.strokeStyle = "#e9eef5"; g.lineWidth = 3; g.beginPath(); g.moveTo(-48, -46); g.quadraticCurveTo(-58, -40, -60, -30); g.stroke();   // tusk
+    g.fillStyle = shade; g.beginPath(); g.moveTo(-34, -72); g.bezierCurveTo(-12, -82, -6, -50, -18, -36); g.bezierCurveTo(-26, -40, -32, -52, -34, -72); g.fill();   // ear
+    g.fillStyle = "#5d7299"; g.beginPath(); g.arc(-46, -62, 1.6, 0, TAU); g.fill();
+    // Zou on its back: a forested island with cliffs, trees and mist
+    g.fillStyle = "#7f98a6"; g.beginPath(); g.moveTo(-26, -72); g.quadraticCurveTo(8, -86, 46, -70); g.lineTo(40, -64); g.quadraticCurveTo(8, -74, -22, -66); g.closePath(); g.fill();
+    for (let k = 0; k < 26; k++) { const t = k / 25, x = -26 + t * 72, y = -76 - Math.sin(t * Math.PI) * 10 - R() * 8, r = 4 + R() * 6;
+      g.fillStyle = R() < .5 ? "#6f9a8f" : "#5c887f"; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
+    for (let k = 0; k < 5; k++) { const x = -10 + k * 12 + R() * 4, h = 14 + R() * 10; g.fillStyle = "#567f78"; g.beginPath(); g.moveTo(x - 3, -82); g.lineTo(x, -82 - h); g.lineTo(x + 3, -82); g.fill(); }
+    // haze over it, thickest at the waterline and fading out on every side so it leaves no edge
+    g.save(); g.globalCompositeOperation = "source-atop";
+    const mist = g.createLinearGradient(0, -100, 0, 0); mist.addColorStop(0, "rgba(214,241,255,.12)"); mist.addColorStop(1, "rgba(214,241,255,.6)");
+    g.fillStyle = mist; g.fillRect(-90, -120, 180, 122);
+    g.restore();
+    g.restore(); }
+    g.drawImage(zc, 0, 0, W, H);
+    // foam round its legs where they meet the sea
+    g.save(); g.translate(zx, zb); g.scale(zs, zs); g.fillStyle = "#e6f4ff"; g.globalAlpha = .7;
+    for (const [x, w] of [[-48, 12], [-27, 10], [-14, 9], [35, 10], [47, 10]]) { g.beginPath(); g.ellipse(x, 0, w, 2.4, 0, 0, TAU); g.fill(); }
+    g.restore();
+
+    // drifting puffs higher up
+    cumulus(W * .5, horizon * .34, W * (small ? .3 : .18), horizon * .1);
+    cumulus(W * (small ? .2 : .44), horizon * .12, W * .14, horizon * .06);
+    cumulus(W * (small ? .7 : .66), horizon * .44, W * .2, horizon * .08);
+    // a sky island on its own cloud, with a little temple and a palm on top
+    const kx = W * (small ? .42 : .4), ky = horizon * (small ? .26 : .24), kw = W * (small ? .3 : .16);
+    cumulus(kx, ky, kw, kw * .32);
+    g.fillStyle = "#5fa36f"; g.beginPath(); g.moveTo(kx - kw * .3, ky - kw * .22); g.quadraticCurveTo(kx, ky - kw * .42, kx + kw * .28, ky - kw * .22); g.closePath(); g.fill();
+    g.fillStyle = "#f3eee0"; g.fillRect(kx - kw * .06, ky - kw * .4, kw * .1, kw * .1);
+    g.fillStyle = "#e4cfa0"; g.beginPath(); g.moveTo(kx - kw * .08, ky - kw * .4); g.lineTo(kx - kw * .01, ky - kw * .47); g.lineTo(kx + kw * .06, ky - kw * .4); g.fill();
+    g.strokeStyle = "#7a5638"; g.lineWidth = 1.6; g.beginPath(); g.moveTo(kx + kw * .16, ky - kw * .28); g.quadraticCurveTo(kx + kw * .17, ky - kw * .4, kx + kw * .21, ky - kw * .48); g.stroke();
+    g.fillStyle = "#3f8a52"; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * .6; g.beginPath(); g.ellipse(kx + kw * .21 + Math.cos(a) * kw * .04, ky - kw * .48 + Math.sin(a) * kw * .025, kw * .05, kw * .012, a, 0, TAU); g.fill(); }
+
+    // the sea: pale at the horizon, then the deep ultramarine of the anime ocean, with brush-stroke wave crests
     const sea = g.createLinearGradient(0, horizon, 0, H);
-    sea.addColorStop(0, "#d27a62"); sea.addColorStop(.08, "#7b4f72"); sea.addColorStop(.3, "#24406b"); sea.addColorStop(1, "#071526");
+    sea.addColorStop(0, "#7cc6f2"); sea.addColorStop(.05, "#2f8ad8"); sea.addColorStop(.35, "#1561be"); sea.addColorStop(1, "#05276a");
     g.fillStyle = sea; g.fillRect(0, horizon, W, H - horizon);
-    for (let k = 0; k < 220; k++) { const y = horizon + Math.pow(R(), 1.8) * (H - horizon), w = 6 + (y - horizon) * .18 * R(); g.globalAlpha = .08 + R() * .12; g.fillStyle = R() < .5 ? "#9fc2e6" : "#02101f"; g.fillRect(R() * W, y, w, 1 + (y - horizon) / 220); }
+    g.fillStyle = "rgba(255,255,255,.7)"; g.fillRect(0, horizon, W, 1);
+    for (let k = 0; k < (small ? 260 : 420); k++) {
+      const d = Math.pow(R(), 1.6), y = horizon + 3 + d * (H - horizon), w = 4 + d * 46 * (.5 + R()), x = R() * W;
+      g.globalAlpha = .12 + d * .3; g.strokeStyle = R() < .72 ? "#ffffff" : "#0a3c86"; g.lineWidth = .6 + d * 1.6;
+      g.beginPath(); g.moveTo(x - w / 2, y); g.quadraticCurveTo(x, y - 1.5 - d * 4, x + w / 2, y); g.stroke();
+    }
     g.globalAlpha = 1;
-    vignette(g, .18); edgeDark(g);
+    // the sun's path on the water
+    for (let k = 0; k < 60; k++) { const d = k / 60, y = horizon + 3 + d * d * (H - horizon) * .9, w = (8 + d * 70) * (.4 + R() * .8);
+      g.globalAlpha = .55 * (1 - d); g.fillStyle = "#ffffff"; g.fillRect(sunX + (R() - .5) * (20 + d * 120) - w / 2, y, w, 1 + d * 2); }
+    g.globalAlpha = 1;
+
+    // a palm island off to the right, in front of the far clouds
+    const ix = W * (small ? .9 : .9), iw = W * (small ? .24 : .14), iy = horizon + 2;
+    g.fillStyle = "#f2dfae"; g.beginPath(); g.ellipse(ix, iy, iw * .55, iw * .06, 0, 0, TAU); g.fill();
+    g.fillStyle = "#3f9a5c"; g.beginPath(); g.moveTo(ix - iw * .45, iy); g.quadraticCurveTo(ix - iw * .15, iy - iw * .26, ix + iw * .05, iy - iw * .24); g.quadraticCurveTo(ix + iw * .3, iy - iw * .2, ix + iw * .45, iy); g.closePath(); g.fill();
+    g.fillStyle = "#2f7d48"; g.beginPath(); g.moveTo(ix - iw * .45, iy); g.quadraticCurveTo(ix - iw * .1, iy - iw * .12, ix + iw * .45, iy); g.closePath(); g.fill();
+    const palm = (x, y, h, lean) => { g.strokeStyle = "#8a5a3a"; g.lineWidth = Math.max(2, iw * .02); g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + lean * .5, y - h * .6, x + lean, y - h); g.stroke();
+      for (let k = 0; k < 7; k++) { const a = -Math.PI / 2 + (k - 3) * .5; g.fillStyle = k % 2 ? "#2f8a4a" : "#3fa35a"; g.beginPath(); g.moveTo(x + lean, y - h); g.quadraticCurveTo(x + lean + Math.cos(a) * h * .3, y - h + Math.sin(a) * h * .3 - 4, x + lean + Math.cos(a) * h * .55, y - h + Math.sin(a) * h * .2 + 7); g.quadraticCurveTo(x + lean + Math.cos(a) * h * .25, y - h + Math.sin(a) * h * .12, x + lean, y - h); g.fill(); } };
+    palm(ix - iw * .08, iy - iw * .2, iw * .38, iw * .05); palm(ix + iw * .1, iy - iw * .2, iw * .3, -iw * .06);
+
+    vignette(g, .08); edgeDark(g);
     sdata.sea = { horizon, sunX, sunR, small, gulls: Array.from({ length: small ? 4 : 7 }, () => ({ x: R() * W, y: horizon * (.25 + R() * .45), s: .6 + R() * .8, v: 12 + R() * 18, p: R() * 6 })) };
     return c;
   }
@@ -781,14 +860,14 @@
     const d = sdata[key]; if (!d || a <= .01) return;
     if (key === "sea") {
       ctx.globalAlpha = a;
-      ctx.strokeStyle = "#2a1a2e"; ctx.lineWidth = 1.6;
+      ctx.strokeStyle = "#1c2c48"; ctx.lineWidth = 1.6;
       d.gulls.forEach((gl, i) => { const x = (gl.x + t * .001 * gl.v) % (W + 60) - 30, y = gl.y + Math.sin(t * .0008 + gl.p) * 8, f = Math.sin(t * .008 + gl.p) * 4 * gl.s, w = 9 * gl.s;
         if (i < 2) return newsCoo(x, y, f, gl.s * 1.5);
         ctx.beginPath(); ctx.moveTo(x - w, y - f); ctx.quadraticCurveTo(x - w / 2, y - 3 - f / 2, x, y); ctx.quadraticCurveTo(x + w / 2, y - 3 - f / 2, x + w, y - f); ctx.stroke(); });
       // the sun's glitter on the water
       ctx.globalCompositeOperation = "lighter";
       for (let k = 0; k < 34; k++) { const y = d.horizon + 3 + (k * k) * (H - d.horizon) / 1300, x = d.sunX + Math.sin(t * .0014 + k * 1.9) * (6 + k * 2.6), w = d.sunR * (.5 + k * .06) * (.6 + .4 * Math.sin(t * .003 + k));
-        ctx.globalAlpha = a * .5 * (1 - k / 38); ctx.fillStyle = "#ffd59a"; ctx.fillRect(x - w / 2, y, w, 1.6); }
+        ctx.globalAlpha = a * .55 * (1 - k / 38); ctx.fillStyle = "#ffffff"; ctx.fillRect(x - w / 2, y, w, 1.6); }
       ctx.globalCompositeOperation = "source-over";
       // the ship, sailing slowly across
       const span = W + 520, sx = ((t * .012) % span) - 260, sy = d.horizon + (H - d.horizon) * (d.small ? .1 : .12), sc = Math.max(.45, Math.min(1, W / 1500)) * (d.small ? .7 : 1);
@@ -805,7 +884,7 @@
       ctx.strokeStyle = "rgba(150,100,30,.5)"; ctx.lineWidth = .8; ctx.beginPath(); ctx.ellipse(0, 0, 21, 5, 0, 0, TAU); ctx.stroke();
       ctx.restore();
       // rolling swell lines in front
-      ctx.strokeStyle = "rgba(170,205,240,.16)"; ctx.lineWidth = 1.4;
+      ctx.strokeStyle = "rgba(235,248,255,.2)"; ctx.lineWidth = 1.4;
       for (let k = 0; k < 9; k++) { const y = d.horizon + (H - d.horizon) * (.2 + k * .09), amp = 3 + k * 1.2, off = t * .0006 * (1 + k * .15);
         ctx.globalAlpha = a * (.4 + k * .05); ctx.beginPath(); for (let x = 0; x <= W; x += 18) ctx.lineTo(x, y + Math.sin(x * .012 + off + k) * amp); ctx.stroke(); }
       ctx.globalAlpha = 1; return;
