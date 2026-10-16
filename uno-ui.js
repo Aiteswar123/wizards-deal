@@ -254,10 +254,12 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const g = o.tag || "div";
     if (id == null || id < 0) return `<${g} class="ucard uback ${o.cls || ""}" ${o.attrs || ""}><span class="fl">${ROSE}${SKULL()}</span><span class="bt2">GRAND LINE</span><span class="bt">UNO</span></${g}>`;
     const c = U.card(id), K = U.KINDS[c.v], pip = K ? PIP[c.v] : c.v;
-    const crew = !K && window.UnoCrew ? UnoCrew[+c.v] : null, who = K ? K.alias : crew ? crew.name : U.COLORS[c.c].sea;
+    // a player's own picture for this number (Card art, this browser only) takes the photo box; otherwise the Sunwake crew
+    const mine = !K && window.UnoArt ? UnoArt.get(+c.v) : null, crew = !K && window.UnoCrew ? UnoCrew[+c.v] : null;
+    const who = K ? K.alias : mine && mine.name ? mine.name : crew ? crew.name : U.COLORS[c.c].sea;
     return `<${g} class="ucard c-${c.c} v-${c.v} ${o.cls || ""}" ${o.attrs || ""} aria-label="${esc(U.label(id))}"><span class="pw">
         <span class="wt">WANTED</span>
-        <span class="ph${crew ? " crew" : ""}">${K ? ART[c.v] : crew ? `${crew.art}<span class="numc">${c.v}</span>` : `<span class="num">${c.v}</span>`}</span>
+        <span class="ph${crew || mine ? " crew" : ""}">${K ? ART[c.v] : mine ? `<img class="custom" src="${mine.src}" alt=""><span class="numc">${c.v}</span>` : crew ? `${crew.art}<span class="numc">${c.v}</span>` : `<span class="num">${c.v}</span>`}</span>
         <span class="doa">DEAD OR ALIVE</span><span class="who" style="--ws:${who.length > 13 ? .056 : who.length > 10 ? .068 : .092}">${esc(who.toUpperCase())}</span>
         <span class="bty">${BERRY}${bounty(id)}</span><span class="mar">MARINE</span></span>
       <span class="tack"></span><span class="pip tl">${pip}</span></${g}>`;
@@ -348,7 +350,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const ov = hand.length > 14 ? -46 : hand.length > 9 ? -34 : hand.length > 6 ? -24 : -12;
     const last = S.log[S.log.length - 1] || "";
     $app.innerHTML = `<div class="ugame">
-      <header class="board"><div class="board-top"><span class="mark">Grand Line UNO</span><span class="tcode"><span class="tl2">Table </span><b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}${window.Radio ? Radio.button() : ""}${sndBtn()}<button class="btn ghost small" data-a="home">Leave table</button></div>
+      <header class="board"><div class="board-top"><span class="mark">Grand Line UNO</span><span class="tcode"><span class="tl2">Table </span><b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}${window.UnoArt ? UnoArt.button() : ""}${window.Radio ? Radio.button() : ""}${sndBtn()}<button class="btn ghost small" data-a="home">Leave table</button></div>
         <div class="uticker">${fmt(last)}</div></header>
       <section class="udeck${n >= 7 ? " many" : ""}" aria-label="The table">
         ${seats}
