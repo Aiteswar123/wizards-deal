@@ -8,7 +8,9 @@ An online table for playing Monopoly Deal: Harry Potter edition with 2 to 12 fri
 - Everyone sits around one table: items and banks are visible to all, your hand is visible only to you.
 - The server runs every move through the rules engine, so other players' hands never reach your browser.
 
-Fan-made and unofficial; not affiliated with Hasbro or Warner Bros. Some item card names are stand-ins.
+The same site also hosts **Grand Line UNO**, a pirate-themed UNO for 2 to 12 players with stacking (+2 on +2, +4 on +2 or +4), its own one-minute turn clock and its own leaderboard ("Most Wanted"). Pick the game at the top of the home page.
+
+Fan-made and unofficial; not affiliated with Hasbro or Warner Bros. Some item card names are stand-ins. Grand Line UNO is fan-made with original artwork, inspired by UNO and One Piece; not affiliated with Mattel, Eiichiro Oda, Shueisha or Toei Animation.
 
 ## Project layout
 
@@ -16,6 +18,9 @@ Fan-made and unofficial; not affiliated with Hasbro or Warner Bros. Some item ca
 | --- | --- |
 | `index.html` | The whole game screen: home, lobby and the round table |
 | `engine.js` | The rules engine, shared by the browser and the server |
+| `uno.js` | Grand Line UNO's rules engine, shared the same way |
+| `uno-ui.js` | Grand Line UNO's table screen, cards and home-page pieces |
+| `sfx.js` | Sound effects, spoken spells and generative music |
 | `api/game.js` | Vercel serverless function: tables, moves, hidden hands |
 | `dev.js` | Local dev server with an in-memory store (not deployed) |
 

@@ -608,7 +608,7 @@
 
   // ---- ranking ----
   // EXP for a finished game. Places: the winner first, then everyone else by complete sets, then total value on the table.
-  // Winner 100 + 10 per player beyond 2; 2nd 60; 3rd 45; everyone else 30. Everyone adds 10 per complete set,
+  // Winner 100; 2nd 60; 3rd 45; everyone else 30. Everyone adds 10 per complete set,
   // 3 per spell cast (up to 15) and 1 per Galleon in the bank (up to 25).
   const XP = { win: 100, second: 60, third: 45, rest: 30, perSet: 10, perCast: 3, castCap: 15, perGalleon: 1, galleonCap: 25 };
   function awards(s) {

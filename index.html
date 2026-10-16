@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#0b0f17">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700;800&family=Alegreya+Sans+SC:wght@500;700;800&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700;800&family=Alegreya+Sans+SC:wght@500;700;800&family=Alegreya+Sans:wght@400;500;700&family=Pirata+One&display=swap">
 <style>
 /* Quidditch matchday in house colours: a bulb-lit scoreboard races everyone to three sets, the shared table is a floodlit pitch,
    your hand sits at the thumb. Each player's screen takes the colours of their character's Hogwarts house (data-house on <html>);
@@ -697,6 +697,8 @@ html[data-screen=game] .sndfix{display:none}
 <script src="sfx.js"></script>
 <script src="cutin.js"></script>
 <script src="sky.js"></script>
+<script src="uno.js"></script>
+<script src="uno-ui.js"></script>
 <script>
 "use strict";
 const E = window.Engine;
@@ -774,22 +776,24 @@ async function poll() {
 let rankingList = [];
 async function pollLobbies() {
   while (view === "home") {
-    try { const r = (await (await fetch("/api/game?ranking=1", { cache: "no-store" })).json()).ranking || []; if (JSON.stringify(r) !== JSON.stringify(rankingList)) { rankingList = r; if (view === "home") renderHome(); } } catch (e) {}
+    try { const r = (await (await fetch(`/api/game?ranking=1${homeGame() === "uno" ? "&kind=uno" : ""}`, { cache: "no-store" })).json()).ranking || []; if (JSON.stringify(r) !== JSON.stringify(rankingList)) { rankingList = r; if (view === "home") renderHome(); } } catch (e) {}
     try { const j = await (await fetch("/api/game?list=1", { cache: "no-store" })).json(); const next = j.lobbies || []; if (JSON.stringify(next) !== JSON.stringify(lobbies)) { lobbies = next; if (view === "home") renderHome(); } } catch (e) {}
     await sleep(4000);
   }
 }
 function gotState() {
-  if (window.Sfx && S && S.players) { const n = S.players.length; if (S.status === "lobby" && gotState.code === S.code && n > gotState.n) Sfx.join(); gotState.n = n; gotState.code = S.code; } if (window.CutIn) { window.CutIn.reveal(S, nameOf, mySeat()); window.CutIn.observe(S, nameOf, mySeat()); } }
+  if (window.Sfx && S && S.players) { const n = S.players.length; if (S.status === "lobby" && gotState.code === S.code && n > gotState.n) Sfx.join(); gotState.n = n; gotState.code = S.code; } if (window.CutIn && S && S.kind !== "uno") { window.CutIn.reveal(S, nameOf, mySeat()); window.CutIn.observe(S, nameOf, mySeat()); } }
 function enter(c) { code = c; poll(); }
-function goHome() { pollGen++; code = null; S = null; view = "home"; ui = freshUI(); render(); pollLobbies(); }
+function goHome() { pollGen++; code = null; S = null; view = "home"; ui = freshUI(); if (window.UnoUI) UnoUI.reset(); render(); pollLobbies(); }
+// Which game the home page shows: Wizard's Deal or Grand Line UNO, remembered per device.
+const homeGame = () => LS.get("wd-game") === "uno" ? "uno" : "deal";
 function myName() {
   const el = document.getElementById("myname");
   const n = (el ? el.value : LS.get("wd-nick") || "").trim().slice(0, 20);
   if (!n) { flash("Type your name first."); el && el.focus(); return null; }
   LS.set("wd-nick", n); return n;
 }
-async function createGame() { const nick = myName(); if (!nick) return; code = null; const j = await call("create", { nick }); if (j && j.game) enter(j.game.code); }
+async function createGame() { const nick = myName(); if (!nick) return; code = null; const j = await call("create", { nick, kind: homeGame() }); if (j && j.game) enter(j.game.code); }
 async function joinGame(c) {
   c = (c || "").trim().toUpperCase();
   if (!/^[A-Z]{4}$/.test(c)) return flash("Enter the 4-letter game code.");
@@ -827,10 +831,12 @@ const mySeat = () => S && S.players ? S.players.findIndex(p => p.uid === me) : -
 // ---------- rendering ----------
 function render() {
   const seat = view === "game" && S && S.players ? mySeat() : -1;
-  setHouse(seat >= 0 && S.status !== "lobby" ? HOUSE[S.players[seat].char] : "hogwarts");
+  document.documentElement.dataset.game = view === "game" && S ? (S.kind || "deal") : homeGame();
+  setHouse(seat >= 0 && S.status !== "lobby" && S.kind !== "uno" ? HOUSE[S.players[seat].char] : "hogwarts");
   document.documentElement.dataset.screen = view === "home" || !S ? "home" : S.status === "lobby" ? "lobby" : "game";
   if (view === "home" || !S) return renderHome();
   if (S.status === "lobby") return renderLobby();
+  if (S.kind === "uno") return UnoUI.render();
   renderGame();
 }
 
@@ -913,7 +919,8 @@ function xpGuideHTML() {
 function rankingHTML() {
   const mine = (LS.get("wd-nick") || "").trim().toLowerCase().replace(/s+/g, " ");
   const medal = ["#e8c25a", "#c9ced8", "#c58a52"];
-  return `<section class="ranks"><header><h2>Hall of Fame</h2><span class="lbl">${rankingList.length ? rankingList.length + " wizards" : "All-time"}</span></header>
+  const uno = homeGame() === "uno";
+  return `<section class="ranks"><header><h2>${uno ? "Most Wanted" : "Hall of Fame"}</h2><span class="lbl">${rankingList.length ? rankingList.length + (uno ? " pirates" : " wizards") : "All-time"}</span></header>
     ${rankingList.length ? `<ol class="ranklist">${rankingList.map((r, i) => `<li class="${r.name.trim().toLowerCase().replace(/s+/g, " ") === mine ? "me" : ""}">
       <span class="rk" style="${i < 3 ? `--m:${medal[i]}` : ""}">${i + 1}</span>
       <span class="rn"><b>${esc(r.name)}</b><span class="lvbar" title="${r.into} of ${r.need} EXP to level ${r.level + 1}"><i style="width:${Math.round(100 * r.into / r.need)}%"></i></span></span>
@@ -921,7 +928,7 @@ function rankingHTML() {
       <span class="st"><b>${r.xp}</b> EXP</span><span class="st"><b>${r.wins}</b> wins</span><span class="st"><b>${r.games}</b> games</span><span class="st"><b>${r.games ? Math.round(100 * r.wins / r.games) : 0}%</b> won</span></li>`).join("")}</ol>`
       : `<p class="muted">No finished games yet. Every player earns EXP when a game ends; the winner earns the most.</p>`}
     <p class="fine" style="margin-top:.9rem">Players are matched by name, ignoring capitals, so always play under the same name.</p>
-    <details class="xpdetails"><summary>How EXP works</summary>${xpGuideHTML()}</details></section>`;
+    ${uno ? "" : `<details class="xpdetails"><summary>How EXP works</summary>${xpGuideHTML()}</details>`}</section>`;
 }
 
 function renderHome() {
@@ -930,29 +937,31 @@ function renderHome() {
   const nameVal = typed ? typed.value : (LS.get("wd-nick") || "");
   const codeVal = document.getElementById("joincode")?.value || "";
   const focus = document.activeElement && document.activeElement.id;
+  const uno = homeGame() === "uno", shown = lobbies.filter(g => (g.kind || "deal") === homeGame());
   $app.innerHTML = `
-  <header class="mast"><div><h1>Wizard's<span>Deal</span></h1>
+  <nav class="gamepick" aria-label="Choose a game"><button data-a="pickGame" data-g="deal" aria-pressed="${!uno}"><b>Wizard's Deal</b><span>Harry Potter · Monopoly Deal</span></button><button class="gp-uno" data-a="pickGame" data-g="uno" aria-pressed="${uno}"><b>Grand Line UNO</b><span>Pirates · UNO with stacking</span></button></nav>
+  ${uno ? UnoUI.mastHTML() : `<header class="mast"><div><h1>Wizard's<span>Deal</span></h1>
     <p>Collect magical items, cast spells on your friends, and be the first to finish three sets of different colours. 2 to 12 players, each on their own phone or computer, playing by the rules of Monopoly Deal: Harry Potter.</p>
     <div class="race" aria-label="First to three complete sets wins"><b class="racenum">3</b><p>Complete sets to win</p></div></div>
-    <div class="fanwrap" aria-hidden="true"><div class="fan">${FAN.map(id => cardHTML(id)).join("")}</div></div></header>
+    <div class="fanwrap" aria-hidden="true"><div class="fan">${FAN.map(id => cardHTML(id)).join("")}</div></div></header>`}
   <div class="home-grid">
     <section class="kit">
       <label class="field"><h2>Your name</h2>
-        <input type="text" id="myname" maxlength="20" placeholder="e.g. Ginny" value="${esc(nameVal)}" autocomplete="nickname">
+        <input type="text" id="myname" maxlength="20" placeholder="${uno ? "e.g. Nami" : "e.g. Ginny"}" value="${esc(nameVal)}" autocomplete="nickname">
         <p>This is how the other players will see you at the table.</p></label>
       <div class="field"><h2>Sit down at a table</h2>
-        <div class="row"><button class="btn primary" data-a="create">Create a new table</button>
+        <div class="row"><button class="btn primary" data-a="create">${uno ? "Launch a new ship" : "Create a new table"}</button>
         ${last ? `<button class="btn ghost" data-a="rejoin">Return to table <span class="code-chip">${esc(last)}</span></button>` : ""}</div>
         <div class="divider">or join with a code</div>
         <form id="joinForm" class="joinrow"><label class="lbl" for="joincode" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Game code</label><input type="text" id="joincode" maxlength="4" placeholder="ABCD" autocomplete="off" value="${esc(codeVal)}"><button class="btn">Join</button></form></div>
     </section>
-    <section class="fixtures"><header><h2>Open tables</h2><span class="lbl">${lobbies.length ? lobbies.length + " waiting" : "Live"}</span></header>
-      ${lobbies.length ? `<ul class="fixlist">${lobbies.map(g => `<li><span class="code">${esc(g.code)}</span><span class="host">${esc(g.host)}'s table<span class="seatcount">${g.count} of ${E.MAX_PLAYERS} seated</span></span><button class="btn small" data-a="joinCode" data-code="${esc(g.code)}">Join</button></li>`).join("")}</ul>`
+    <section class="fixtures"><header><h2>Open tables</h2><span class="lbl">${shown.length ? shown.length + " waiting" : "Live"}</span></header>
+      ${shown.length ? `<ul class="fixlist">${shown.map(g => `<li><span class="code">${esc(g.code)}</span><span class="host">${esc(g.host)}'s table<span class="seatcount">${g.count} of ${E.MAX_PLAYERS} seated</span></span><button class="btn small" data-a="joinCode" data-code="${esc(g.code)}">Join</button></li>`).join("")}</ul>`
         : `<p class="nofix">No open tables right now. Create one and share the code with your friends.</p>`}</section>
   </div>
-  ${refHTML()}
+  ${uno ? UnoUI.rulesHTML() : refHTML()}
   ${rankingHTML()}
-  <p class="fine">Fan-made and unofficial; not affiliated with Hasbro or Warner Bros. Item names are stand-ins where the real card names weren't available. Textures from Poly Haven and ambientCG (CC0). Spell voices made with Piper from the OpenSLR 83 UK English dataset (CC BY-SA 4.0) and LibriVox (public domain).</p>`;
+  <p class="fine">Fan-made and unofficial; not affiliated with Hasbro or Warner Bros. Item names are stand-ins where the real card names weren't available. Textures from Poly Haven and ambientCG (CC0). Spell voices made with Piper from the OpenSLR 83 UK English dataset (CC BY-SA 4.0) and LibriVox (public domain). Grand Line UNO is a fan-made game inspired by UNO and One Piece, with original artwork; not affiliated with Mattel, Eiichiro Oda, Shueisha or Toei Animation.</p>`;
   if (focus === "myname" || focus === "joincode") { const el = document.getElementById(focus); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
 }
 
@@ -964,15 +973,15 @@ function renderLobby() {
   const mine = S.players[myIdx];
   $app.innerHTML = `<div class="lobby">
     <div class="letter${renderLobby.opened === S.code ? " settled" : ""}"><div class="flap"></div><span class="seal" aria-hidden="true">W</span>
-      <span class="to">To the players at</span><span class="lettercode">${esc(S.code)}</span><span class="addr">The Great Hall · Hogwarts</span>
+      <span class="to">To the players at</span><span class="lettercode">${esc(S.code)}</span><span class="addr">${S.kind === "uno" ? "Aboard ship · The Grand Line" : "The Great Hall · Hogwarts"}</span>
       <button class="btn small" data-a="copy">Copy code</button></div>
     <p class="hint">Friends open this website on their own device, type their name, then join with this code.</p>
     <div><h2>Seated at the table · ${S.players.length}/${E.MAX_PLAYERS}</h2>
     <ul class="seats">${S.players.map((p, i) => `<li><span class="no">${i + 1}</span><b>${esc(nameOf(i))}</b><span class="tag">${p.uid === S.host ? "Table owner" : ""}${p.uid === me ? (p.uid === S.host ? " · you" : "You") : ""}</span></li>`).join("")}
-      ${S.players.length < E.MAX_PLAYERS ? `<li class="open"><span class="no">${S.players.length + 1}</span><span>Waiting for players · ${E.MAX_PLAYERS - S.players.length} more can join · ${E.decksFor(S.players.length)} deck${E.decksFor(S.players.length) > 1 ? "s" : ""} in play</span></li>` : ""}</ul></div>
+      ${S.players.length < E.MAX_PLAYERS ? `<li class="open"><span class="no">${S.players.length + 1}</span><span>Waiting for players · ${E.MAX_PLAYERS - S.players.length} more can join · ${(S.kind === "uno" ? Uno : E).decksFor(S.players.length)} deck${(S.kind === "uno" ? Uno : E).decksFor(S.players.length) > 1 ? "s" : ""} in play</span></li>` : ""}</ul></div>
     ${mine ? `<label class="namefield"><span class="lbl">Your name at the table</span><input type="text" id="nick" maxlength="20" value="${esc(typing ?? mine.nick ?? "")}"></label>` : `<p class="muted">This table is full or has started.</p>`}
-    <p class="muted">When everyone is seated, the table owner presses Start. Each player is then dealt a different character at random, with its own power: ${CHAR_KEYS.map(c => E.CHARS[c].n).join(", ")}.</p>
-    <div class="row">${isHost ? `<button class="btn primary" data-a="start" ${S.players.length < 2 ? "disabled" : ""}>Start and deal characters</button>${S.players.length < 2 ? `<span class="muted">Waiting for at least one more player…</span>` : ""}` : `<span class="muted">Waiting for ${esc(nameOf(S.players.findIndex(p => p.uid === S.host)))}, the table owner, to start…</span>`}
+    <p class="muted">${S.kind === "uno" ? "When the whole crew is aboard, the table owner presses Start. Everyone is dealt 7 cards: Grand Line UNO, with stacking." : `When everyone is seated, the table owner presses Start. Each player is then dealt a different character at random, with its own power: ${CHAR_KEYS.map(c => E.CHARS[c].n).join(", ")}.`}</p>
+    <div class="row">${isHost ? `<button class="btn primary" data-a="start" ${S.players.length < 2 ? "disabled" : ""}>${S.kind === "uno" ? "Set sail and deal" : "Start and deal characters"}</button>${S.players.length < 2 ? `<span class="muted">Waiting for at least one more player…</span>` : ""}` : `<span class="muted">Waiting for ${esc(nameOf(S.players.findIndex(p => p.uid === S.host)))}, the table owner, to start…</span>`}
       <button class="btn ghost" data-a="leaveLobby">Leave table</button></div>
     ${netDown ? `<p class="conn">Reconnecting…</p>` : ""}</div>`;
   renderLobby.opened = S.code;   // the letter unfolds once, not on every refresh
@@ -1471,6 +1480,7 @@ $app.addEventListener("click", async e => {
     case "copy": try { await navigator.clipboard.writeText(S.code); flash("Code copied", true); } catch (err) { flash("Copy didn't work here. The code is " + S.code + "."); } return;
     case "leaveLobby": { await call("leave"); LS.del("wd-last"); return goHome(); }
     case "start": return call("start");
+    case "pickGame": LS.set("wd-game", d.g); rankingList = []; render(); try { const rk = (await (await fetch(`/api/game?ranking=1${d.g === "uno" ? "&kind=uno" : ""}`, { cache: "no-store" })).json()).ranking || []; rankingList = rk; if (view === "home") renderHome(); } catch (err) {} return;
     case "again": return call("again");
     case "sel": {
       const id = num("id");
@@ -1699,15 +1709,16 @@ setInterval(() => {
   const c = S && S.status === "play" && S.clock;
   if (!c || view !== "game") return;
   const now = Date.now() + clockOffset;
-  const left = { turn: c.since != null ? c.left - (now - c.since) : c.left, resp: c.resp != null ? c.resp - now : E.RESPOND_MS };
-  const full = { turn: E.TURN_MS, resp: E.RESPOND_MS }, lowAt = { turn: 30000, resp: 10000 };
+  const EN = S.kind === "uno" ? Uno : E;
+  const left = { turn: c.since != null ? c.left - (now - c.since) : c.left, resp: c.resp != null ? c.resp - now : EN.RESPOND_MS };
+  const full = { turn: EN.TURN_MS, resp: EN.RESPOND_MS }, lowAt = { turn: S.kind === "uno" ? 10000 : 30000, resp: 10000 };
   document.querySelectorAll("[data-clock]").forEach(el => {
     const k = el.dataset.clock; el.textContent = mmss(left[k]);
     (el.closest(".tclock") || el.closest("em") || el).classList.toggle("low", left[k] <= lowAt[k]);
   });
   // tick through the last ten seconds when the clock running is yours
   const k = S.pending || S.snitch ? "resp" : "turn", sec = Math.ceil(left[k] / 1000);
-  if (window.Sfx && E.waitingOn(S).includes(mySeat()) && sec > 0 && sec <= 10 && sec !== tickSec) Sfx.tick(sec <= 5);
+  if (window.Sfx && EN.waitingOn(S).includes(mySeat()) && sec > 0 && sec <= 10 && sec !== tickSec) Sfx.tick(sec <= 5);
   tickSec = sec;
   document.querySelectorAll("[data-clockbar]").forEach(el => { const k = el.dataset.clockbar; el.style.setProperty("--p", Math.max(0, Math.min(1, left[k] / full[k])).toFixed(3)); });
 }, 250);

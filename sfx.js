@@ -67,7 +67,7 @@
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
     src.connect(f); f.connect(g);
     let last = g; if (ctx.createStereoPanner && o.pan) { const p = ctx.createStereoPanner(); p.pan.value = o.pan; g.connect(p); last = p; }
-    send(last, o.rev ?? .6);
+    send(last, o.rev ?? .6, o.bus);
     src.start(t, Math.random() * .5); src.stop(t + dur + .05);
   }
   const now = () => ctx.currentTime + .01;
@@ -216,7 +216,46 @@
     lp.type = "lowpass"; lp.frequency.value = 700; lp.Q.value = .3;
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.0075, t + 1.1); g.gain.setValueAtTime(.0075, t + len - .2); g.gain.linearRampToValueAtTime(0, t + len + 1.2);
     osc.connect(lp); lp.connect(g); send(g, .9, mBus); osc.start(t); osc.stop(t + len + 1.3); })); }
+  // At sea (UNO screens) the music turns into an original jig-like shanty in D dorian, 6/8: a bowed fiddle line over
+  // squeezebox chords on the off-beats and a plucked bass on the two strong beats.
+  const SEA_PROG = [[50, 53, 57, 62], [48, 52, 55, 60], [50, 53, 57, 62], [45, 48, 52, 57], [50, 53, 57, 62], [41, 45, 48, 53], [48, 52, 55, 60], [50, 53, 57, 62]];
+  const SEA_SCALE = [69, 71, 72, 74, 76, 77, 79, 81, 83, 84, 86];
+  const SEA_EIGHTH = .21;
+  const atSea = () => document.documentElement.dataset.game === "uno";
+  function fiddle(n, t, len, v) { const f = mtof(n), pan = (n - 77) / 16;
+    [-6, 6].forEach(dt => { const osc = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter(), l = ctx.createOscillator(), lg = ctx.createGain();
+      osc.type = "sawtooth"; osc.frequency.value = f; osc.detune.value = dt; l.frequency.value = 5.5; lg.gain.value = f * .006; l.connect(lg); lg.connect(osc.frequency);
+      lp.type = "lowpass"; lp.frequency.value = 2400; lp.Q.value = .7;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.022 * v, t + .03); g.gain.setValueAtTime(.022 * v, t + len * .7); g.gain.exponentialRampToValueAtTime(.0001, t + len + .12);
+      const pn = ctx.createStereoPanner ? ctx.createStereoPanner() : null; osc.connect(lp); lp.connect(g); let last = g; if (pn) { pn.pan.value = pan; g.connect(pn); last = pn; }
+      send(last, .7, mBus); osc.start(t); l.start(t); osc.stop(t + len + .2); l.stop(t + len + .2); }); }
+  function squeeze(ch, t, len) { ch.slice(1).forEach(n => { const osc = ctx.createOscillator(), g = ctx.createGain(), bp = ctx.createBiquadFilter();
+      osc.type = "square"; osc.frequency.value = mtof(n + 12); bp.type = "bandpass"; bp.frequency.value = 1100; bp.Q.value = .8;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.012, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + len);
+      osc.connect(bp); bp.connect(g); send(g, .5, mBus); osc.start(t); osc.stop(t + len + .05); }); }
+  function seaStep(t) {
+    const bar = Math.floor(step / 6), pos = step % 6, ch = SEA_PROG[bar % SEA_PROG.length], F = feel();
+    if (pos === 0 || pos === 3) tone(mtof((pos === 0 ? ch[0] : ch[2]) - 12), t, .32, { vol: .09, att: .004, rev: .4, bus: mBus, type: "triangle" });
+    if (pos === 1 || pos === 2 || pos === 4 || pos === 5) squeeze(ch, t, .15);
+    if (bar % 8 === 0 && pos === 0) noise(t, .5, { f: 900, to: 300, q: .6, vol: .05, rev: 1, bus: mBus });   // a wave breaks at each new verse
+    const strong = pos === 0 || pos === 3;
+    if (Math.random() < (strong ? .92 : F.dens + .1)) {
+      if (SEA_SCALE.indexOf(mNote) < 0) mNote = 74;
+      let idx = SEA_SCALE.indexOf(mNote);
+      if (strong) {
+        const tones = SEA_SCALE.filter(n => ch.some(c => (n - c) % 12 === 0) && Math.abs(n - mNote) <= 7 && n !== mNote);
+        const pool = tones.length ? tones : SEA_SCALE.filter(n => ch.some(c => (n - c) % 12 === 0));
+        mNote = pool[Math.floor(Math.random() * pool.length)];
+      } else {
+        idx = Math.max(0, Math.min(SEA_SCALE.length - 1, idx + [-1, -1, 1, 1, 2, -2][Math.floor(Math.random() * 6)]));
+        mNote = SEA_SCALE[idx];
+      }
+      fiddle(mNote, t, SEA_EIGHTH * (strong ? 1.6 : .9), strong ? 1 : .75);
+    }
+    step++;
+  }
   function scheduleStep(t) {
+    if (atSea()) return seaStep(t);
     const bar = Math.floor(step / 6), pos = step % 6, ch = PROG[bar % PROG.length], F = feel();
     if (pos === 0) {
       strings(ch, t, EIGHTH * 6);
@@ -243,7 +282,7 @@
   function pump() {
     if (!ctx || document.hidden) return;
     if (nextT < ctx.currentTime) nextT = ctx.currentTime + .1;
-    while (nextT < ctx.currentTime + .5) { scheduleStep(nextT); nextT += EIGHTH; }
+    while (nextT < ctx.currentTime + .5) { scheduleStep(nextT); nextT += atSea() ? SEA_EIGHTH : EIGHTH; }
     const want = feel().vol; if (mGain && Math.abs(mGain.gain.value - want) > .01 && !duckUntil) mGain.gain.setTargetAtTime(want, ctx.currentTime, 1.5);
     if (duckUntil && ctx.currentTime > duckUntil) duckUntil = 0;
   }

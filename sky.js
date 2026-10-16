@@ -351,7 +351,7 @@
   // shows through), cached, and crossfaded when the screen or house changes; small animations run on top.
   const scenes = {}, sdata = {};
   let curScene = "", prevScene = "", sceneMix = 1;
-  const sceneKey = () => { const sc = root.dataset.screen; return sc === "game" ? (root.dataset.house && root.dataset.house !== "hogwarts" ? root.dataset.house : "hall") : sc === "lobby" ? "hall" : "castle"; };
+  const sceneKey = () => { const sc = root.dataset.screen; if (root.dataset.game === "uno") return "sea"; return sc === "game" ? (root.dataset.house && root.dataset.house !== "hogwarts" ? root.dataset.house : "hall") : sc === "lobby" ? "hall" : "castle"; };
   const cut = (g, fn) => { g.save(); g.globalCompositeOperation = "destination-out"; g.beginPath(); fn(); g.fill(); g.restore(); };
   const gothic = (g, x, y, w, h) => { g.moveTo(x, y + h); g.lineTo(x, y + w * .55); g.quadraticCurveTo(x, y + w * .05, x + w / 2, y); g.quadraticCurveTo(x + w, y + w * .05, x + w, y + w * .55); g.lineTo(x + w, y + h); g.closePath(); };
   const roundTop = (g, x, y, w, h) => { g.moveTo(x, y + h); g.lineTo(x, y + w / 2); g.arc(x + w / 2, y + w / 2, w / 2, Math.PI, 0); g.lineTo(x + w, y + h); g.closePath(); };
@@ -611,13 +611,99 @@
     sdata[house] = d;
     return c;
   }
+  // ---- the Grand Line at sunset (UNO screens): a full painted scene; the ship, waves, gulls and glitter move on top ----
+  function paintSea() {
+    const [c, g] = layer(), small = W < 700, horizon = H * (small ? .52 : .56), sunX = W * (small ? .62 : .66), sunR = Math.min(W, H) * (small ? .1 : .085);
+    const sky = g.createLinearGradient(0, 0, 0, horizon);
+    sky.addColorStop(0, "#141737"); sky.addColorStop(.35, "#3b2b5e"); sky.addColorStop(.62, "#a8486a"); sky.addColorStop(.82, "#ee7a4c"); sky.addColorStop(1, "#ffc067");
+    g.fillStyle = sky; g.fillRect(0, 0, W, horizon + 1);
+    // the sun and its glow
+    const glow = g.createRadialGradient(sunX, horizon, 0, sunX, horizon, Math.max(W, H) * .55);
+    glow.addColorStop(0, "rgba(255,214,140,.85)"); glow.addColorStop(.12, "rgba(255,170,90,.45)"); glow.addColorStop(.4, "rgba(240,110,80,.12)"); glow.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = glow; g.fillRect(0, 0, W, horizon);
+    const sun = g.createRadialGradient(sunX, horizon - sunR * .2, 0, sunX, horizon - sunR * .2, sunR);
+    sun.addColorStop(0, "#fff6d8"); sun.addColorStop(.7, "#ffd27a"); sun.addColorStop(1, "#ffab4a");
+    g.save(); g.beginPath(); g.rect(0, 0, W, horizon); g.clip(); g.fillStyle = sun; g.beginPath(); g.arc(sunX, horizon - sunR * .2, sunR, 0, TAU); g.fill(); g.restore();
+    // long streaky clouds lit from below
+    let rr = 11; const R = () => (rr = (rr * 9301 + 49297) % 233280) / 233280;
+    for (let k = 0; k < (small ? 9 : 16); k++) {
+      const y = horizon * (.12 + R() * .7), x = R() * W, w = W * (.18 + R() * .35), h = 6 + R() * 16, lit = y / horizon;
+      const cg = g.createLinearGradient(0, y - h, 0, y + h);
+      cg.addColorStop(0, `rgba(70,40,90,${.25 + lit * .2})`); cg.addColorStop(1, `rgba(255,${Math.round(140 + lit * 60)},${Math.round(110 + lit * 30)},${.25 + lit * .45})`);
+      g.fillStyle = cg; g.beginPath(); g.ellipse(x, y, w / 2, h, 0, 0, TAU); g.fill();
+      g.beginPath(); g.ellipse(x + w * .2, y - h * .5, w * .3, h * .8, 0, 0, TAU); g.fill();
+    }
+    // a far island with palms
+    const ix = W * (small ? .14 : .2), iw = W * (small ? .3 : .22);
+    g.fillStyle = "#3a1e3e"; g.beginPath(); g.moveTo(ix - iw / 2, horizon + 1); g.quadraticCurveTo(ix - iw * .2, horizon - H * .05, ix, horizon - H * .055); g.quadraticCurveTo(ix + iw * .3, horizon - H * .05, ix + iw / 2, horizon + 1); g.closePath(); g.fill();
+    const palm = (x, y, h, lean) => { g.strokeStyle = "#2c1630"; g.lineWidth = 3; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + lean * .5, y - h * .6, x + lean, y - h); g.stroke();
+      g.fillStyle = "#2c1630"; for (let k = 0; k < 6; k++) { const a = -Math.PI / 2 + (k - 2.5) * .55; g.beginPath(); g.moveTo(x + lean, y - h); g.quadraticCurveTo(x + lean + Math.cos(a) * h * .3, y - h + Math.sin(a) * h * .3 - 6, x + lean + Math.cos(a) * h * .5, y - h + Math.sin(a) * h * .2 + 8); g.quadraticCurveTo(x + lean + Math.cos(a) * h * .25, y - h + Math.sin(a) * h * .15, x + lean, y - h); g.fill(); } };
+    palm(ix - iw * .08, horizon - H * .05, H * .07, 8); palm(ix + iw * .06, horizon - H * .052, H * .055, -6);
+    // the sea: sunset colour near the horizon, deep blue below
+    const sea = g.createLinearGradient(0, horizon, 0, H);
+    sea.addColorStop(0, "#d27a62"); sea.addColorStop(.08, "#7b4f72"); sea.addColorStop(.3, "#24406b"); sea.addColorStop(1, "#071526");
+    g.fillStyle = sea; g.fillRect(0, horizon, W, H - horizon);
+    for (let k = 0; k < 220; k++) { const y = horizon + Math.pow(R(), 1.8) * (H - horizon), w = 6 + (y - horizon) * .18 * R(); g.globalAlpha = .08 + R() * .12; g.fillStyle = R() < .5 ? "#9fc2e6" : "#02101f"; g.fillRect(R() * W, y, w, 1 + (y - horizon) / 220); }
+    g.globalAlpha = 1;
+    vignette(g, .18); edgeDark(g);
+    sdata.sea = { horizon, sunX, sunR, small, gulls: Array.from({ length: small ? 4 : 7 }, () => ({ x: R() * W, y: horizon * (.25 + R() * .45), s: .6 + R() * .8, v: 12 + R() * 18, p: R() * 6 })) };
+    return c;
+  }
+  // a pirate ship under full sail with a straw-hat skull on its sail and flag
+  function ship(x, y, s, t) {
+    const bob = Math.sin(t * .0011) * 3 * s, roll = Math.sin(t * .0009) * .025;
+    ctx.save(); ctx.translate(x, y + bob); ctx.rotate(roll); ctx.scale(s, s);
+    ctx.fillStyle = "#2a1712";
+    ctx.beginPath(); ctx.moveTo(-120, -10); ctx.lineTo(110, -14); ctx.quadraticCurveTo(140, -16, 150, -34); ctx.lineTo(156, -30); ctx.quadraticCurveTo(140, 20, 90, 26); ctx.lineTo(-90, 26); ctx.quadraticCurveTo(-118, 18, -128, -22); ctx.lineTo(-120, -10); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#c9873a"; ctx.fillRect(-112, -6, 214, 3);
+    for (let k = 0; k < 6; k++) { ctx.fillStyle = "#14090a"; ctx.beginPath(); ctx.arc(-80 + k * 32, 6, 4, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = "#e3c27a"; ctx.beginPath(); ctx.arc(154, -36, 9, 0, TAU); ctx.fill();
+    ctx.strokeStyle = "#1c0f0c"; ctx.lineWidth = 4;
+    [[-50, 150], [30, 185], [95, 120]].forEach(([mx, mh]) => { ctx.beginPath(); ctx.moveTo(mx, -12); ctx.lineTo(mx, -12 - mh); ctx.stroke(); });
+    const sail = (mx, top, w, h) => { const bel = 10 + Math.sin(t * .0016 + mx) * 2; const sg = ctx.createLinearGradient(mx - w / 2, 0, mx + w / 2, 0); sg.addColorStop(0, "#d8c6a2"); sg.addColorStop(.5, "#fff1d0"); sg.addColorStop(1, "#c9b088");
+      ctx.fillStyle = sg; ctx.beginPath(); ctx.moveTo(mx - w / 2, top); ctx.lineTo(mx + w / 2, top); ctx.quadraticCurveTo(mx + w / 2 + bel, top + h / 2, mx + w / 2, top + h); ctx.lineTo(mx - w / 2, top + h); ctx.quadraticCurveTo(mx - w / 2 + bel, top + h / 2, mx - w / 2, top); ctx.fill(); };
+    sail(-50, -150, 74, 56); sail(-50, -88, 86, 58); sail(30, -186, 84, 62); sail(30, -116, 100, 76); sail(95, -120, 58, 44);
+    ctx.save(); ctx.translate(36, -80);
+    ctx.strokeStyle = "#1a1310"; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(-18, -2); ctx.lineTo(18, 22); ctx.moveTo(18, -2); ctx.lineTo(-18, 22); ctx.stroke();
+    ctx.fillStyle = "#1a1310"; ctx.beginPath(); ctx.arc(0, 4, 12, 0, TAU); ctx.fill(); ctx.fillRect(-7, 10, 14, 9);
+    ctx.fillStyle = "#e9d9b4"; ctx.beginPath(); ctx.arc(-4.5, 4, 3, 0, TAU); ctx.arc(4.5, 4, 3, 0, TAU); ctx.fill();
+    ctx.fillStyle = "#e8b83c"; ctx.beginPath(); ctx.ellipse(0, -6, 19, 4.5, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.ellipse(0, -10, 10, 7, 0, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = "#c62b25"; ctx.fillRect(-10, -9, 20, 3);
+    ctx.restore();
+    ctx.fillStyle = "#111"; ctx.beginPath(); ctx.moveTo(30, -197);
+    for (let k = 0; k <= 6; k++) ctx.lineTo(30 + k * 6, -197 + Math.sin(t * .006 + k * .9) * 2.5);
+    for (let k = 6; k >= 0; k--) ctx.lineTo(30 + k * 6, -177 + Math.sin(t * .006 + k * .9) * 2.5);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#eee"; ctx.beginPath(); ctx.arc(48, -187 + Math.sin(t * .006 + 3) * 2.5, 4, 0, TAU); ctx.fill();
+    ctx.fillStyle = "#e8b83c"; ctx.fillRect(42, -193 + Math.sin(t * .006 + 3) * 2.5, 12, 2);
+    ctx.restore();
+  }
   function getScene(key) {
-    if (!scenes[key]) scenes[key] = key === "castle" ? paintCastle() : key === "hall" ? paintHall() : paintCommon(key);
+    if (!scenes[key]) scenes[key] = key === "sea" ? paintSea() : key === "castle" ? paintCastle() : key === "hall" ? paintHall() : paintCommon(key);
     return scenes[key];
   }
   // small motion on top of each scene
   function animScene(key, t, a) {
     const d = sdata[key]; if (!d || a <= .01) return;
+    if (key === "sea") {
+      ctx.globalAlpha = a;
+      ctx.strokeStyle = "#2a1a2e"; ctx.lineWidth = 1.6;
+      for (const gl of d.gulls) { const x = (gl.x + t * .001 * gl.v) % (W + 60) - 30, y = gl.y + Math.sin(t * .0008 + gl.p) * 8, f = Math.sin(t * .008 + gl.p) * 4 * gl.s, w = 9 * gl.s;
+        ctx.beginPath(); ctx.moveTo(x - w, y - f); ctx.quadraticCurveTo(x - w / 2, y - 3 - f / 2, x, y); ctx.quadraticCurveTo(x + w / 2, y - 3 - f / 2, x + w, y - f); ctx.stroke(); }
+      // the sun's glitter on the water
+      ctx.globalCompositeOperation = "lighter";
+      for (let k = 0; k < 34; k++) { const y = d.horizon + 3 + (k * k) * (H - d.horizon) / 1300, x = d.sunX + Math.sin(t * .0014 + k * 1.9) * (6 + k * 2.6), w = d.sunR * (.5 + k * .06) * (.6 + .4 * Math.sin(t * .003 + k));
+        ctx.globalAlpha = a * .5 * (1 - k / 38); ctx.fillStyle = "#ffd59a"; ctx.fillRect(x - w / 2, y, w, 1.6); }
+      ctx.globalCompositeOperation = "source-over";
+      // the ship, sailing slowly across
+      const span = W + 520, sx = ((t * .012) % span) - 260, sy = d.horizon + (H - d.horizon) * (d.small ? .1 : .12), sc = Math.max(.45, Math.min(1, W / 1500)) * (d.small ? .7 : 1);
+      ctx.globalAlpha = a; ship(sx, sy, sc, t);
+      // rolling swell lines in front
+      ctx.strokeStyle = "rgba(170,205,240,.16)"; ctx.lineWidth = 1.4;
+      for (let k = 0; k < 9; k++) { const y = d.horizon + (H - d.horizon) * (.2 + k * .09), amp = 3 + k * 1.2, off = t * .0006 * (1 + k * .15);
+        ctx.globalAlpha = a * (.4 + k * .05); ctx.beginPath(); for (let x = 0; x <= W; x += 18) ctx.lineTo(x, y + Math.sin(x * .012 + off + k) * amp); ctx.stroke(); }
+      ctx.globalAlpha = 1; return;
+    }
     if (key === "castle") {
       ctx.globalCompositeOperation = "lighter";
       for (let i = 0; i < d.win.length; i += 3) { const [x, y, w, h] = d.win[i], f = .5 + .5 * Math.sin(t * .0013 * (1 + i % 5) + i); ctx.globalAlpha = a * f * .45; ctx.fillStyle = "#ffd88a"; ctx.fillRect(x - w * .6, y - h * .3, w * 2.2, h * 1.6); }
@@ -699,16 +785,16 @@
       f.x += f.dir * f.v * dt / 1000;
       if ((f.dir > 0 && f.x > W + 100) || (f.dir < 0 && f.x < -100)) Object.assign(f, newFlyer(false));
     }
-    for (const f of flyers) if (f.far && f.wait <= 0) rider(f, t);
+    const atSea = curScene === "sea";
+    if (!atSea) for (const f of flyers) if (f.far && f.wait <= 0) rider(f, t);
     ctx.globalAlpha = 1;
     drawScenes(t, dt);
     const want = curScene === "hall" ? 1 : 0;
     candleAlpha += (want - candleAlpha) * (dt ? Math.min(1, dt / 400) : 1);
     if (candleAlpha > .02) { ctx.globalAlpha = candleAlpha; for (const cd of candles) candle(cd, t); ctx.globalAlpha = 1; }
-    for (const f of flyers) if (!f.far && f.wait <= 0) rider(f, t);
-    drawAtmos(t, dt);
+    if (!atSea) { for (const f of flyers) if (!f.far && f.wait <= 0) rider(f, t); drawAtmos(t, dt); }
     if (dt) moveSnitch(dt, t);
-    drawSnitch(t);
+    if (!atSea) drawSnitch(t);
     ctx.globalAlpha = 1;
   }
 
@@ -725,7 +811,7 @@
   document.addEventListener("visibilitychange", () => document.hidden ? cancelAnimationFrame(raf) : start());
   if (still.addEventListener) still.addEventListener("change", start);
   // Hold a still frame through a house change so reduced-motion screens still pick up the new colours.
-  new MutationObserver(() => { if (still.matches) setTimeout(() => { readColours(performance.now(), true); draw(performance.now(), 0); }, 950); }).observe(root, { attributes: true, attributeFilter: ["data-house"] });
+  new MutationObserver(() => { if (still.matches) setTimeout(() => { readColours(performance.now(), true); draw(performance.now(), 0); }, 950); }).observe(root, { attributes: true, attributeFilter: ["data-house", "data-game"] });
   resize();
   start();
 })();

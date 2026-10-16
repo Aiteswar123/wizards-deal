@@ -1,7 +1,10 @@
 // Wizard's Deal game server: one Vercel function that stores each table in Redis
 // and runs every move through the shared rules engine.
 require("../engine.js");
-const E = globalThis.Engine;
+require("../uno.js");
+const E = globalThis.Engine, U = globalThis.Uno;
+// Each table plays one game: Wizard's Deal (the default) or Grand Line UNO (kind "uno"). ENG picks its rules engine.
+const ENG = g => g && g.kind === "uno" ? U : E;
 
 // ---- storage: Upstash Redis over REST (Vercel Marketplace), or memory for local dev ----
 const R_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -59,6 +62,8 @@ function view(g, pid) {
   if (out.players) out.players.forEach(p => { if (p.uid !== pid && Array.isArray(p.hand)) p.hand = p.hand.map(() => -1); });
   // Moaning Myrtle's three cards are for her eyes only
   if (out.peek && out.players[out.peek.p] && out.players[out.peek.p].uid !== pid) out.peek.cards = out.peek.cards.map(() => -1);
+  // UNO: which card the player on turn just drew is theirs to know
+  if (out.kind === "uno" && out.drew != null && out.players[out.turn] && out.players[out.turn].uid !== pid) out.drew = -1;
   return out;
 }
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -70,13 +75,15 @@ async function lobbies() {
   if (!codes || !codes.length) return [];
   const docs = await redis(["MGET", ...codes.slice(0, 30).map(key)]);
   return docs.map(d => d && JSON.parse(d)).filter(g => g && g.status === "lobby" && g.players.length < E.MAX_PLAYERS)
-    .map(g => ({ code: g.code, host: (g.players.find(p => p.uid === g.host) || {}).nick || "A wizard", count: g.players.length }));
+    .map(g => ({ code: g.code, kind: g.kind || "deal", host: (g.players.find(p => p.uid === g.host) || {}).nick || "A wizard", count: g.players.length }));
 }
 
 // ---- ranking: one shared record of every player, matched by name (ignoring capitals and spaces) ----
 const RANK_KEY = "wd:ranking";
+// UNO has its own Hall of Fame
+const rankKey = kind => kind === "uno" ? "wd:uno:ranking" : RANK_KEY;
 const profileKey = nick => String(nick || "").trim().toLowerCase().replace(/s+/g, " ");
-async function loadRanking() { const v = await redis(["GET", RANK_KEY]); return v ? JSON.parse(v) : {}; }
+async function loadRanking(kind) { const v = await redis(["GET", rankKey(kind)]); return v ? JSON.parse(v) : {}; }
 // One-time corrections to records made under older EXP rules. Each runs once, marked done by its own key.
 const RANK_FIXES = [
   // The winner's +10 per player beyond 2 was removed; the one game won before that was a 7-player game (+50).
@@ -101,10 +108,10 @@ async function fixRanking() {
 async function recordGame(g) {
   if (g.status !== "over" || g.recorded) return;
   await fixRanking();
-  const list = E.awards(g);
+  const list = ENG(g).awards(g);
   g.recorded = true; g.awards = list;
-  await withLock("RANKING", async () => {
-    const r = await loadRanking();
+  await withLock(g.kind === "uno" ? "UNORANK" : "RANKING", async () => {
+    const r = await loadRanking(g.kind);
     for (const a of list) {
       const k = profileKey(a.nick); if (!k) continue;
       const p = r[k] || { name: a.nick, xp: 0, games: 0, wins: 0 };
@@ -113,12 +120,12 @@ async function recordGame(g) {
       a.total = p.xp; a.level = E.levelFor(p.xp).level; a.levelUp = a.level > before;
       r[k] = p;
     }
-    await redis(["SET", RANK_KEY, JSON.stringify(r)]);
+    await redis(["SET", rankKey(g.kind), JSON.stringify(r)]);
   });
 }
-async function ranking() {
-  await fixRanking();
-  const r = await loadRanking();
+async function ranking(kind) {
+  if (kind !== "uno") await fixRanking();
+  const r = await loadRanking(kind);
   return Object.values(r).sort((a, b) => b.xp - a.xp || b.wins - a.wins).slice(0, 100)
     .map(p => Object.assign({ name: p.name, xp: p.xp, games: p.games, wins: p.wins }, E.levelFor(p.xp)));
 }
@@ -126,10 +133,10 @@ async function ranking() {
 // Applies anything the turn clock says has run out (a turn ending, an unanswered spell) and saves it.
 // Every device polls about once a second, so time runs out on schedule even if nobody acts.
 async function settleClock(code, g) {
-  if (!g || !E.expire(g, Date.now())) return g;
+  if (!g || !ENG(g).expire(g, Date.now())) return g;
   return withLock(code, async () => {
     const cur = await load(code);
-    const next = cur && E.expire(cur, Date.now());
+    const next = cur && ENG(cur).expire(cur, Date.now());
     if (!next) return cur;
     next.tokens = cur.tokens; next.v = (cur.v || 0) + 1; next.updated = Date.now();
     await recordGame(next);
@@ -142,7 +149,7 @@ async function handle(req) {
   const q = req.method === "GET" ? req.query : (req.body || {});
   if (req.method === "GET") {
     if (q.list) return { lobbies: await lobbies() };
-    if (q.ranking) return { ranking: await ranking() };
+    if (q.ranking) return { ranking: await ranking(q.kind === "uno" ? "uno" : "deal") };
     const code = String(q.code || "").toUpperCase();
     const g = await settleClock(code, await load(code));
     if (!g) return { gone: true };
@@ -159,7 +166,7 @@ async function handle(req) {
       code = Array.from({ length: 4 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join("");
       if (!(await load(code))) break;
     }
-    const g = { status: "lobby", code, host: pid, created: Date.now(), v: 1, players: [{ uid: pid, nick: cleanNick(q.nick) }], tokens: { [pid]: token } };
+    const g = { status: "lobby", kind: q.kind === "uno" ? "uno" : undefined, code, host: pid, created: Date.now(), v: 1, players: [{ uid: pid, nick: cleanNick(q.nick) }], tokens: { [pid]: token } };
     await save(code, g);
     await redis(["ZADD", "wd:lobbies", String(g.created), code]);
     return { game: view(g, pid) };
@@ -171,7 +178,7 @@ async function handle(req) {
   return withLock(code, async () => {
     const loaded = await load(code);
     if (!loaded) throw Object.assign(new Error(`No game with code ${code}.`), { status: 404 });
-    const g = E.expire(loaded, Date.now()) || loaded;   // anything overdue happens before this move
+    const g = ENG(loaded).expire(loaded, Date.now()) || loaded;   // anything overdue happens before this move
     if (g !== loaded) g.v = (loaded.v || 0) + 1;
     g.tokens = g.tokens || {};
     const seat = g.players.findIndex(p => p.uid === pid);
@@ -183,7 +190,7 @@ async function handle(req) {
       case "join":
         if (seat < 0) {
           if (g.status !== "lobby") return { game: view(g, pid), watching: true };
-          if (g.players.length >= E.MAX_PLAYERS) fail(`That table is full (${E.MAX_PLAYERS} players).`);
+          if (g.players.length >= ENG(g).MAX_PLAYERS) fail(`That table is full (${ENG(g).MAX_PLAYERS} players).`);
           g.players.push({ uid: pid, nick: cleanNick(q.nick) }); g.tokens[pid] = token;
         }
         break;
@@ -201,17 +208,17 @@ async function handle(req) {
       case "start":
         if (g.host !== pid || g.status !== "lobby") fail("Only the table owner can start the game.");
         if (g.players.length < 2) fail("You need at least 2 players.");
-        next = Object.assign({ code, host: g.host, created: g.created, tokens: g.tokens }, E.newGame(g.players));
+        next = Object.assign({ code, host: g.host, created: g.created, tokens: g.tokens }, ENG(g).newGame(g.players), g.kind ? { kind: g.kind } : {});
         await redis(["ZREM", "wd:lobbies", code]);
         break;
       case "again":
         if (g.host !== pid || g.status !== "over") fail("Only the table owner can start a rematch.");
-        next = { status: "lobby", recorded: false, code, host: g.host, created: Date.now(), tokens: g.tokens, players: g.players.map(p => ({ uid: p.uid, nick: p.nick })) };
+        next = { status: "lobby", kind: g.kind, recorded: false, code, host: g.host, created: Date.now(), tokens: g.tokens, players: g.players.map(p => ({ uid: p.uid, nick: p.nick })) };
         await redis(["ZADD", "wd:lobbies", String(next.created), code]);
         break;
       case "act": {
         if (seat < 0) fail("You're watching this game.");
-        const r = E.apply(g, seat, q.action || {});
+        const r = ENG(g).apply(g, seat, q.action || {});
         if (r.error) fail(r.error);
         next = r.state; next.tokens = g.tokens;
         break;
@@ -219,7 +226,7 @@ async function handle(req) {
       default: fail("Unknown request.");
     }
     const before = next === g ? JSON.parse(JSON.stringify(g)) : g;
-    E.syncClock(before, next, Date.now());
+    ENG(next).syncClock(before, next, Date.now());
     next.v = (g.v || 0) + 1; next.updated = Date.now();
     await recordGame(next);
     await save(code, next);
