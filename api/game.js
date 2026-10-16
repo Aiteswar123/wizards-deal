@@ -77,9 +77,30 @@ async function lobbies() {
 const RANK_KEY = "wd:ranking";
 const profileKey = nick => String(nick || "").trim().toLowerCase().replace(/s+/g, " ");
 async function loadRanking() { const v = await redis(["GET", RANK_KEY]); return v ? JSON.parse(v) : {}; }
+// One-time corrections to records made under older EXP rules. Each runs once, marked done by its own key.
+const RANK_FIXES = [
+  // The winner's +10 per player beyond 2 was removed; the one game won before that was a 7-player game (+50).
+  { id: "winner-flat-100", xp: { ryuzzzzz: -50 } }
+];
+async function fixRanking() {
+  if (fixRanking.done) return;
+  for (const f of RANK_FIXES) {
+    const flag = "wd:fix:" + f.id;
+    if (await redis(["GET", flag])) continue;
+    await withLock("RANKING", async () => {
+      if (await redis(["GET", flag])) return;
+      const r = await loadRanking();
+      for (const [k, d] of Object.entries(f.xp)) if (r[k]) r[k].xp = Math.max(0, r[k].xp + d);
+      await redis(["SET", RANK_KEY, JSON.stringify(r)]);
+      await redis(["SET", flag, String(Date.now())]);
+    });
+  }
+  fixRanking.done = true;
+}
 // Adds a finished game's EXP to everyone's record, once per game.
 async function recordGame(g) {
   if (g.status !== "over" || g.recorded) return;
+  await fixRanking();
   const list = E.awards(g);
   g.recorded = true; g.awards = list;
   await withLock("RANKING", async () => {
@@ -96,6 +117,7 @@ async function recordGame(g) {
   });
 }
 async function ranking() {
+  await fixRanking();
   const r = await loadRanking();
   return Object.values(r).sort((a, b) => b.xp - a.xp || b.wins - a.wins).slice(0, 100)
     .map(p => Object.assign({ name: p.name, xp: p.xp, games: p.games, wins: p.wins }, E.levelFor(p.xp)));
