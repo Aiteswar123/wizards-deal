@@ -1,11 +1,21 @@
-// Grand Line UNO: the crew of the Sunwake, an original pirate crew, one per number card 0 to 9. They appear in the
+// Grand Line UNO: the crew of the Sunwake, an original pirate crew, one per number card 0 to 9. They wear the crew's
+// own gear: a midnight-navy flight jacket with teal light piping, a coral chevron and the Sunwake badge (a sun rising
+// over a wave), and some carry comm headsets. They appear in the
 // photo box of each wanted poster. Every portrait is a chibi bust in a 100 x 82 box, sized to the poster's photo.
 (function () {
   "use strict";
   const INK = "#24170e", SKIN = "#f6cfa6", SKIN_S = "#e2a97c", TAN = "#d9a172", DARK = "#8a5a3c";
   const O = `stroke="${INK}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"`;
   const neck = (s = SKIN) => `<path d="M43 52v11h14V52" fill="${s}" ${O}/><path d="M43 57c4 2 10 2 14 0" stroke="${SKIN_S}" stroke-width="2" fill="none" opacity=".7"/>`;
-  const torso = (fill, extra = "") => `<path d="M12 82c2-13 16-20 38-20s36 7 38 20z" fill="${fill}" ${O}/>${extra}`;
+  // the crew jacket; each pirate's own colour shows as the shirt underneath
+  const BADGE = `<g transform="translate(66 73)"><circle r="5.4" fill="#ffd23f" stroke="${INK}" stroke-width="1.4"/><path d="M-3.4 1a3.4 3.4 0 0 1 6.8 0z" fill="#ff7a3d"/><path d="M-4.4 1.2h8.8" stroke="${INK}" stroke-width="1.1"/><path d="M-4 3.4c1.4-1.2 2.6-1.2 4 0s2.6 1.2 4 0" stroke="#1f6fd1" stroke-width="1.3" fill="none"/></g>`;
+  const torso = (fill, extra = "") => `<path d="M12 82c2-13 16-20 38-20s36 7 38 20z" fill="#1b2440" ${O}/>` +
+    `<path d="M40 62l10 14 10-14z" fill="${fill}" ${O}/>` +
+    `<path d="M36 62c-6 1-10 4-12 8l6 2c2-3 5-5 8-6zM64 62c6 1 10 4 12 8l-6 2c-2-3-5-5-8-6z" fill="#2c3a63" ${O}/>` +
+    `<path d="M22 72l8 10M78 72l-8 10M50 76v6" stroke="#3fe8d6" stroke-width="1.8" stroke-linecap="round"/>` +
+    `<path d="M29 74l4-3 4 3" stroke="#ff6b5a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>` + BADGE;
+  // a comm headset over the head
+  const HEADSET = `<path d="M31 39c0-15 8-23 19-23s19 8 19 23" stroke="#e9eef2" stroke-width="3.2" fill="none" stroke-linecap="round"/><path d="M31 39c0-15 8-23 19-23s19 8 19 23" stroke="${INK}" stroke-width="1" fill="none" opacity=".5"/><rect x="26.5" y="35" width="8" height="13" rx="3.5" fill="#ff6b5a" stroke="${INK}" stroke-width="1.8"/><rect x="65.5" y="35" width="8" height="13" rx="3.5" fill="#ff6b5a" stroke="${INK}" stroke-width="1.8"/><path d="M30 47c2 6 6 8 11 8" stroke="#e9eef2" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="42" cy="55" r="1.8" fill="#3fe8d6" stroke="${INK}" stroke-width=".8"/>`;
   const head = (s = SKIN) => `<path d="M33 38c0-13 7-21 17-21s17 8 17 21c0 11-7 19-17 19s-17-8-17-19z" fill="${s}" ${O}/>`;
   const ears = (s = SKIN) => `<ellipse cx="32.5" cy="41" rx="3.2" ry="4.4" fill="${s}" ${O}/><ellipse cx="67.5" cy="41" rx="3.2" ry="4.4" fill="${s}" ${O}/>`;
   const eye = (x, y = 40, c = INK, rx = 2.5, ry = 3.4) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${c}"/><circle cx="${x + .8}" cy="${y - 1.2}" r=".95" fill="#fff"/>`;
@@ -33,7 +43,7 @@
       `<path d="M33 27h34" stroke="#5a3a20" stroke-width="3.5"/><circle cx="43" cy="26" r="4.6" fill="#9fd8f0" ${O}/><circle cx="57" cy="26" r="4.6" fill="#9fd8f0" ${O}/><path d="M41.5 24.5l2 2M55.5 24.5l2 2" stroke="#fff" stroke-width="1.4"/>` +
       eye(43, 40, "#3a2a1a", 2.6, 3.6) + eye(57, 40, "#3a2a1a", 2.6, 3.6) +
       `<g fill="${DARK}" opacity=".55"><circle cx="40" cy="46" r=".9"/><circle cx="43" cy="47" r=".9"/><circle cx="57" cy="47" r=".9"/><circle cx="60" cy="46" r=".9"/></g>` +
-      line("M45 50q5 3.5 10 0", 2)) },
+      line("M45 50q5 3.5 10 0", 2) + HEADSET) },
     // the bosun: bald with an anchor tattoo, a full dark beard, a hook, a striped shirt
     { name: "Bastian Ironhook", art: svg(
       torso("#f4efe2", `<path d="M18 72h64M15 78h70" stroke="#1d3f7a" stroke-width="3.5"/>`) +
@@ -49,7 +59,7 @@
       `<path d="M30 34c0-16 9-24 20-24s20 8 20 24z" fill="#c92a24" ${O}/><path d="M30 34h40v5H30z" fill="#e8574a" ${O}/><path d="M36 14c-4-6 0-10 4-8" stroke="${INK}" stroke-width="2" fill="#c92a24"/><circle cx="37" cy="9" r="4" fill="#f4efe2" ${O}/>` +
       eye(43, 44) + eye(57, 44) +
       `<g fill="#c9784a"><circle cx="40" cy="49" r="1"/><circle cx="43" cy="50" r="1"/><circle cx="57" cy="50" r="1"/><circle cx="60" cy="49" r="1"/></g>` +
-      `<path d="M42 51q8 7 16 0z" fill="#fff" ${O}/><path d="M50 51v3.5" stroke="${INK}" stroke-width="1.6"/>`) },
+      `<path d="M42 51q8 7 16 0z" fill="#fff" ${O}/><path d="M50 51v3.5" stroke="${INK}" stroke-width="1.6"/>` + HEADSET) },
     // the sharpshooter: a lilac bob, a brass scope-glass over one eye, a high black collar
     { name: "Selene Vex", art: svg(
       `<path d="M30 40c0-18 9-25 20-25s20 7 20 25v12H30z" fill="#a98bd8" ${O}/>` +
@@ -74,7 +84,7 @@
       `<path d="M33 30c4-6 10-8 17-8s13 2 17 8z" fill="#2a1a14" ${O}/>` +
       `<rect x="36" y="24" width="28" height="9" rx="4.5" fill="rgba(170,230,255,.6)" stroke="#2c6a8a" stroke-width="2.6"/><path d="M33 28h3M64 28h3" stroke="#2c6a8a" stroke-width="2.6"/>` +
       `<path d="M62 18l6-3 2 6z" fill="#f29a9a" stroke="${INK}" stroke-width="1.4"/>` +
-      eye(43, 41) + eye(57, 41) + line("M45 49q5 3 10 0", 2)) },
+      eye(43, 41) + eye(57, 41) + line("M45 49q5 3 10 0", 2) + HEADSET) },
     // the ship's doctor: hair in a bun, round spectacles, a white coat, a stethoscope
     { name: "Dr. Juno Pell", art: svg(
       `<circle cx="50" cy="15" r="7" fill="#5a2e1a" ${O}/>` +
@@ -90,7 +100,7 @@
       neck() + ears() + head() +
       `<path d="M30 32c2-10 10-14 20-14s20 4 22 14c-8-2-14-2-22-2s-14 0-20 2z" fill="#6b5a3a" ${O}/><path d="M28 32c8-3 16-4 26-4" stroke="${INK}" stroke-width="2.2" fill="none"/>` +
       eye(43, 40, INK, 2, 2.4) + eye(57, 40, INK, 2, 2.4) +
-      `<path d="M50 47c-3 0-6 3-11 1 1 3 6 4 11 0 5 4 10 3 11 0-5 2-8-1-11-1z" fill="#3a2a1a" stroke="${INK}" stroke-width="1.2"/>`) },
+      `<path d="M50 47c-3 0-6 3-11 1 1 3 6 4 11 0 5 4 10 3 11 0-5 2-8-1-11-1z" fill="#3a2a1a" stroke="${INK}" stroke-width="1.2"/>` + HEADSET) },
     // the ship's parrot, with a little blue bandana
     { name: "Moko the Parrot", art: svg(
       `<path d="M22 82c4-18 14-26 28-26s24 8 28 26z" fill="#2f9a52" ${O}/><path d="M30 78c6-8 12-12 20-12" stroke="#1f6a38" stroke-width="2.2" fill="none"/><path d="M70 78c-6-8-12-12-20-12" stroke="#1f6a38" stroke-width="2.2" fill="none"/>` +

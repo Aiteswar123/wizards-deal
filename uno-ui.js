@@ -255,7 +255,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     if (id == null || id < 0) return `<${g} class="ucard uback ${o.cls || ""}" ${o.attrs || ""}><span class="fl">${ROSE}${SKULL()}</span><span class="bt2">GRAND LINE</span><span class="bt">UNO</span></${g}>`;
     const c = U.card(id), K = U.KINDS[c.v], pip = K ? PIP[c.v] : c.v;
     // a player's own picture for this number (Card art, this browser only) takes the photo box; otherwise the Sunwake crew
-    const mine = !K && window.UnoArt ? UnoArt.get(+c.v) : null, crew = !K && window.UnoCrew ? UnoCrew[+c.v] : null;
+    const mine = !K && window.UnoArt ? UnoArt.get(+c.v) || (window.UnoPhoto ? UnoPhoto.forCard(+c.v) : null) : null, crew = !K && window.UnoCrew ? UnoCrew[+c.v] : null;
     const who = K ? K.alias : mine && mine.name ? mine.name : crew ? crew.name : U.COLORS[c.c].sea;
     return `<${g} class="ucard c-${c.c} v-${c.v} ${o.cls || ""}" ${o.attrs || ""} aria-label="${esc(U.label(id))}"><span class="pw">
         <span class="wt">WANTED</span>
@@ -323,7 +323,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       const k = v >= 0 ? (i - v + n) % n : i, [x, y] = seatPos(k, n, phone), on = S.status === "play" && S.turn === i, cnt = p.hand.length;
       const catchable = S.unoMiss === i && i !== v && v >= 0;
       return `<div class="useat${on ? " on" : ""}" data-p="${i}" style="left:${x}%;top:${y}%;--fc:${FLAG_COLORS[i % 12]}">
-        <span class="flag">${flagFor(i)}</span><span class="nm">${i === v ? "You" : esc(nameOf(i))}</span>
+        <span class="flag">${window.UnoPhoto && UnoPhoto.src(i) ? `<img class="pface" src="${UnoPhoto.src(i)}" alt="">` : flagFor(i)}</span><span class="nm">${i === v ? "You" : esc(nameOf(i))}</span>
         ${i !== v ? `<span class="fanb">${Array.from({ length: Math.min(cnt, 8) }, () => "<i></i>").join("")}</span>` : ""}
         <span class="cc">${cnt} card${cnt === 1 ? "" : "s"}${on && S.clock ? ` · <span data-clock="turn">1:00</span>` : ""}</span>
         ${cnt === 1 && S.unoMiss !== i ? `<span class="unob">UNO!</span>` : ""}
@@ -350,7 +350,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const ov = hand.length > 14 ? -46 : hand.length > 9 ? -34 : hand.length > 6 ? -24 : -12;
     const last = S.log[S.log.length - 1] || "";
     $app.innerHTML = `<div class="ugame">
-      <header class="board"><div class="board-top"><span class="mark">Grand Line UNO</span><span class="tcode"><span class="tl2">Table </span><b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}${window.UnoArt ? UnoArt.button() : ""}${window.Radio ? Radio.button() : ""}${sndBtn()}<button class="btn ghost small" data-a="home">Leave table</button></div>
+      <header class="board"><div class="board-top"><span class="mark">Grand Line UNO</span><span class="tcode"><span class="tl2">Table </span><b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}${window.UnoPhoto && v >= 0 ? UnoPhoto.button() : ""}${window.UnoArt ? UnoArt.button() : ""}${window.Radio ? Radio.button() : ""}${sndBtn()}<button class="btn ghost small" data-a="home">Leave table</button></div>
         <div class="uticker">${fmt(last)}</div></header>
       <section class="udeck${n >= 7 ? " many" : ""}" aria-label="The table">
         ${seats}
@@ -377,7 +377,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
   }
   function winHTML(v) {
     const w = S.winner, aw = (S.awards || []).slice().sort((a, b) => a.place - b.place);
-    return `<div class="uwin"><div class="poster"><div class="w">WANTED</div><div class="bty">Winner of the voyage</div><div class="who">${w === v ? "You" : esc(nameOf(w))}</div>
+    return `<div class="uwin"><div class="poster"><div class="w">WANTED</div>${window.UnoPhoto && UnoPhoto.src(w) ? `<img class="wface" src="${UnoPhoto.src(w)}" alt="">` : ""}<div class="bty">Winner of the voyage</div><div class="who">${w === v ? "You" : esc(nameOf(w))}</div>
       ${aw.length ? `<ol>${aw.map(a => `<li><b>${a.place}</b><span>${a.p === v ? "You" : esc(nameOf(a.p))}<small>${a.place === 1 ? "Emptied their hand" : `${a.left} points left in hand`} · ${a.played} cards played</small></span>
         <span class="xp">+${a.xp} EXP${a.level ? `<small>Level ${a.level}${a.levelUp ? ` <span class="lvup">Level up!</span>` : ""}</small>` : ""}</span></li>`).join("")}</ol>` : ""}
       <div class="row">${S.host === me ? `<button class="btn primary" data-a="again">Set sail again</button>` : `<span class="muted">The table owner can start a rematch.</span>`}<button class="btn" data-a="home">Leave table</button></div></div></div>`;

@@ -709,6 +709,7 @@ html[data-screen=game] .sndfix{display:none}
 <script src="uno.js"></script>
 <script src="uno-crew.js"></script>
 <script src="uno-art.js"></script>
+<script src="uno-photo.js"></script>
 <script src="uno-ui.js"></script>
 <script>
 "use strict";
@@ -793,7 +794,7 @@ async function pollLobbies() {
   }
 }
 function gotState() {
-  if (window.Sfx && S && S.players) { const n = S.players.length; if (S.status === "lobby" && gotState.code === S.code && n > gotState.n) Sfx.join(); gotState.n = n; gotState.code = S.code; } if (window.CutIn && S && S.kind !== "uno") { window.CutIn.reveal(S, nameOf, mySeat()); window.CutIn.observe(S, nameOf, mySeat()); } }
+  if (window.Sfx && S && S.players) { const n = S.players.length; if (S.status === "lobby" && gotState.code === S.code && n > gotState.n) Sfx.join(); gotState.n = n; gotState.code = S.code; } if (window.UnoPhoto && S && S.kind === "uno") UnoPhoto.sync(); if (window.CutIn && S && S.kind !== "uno") { window.CutIn.reveal(S, nameOf, mySeat()); window.CutIn.observe(S, nameOf, mySeat()); } }
 function enter(c) { code = c; poll(); }
 function goHome() { pollGen++; code = null; S = null; view = "home"; ui = freshUI(); if (window.UnoUI) UnoUI.reset(); render(); pollLobbies(); }
 // Which game the home page shows: Wizard's Deal or Grand Line UNO, remembered per device.
@@ -994,6 +995,7 @@ function renderLobby() {
       <span class="to">To the players at</span><span class="lettercode">${esc(S.code)}</span><span class="addr">${S.kind === "uno" ? "Aboard ship · The Grand Line" : "The Great Hall · Hogwarts"}</span>
       <button class="btn small" data-a="copy">Copy code</button></div>
     <p class="hint">Friends open this website on their own device, type their name, then join with this code.</p>
+    ${S.kind === "uno" && window.UnoPhoto && mySeat() >= 0 ? UnoPhoto.lobbyHTML() : ""}
     <div><h2>Seated at the table · ${S.players.length}/${E.MAX_PLAYERS}</h2>
     <ul class="seats">${S.players.map((p, i) => `<li><span class="no">${i + 1}</span><b>${esc(nameOf(i))}</b><span class="tag">${p.uid === S.host ? "Table owner" : ""}${p.uid === me ? (p.uid === S.host ? " · you" : "You") : ""}</span></li>`).join("")}
       ${S.players.length < E.MAX_PLAYERS ? `<li class="open"><span class="no">${S.players.length + 1}</span><span>Waiting for players · ${E.MAX_PLAYERS - S.players.length} more can join · ${(S.kind === "uno" ? Uno : E).decksFor(S.players.length)} deck${(S.kind === "uno" ? Uno : E).decksFor(S.players.length) > 1 ? "s" : ""} in play</span></li>` : ""}</ul></div>

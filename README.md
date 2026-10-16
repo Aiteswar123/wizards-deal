@@ -22,6 +22,7 @@ Fan-made and unofficial; not affiliated with Hasbro or Warner Bros. Some item ca
 | `uno-ui.js` | Grand Line UNO's table screen, cards and home-page pieces |
 | `uno-crew.js` | The crew of the Sunwake: portraits on the number cards' wanted posters |
 | `uno-art.js` | Card art: each player's own pictures on the number cards, kept in their browser |
+| `uno-photo.js` | Crew photos: players' own photos on seats, a claimed card and the winner's poster, shared at the table |
 | `radio.js` | The ship's radio: your own songs, or the official soundtrack via Spotify's player |
 | `sfx.js` | Sound effects, spoken spells and generative music |
 | `api/game.js` | Vercel serverless function: tables, moves, hidden hands |

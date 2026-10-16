@@ -39,6 +39,10 @@ function memRedis([op, ...a]) {
 }
 
 const TTL = 60 * 60 * 48;
+// Crew photos: each player's own small JPEG for a table, kept beside the table (not in it, so polls stay light).
+const photoKey = (code, uid) => "wd:photo:" + code + ":" + uid;
+const PHOTO_MAX = 90000;   // characters of data URL, about 65 KB of JPEG
+const okPhoto = d => typeof d === "string" && d.length <= PHOTO_MAX && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(d);
 const key = code => "wd:game:" + code;
 const load = async code => { const v = await redis(["GET", key(code)]); return v ? JSON.parse(v) : null; };
 const save = (code, g) => redis(["SET", key(code), JSON.stringify(g), "EX", String(TTL)]);
@@ -163,6 +167,12 @@ async function handle(req) {
   const q = req.method === "GET" ? req.query : (req.body || {});
   if (req.method === "GET") {
     if (q.list) return { lobbies: await lobbies() };
+    // a player's crew photo at a table (UNO): fetched once per version and cached by the browser
+    if (q.photo) {
+      const code = String(q.code || "").toUpperCase(), uid = String(q.uid || "");
+      if (!/^[A-Z]{4}$/.test(code) || !okId(uid)) return { photo: null };
+      return { photo: await redis(["GET", photoKey(code, uid)]) };
+    }
     if (q.ranking) return { ranking: await ranking(q.kind === "uno" || q.kind === "all" ? q.kind : "deal") };
     const code = String(q.code || "").toUpperCase();
     const g = await settleClock(code, await load(code));
@@ -223,13 +233,31 @@ async function handle(req) {
         if (g.host !== pid || g.status !== "lobby") fail("Only the table owner can start the game.");
         if (g.players.length < 2) fail("You need at least 2 players.");
         next = Object.assign({ code, host: g.host, created: g.created, tokens: g.tokens }, ENG(g).newGame(g.players), g.kind ? { kind: g.kind } : {});
+        next.players.forEach((p, i) => { if (g.players[i].photoV) p.photoV = g.players[i].photoV; if (g.players[i].card != null) p.card = g.players[i].card; });
         await redis(["ZREM", "wd:lobbies", code]);
         break;
       case "again":
         if (g.host !== pid || g.status !== "over") fail("Only the table owner can start a rematch.");
-        next = { status: "lobby", kind: g.kind, recorded: false, code, host: g.host, created: Date.now(), tokens: g.tokens, players: g.players.map(p => ({ uid: p.uid, nick: p.nick })) };
+        next = { status: "lobby", kind: g.kind, recorded: false, code, host: g.host, created: Date.now(), tokens: g.tokens, players: g.players.map(p => Object.assign({ uid: p.uid, nick: p.nick }, p.photoV ? { photoV: p.photoV } : {}, p.card != null ? { card: p.card } : {})) };
         await redis(["ZADD", "wd:lobbies", String(next.created), code]);
         break;
+      case "photo": {
+        if (seat < 0) fail("You're not at this table.");
+        if (q.data == null) { await redis(["DEL", photoKey(code, pid)]); delete g.players[seat].photoV; break; }
+        if (!okPhoto(q.data)) fail("That photo is too large or not a JPEG.");
+        await redis(["SET", photoKey(code, pid), q.data, "EX", String(TTL)]);
+        g.players[seat].photoV = Date.now();
+        break;
+      }
+      case "card": {
+        if (seat < 0) fail("You're not at this table.");
+        const n = q.n == null ? null : +q.n;
+        if (n != null && !(Number.isInteger(n) && n >= 0 && n <= 9)) fail("Pick a number from 0 to 9.");
+        const other = n == null ? -1 : g.players.findIndex((p, i) => i !== seat && p.card === n);
+        if (other >= 0) fail(`${g.players[other].nick || "Another player"} already has card ${n}.`);
+        if (n == null) delete g.players[seat].card; else g.players[seat].card = n;
+        break;
+      }
       case "act": {
         if (seat < 0) fail("You're watching this game.");
         const r = ENG(g).apply(g, seat, q.action || {});

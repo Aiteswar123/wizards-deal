@@ -44,7 +44,7 @@ html[data-game=uno] .sndfix .artbtn{display:inline-grid}
   document.body.appendChild(dlg);
   const C = { n: null, img: null, scale: 1, min: 1, x: 0, y: 0, name: "" };
 
-  function refresh() { if (window.S && S.kind === "uno" && window.UnoUI && typeof render === "function") render(); else if (typeof render === "function") render(); }
+  function refresh() { if (typeof render === "function") render(); }
   function slotsHTML() {
     const U = window.Uno, cols = "rygbrygbry";
     return `<header><h3>Card art</h3><button class="x" data-c="close" aria-label="Close">${'<svg viewBox="0 0 24 24" aria-hidden="true">' + ICON_X + "</svg>"}</button></header>
