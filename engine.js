@@ -54,7 +54,7 @@
     luna:     { n: "Luna Lovegood",    d: "Draw three cards at the start of your turn instead of two." },
     cedric:   { n: "Cedric Diggory",   d: "You may draw your cards from the top of the discard pile instead." },
     lupin:    { n: "Remus Lupin",      d: "At the start of your turn you may skip drawing. If you do, you can play up to 5 cards this turn." },
-    hagrid:   { n: "Rubeus Hagrid",    d: "At the start of your turn, copy another player's character power for this turn (not Cho's Snitch). A power you copy can't be copied again for your next 3 turns." },
+    hagrid:   { n: "Rubeus Hagrid",    d: "At the start of your turn, copy another player's character power for this turn (not Cho's Snitch). A copied Harry keeps guarding your colour until your next turn. A power you copy can't be copied again for your next 3 turns." },
     umbridge: { n: "Dolores Umbridge", d: "Any player with more complete sets than you can play at most 2 cards on their turn." },
     cho:      { n: "Cho Chang",        d: "Catch the Snitch, twice per game: when a player would win by completing their third set, send the card that completed it back to their hand." },
     ron:      { n: "Ron Weasley",      d: "At the start of your turn, draw one card from the pile and one at random from an opponent's hand of your choice." },
@@ -101,8 +101,9 @@
   const rent = (p, col) => { const n = Math.min(colCount(p, col), COLORS[col].size); return n ? COLORS[col].rent[n - 1] : 0; };
   const bankTotal = p => p.bank.reduce((s, id) => s + card(id).val, 0);
   const worth = p => bankTotal(p) + p.table.reduce((s, t) => s + card(t.c).val, 0);
-  // Harry's own power, or Hagrid on a turn he copied it
-  const harryGuards = (p, col) => has(p, "harry") && p.harryCol === col;
+  // who is guarding a colour: Harry, or Hagrid from the turn he copies Harry until the start of his next turn
+  const guarding = p => has(p, "harry") || (active(p, "hagrid") && !!p.harryCarry);
+  const harryGuards = (p, col) => guarding(p) && p.harryCol === col;
   const canTake = (target, entry, thief) => !harryGuards(target, entry.col) && (!complete(target, entry.col) || has(thief, "draco"));
   const canBanish = (target, entry) => !harryGuards(target, entry.col) && !complete(target, entry.col);
   // character powers that change numbers
@@ -303,8 +304,12 @@
           if (ids.length !== extra || new Set(ids).size !== extra || !ids.every(id => P.hand.includes(id))) return fail(`Discard exactly ${extra} card${extra > 1 ? "s" : ""} first.`);
           ids.forEach(id => { take(P.hand, id); s.discard.push(id); });
         }
+        // Hagrid's copy of Harry keeps guarding his colour through everyone else's turns
+        P.harryCarry = active(P, "hagrid") && P.copy === "harry" && !!P.harryCol;
         P.turnPlays = 0; P.copy = null; P.peeved = false; P.turnNo = (P.turnNo || 0) + 1;
         s.turn = (s.turn + 1) % s.players.length; s.drew = false; s.plays = 0;
+        // ...and stops when his own next turn begins
+        const N = s.players[s.turn]; if (N.harryCarry) { N.harryCarry = false; if (N.char !== "harry") N.harryCol = null; }
         log(s, `@${s.turn}'s turn.`);
         break;
       }
@@ -631,5 +636,5 @@
     return { level, into: xp - floor, need };
   }
 
-  G.Engine = { XP, awards, levelFor, BASE, MAX_PLAYERS, decksFor, handLimit, has, copyReady, umbridgeLimits, TURN_MS, RESPOND_MS, autoPay, syncClock, expire, COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, payable, harryGuards, newGame, apply, waitingOn, shuffle };
+  G.Engine = { XP, awards, levelFor, BASE, MAX_PLAYERS, decksFor, handLimit, has, guarding, copyReady, umbridgeLimits, TURN_MS, RESPOND_MS, autoPay, syncClock, expire, COLORS, COLOR_KEYS, SPELLS, CHARS, CARDS, PAY_KINDS, card, isItem, colsFor, active, maxPlays, colCount, complete, completeCols, rent, bankTotal, worth, canTake, canBanish, canObliviate, payable, harryGuards, newGame, apply, waitingOn, shuffle };
 })(typeof window !== "undefined" ? window : globalThis);

@@ -1087,7 +1087,7 @@ function whoHTML(i, you) {
   return `<div class="who">${shield(p.char)}<div style="min-width:0"><b>${esc(nameOf(i))}${you ? " (you)" : ""}</b><small>${E.CHARS[p.char].n} · ${houseOf(p.char).n}${p.petrified != null ? ` · <span class="frozen">Frozen</span>` : ""}</small></div></div>`;
 }
 function statsHTML(p) {
-  return `<div class="stats"><span title="${p.hand.length} cards in hand"><span class="minihand">${p.hand.slice(0, 10).map(() => "<i></i>").join("")}</span><b>${p.hand.length}</b> in hand</span><span><b>${E.completeCols(p).length}</b> of 3 sets</span>${p.char === "harry" && p.harryCol ? `<span>${swatch(p.harryCol)}guarded</span>` : ""}</div>`;
+  return `<div class="stats"><span title="${p.hand.length} cards in hand"><span class="minihand">${p.hand.slice(0, 10).map(() => "<i></i>").join("")}</span><b>${p.hand.length}</b> in hand</span><span><b>${E.completeCols(p).length}</b> of 3 sets</span>${E.guarding(p) && p.harryCol ? `<span>${swatch(p.harryCol)}guarded</span>` : ""}</div>`;
 }
 
 // Seats around the table: [plate x, plate y, played x, played y] in % of the table, for wide and narrow screens, by number of opponents.
@@ -1333,7 +1333,7 @@ function charControls(v) {
   const P = S.players[v];
   if (S.status !== "play" || S.turn !== v || S.pending) return "";
   let h = "";
-  if (E.has(P, "harry")) h += `<label class="harrypick">Protect <select id="harrycol"><option value="">choose a colour</option>${E.COLOR_KEYS.map(c => `<option value="${c}"${P.harryCol === c ? " selected" : ""}>${colName(c)}</option>`).join("")}</select></label>`;
+  if (E.has(P, "harry")) h += `<label class="harrypick">Protect <select id="harrycol"><option value="">choose a colour</option>${E.COLOR_KEYS.map(c => `<option value="${c}"${P.harryCol === c ? " selected" : ""}>${colName(c)}</option>`).join("")}</select></label>${P.char === "hagrid" ? `<p class="muted" style="font-size:.84rem;margin-top:.3rem">Copied from Harry: this colour stays guarded until your next turn.</p>` : ""}`;
   if (P.petrified != null && ui.mode !== "unpetrify") h += `<div style="margin-top:.6rem"><button class="btn small" data-a="unpetMode">Break free (discard 10+ points)</button></div>`;
   return h;
 }
