@@ -538,6 +538,10 @@ input::placeholder{color:var(--dim);opacity:1}
 .paybtn b{font:800 1rem/1 var(--display)}
 .paybtn:hover{border-color:var(--chalk)}
 .paybtn[aria-pressed=true]{background:var(--chalk);color:var(--board);border-color:var(--chalk)}
+.paybtn > span{display:flex;flex-direction:column;gap:.1rem;line-height:1.15}
+.paybtn small{font-size:.74rem;color:var(--muted)}
+.paybtn[aria-pressed=true] small{color:inherit;opacity:.75}
+.paybtn .sw{margin-right:0;flex:none;width:.9em;height:.9em;box-shadow:0 0 0 1px rgba(255,255,255,.35)}
 .sw{display:inline-block;width:.75em;height:.75em;border-radius:2px;margin-right:.4em;vertical-align:-.02em}
 .stamp{display:inline-block;font:800 .95rem/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--bad);border:2px solid currentColor;border-radius:3px;padding:.3rem .5rem;transform:rotate(-4deg);align-self:flex-start}
 .handwrap{min-width:0}
@@ -1413,8 +1417,11 @@ function respondHTML(v, pd, t) {
     const allValuable = owned.filter(id => E.card(id).val > 0).every(id => ui.pay.includes(id));
     const ok = sum >= t.amt || allValuable;
     return `<h3>You owe ${t.amt}</h3><p>${caster} cast ${spellLabel(pd)}.</p>${prot ? `<div class="opts">${prot}</div>` : ""}
-      ${owned.length ? `<p class="muted" style="font-size:.92rem">Choose what to pay with from your bank and table:</p><div class="paylist">${owned.map(id => { const c = E.card(id); const e = P.table.find(x => x.c === id);
-        return `<button class="paybtn" data-a="payToggle" data-id="${id}" aria-pressed="${ui.pay.includes(id)}"><b>${c.val}</b>${esc(e ? (c.type === "item" ? c.name : "Wild (" + colName(e.col) + ")") : c.name)}</button>`; }).join("")}</div>`
+      ${owned.length ? `<p class="muted" style="font-size:.92rem">Choose what to pay with from your bank and table:</p><div class="paylist">${owned
+        // bank first, then table items grouped by their colour set, so you can see which sets you'd be breaking
+        .map(id => [id, P.table.find(x => x.c === id)]).sort((a, b) => (a[1] ? E.COLOR_KEYS.indexOf(a[1].col) : -1) - (b[1] ? E.COLOR_KEYS.indexOf(b[1].col) : -1))
+        .map(([id, e]) => { const c = E.card(id), name = e ? (c.type === "item" ? c.name : "Wild") : c.name;
+        return `<button class="paybtn" data-a="payToggle" data-id="${id}" aria-pressed="${ui.pay.includes(id)}"><b>${c.val}</b>${e ? swatch(e.col) : ""}<span>${esc(name)}<small>${e ? `${colName(e.col)} set${E.complete(P, e.col) ? " · complete" : ""}` : "Bank"}</small></span></button>`; }).join("")}</div>`
         : `<p class="muted">You have nothing in your bank or on the table${guarded.length ? " that you can pay with" : ""}, so you pay nothing.</p>`}
       ${guarded.length ? `<p class="muted" style="font-size:.88rem"><span class="guard"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5l5.5 2v4.2c0 3.2-2.3 5.6-5.5 6.8-3.2-1.2-5.5-3.6-5.5-6.8V3.5z"/></svg>Protected by Harry</span> Your ${colName(P.harryCol)} items are safe: you never have to pay with them.</p>` : ""}
       <div class="row"><button class="btn primary" data-a="pay" ${ok ? "" : "disabled"}>Pay ${sum}${sum < t.amt && ok ? " (all you have)" : ""}</button>${sum > t.amt ? `<span class="muted" style="font-size:.88rem">No change is given.</span>` : ""}</div>`;
