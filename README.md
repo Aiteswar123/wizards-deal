@@ -20,6 +20,7 @@ Fan-made and unofficial; not affiliated with Hasbro or Warner Bros. Some item ca
 | `engine.js` | The rules engine, shared by the browser and the server |
 | `uno.js` | Grand Line UNO's rules engine, shared the same way |
 | `uno-ui.js` | Grand Line UNO's table screen, cards and home-page pieces |
+| `uno-crew.js` | The crew portraits on the number cards' wanted posters |
 | `sfx.js` | Sound effects, spoken spells and generative music |
 | `api/game.js` | Vercel serverless function: tables, moves, hidden hands |
 | `dev.js` | Local dev server with an in-memory store (not deployed) |

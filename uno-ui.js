@@ -41,6 +41,9 @@
   background:radial-gradient(circle,rgba(0,0,0,.2) 28%,transparent 31%) 0 0/calc(var(--w)*.045) calc(var(--w)*.045),radial-gradient(120% 90% at 50% 35%,var(--cl),var(--cc) 55%,var(--cd))}
 .ucard.c-w .ph{background:radial-gradient(circle,rgba(0,0,0,.22) 28%,transparent 31%) 0 0/calc(var(--w)*.045) calc(var(--w)*.045),conic-gradient(from 45deg,#e2493c 0 25%,#3a7ee0 0 50%,#38a862 0 75%,#f4c13a 0)}
 .ucard .ph svg{width:96%;height:96%;filter:drop-shadow(0 calc(var(--w)*.012) 0 rgba(0,0,0,.35))}
+.ucard .ph.crew{place-items:end center}
+.ucard .ph.crew svg{width:100%;height:100%;filter:none}
+.ucard .numc{position:absolute;right:calc(var(--w)*.015);bottom:calc(var(--w)*-.035);font:400 calc(var(--w)*.26)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.014) var(--ink);paint-order:stroke fill;text-shadow:calc(var(--w)*.012) calc(var(--w)*.016) 0 rgba(0,0,0,.45);transform:rotate(-6deg)}
 .ucard .num{font:400 calc(var(--w)*.5)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.016) var(--ink);paint-order:stroke fill;
   text-shadow:calc(var(--w)*.018) calc(var(--w)*.026) 0 rgba(0,0,0,.4);transform:rotate(-4deg);margin-top:calc(var(--w)*.02)}
 .ucard .doa{position:absolute;left:0;right:0;top:calc(var(--w)*.875);text-align:center;font:400 calc(var(--w)*.066)/1 "Alfa Slab One",serif;letter-spacing:.08em;color:var(--ink)}
@@ -209,10 +212,10 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const g = o.tag || "div";
     if (id == null || id < 0) return `<${g} class="ucard uback ${o.cls || ""}" ${o.attrs || ""}><span class="fl">${SKULL()}</span><span class="bt2">GRAND LINE</span><span class="bt">UNO</span></${g}>`;
     const c = U.card(id), K = U.KINDS[c.v], pip = K ? PIP[c.v] : c.v;
-    const who = K ? K.alias : U.COLORS[c.c].sea;
+    const crew = !K && window.UnoCrew ? UnoCrew[+c.v] : null, who = K ? K.alias : crew ? crew.name : U.COLORS[c.c].sea;
     return `<${g} class="ucard c-${c.c} v-${c.v} ${o.cls || ""}" ${o.attrs || ""} aria-label="${esc(U.label(id))}"><span class="pw">
         <span class="wt">WANTED</span>
-        <span class="ph">${K ? ART[c.v] : `<span class="num">${c.v}</span>`}</span>
+        <span class="ph${crew ? " crew" : ""}">${K ? ART[c.v] : crew ? `${crew.art}<span class="numc">${c.v}</span>` : `<span class="num">${c.v}</span>`}</span>
         <span class="doa">DEAD OR ALIVE</span><span class="who" style="--ws:${who.length > 13 ? .056 : who.length > 10 ? .068 : .092}">${esc(who.toUpperCase())}</span>
         <span class="bty">${BERRY}${bounty(id)}</span><span class="mar">MARINE</span></span>
       <span class="pip tl">${pip}</span></${g}>`;
