@@ -633,8 +633,40 @@
       g.fillStyle = cg; g.beginPath(); g.ellipse(x, y, w / 2, h, 0, 0, TAU); g.fill();
       g.beginPath(); g.ellipse(x + w * .2, y - h * .5, w * .3, h * .8, 0, 0, TAU); g.fill();
     }
+    // a sky island: a bank of cumulus lit gold from below, with an island, a little temple and a palm riding on top
+    const kx = W * (small ? .3 : .4), ky = horizon * (small ? .2 : .2), kr = Math.min(W, H) * (small ? .07 : .06);
+    for (let k = 0; k < 14; k++) {
+      const a = k / 14 * Math.PI, x = kx + Math.cos(a) * kr * 2.4 * (R() * .3 + .85), y = ky - Math.sin(a) * kr * .55 + kr * .2, r = kr * (.45 + R() * .45);
+      const cg = g.createRadialGradient(x, y - r * .4, r * .1, x, y, r);
+      cg.addColorStop(0, "rgba(255,240,226,.95)"); cg.addColorStop(.6, "rgba(255,190,170,.85)"); cg.addColorStop(1, "rgba(200,120,150,.0)");
+      g.fillStyle = cg; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    }
+    g.fillStyle = "rgba(255,170,120,.55)"; g.beginPath(); g.ellipse(kx, ky + kr * .55, kr * 2.6, kr * .28, 0, 0, TAU); g.fill();
+    g.fillStyle = "#4d3a5c"; g.beginPath(); g.moveTo(kx - kr * 1.1, ky - kr * .45); g.quadraticCurveTo(kx - kr * .2, ky - kr * 1.05, kx + kr * .9, ky - kr * .45); g.closePath(); g.fill();
+    g.fillStyle = "#5c4668"; g.fillRect(kx - kr * .28, ky - kr * 1.05, kr * .5, kr * .32);
+    g.beginPath(); g.moveTo(kx - kr * .36, ky - kr * 1.05); g.lineTo(kx - kr * .03, ky - kr * 1.32); g.lineTo(kx + kr * .3, ky - kr * 1.05); g.fill();
+    g.strokeStyle = "#4d3a5c"; g.lineWidth = 2; g.beginPath(); g.moveTo(kx + kr * .55, ky - kr * .6); g.quadraticCurveTo(kx + kr * .6, ky - kr * 1, kx + kr * .75, ky - kr * 1.25); g.stroke();
+    g.fillStyle = "#4d3a5c"; for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + (k - 2) * .6; g.beginPath(); g.ellipse(kx + kr * .75 + Math.cos(a) * kr * .16, ky - kr * 1.25 + Math.sin(a) * kr * .1, kr * .2, kr * .05, a, 0, TAU); g.fill(); }
+    // the Red Line: the wall of red rock that rings the world, rising off the left of the horizon, with Reverse Mountain
+    // and the four streams of sea water climbing its face
+    const rx1 = W * (small ? .46 : .36), rtop = horizon - horizon * (small ? .26 : .3), mx = rx1 * .6, mtop = rtop - horizon * .14;
+    const rg = g.createLinearGradient(0, mtop, 0, horizon);
+    rg.addColorStop(0, "#c25a4c"); rg.addColorStop(.35, "#8e3440"); rg.addColorStop(1, "#4f2546");
+    g.fillStyle = rg; g.beginPath(); g.moveTo(-4, horizon + 1); g.lineTo(-4, rtop + 6);
+    for (let x = 0; x <= rx1 * .92; x += Math.max(3, W * .008)) {
+      const nearM = Math.max(0, 1 - Math.abs(x - mx) / (rx1 * .32)), peak = (1 - Math.cos(nearM * Math.PI)) / 2;
+      g.lineTo(x, rtop + (R() - .5) * 5 - peak * (rtop - mtop));
+    }
+    g.quadraticCurveTo(rx1 * .97, rtop + 4, rx1, horizon + 1); g.closePath(); g.fill();
+    g.strokeStyle = "rgba(40,10,30,.25)"; g.lineWidth = 1;
+    for (let k = 0; k < 40; k++) { const x = R() * rx1 * .95; g.beginPath(); g.moveTo(x, rtop + 10 + R() * 20); g.lineTo(x + (R() - .5) * 6, horizon - R() * 10); g.stroke(); }
+    g.strokeStyle = "rgba(170,225,255,.6)"; g.lineWidth = Math.max(1, W / 1100);
+    for (let k = 0; k < 4; k++) { const bx = mx - rx1 * .16 + k * rx1 * .105; g.beginPath(); g.moveTo(bx, horizon - 2); g.quadraticCurveTo(bx + (mx - bx) * .3, rtop + (horizon - rtop) * .3, mx + (k - 1.5) * 2, mtop + 4); g.stroke(); }
+    const mist = g.createLinearGradient(0, rtop, 0, horizon);
+    mist.addColorStop(0, "rgba(255,180,140,0)"); mist.addColorStop(1, "rgba(255,170,130,.42)");
+    g.fillStyle = mist; g.fillRect(0, rtop, rx1 + 4, horizon - rtop + 1);
     // a far island with palms
-    const ix = W * (small ? .14 : .2), iw = W * (small ? .3 : .22);
+    const ix = W * (small ? .86 : .86), iw = W * (small ? .26 : .16);
     g.fillStyle = "#3a1e3e"; g.beginPath(); g.moveTo(ix - iw / 2, horizon + 1); g.quadraticCurveTo(ix - iw * .2, horizon - H * .05, ix, horizon - H * .055); g.quadraticCurveTo(ix + iw * .3, horizon - H * .05, ix + iw / 2, horizon + 1); g.closePath(); g.fill();
     const palm = (x, y, h, lean) => { g.strokeStyle = "#2c1630"; g.lineWidth = 3; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + lean * .5, y - h * .6, x + lean, y - h); g.stroke();
       g.fillStyle = "#2c1630"; for (let k = 0; k < 6; k++) { const a = -Math.PI / 2 + (k - 2.5) * .55; g.beginPath(); g.moveTo(x + lean, y - h); g.quadraticCurveTo(x + lean + Math.cos(a) * h * .3, y - h + Math.sin(a) * h * .3 - 6, x + lean + Math.cos(a) * h * .5, y - h + Math.sin(a) * h * .2 + 8); g.quadraticCurveTo(x + lean + Math.cos(a) * h * .25, y - h + Math.sin(a) * h * .15, x + lean, y - h); g.fill(); } };
@@ -649,7 +681,7 @@
     sdata.sea = { horizon, sunX, sunR, small, gulls: Array.from({ length: small ? 4 : 7 }, () => ({ x: R() * W, y: horizon * (.25 + R() * .45), s: .6 + R() * .8, v: 12 + R() * 18, p: R() * 6 })) };
     return c;
   }
-  // a pirate ship under full sail, the Sunwake, with its bandana skull on the main sail and a black flag
+  // a pirate ship under full sail, with a lion figurehead and a straw hat Jolly Roger on the main sail and the black flag
   function ship(x, y, s, t) {
     const bob = Math.sin(t * .0011) * 3 * s, roll = Math.sin(t * .0009) * .025;
     ctx.save(); ctx.translate(x, y + bob); ctx.rotate(roll); ctx.scale(s, s);
@@ -657,25 +689,87 @@
     ctx.beginPath(); ctx.moveTo(-120, -10); ctx.lineTo(110, -14); ctx.quadraticCurveTo(140, -16, 150, -34); ctx.lineTo(156, -30); ctx.quadraticCurveTo(140, 20, 90, 26); ctx.lineTo(-90, 26); ctx.quadraticCurveTo(-118, 18, -128, -22); ctx.lineTo(-120, -10); ctx.closePath(); ctx.fill();
     ctx.fillStyle = "#c9873a"; ctx.fillRect(-112, -6, 214, 3);
     for (let k = 0; k < 6; k++) { ctx.fillStyle = "#14090a"; ctx.beginPath(); ctx.arc(-80 + k * 32, 6, 4, 0, TAU); ctx.fill(); }
-    ctx.fillStyle = "#e3c27a"; ctx.beginPath(); ctx.arc(154, -36, 9, 0, TAU); ctx.fill();
+    // the figurehead: a lion's head in a sunburst mane
+    ctx.fillStyle = "#e8742a"; for (let k = 0; k < 12; k++) { const a = k / 12 * TAU; ctx.beginPath(); ctx.ellipse(156 + Math.cos(a) * 9, -38 + Math.sin(a) * 9, 5, 2.6, a, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = "#f6c64a"; ctx.beginPath(); ctx.arc(156, -38, 8, 0, TAU); ctx.fill();
+    ctx.fillStyle = "#3a1e10"; ctx.beginPath(); ctx.arc(153, -40, 1.3, 0, TAU); ctx.arc(159, -40, 1.3, 0, TAU); ctx.fill(); ctx.fillRect(154.5, -36, 3, 1.4);
     ctx.strokeStyle = "#1c0f0c"; ctx.lineWidth = 4;
     [[-50, 150], [30, 185], [95, 120]].forEach(([mx, mh]) => { ctx.beginPath(); ctx.moveTo(mx, -12); ctx.lineTo(mx, -12 - mh); ctx.stroke(); });
     const sail = (mx, top, w, h) => { const bel = 10 + Math.sin(t * .0016 + mx) * 2; const sg = ctx.createLinearGradient(mx - w / 2, 0, mx + w / 2, 0); sg.addColorStop(0, "#d8c6a2"); sg.addColorStop(.5, "#fff1d0"); sg.addColorStop(1, "#c9b088");
       ctx.fillStyle = sg; ctx.beginPath(); ctx.moveTo(mx - w / 2, top); ctx.lineTo(mx + w / 2, top); ctx.quadraticCurveTo(mx + w / 2 + bel, top + h / 2, mx + w / 2, top + h); ctx.lineTo(mx - w / 2, top + h); ctx.quadraticCurveTo(mx - w / 2 + bel, top + h / 2, mx - w / 2, top); ctx.fill(); };
     sail(-50, -150, 74, 56); sail(-50, -88, 86, 58); sail(30, -186, 84, 62); sail(30, -116, 100, 76); sail(95, -120, 58, 44);
-    ctx.save(); ctx.translate(36, -80);
-    ctx.strokeStyle = "#1a1310"; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(-18, -2); ctx.lineTo(18, 22); ctx.moveTo(18, -2); ctx.lineTo(-18, 22); ctx.stroke();
-    ctx.fillStyle = "#1a1310"; ctx.beginPath(); ctx.arc(0, 4, 12, 0, TAU); ctx.fill(); ctx.fillRect(-7, 10, 14, 9);
-    ctx.fillStyle = "#e9d9b4"; ctx.beginPath(); ctx.arc(-4.5, 4, 3, 0, TAU); ctx.arc(4.5, 4, 3, 0, TAU); ctx.fill();
-    ctx.fillStyle = "#c8281e"; ctx.beginPath(); ctx.moveTo(-12, -4); ctx.quadraticCurveTo(-11, -16, 0, -16); ctx.quadraticCurveTo(11, -16, 12, -4); ctx.quadraticCurveTo(0, -8, -12, -4); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(11, -10); ctx.lineTo(19, -13); ctx.lineTo(16, -7); ctx.lineTo(21, -5); ctx.lineTo(13, -5); ctx.closePath(); ctx.fill();
-    ctx.restore();
-    ctx.fillStyle = "#111"; ctx.beginPath(); ctx.moveTo(30, -197);
-    for (let k = 0; k <= 6; k++) ctx.lineTo(30 + k * 6, -197 + Math.sin(t * .006 + k * .9) * 2.5);
-    for (let k = 6; k >= 0; k--) ctx.lineTo(30 + k * 6, -177 + Math.sin(t * .006 + k * .9) * 2.5);
+    // the main sail carries a straw hat Jolly Roger: crossbones and a grinning skull in ink, wearing a straw hat
+    ctx.save(); ctx.translate(30, -76); strawSkull(ctx, 1, "#1a1310", "#fff1d0"); ctx.restore();
+    // and the same on the black flag at the masthead
+    const wv = k => Math.sin(t * .006 + k * .9) * 2.5;
+    ctx.fillStyle = "#111"; ctx.beginPath(); ctx.moveTo(30, -199);
+    for (let k = 0; k <= 7; k++) ctx.lineTo(30 + k * 6, -199 + wv(k));
+    for (let k = 7; k >= 0; k--) ctx.lineTo(30 + k * 6, -175 + wv(k));
     ctx.closePath(); ctx.fill();
-    ctx.fillStyle = "#eee"; ctx.beginPath(); ctx.arc(48, -187 + Math.sin(t * .006 + 3) * 2.5, 4, 0, TAU); ctx.fill();
-    ctx.fillStyle = "#c8281e"; ctx.fillRect(43, -192.5 + Math.sin(t * .006 + 3) * 2.5, 10, 2);
+    ctx.save(); ctx.translate(51, -186 + wv(3.5)); strawSkull(ctx, .42, "#f1ead8", "#111"); ctx.restore();
+    ctx.restore();
+  }
+  // a straw hat skull and crossbones, centred on the skull; ink is the bone colour, hole the colour behind it
+  function strawSkull(g, s, ink, hole) {
+    g.save(); g.scale(s, s);
+    g.strokeStyle = ink; g.lineWidth = 5; g.lineCap = "round";
+    g.beginPath(); g.moveTo(-20, -6); g.lineTo(20, 24); g.moveTo(20, -6); g.lineTo(-20, 24); g.stroke();
+    g.fillStyle = ink; for (const [x, y] of [[-20, -6], [20, -6], [-20, 24], [20, 24]]) { g.beginPath(); g.arc(x - 2, y, 3.2, 0, TAU); g.arc(x + 2, y, 3.2, 0, TAU); g.fill(); }
+    g.beginPath(); g.arc(0, 4, 12.5, 0, TAU); g.fill(); g.fillRect(-7.5, 10, 15, 9);
+    g.fillStyle = hole; g.beginPath(); g.ellipse(-4.8, 4, 3.4, 3.8, 0, 0, TAU); g.ellipse(4.8, 4, 3.4, 3.8, 0, 0, TAU); g.fill();
+    g.beginPath(); g.ellipse(0, 10, 1.4, 1.8, 0, 0, TAU); g.fill();
+    g.fillRect(-6, 15, 12, 1.2); for (let k = -1; k <= 1; k++) g.fillRect(k * 3.3 - .5, 13.5, 1, 5);
+    // the straw hat: a wide brim and a round crown with a red band
+    g.fillStyle = "#f2c14e"; g.beginPath(); g.ellipse(0, -7, 19, 4.2, 0, 0, TAU); g.fill();
+    g.beginPath(); g.moveTo(-10, -7); g.quadraticCurveTo(-10, -20, 0, -20); g.quadraticCurveTo(10, -20, 10, -7); g.closePath(); g.fill();
+    g.fillStyle = "#c8281e"; g.fillRect(-10, -10.5, 20, 3.2);
+    g.restore();
+  }
+  // a News Coo: a gull in a cap with a satchel of newspapers, flapping across the sunset
+  function newsCoo(x, y, f, s) {
+    ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+    ctx.strokeStyle = "#2a1a2e"; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(-11, -f); ctx.quadraticCurveTo(-6, -4 - f / 2, -2, -1); ctx.moveTo(11, -f); ctx.quadraticCurveTo(6, -4 - f / 2, 2, -1); ctx.stroke();
+    ctx.fillStyle = "#f1e9de"; ctx.beginPath(); ctx.ellipse(0, 0, 5, 3, 0, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.arc(5, -2, 2.3, 0, TAU); ctx.fill();
+    ctx.fillStyle = "#f2a31c"; ctx.beginPath(); ctx.moveTo(7, -2); ctx.lineTo(10, -1.4); ctx.lineTo(7, -.6); ctx.fill();
+    ctx.fillStyle = "#2c4a8a"; ctx.beginPath(); ctx.arc(5, -3.2, 2, Math.PI, 0); ctx.fill(); ctx.fillRect(5, -3.6, 3.2, .9);
+    ctx.fillStyle = "#8a5a2b"; ctx.fillRect(-3, 1.6, 4.4, 3.4);
+    ctx.fillStyle = "#efe6d0"; ctx.fillRect(-2.4, .8, 3.2, 1.2);
+    ctx.restore();
+  }
+  // a Sea King: every half minute or so a vast serpent rises out of the water, arches its coils, and sinks again
+  function seaKing(d, t, a) {
+    const cyc = 28000, p = ((t + 9000) % cyc) / cyc, e = p < .12 ? p / .12 : p < .5 ? 1 : p < .62 ? 1 - (p - .5) / .12 : 0;
+    if (e <= 0) return;
+    const ease = e * e * (3 - 2 * e), y0 = d.horizon + (H - d.horizon) * (d.small ? .4 : .34), x0 = W * (d.small ? .18 : .24), s = Math.max(.7, Math.min(1.25, W / 1200));
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.beginPath(); ctx.rect(0, 0, W, y0); ctx.clip();
+    ctx.translate(x0, y0 + (1 - ease) * 140 * s); ctx.scale(s, s);
+    const sway = Math.sin(t * .0012) * 4;
+    const body = ctx.createLinearGradient(0, -150, 0, 0); body.addColorStop(0, "#5b4a86"); body.addColorStop(1, "#2a2350");
+    // two coils arching out of the sea behind the neck
+    ctx.lineCap = "round";
+    for (const [cx, r] of [[110, 26], [175, 18]]) { ctx.strokeStyle = "#2f2858"; ctx.lineWidth = 20 * r / 26; ctx.beginPath(); ctx.arc(cx, 4, r, Math.PI, 0); ctx.stroke();
+      ctx.strokeStyle = "rgba(255,170,120,.35)"; ctx.lineWidth = 4 * r / 26; ctx.beginPath(); ctx.arc(cx, 4, r + 6 * r / 26, Math.PI * 1.15, Math.PI * 1.6); ctx.stroke(); }
+    // the neck and its dorsal fin
+    ctx.strokeStyle = body; ctx.lineWidth = 30; ctx.beginPath(); ctx.moveTo(20, 6); ctx.quadraticCurveTo(-10 + sway, -70, 26 + sway, -128); ctx.stroke();
+    ctx.fillStyle = "#c2566e"; ctx.beginPath(); ctx.moveTo(30, -10); for (let k = 0; k <= 6; k++) ctx.lineTo(36 + k * 1.5 + sway * k / 6, -18 - k * 17 + (k % 2 ? -8 : 6)); ctx.lineTo(22 + sway, -118); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = "rgba(255,190,140,.4)"; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(8, 0); ctx.quadraticCurveTo(-22 + sway, -70, 14 + sway, -122); ctx.stroke();
+    // the head: a long snout, a glowing eye, a jaw of teeth and a fin crest
+    ctx.save(); ctx.translate(26 + sway, -134); ctx.rotate(-.18 + Math.sin(t * .0009) * .05);
+    ctx.fillStyle = "#4a3c78"; ctx.beginPath(); ctx.moveTo(-18, 8); ctx.quadraticCurveTo(-20, -18, 8, -20); ctx.quadraticCurveTo(46, -18, 62, -4); ctx.quadraticCurveTo(40, 2, 8, 6); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#3a2f64"; ctx.beginPath(); ctx.moveTo(-14, 8); ctx.quadraticCurveTo(20, 20, 56, 4); ctx.quadraticCurveTo(30, 6, 0, 4); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#fff4dc"; for (let k = 0; k < 6; k++) { ctx.beginPath(); ctx.moveTo(14 + k * 7, 4); ctx.lineTo(17 + k * 7, 10); ctx.lineTo(20 + k * 7, 4); ctx.fill(); }
+    ctx.fillStyle = "#c2566e"; ctx.beginPath(); ctx.moveTo(-14, -10); ctx.lineTo(-34, -30); ctx.lineTo(-10, -20); ctx.lineTo(-22, -40); ctx.lineTo(4, -20); ctx.closePath(); ctx.fill();
+    const eg = ctx.createRadialGradient(14, -8, 0, 14, -8, 8); eg.addColorStop(0, "#fff7b0"); eg.addColorStop(.5, "#ffc93c"); eg.addColorStop(1, "rgba(255,170,40,0)");
+    ctx.fillStyle = eg; ctx.beginPath(); ctx.arc(14, -8, 8, 0, TAU); ctx.fill();
+    ctx.fillStyle = "#1a1030"; ctx.beginPath(); ctx.ellipse(14, -8, 1.2, 3, 0, 0, TAU); ctx.fill();
+    ctx.restore();
+    ctx.restore();
+    // foam where it breaks the surface
+    ctx.save(); ctx.globalAlpha = a * ease * .55; ctx.strokeStyle = "#e6f2ff"; ctx.lineWidth = 1.5;
+    for (const [fx, fw] of [[20, 26], [110, 34], [175, 24]]) { ctx.beginPath(); ctx.ellipse(x0 + fx * s, y0, (fw + Math.sin(t * .004 + fx) * 3) * s, 3.5 * s, 0, 0, TAU); ctx.stroke(); }
     ctx.restore();
   }
   function getScene(key) {
@@ -688,8 +782,9 @@
     if (key === "sea") {
       ctx.globalAlpha = a;
       ctx.strokeStyle = "#2a1a2e"; ctx.lineWidth = 1.6;
-      for (const gl of d.gulls) { const x = (gl.x + t * .001 * gl.v) % (W + 60) - 30, y = gl.y + Math.sin(t * .0008 + gl.p) * 8, f = Math.sin(t * .008 + gl.p) * 4 * gl.s, w = 9 * gl.s;
-        ctx.beginPath(); ctx.moveTo(x - w, y - f); ctx.quadraticCurveTo(x - w / 2, y - 3 - f / 2, x, y); ctx.quadraticCurveTo(x + w / 2, y - 3 - f / 2, x + w, y - f); ctx.stroke(); }
+      d.gulls.forEach((gl, i) => { const x = (gl.x + t * .001 * gl.v) % (W + 60) - 30, y = gl.y + Math.sin(t * .0008 + gl.p) * 8, f = Math.sin(t * .008 + gl.p) * 4 * gl.s, w = 9 * gl.s;
+        if (i < 2) return newsCoo(x, y, f, gl.s * 1.5);
+        ctx.beginPath(); ctx.moveTo(x - w, y - f); ctx.quadraticCurveTo(x - w / 2, y - 3 - f / 2, x, y); ctx.quadraticCurveTo(x + w / 2, y - 3 - f / 2, x + w, y - f); ctx.stroke(); });
       // the sun's glitter on the water
       ctx.globalCompositeOperation = "lighter";
       for (let k = 0; k < 34; k++) { const y = d.horizon + 3 + (k * k) * (H - d.horizon) / 1300, x = d.sunX + Math.sin(t * .0014 + k * 1.9) * (6 + k * 2.6), w = d.sunR * (.5 + k * .06) * (.6 + .4 * Math.sin(t * .003 + k));
@@ -698,6 +793,17 @@
       // the ship, sailing slowly across
       const span = W + 520, sx = ((t * .012) % span) - 260, sy = d.horizon + (H - d.horizon) * (d.small ? .1 : .12), sc = Math.max(.45, Math.min(1, W / 1500)) * (d.small ? .7 : 1);
       ctx.globalAlpha = a; ship(sx, sy, sc, t);
+      // a Sea King surfaces now and then, nearer than the ship
+      seaKing(d, t, a);
+      // a straw hat drifting on the swell
+      const hx = W + 80 - ((t * .006) % (W + 160)), hy = d.horizon + (H - d.horizon) * .62 + Math.sin(t * .0013) * 4, hs = Math.max(.6, Math.min(1.2, W / 1100));
+      ctx.globalAlpha = a; ctx.save(); ctx.translate(hx, hy); ctx.rotate(Math.sin(t * .0011) * .08); ctx.scale(hs, hs);
+      ctx.fillStyle = "rgba(4,16,30,.35)"; ctx.beginPath(); ctx.ellipse(0, 6, 30, 5, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = "#e9b84a"; ctx.beginPath(); ctx.ellipse(0, 0, 28, 7, 0, 0, TAU); ctx.fill();
+      ctx.fillStyle = "#f4cd63"; ctx.beginPath(); ctx.moveTo(-14, 0); ctx.quadraticCurveTo(-14, -18, 0, -18); ctx.quadraticCurveTo(14, -18, 14, 0); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#c8281e"; ctx.fillRect(-14, -5, 28, 4);
+      ctx.strokeStyle = "rgba(150,100,30,.5)"; ctx.lineWidth = .8; ctx.beginPath(); ctx.ellipse(0, 0, 21, 5, 0, 0, TAU); ctx.stroke();
+      ctx.restore();
       // rolling swell lines in front
       ctx.strokeStyle = "rgba(170,205,240,.16)"; ctx.lineWidth = 1.4;
       for (let k = 0; k < 9; k++) { const y = d.horizon + (H - d.horizon) * (.2 + k * .09), amp = 3 + k * 1.2, off = t * .0006 * (1 + k * .15);
