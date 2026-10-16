@@ -287,8 +287,10 @@
     if (duckUntil && ctx.currentTime > duckUntil) duckUntil = 0;
   }
   let duckUntil = 0;
+  // held: another player (the ship's radio) is playing, so the generated music waits
+  let held = false;
   function startMusic() {
-    if (!ctx || mTimer) return;
+    if (!ctx || mTimer || held) return;
     step = 0; nextT = ctx.currentTime + .15;
     mGain.gain.cancelScheduledValues(ctx.currentTime); mGain.gain.setValueAtTime(mGain.gain.value, ctx.currentTime); mGain.gain.linearRampToValueAtTime(feel().vol, ctx.currentTime + 3);
     mTimer = setInterval(pump, 120); pump();
@@ -306,6 +308,7 @@
   window.Sfx = new Proxy(S, { get(target, k) {
     if (k === "enabled") return on;
     if (k === "musicEnabled") return musicOn;
+    if (k === "hold") return h => { held = !!h; if (held) stopMusic(); else if (musicOn) startMusic(); };
     if (k === "toggle") return () => { on = !on; save(KEY, on); if (on) { unlock(); setTimeout(() => window.Sfx.tap(), 60); } return on; };
     if (k === "toggleMusic") return () => { musicOn = !musicOn; save(MKEY, musicOn); if (musicOn) unlock(); else stopMusic(); return musicOn; };
     const fn = target[k]; if (typeof fn !== "function") return fn;

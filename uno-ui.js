@@ -199,7 +199,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
 
   // ---- card art: Marine WANTED posters ----
   // The poster's "photo" holds the numeral, or for action cards an illustration of a One Piece item, drawn here:
-  // Seastone Cuffs (Skip), Log Pose (Reverse), Den Den Mushi (Draw 2), Devil Fruit (Wild), Conqueror's Haki (Wild Draw 4).
+  // Seastone Cuffs (Skip), Log Pose (Reverse), Message Gull (Draw 2), Devil Fruit (Wild), Conqueror's Haki (Wild Draw 4).
   const INK = "#24170e";
   const ART = {
     skip: `<svg viewBox="0 0 100 100" aria-hidden="true">
@@ -215,17 +215,20 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       <path d="M86 32A40 40 0 0 0 30 14" stroke="#fbf1d8" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M28 6l-6 10 11 3z" fill="#fbf1d8"/>
       <path d="M14 32A40 40 0 0 1 30 14" stroke="#fbf1d8" stroke-width="5" fill="none" stroke-linecap="round" opacity="0"/></svg>`,
     d2: `<svg viewBox="0 0 100 100" aria-hidden="true">
-      <path d="M10 80c0-10 8-16 22-16h40c10 0 16 6 16 14 0 4-3 6-7 6H16c-4 0-6-2-6-4z" fill="#e8c27a" stroke="${INK}" stroke-width="3"/>
-      <path d="M22 62c-4-18 8-34 28-34s30 14 26 30c-2 8-10 10-18 6" fill="#d9782e" stroke="${INK}" stroke-width="3"/><path d="M50 40c9 0 14 6 13 12-1 5-7 7-11 3-3-3-1-7 2-6" stroke="${INK}" stroke-width="3" fill="none"/>
-      <path d="M66 66c4-8 6-16 8-24" stroke="${INK}" stroke-width="3" fill="none"/><path d="M60 66c6-10 14-14 22-12 6 2 8 8 6 12" fill="#e8c27a" stroke="${INK}" stroke-width="3"/>
-      <path d="M78 54l-2-14M86 56l4-12" stroke="${INK}" stroke-width="2.5"/><circle cx="76" cy="38" r="4" fill="#fbf1d8" stroke="${INK}" stroke-width="2"/><circle cx="91" cy="42" r="4" fill="#fbf1d8" stroke="${INK}" stroke-width="2"/><circle cx="76" cy="38" r="1.6" fill="${INK}"/><circle cx="91" cy="42" r="1.6" fill="${INK}"/>
-      <path d="M34 20c4-8 18-10 24-4l4 4c2 2 1 5-2 5l-6-1c-6-1-10 1-12 5" fill="#3a3a3a" stroke="${INK}" stroke-width="2.5"/><path d="M48 22c-3 2-5 6-4 10" stroke="#3a3a3a" stroke-width="2" fill="none"/>
-      <text x="20" y="30" text-anchor="middle" font-family="Alfa Slab One,serif" font-size="24" fill="#fbf1d8" stroke="${INK}" stroke-width="3" paint-order="stroke">+2</text></svg>`,
+      <path d="M50 52c-14-18-30-24-44-20 10 4 18 10 22 20z" fill="#f4f0e6" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M14 34c6 2 12 6 16 12" stroke="#9aa4ad" stroke-width="2" fill="none"/>
+      <path d="M50 52c14-18 30-24 44-20-10 4-18 10-22 20z" fill="#f4f0e6" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M86 34c-6 2-12 6-16 12" stroke="#9aa4ad" stroke-width="2" fill="none"/>
+      <path d="M8 32l-4-3 6-1zM92 32l4-3-6-1z" fill="${INK}"/>
+      <ellipse cx="50" cy="56" rx="13" ry="9" fill="#fbf8f0" stroke="${INK}" stroke-width="3"/><circle cx="58" cy="50" r="7" fill="#fbf8f0" stroke="${INK}" stroke-width="3"/><circle cx="60" cy="49" r="1.8" fill="${INK}"/>
+      <path d="M64 51l9 2-9 3z" fill="#f2b51c" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/><path d="M38 60l-8 4 9 1z" fill="#c8c4bc" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+      <g transform="rotate(-8 72 70)"><rect x="60" y="62" width="26" height="17" rx="2" fill="#efe1bd" stroke="${INK}" stroke-width="2.6"/><path d="M60 62l13 9 13-9" fill="none" stroke="${INK}" stroke-width="2"/><circle cx="73" cy="71" r="3.6" fill="#b3121b" stroke="${INK}" stroke-width="1.4"/></g>
+      <path d="M71 56l2 6" stroke="${INK}" stroke-width="2"/>
+      <text x="20" y="84" text-anchor="middle" font-family="Alfa Slab One,serif" font-size="24" fill="#fbf1d8" stroke="${INK}" stroke-width="3" paint-order="stroke">+2</text></svg>`,
     wild: `<svg viewBox="0 0 100 100" aria-hidden="true">
-      <path d="M50 30c-2-10 2-18 10-22" stroke="#3f6b23" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M58 12c8-8 22-6 26 2-8 6-20 6-26-2z" fill="#5c9a33" stroke="${INK}" stroke-width="2.5"/><path d="M62 12c6 0 12 0 18 2" stroke="#2f5a1a" stroke-width="1.5" fill="none"/>
-      <path d="M50 32c-18-8-38 4-36 26 2 18 18 32 36 32s34-14 36-32c2-22-18-34-36-26z" fill="url(#dfA)" stroke="${INK}" stroke-width="3.5"/>
-      <g stroke="#e9c8fb" stroke-width="3.2" fill="none" stroke-linecap="round"><path d="M30 46c0-5 8-5 8 0s-5 6-6 3"/><path d="M58 44c0-5 8-5 8 0s-5 6-6 3"/><path d="M40 64c0-6 10-6 10 0s-6 7-8 4"/><path d="M64 66c0-5 8-5 8 0s-5 6-6 3"/><path d="M24 64c0-4 6-4 6 0"/><path d="M48 80c0-4 6-4 6 0"/><path d="M44 42c0-3 5-3 5 0"/></g>
-      <path d="M26 44c2-6 6-10 12-12" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/></svg>`,
+      <path d="M50 28c0-8 4-14 10-18M50 28c-2-6-8-10-14-10" stroke="#3f6b23" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M58 12c10-4 20 0 22 8-10 2-18 0-22-8z" fill="#5c9a33" stroke="${INK}" stroke-width="2.5"/>
+      <path d="M50 28c-12 0-20 8-20 18 0 4 2 7 4 9-6 4-10 10-10 17 0 12 12 20 26 20s26-8 26-20c0-7-4-13-10-17 2-2 4-5 4-9 0-10-8-18-20-18z" fill="#f2b51c" stroke="${INK}" stroke-width="3.5"/>
+      <g stroke="#b3121b" stroke-width="3.2" fill="none" stroke-linejoin="round"><path d="M34 44l5-4 5 4 5-4 5 4 5-4 5 4"/><path d="M28 70l6-5 6 5 6-5 6 5 6-5 6 5 6-5"/><path d="M32 82l6-4 6 4 6-4 6 4 6-4 6 4"/></g>
+      <circle cx="50" cy="56" r="4" fill="#b3121b" stroke="${INK}" stroke-width="1.6"/>
+      <path d="M36 36c3-4 7-6 11-6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".6"/></svg>`,
     w4: `<svg viewBox="0 0 100 100" aria-hidden="true">
       <circle cx="50" cy="52" r="46" fill="url(#hkA)"/>
       <g stroke="${INK}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M50 52 36 30 42 22 30 4"/><path d="M50 52 70 36 66 26 86 14"/><path d="M50 52 76 62 84 56 98 72"/><path d="M50 52 28 66 20 60 4 76"/><path d="M50 52 54 76 46 84 52 98"/></g>
@@ -242,7 +245,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     wild: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7c-5-2-9 1-8.5 6 .5 4 4 7 8.5 7s8-3 8.5-7C21 8 17 5 12 7z" fill="#fbf1d8"/><path d="M12 7c0-2 1-4 3-5" stroke="#fbf1d8" stroke-width="2" fill="none"/></svg>`
   };
   const BERRY = `<svg viewBox="0 0 12 16" aria-hidden="true"><path d="M3 3h4.2a2.6 2.6 0 0 1 0 5.2H3zM3 8.2h5a2.9 2.9 0 0 1 0 5.8H3z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 1v14M8 1v2M8 13v2" stroke="currentColor" stroke-width="1.6"/></svg>`;
-  const SKULL = (hat = "#e8b83c", band = "#c62b25") => `<svg viewBox="0 0 60 60" aria-hidden="true"><path d="M14 16 46 46M46 16 14 46" stroke="#f1e6cc" stroke-width="5" stroke-linecap="round"/><circle cx="30" cy="31" r="12" fill="#f1e6cc"/><rect x="23" y="37" width="14" height="9" rx="2" fill="#f1e6cc"/><circle cx="25.5" cy="31" r="3.3" fill="#111"/><circle cx="34.5" cy="31" r="3.3" fill="#111"/><path d="M28.5 37h3l-1.5 2.4z" fill="#111"/><ellipse cx="30" cy="21" rx="19" ry="4.6" fill="${hat}"/><path d="M20 21a10 8 0 0 1 20 0z" fill="${hat}"/><rect x="20.4" y="17.6" width="19.2" height="3" fill="${band}"/></svg>`;
+  const SKULL = (band = "#c8281e") => `<svg viewBox="0 0 60 60" aria-hidden="true"><g stroke-linecap="round"><path d="M12 48 44 14" stroke="#d8dde0" stroke-width="3.4"/><path d="M48 48 16 14" stroke="#d8dde0" stroke-width="3.4"/><path d="M14 42l4 4M46 42l-4 4" stroke="#c9952f" stroke-width="4"/></g><circle cx="30" cy="31" r="12" fill="#f1e6cc"/><rect x="23" y="37" width="14" height="9" rx="2" fill="#f1e6cc"/><circle cx="25.5" cy="31.5" r="3.3" fill="#111"/><circle cx="34.5" cy="31.5" r="3.3" fill="#111"/><path d="M28.5 37.5h3l-1.5 2.4z" fill="#111"/><path d="M26 42.5v3M30 42.5v3M34 42.5v3" stroke="#111" stroke-width="1"/><path d="M17.6 27c1-8 6-12 12.4-12s11.4 4 12.4 12c-4-2-8-3-12.4-3s-8.4 1-12.4 3z" fill="${band}"/><path d="M41 22l7-3-2 6 5 1-6 3z" fill="${band}"/></svg>`;
   // a compass rose, engraved faintly behind the Jolly Roger on the back
   const ROSE = '<svg class="rose" viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#d4b06a" stroke-width=".7"><circle cx="50" cy="50" r="44"/><circle cx="50" cy="50" r="38"/><circle cx="50" cy="50" r="16"/></g><g fill="#d4b06a"><path d="M50 4l5 42-5 4-5-4zM50 96l5-42-5-4-5 4zM4 50l42-5 4 5-4 5zM96 50l-42-5-4 5 4 5z"/><path d="M50 50l22-22-18 26zM50 50l-22 22 18-26zM50 50l22 22-26-18zM50 50L28 28l26 18z" opacity=".6"/></g></svg>';
   // bounties: points x 10,000,000 Berries, written the way the posters write them, with a trailing dash
@@ -260,7 +263,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       <span class="tack"></span><span class="pip tl">${pip}</span></${g}>`;
   }
   const FLAG_COLORS = ["#e8b83c", "#c8281e", "#2f9a52", "#1f6fd1", "#8c3fb0", "#f08a24", "#21a3a3", "#e05a9a", "#9aa4ad", "#6b4423", "#d6d03a", "#4a5bd6"];
-  const flagFor = i => SKULL(FLAG_COLORS[i % 12], i % 2 ? "#111" : "#c62b25");
+  const flagFor = i => SKULL(FLAG_COLORS[i % 12]);
 
   // ---- home page pieces ----
   const FAN = [[2, "-24deg", -96, 14], [24 + 26, "-8deg", -34, -4], [104, "8deg", 30, -4], [105 + 2, "22deg", 92, 14]];
@@ -268,7 +271,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const pick = c => U.CARDS.find(k => k.c === c.c && k.v === c.v).id;
     const fan = [{ c: "r", v: "7" }, { c: "b", v: "rev" }, { c: "w", v: "wild" }, { c: "w", v: "w4" }].map(pick);
     return `<header class="umast"><div><h1>Grand Line<span>UNO</span></h1>
-      <p>Set sail with up to 12 friends, each on their own phone or computer. Match the colour or the symbol, cuff your rivals with Seastone, call in backup on the Den Den Mushi, stack the draws to sink them, and be the first crew to empty your hand. Don't forget to shout UNO!</p></div>
+      <p>Set sail with up to 12 friends, each on their own phone or computer. Match the colour or the symbol, cuff your rivals with Seastone, send for backup by Message Gull, stack the draws to sink them, and be the first crew to empty your hand. Don't forget to shout UNO!</p></div>
       <div class="fanu" aria-hidden="true">${fan.map((id, i) => cardHTML(id, { attrs: `style="transform:translate(calc(-50% + ${FAN[i][2]}px),calc(-50% + ${FAN[i][3]}px)) rotate(${FAN[i][1]})"` })).join("")}</div></header>`;
   }
   function rulesHTML() {
@@ -284,11 +287,11 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       <div><h3>The cards</h3><ul>
         <li><span class="mini">${ex("skip")}</span><b>Seastone Cuffs</b> (Skip): the next player is cuffed and loses their turn.</li>
         <li><span class="mini">${ex("rev")}</span><b>Log Pose</b> (Reverse): the course swings round and play turns the other way. With two players it acts like a Skip.</li>
-        <li><span class="mini">${ex("d2")}</span><b>Den Den Mushi</b> (Draw 2): backup is called in; the next player draws 2, unless they stack.</li>
+        <li><span class="mini">${ex("d2")}</span><b>Message Gull</b> (Draw 2): a gull flies in with word of backup; the next player draws 2, unless they stack.</li>
         <li><span class="mini">${ex("wild")}</span><b>Devil Fruit</b> (Wild): choose the next colour.</li>
         <li><span class="mini">${ex("w4")}</span><b>Conqueror's Haki</b> (Wild Draw 4): choose the colour; the next player draws 4, unless they stack.</li></ul></div>
       <div><h3>Stacking</h3><ul>
-        <li>Hit by a Den Den Mushi? Answer with another <b>Den Den Mushi</b> or a <b>Conqueror's Haki</b> to pass the pile on, bigger.</li>
+        <li>Hit by a Message Gull? Answer with another <b>Message Gull</b> or a <b>Conqueror's Haki</b> to pass the pile on, bigger.</li>
         <li>Hit by Conqueror's Haki? Only another <b>Conqueror's Haki</b> passes it on.</li>
         <li>The player who can't (or won't) stack draws the whole pile and loses their turn.</li></ul>
         <h3 style="margin-top:1rem">EXP (its own Hall of Fame)</h3><ul>
@@ -329,7 +332,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     let say = "", btns = "";
     if (S.status === "play") {
       if (myTurn) {
-        if (S.stack > 0) { say = `Hit for +${S.stack}!<small>Stack a ${S.stackKind === "d2" ? "Den Den Mushi (+2) or Conqueror's Haki (+4)" : "Conqueror's Haki (+4)"} to pass it on, or take all ${S.stack}.</small>`; btns = `<button class="ubtn go" data-u="draw">Take ${S.stack} cards</button>`; }
+        if (S.stack > 0) { say = `Hit for +${S.stack}!<small>Stack a ${S.stackKind === "d2" ? "Message Gull (+2) or Conqueror's Haki (+4)" : "Conqueror's Haki (+4)"} to pass it on, or take all ${S.stack}.</small>`; btns = `<button class="ubtn go" data-u="draw">Take ${S.stack} cards</button>`; }
         else if (S.drew != null) { say = `You drew a card that fits<small>Play it now, or keep it and end your turn.</small>`; btns = `<button class="ubtn go" data-u="play" data-id="${S.drew}">Play it</button><button class="ubtn" data-u="pass">Keep it</button>`; }
         else { say = `Your turn<small>Match ${col ? `<b style="color:${col.hex}">${col.n}</b>` : "the colour"} or the symbol, play a Wild, or draw.</small>`; btns = `<button class="ubtn" data-u="draw">Draw a card</button>`; }
         if (P.hand.length === 2) btns += `<button class="ubtn uno" data-u="arm" aria-pressed="${ui.uno}">${ui.uno ? "UNO called!" : "UNO!"}</button>`;
@@ -345,7 +348,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const ov = hand.length > 14 ? -46 : hand.length > 9 ? -34 : hand.length > 6 ? -24 : -12;
     const last = S.log[S.log.length - 1] || "";
     $app.innerHTML = `<div class="ugame">
-      <header class="board"><div class="board-top"><span class="mark">Grand Line UNO</span><span class="tcode"><span class="tl2">Table </span><b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}${sndBtn()}<button class="btn ghost small" data-a="home">Leave table</button></div>
+      <header class="board"><div class="board-top"><span class="mark">Grand Line UNO</span><span class="tcode"><span class="tl2">Table </span><b>${esc(S.code)}</b></span><span class="grow"></span>${netDown ? `<span class="conn">Reconnecting…</span>` : ""}${window.Radio ? Radio.button() : ""}${sndBtn()}<button class="btn ghost small" data-a="home">Leave table</button></div>
         <div class="uticker">${fmt(last)}</div></header>
       <section class="udeck${n >= 7 ? " many" : ""}" aria-label="The table">
         ${seats}

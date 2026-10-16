@@ -703,6 +703,7 @@ html[data-screen=game] .sndfix{display:none}
 
 <script src="engine.js"></script>
 <script src="sfx.js"></script>
+<script src="radio.js"></script>
 <script src="cutin.js"></script>
 <script src="sky.js"></script>
 <script src="uno.js"></script>
@@ -1741,7 +1742,7 @@ setInterval(() => {
 }, 250);
 
 // Start: go straight back to your table if you were seated at one.
-document.body.insertAdjacentHTML("beforeend", `<div class="sndfix">${sndBtn()}</div>`);
+document.body.insertAdjacentHTML("beforeend", `<div class="sndfix">${window.Radio ? Radio.button() : ""}${sndBtn()}</div>`);
 (async () => {
   render();
   const last = LS.get("wd-last");

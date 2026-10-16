@@ -649,7 +649,7 @@
     sdata.sea = { horizon, sunX, sunR, small, gulls: Array.from({ length: small ? 4 : 7 }, () => ({ x: R() * W, y: horizon * (.25 + R() * .45), s: .6 + R() * .8, v: 12 + R() * 18, p: R() * 6 })) };
     return c;
   }
-  // a pirate ship under full sail with a straw-hat skull on its sail and flag
+  // a pirate ship under full sail, the Sunwake, with its bandana skull on the main sail and a black flag
   function ship(x, y, s, t) {
     const bob = Math.sin(t * .0011) * 3 * s, roll = Math.sin(t * .0009) * .025;
     ctx.save(); ctx.translate(x, y + bob); ctx.rotate(roll); ctx.scale(s, s);
@@ -667,15 +667,15 @@
     ctx.strokeStyle = "#1a1310"; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(-18, -2); ctx.lineTo(18, 22); ctx.moveTo(18, -2); ctx.lineTo(-18, 22); ctx.stroke();
     ctx.fillStyle = "#1a1310"; ctx.beginPath(); ctx.arc(0, 4, 12, 0, TAU); ctx.fill(); ctx.fillRect(-7, 10, 14, 9);
     ctx.fillStyle = "#e9d9b4"; ctx.beginPath(); ctx.arc(-4.5, 4, 3, 0, TAU); ctx.arc(4.5, 4, 3, 0, TAU); ctx.fill();
-    ctx.fillStyle = "#e8b83c"; ctx.beginPath(); ctx.ellipse(0, -6, 19, 4.5, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.ellipse(0, -10, 10, 7, 0, Math.PI, 0); ctx.fill();
-    ctx.fillStyle = "#c62b25"; ctx.fillRect(-10, -9, 20, 3);
+    ctx.fillStyle = "#c8281e"; ctx.beginPath(); ctx.moveTo(-12, -4); ctx.quadraticCurveTo(-11, -16, 0, -16); ctx.quadraticCurveTo(11, -16, 12, -4); ctx.quadraticCurveTo(0, -8, -12, -4); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(11, -10); ctx.lineTo(19, -13); ctx.lineTo(16, -7); ctx.lineTo(21, -5); ctx.lineTo(13, -5); ctx.closePath(); ctx.fill();
     ctx.restore();
     ctx.fillStyle = "#111"; ctx.beginPath(); ctx.moveTo(30, -197);
     for (let k = 0; k <= 6; k++) ctx.lineTo(30 + k * 6, -197 + Math.sin(t * .006 + k * .9) * 2.5);
     for (let k = 6; k >= 0; k--) ctx.lineTo(30 + k * 6, -177 + Math.sin(t * .006 + k * .9) * 2.5);
     ctx.closePath(); ctx.fill();
     ctx.fillStyle = "#eee"; ctx.beginPath(); ctx.arc(48, -187 + Math.sin(t * .006 + 3) * 2.5, 4, 0, TAU); ctx.fill();
-    ctx.fillStyle = "#e8b83c"; ctx.fillRect(42, -193 + Math.sin(t * .006 + 3) * 2.5, 12, 2);
+    ctx.fillStyle = "#c8281e"; ctx.fillRect(43, -192.5 + Math.sin(t * .006 + 3) * 2.5, 10, 2);
     ctx.restore();
   }
   function getScene(key) {
