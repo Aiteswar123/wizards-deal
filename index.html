@@ -888,12 +888,12 @@ function refHTML() {
 
 // How EXP works, in plain words, built from the engine's own numbers so the guide can never drift from the rules.
 function xpGuideHTML() {
-  const X = E.XP, ex = { n: 4, sets: 3, casts: 4, gal: 12 }, exPlace = X.win + X.perPlayer * (ex.n - 2), exTotal = exPlace + X.perSet * ex.sets + Math.min(X.castCap, X.perCast * ex.casts) + Math.min(X.galleonCap, ex.gal);
+  const X = E.XP, ex = { n: 4, sets: 3, casts: 4, gal: 12 }, exPlace = X.win, exTotal = exPlace + X.perSet * ex.sets + Math.min(X.castCap, X.perCast * ex.casts) + Math.min(X.galleonCap, ex.gal);
   return `<div class="xpguide"><h3>How EXP works</h3>
     <p class="muted">Every player earns EXP when a game finishes, not only the winner. Your EXP adds up across every game you play, and your total decides your level and your place in the Hall of Fame.</p>
     <div class="xpcols">
       <div><h4>1. Your finishing place</h4><table class="xptable"><tbody>
-        <tr><td>1st (the winner)</td><td><b>${X.win}</b> + ${X.perPlayer} for each player beyond 2</td></tr>
+        <tr><td>1st (the winner)</td><td><b>${X.win}</b></td></tr>
         <tr><td>2nd</td><td><b>${X.second}</b></td></tr><tr><td>3rd</td><td><b>${X.third}</b></td></tr><tr><td>4th and below</td><td><b>${X.rest}</b></td></tr></tbody></table>
         <p class="xpnote">After the winner, places go to whoever has more complete sets. If that's a tie, the player with more total value (bank plus table) places higher.</p></div>
       <div><h4>2. Bonuses for everyone</h4><table class="xptable"><tbody>
@@ -952,7 +952,7 @@ function renderHome() {
   </div>
   ${refHTML()}
   ${rankingHTML()}
-  <p class="fine">Fan-made and unofficial; not affiliated with Hasbro or Warner Bros. Item names are stand-ins where the real card names weren't available. Textures from Poly Haven and ambientCG (CC0).</p>`;
+  <p class="fine">Fan-made and unofficial; not affiliated with Hasbro or Warner Bros. Item names are stand-ins where the real card names weren't available. Textures from Poly Haven and ambientCG (CC0). Spell voices made with Piper from the OpenSLR 83 UK English dataset (CC BY-SA 4.0) and LibriVox (public domain).</p>`;
   if (focus === "myname" || focus === "joincode") { const el = document.getElementById(focus); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
 }
 

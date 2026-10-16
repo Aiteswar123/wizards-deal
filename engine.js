@@ -610,7 +610,7 @@
   // EXP for a finished game. Places: the winner first, then everyone else by complete sets, then total value on the table.
   // Winner 100 + 10 per player beyond 2; 2nd 60; 3rd 45; everyone else 30. Everyone adds 10 per complete set,
   // 3 per spell cast (up to 15) and 1 per Galleon in the bank (up to 25).
-  const XP = { win: 100, perPlayer: 10, second: 60, third: 45, rest: 30, perSet: 10, perCast: 3, castCap: 15, perGalleon: 1, galleonCap: 25 };
+  const XP = { win: 100, second: 60, third: 45, rest: 30, perSet: 10, perCast: 3, castCap: 15, perGalleon: 1, galleonCap: 25 };
   function awards(s) {
     if (s.status !== "over" || s.winner == null) return [];
     const n = s.players.length, others = s.players.map((p, i) => i).filter(i => i !== s.winner)
@@ -618,7 +618,7 @@
     const order = [s.winner, ...others];
     return s.players.map((p, i) => {
       const place = order.indexOf(i) + 1, sets = completeCols(p).length, casts = p.casts || 0, galleons = bankTotal(p);
-      const parts = { place: place === 1 ? XP.win + XP.perPlayer * (n - 2) : place === 2 ? XP.second : place === 3 ? XP.third : XP.rest,
+      const parts = { place: place === 1 ? XP.win : place === 2 ? XP.second : place === 3 ? XP.third : XP.rest,
         sets: XP.perSet * sets, spells: Math.min(XP.castCap, XP.perCast * casts), galleons: Math.min(XP.galleonCap, XP.perGalleon * galleons) };
       return { p: i, nick: p.nick || "", place, sets, casts, galleons, parts, xp: parts.place + parts.sets + parts.spells + parts.galleons, won: place === 1 };
     });

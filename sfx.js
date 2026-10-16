@@ -32,7 +32,7 @@
     const nd = noiseBuf.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
     return ctx;
   }
-  const unlock = () => { if (!on && !musicOn) return; init(); if (ctx && ctx.state === "suspended") ctx.resume(); if (musicOn) startMusic(); };
+  const unlock = () => { if (!on && !musicOn) return; init(); if (ctx && ctx.state === "suspended") ctx.resume(); if (musicOn) startMusic(); loadClips(); };
   addEventListener("pointerdown", unlock, { capture: true, passive: true });
   addEventListener("keydown", unlock, { capture: true });
 
@@ -79,30 +79,49 @@
   }
 
   // ---------- spoken spells ----------
-  // The browser's own speech voice calls the spell, low and slow for drama, pitched to the caster. Spellings are
-  // phonetic so every voice says them the way they're said in the films.
-  const SAY = { stupefy: "Stoo-puh-fy!", petrificus: "Peh-trih-fih-kus  Toh-tah-lus!", protego: "Pro-tay-go!", obliviate: "Oh-blih-vee-ate!",
-    levicorpus: "Leh-vee-kor-pus!", wingardium: "Win-gar-dee-um  Leh-vee-oh-sah!", accio2: "Ak-ee-oh!", accioAny: "Ak-ee-oh!", confundo: "Kon-fun-doh!",
-    alohomora: "Ah-loh-hoh-mor-ah!", geminio: "Jeh-min-ee-oh!", reparo: "Reh-par-oh!" };
+  // Each spell is called aloud from a recorded clip in assets/voice: a male and a female British voice, generated with
+  // Piper (open-source neural speech) and phonetically steered to the film pronunciations. The caster sets the voice and
+  // how it's played: a slower, lower take for Hagrid, a quicker, higher one for Peeves. Each call is shaped like a
+  // shout in a stone hall: warmed, compressed, doubled with a short slapback and sent to the reverb. If a clip hasn't
+  // loaded yet, the browser's own speech voice stands in.
+  const CLIP = { accio2: "accio", accioAny: "accio" };
+  const SAY = { stupefy: "Stupefy!", petrificus: "Petrificus Totalus!", protego: "Protego!", obliviate: "Obliviate!", levicorpus: "Levicorpus!",
+    wingardium: "Wingardium Leviosa!", accio: "Accio!", confundo: "Confundo!", alohomora: "Alohomora!", geminio: "Geminio!", reparo: "Reparo!" };
   const KIND = { protego: "charm", wingardium: "charm", accio2: "charm", accioAny: "charm", alohomora: "charm", geminio: "charm", reparo: "charm" };
-  // voice per caster: [female?, pitch, rate]
-  const CAST = { harry: [0, .8, .82], ron: [0, .9, .85], lupin: [0, .7, .78], hagrid: [0, .45, .75], draco: [0, .85, .8], cedric: [0, .8, .82], peeves: [0, 1.45, 1],
-    hermione: [1, 1, .85], luna: [1, 1.15, .78], cho: [1, 1.05, .84], myrtle: [1, 1.5, .85], umbridge: [1, 1.6, .8] };
-  let voices = [];
-  const loadVoices = () => { try { voices = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang)); } catch (e) {} };
-  if (window.speechSynthesis) { loadVoices(); speechSynthesis.addEventListener ? speechSynthesis.addEventListener("voiceschanged", loadVoices) : (speechSynthesis.onvoiceschanged = loadVoices); }
-  const FEM = /female|zira|hazel|susan|libby|sonia|maisie|samantha|karen|serena|moira|tessa|kate|emma|amy|jenny|aria|natasha/i;
-  const MALE = /male|george|ryan|david|mark|thomas|daniel|arthur|oliver|guy|james|brian|alfie/i;
-  function pickVoice(fem) {
-    const want = v => fem ? FEM.test(v.name) : MALE.test(v.name) && !FEM.test(v.name);
-    const gb = v => /en[-_]GB/i.test(v.lang);
-    return voices.find(v => want(v) && gb(v)) || voices.find(want) || voices.find(gb) || voices[0] || null;
+  // voice per caster: [female?, playback rate]; rate moves pitch and pace together, so keep it close to 1
+  const CAST = { harry: [0, 1], ron: [0, 1.04], lupin: [0, .94], hagrid: [0, .84], draco: [0, 1.02], cedric: [0, .98], peeves: [0, 1.16],
+    hermione: [1, 1], luna: [1, .96], cho: [1, 1.03], myrtle: [1, 1.13], umbridge: [1, 1.09] };
+  const clips = {};
+  let clipsAsked = false;
+  function loadClips() {
+    if (clipsAsked || !ctx) return; clipsAsked = true;
+    for (const g of ["m", "f"]) for (const k in SAY) {
+      const id = g + "-" + k;
+      fetch("assets/voice/" + id + ".wav").then(r => r.ok ? r.arrayBuffer() : Promise.reject()).then(ab => ctx.decodeAudioData(ab)).then(buf => { clips[id] = buf; }).catch(() => {});
+    }
   }
-  function say(k, ch) {
-    if (!window.speechSynthesis || !SAY[k]) return;
-    const [fem, pitch, rate] = CAST[ch] || CAST.harry, u = new SpeechSynthesisUtterance(SAY[k]);
-    const v = pickVoice(fem); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = "en-GB";
-    u.pitch = pitch; u.rate = rate; u.volume = 1;
+  let shout = null;
+  function shoutChain() {
+    if (shout) return shout;
+    const hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 110;
+    const pres = ctx.createBiquadFilter(); pres.type = "peaking"; pres.frequency.value = 2800; pres.gain.value = 4; pres.Q.value = .9;
+    const warm = ctx.createWaveShaper(), curve = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const x = i / 511.5 - 1; curve[i] = Math.tanh(1.6 * x) / Math.tanh(1.6); } warm.curve = curve;
+    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -22; comp.ratio.value = 4; comp.attack.value = .004; comp.release.value = .12;
+    const g = ctx.createGain(); g.gain.value = .95;
+    hp.connect(pres); pres.connect(warm); warm.connect(comp); comp.connect(g); send(g, .55);
+    // slapback off the far wall
+    const d = ctx.createDelay(.3); d.delayTime.value = .095; const dg = ctx.createGain(); dg.gain.value = .16; const dl = ctx.createBiquadFilter(); dl.type = "lowpass"; dl.frequency.value = 2400;
+    g.connect(d); d.connect(dl); dl.connect(dg); send(dg, .8);
+    return (shout = hp);
+  }
+  function say(k, ch, t) {
+    const [fem, rate] = CAST[ch] || CAST.harry, name = CLIP[k] || k, buf = clips[(fem ? "f-" : "m-") + name];
+    if (buf) {
+      const src = ctx.createBufferSource(); src.buffer = buf; src.playbackRate.value = rate * (1 + (Math.random() - .5) * .03);
+      src.connect(shoutChain()); src.start(t); return;
+    }
+    if (!window.speechSynthesis || !SAY[name]) return;
+    const u = new SpeechSynthesisUtterance(SAY[name]); u.lang = "en-GB"; u.pitch = fem ? 1 : .8; u.rate = .85;
     try { speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {}
   }
   function stab(f, t) {
@@ -137,10 +156,10 @@
     // a spell: a whoosh from the wand, its own colour, and, if it lands, a hit
     spell(k, o = {}) {
       const t = now();
-      say(k, o.ch);
+      say(k, o.ch, t);
       // the build: a reversed-cymbal swell and a low drone rising into the hit
-      noise(t, .62, { filter: "highpass", f: 2500, to: 6000, q: .5, vol: .16, att: .55, rev: 1.2 });
-      tone(55, t, .7, { to: 110, vol: .1, att: .5, type: "sawtooth", rev: .6 });
+      noise(t, .62, { filter: "highpass", f: 2500, to: 6000, q: .5, vol: .1, att: .55, rev: 1.2 });
+      tone(55, t, .7, { to: 110, vol: .06, att: .5, type: "sawtooth", rev: .6 });
       noise(t, .55, { f: 400, to: 5200, q: 2.2, vol: .14, att: .12, rev: 1, pan: -.3 });
       const hit = t + .55, many = o.targets > 1;
       // the hit: a deep boom and a brass-like stab (minor for curses, major for helpful charms)
