@@ -10,8 +10,8 @@
     g: { n: "Green", sea: "West Blue", hex: "#2f9a52" }, b: { n: "Blue", sea: "East Blue", hex: "#1f6fd1" } };
   const COLOR_KEYS = ["r", "y", "g", "b"];
   // Action cards and their pirate names.
-  const KINDS = { skip: { n: "Skip", alias: "Cannonball", pts: 20 }, rev: { n: "Reverse", alias: "Log Pose", pts: 20 }, d2: { n: "Draw 2", alias: "Bounty", pts: 20 },
-    wild: { n: "Wild", alias: "Devil Fruit", pts: 50 }, w4: { n: "Wild Draw 4", alias: "Haki", pts: 50 } };
+  const KINDS = { skip: { n: "Skip", alias: "Seastone Cuffs", pts: 20 }, rev: { n: "Reverse", alias: "Log Pose", pts: 20 }, d2: { n: "Draw 2", alias: "Den Den Mushi", pts: 20 },
+    wild: { n: "Wild", alias: "Devil Fruit", pts: 50 }, w4: { n: "Wild Draw 4", alias: "Conqueror's Haki", pts: 50 } };
   // One deck: per colour one 0, two each of 1-9, Skip, Reverse and Draw 2; plus four Wild and four Wild Draw 4 (108 cards).
   const BASE = 108;
   const CARDS = [];

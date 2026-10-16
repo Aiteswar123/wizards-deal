@@ -20,27 +20,51 @@
 .umast h1 span{display:block;color:#ffd23f;font-size:1.1em}
 .umast p{margin-top:.9rem;max-width:34rem;color:#f1e3c6;text-shadow:0 1px 8px rgba(0,0,0,.7)}
 .umast .fanu{position:relative;height:13rem}
-.umast .fanu .ucard{position:absolute;left:50%;top:50%;--w:96px}
+.umast .fanu .ucard{position:absolute;left:50%;top:50%;--w:104px}
 @media (max-width:760px){.umast{grid-template-columns:1fr}.umast .fanu{height:9.5rem}.umast .fanu .ucard{--w:72px}}
 .tagkind{font:600 .66rem/1 var(--label);letter-spacing:.08em;text-transform:uppercase;padding:.2rem .4rem;border-radius:3px;background:var(--stand-3);color:var(--crest);margin-left:.4rem}
-/* cards */
-.ucard{--w:74px;--cc:#444;width:var(--w);aspect-ratio:5/7.4;border-radius:calc(var(--w)*.12);position:relative;flex:none;display:block;padding:0;border:0;
-  background:#fbf3e0;box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 6px 14px -6px rgba(0,0,0,.7),0 1px 2px rgba(0,0,0,.5);color:#fff;font-family:"Pirata One",serif;transition:transform .18s var(--ease),filter .18s,box-shadow .18s}
-.ucard .uf{position:absolute;inset:calc(var(--w)*.055);border-radius:calc(var(--w)*.08);background:var(--cc);overflow:hidden;
-  background-image:radial-gradient(circle at 30% 18%,rgba(255,255,255,.28),transparent 45%),repeating-linear-gradient(115deg,rgba(255,255,255,.05) 0 3px,transparent 3px 9px)}
-.ucard.c-r{--cc:#d6342c}.ucard.c-y{--cc:#f2b51c}.ucard.c-g{--cc:#2f9a52}.ucard.c-b{--cc:#1f6fd1}
-.ucard.c-w .uf{background:conic-gradient(from 45deg,#d6342c 0 25%,#1f6fd1 0 50%,#2f9a52 0 75%,#f2b51c 0)}
-.ucard .port{position:absolute;left:50%;top:50%;width:76%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#fbf3e0;
-  box-shadow:0 0 0 calc(var(--w)*.035) #6b4423,0 0 0 calc(var(--w)*.055) #d9b07a,inset 0 calc(var(--w)*.03) calc(var(--w)*.06) rgba(0,0,0,.25);display:grid;place-items:center}
-.ucard .big{font-size:calc(var(--w)*.56);line-height:1;color:var(--cc);text-shadow:calc(var(--w)*.012) calc(var(--w)*.02) 0 rgba(0,0,0,.35);-webkit-text-stroke:calc(var(--w)*.01) rgba(0,0,0,.35)}
-.ucard.c-w .big{color:#2b1a10}
-.ucard .port svg{width:82%;height:82%}
-.ucard .cn{position:absolute;font-size:calc(var(--w)*.2);line-height:1;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.6)}
-.ucard .cn.tl{left:calc(var(--w)*.1);top:calc(var(--w)*.08)}.ucard .cn.br{right:calc(var(--w)*.1);bottom:calc(var(--w)*.08);transform:rotate(180deg)}
-.ucard .nm{position:absolute;left:0;right:0;bottom:calc(var(--w)*.1);text-align:center;font:700 calc(var(--w)*.1)/1 var(--label);letter-spacing:.06em;text-transform:uppercase;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8)}
-.ucard.back .uf{background:#2a160d;background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 2px,transparent 2px 11px),radial-gradient(circle at 50% 45%,#5a3018,#1c0c06 75%)}
-.ucard.back .port{background:#120a07;box-shadow:0 0 0 calc(var(--w)*.03) #c9873a}
-.ucard.back .bt{position:absolute;left:0;right:0;bottom:calc(var(--w)*.12);text-align:center;font-size:calc(var(--w)*.16);color:#ffd23f;text-shadow:0 2px 0 #7a2a16}
+/* cards: every card is a Marine WANTED poster pasted on a coloured board */
+.ucard{--w:74px;--cc:#444;--ink:#24170e;width:var(--w);aspect-ratio:5/7.4;border-radius:calc(var(--w)*.1);position:relative;flex:none;display:block;padding:0;border:0;
+  background:var(--cc);background-image:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,0) 38%,rgba(0,0,0,.28));
+  box-shadow:inset 0 0 0 calc(var(--w)*.012) rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.55),0 calc(var(--w)*.08) calc(var(--w)*.18) calc(var(--w)*-.06) rgba(0,0,0,.75);
+  color:var(--ink);transition:transform .18s var(--ease),filter .18s,box-shadow .18s;overflow:hidden}
+.ucard.c-r{--cc:#c92a24;--cl:#ff6a52;--cd:#7d120f}.ucard.c-y{--cc:#e8a812;--cl:#ffd85a;--cd:#8f5c00}.ucard.c-g{--cc:#25884a;--cl:#4fc979;--cd:#0f4a26}.ucard.c-b{--cc:#1b5fc0;--cl:#4f9bff;--cd:#0b2f6b}
+.ucard.c-w{--cc:#1d140d;--cl:#3a2a1d;--cd:#000;background-image:conic-gradient(from 45deg,#c92a24 0 25%,#1b5fc0 0 50%,#25884a 0 75%,#e8a812 0)}
+/* the poster: aged parchment, darker at the edges, with a thin printed rule */
+.ucard .pw{position:absolute;inset:calc(var(--w)*.06);border-radius:calc(var(--w)*.025);overflow:hidden;
+  background:#e9d6a6 url(assets/parchment.jpg) center/calc(var(--w)*3);
+  box-shadow:inset 0 0 calc(var(--w)*.16) rgba(92,52,18,.55),inset 0 0 0 calc(var(--w)*.008) rgba(60,32,10,.5),0 calc(var(--w)*.01) calc(var(--w)*.03) rgba(0,0,0,.4)}
+.ucard .pw::after{content:"";position:absolute;inset:calc(var(--w)*.035);border:calc(var(--w)*.006) solid rgba(36,23,14,.55);pointer-events:none}
+.ucard .wt{position:absolute;left:0;right:0;top:calc(var(--w)*.05);text-align:center;font:400 calc(var(--w)*.165)/1 "Rye",serif;letter-spacing:.02em;color:var(--ink)}
+.ucard .ph{position:absolute;left:calc(var(--w)*.085);right:calc(var(--w)*.085);top:calc(var(--w)*.245);height:calc(var(--w)*.6);
+  border:calc(var(--w)*.016) solid var(--ink);display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(circle,rgba(0,0,0,.2) 28%,transparent 31%) 0 0/calc(var(--w)*.045) calc(var(--w)*.045),radial-gradient(120% 90% at 50% 35%,var(--cl),var(--cc) 55%,var(--cd))}
+.ucard.c-w .ph{background:radial-gradient(circle,rgba(0,0,0,.22) 28%,transparent 31%) 0 0/calc(var(--w)*.045) calc(var(--w)*.045),conic-gradient(from 45deg,#e2493c 0 25%,#3a7ee0 0 50%,#38a862 0 75%,#f4c13a 0)}
+.ucard .ph svg{width:96%;height:96%;filter:drop-shadow(0 calc(var(--w)*.012) 0 rgba(0,0,0,.35))}
+.ucard .num{font:400 calc(var(--w)*.5)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.016) var(--ink);paint-order:stroke fill;
+  text-shadow:calc(var(--w)*.018) calc(var(--w)*.026) 0 rgba(0,0,0,.4);transform:rotate(-4deg);margin-top:calc(var(--w)*.02)}
+.ucard .doa{position:absolute;left:0;right:0;top:calc(var(--w)*.875);text-align:center;font:400 calc(var(--w)*.066)/1 "Alfa Slab One",serif;letter-spacing:.08em;color:var(--ink)}
+.ucard .who{position:absolute;left:calc(var(--w)*.03);right:calc(var(--w)*.03);top:calc(var(--w)*.965);text-align:center;font:400 calc(var(--w)*var(--ws,.092))/1 "Alfa Slab One",serif;letter-spacing:.03em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:clip}
+.ucard .bty{position:absolute;left:0;right:0;top:calc(var(--w)*1.085);display:flex;justify-content:center;align-items:center;gap:calc(var(--w)*.015);font:400 calc(var(--w)*.064)/1 "Alfa Slab One",serif;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ucard .bty svg{width:calc(var(--w)*.075);height:calc(var(--w)*.1)}
+.ucard .mar{position:absolute;left:0;right:0;bottom:calc(var(--w)*.055);text-align:center;font:700 calc(var(--w)*.05)/1 var(--label);letter-spacing:.3em;color:rgba(36,23,14,.75)}
+/* the wax-seal pip: colour and value, readable when the hand is fanned */
+.ucard .pip{position:absolute;width:calc(var(--w)*.25);height:calc(var(--w)*.25);border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,var(--cl),var(--cc) 60%,var(--cd));box-shadow:0 0 0 calc(var(--w)*.016) #f3e3bd,0 calc(var(--w)*.01) calc(var(--w)*.03) rgba(0,0,0,.6);
+  font:400 calc(var(--w)*.15)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.006) var(--ink);paint-order:stroke fill;z-index:2}
+.ucard .pip svg{width:68%;height:68%}
+.ucard .pip.tl{left:calc(var(--w)*.025);top:calc(var(--w)*.2)}
+.ucard.c-w .pip{background:conic-gradient(from 45deg,#c92a24 0 25%,#1b5fc0 0 50%,#25884a 0 75%,#e8a812 0)}
+/* the back: a black Jolly Roger flag inside a rope border */
+.ucard.uback{--cc:#4a2c14;background:#5a3a1c;background-image:repeating-linear-gradient(45deg,#c79a5a 0 calc(var(--w)*.03),#7a5328 calc(var(--w)*.03) calc(var(--w)*.06))}
+.ucard.uback .fl{position:absolute;inset:calc(var(--w)*.07);border-radius:calc(var(--w)*.05);background:radial-gradient(120% 80% at 50% 40%,#2a2620,#0b0a08 70%);
+  box-shadow:inset 0 0 calc(var(--w)*.12) #000,0 0 0 calc(var(--w)*.012) #2a1a0c;display:grid;place-items:center}
+.ucard.uback .fl svg{width:66%}
+.ucard.uback .bt{position:absolute;left:0;right:0;bottom:calc(var(--w)*.12);text-align:center;font:400 calc(var(--w)*.13)/1 "Rye",serif;color:#f3e3bd;letter-spacing:.06em}
+.ucard.uback .bt2{position:absolute;left:0;right:0;top:calc(var(--w)*.13);text-align:center;font:700 calc(var(--w)*.06)/1 var(--label);color:#c9a86a;letter-spacing:.32em}
+/* tiny cards (the rules list) show only the seal and the picture */
+.mini .ucard .wt,.mini .ucard .doa,.mini .ucard .who,.mini .ucard .bty,.mini .ucard .mar,.mini .ucard .pip{display:none}
+.mini .ucard .ph{top:calc(var(--w)*.3);height:calc(var(--w)*.8)}
 /* the table */
 .ugame{max-width:84rem;margin:0 auto}
 .ugame .board .mark{font-family:"Pirata One",serif;font-weight:400}
@@ -51,13 +75,13 @@
 .udeck::before{content:"";position:absolute;inset:9%;border-radius:50%;border:2px dashed rgba(255,226,170,.22)}
 @media (max-width:760px){.ucolname .sea{display:none}.udeck{aspect-ratio:1/1.08;width:100%;max-height:max(22rem,56vh);margin-top:.8rem}}
 .ucenter{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:clamp(.8rem,3vw,2rem)}
-.ucenter .ucard{--w:clamp(64px,9vw,96px)}
+.ucenter .ucard{--w:clamp(76px,10.5vw,116px)}
 .upile{position:relative;display:grid;place-items:center}
 .upile .cnt{position:absolute;bottom:-1.5rem;left:0;right:0;text-align:center;font:600 .75rem/1 var(--label);color:#f6e7c4;letter-spacing:.06em;text-shadow:0 1px 3px #000}
 button.ucard.drawme{cursor:pointer;animation:bob 1.6s ease-in-out infinite}
 button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
 @keyframes bob{50%{transform:translateY(-5px)}}
-.udisc{position:relative;width:clamp(64px,9vw,96px);aspect-ratio:5/7.4}
+.udisc{position:relative;width:clamp(76px,10.5vw,116px);aspect-ratio:5/7.4}
 .udisc .ucard{position:absolute;inset:0}
 .ucompass{position:absolute;left:50%;top:50%;width:calc(100% + 4.2rem);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;
   border:3px solid var(--cur,#fff);box-shadow:0 0 22px var(--cur),inset 0 0 22px var(--cur);opacity:.85;transition:border-color .5s,box-shadow .5s}
@@ -129,26 +153,69 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
 .urules .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1.2rem}
 .urules li{margin:.35rem 0}
 .urules .mini{display:inline-block;vertical-align:middle;margin-right:.45rem}
-.urules .mini .ucard{--w:30px}
+.urules .mini .ucard{--w:34px}
 @media (prefers-reduced-motion:reduce){.udir,.ustack,button.ucard.drawme,.useat .catch,.ubtn.uno.loud{animation:none}}`;
   const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
 
-  // ---- card art ----
-  const GLYPH = {
-    skip: '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="46" cy="56" r="27" fill="#1b1b1b"/><circle cx="37" cy="46" r="8" fill="rgba(255,255,255,.35)"/><path d="M64 35q8-12 18-8" stroke="#6b4a2a" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="84" cy="26" r="6" fill="#ffb43a"/><circle cx="84" cy="26" r="3" fill="#fff6c8"/></svg>',
-    rev: '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="24" fill="#f4ead0" stroke="#3a2a1a" stroke-width="5"/><path d="M50 30 56 50 50 70 44 50Z" fill="#c62b25"/><path d="M50 30 56 50H44Z" fill="#7a1a10"/><path d="M14 44a37 37 0 0 1 52-28" stroke="#3a2a1a" stroke-width="6" fill="none"/><path d="M60 8l10 9-12 5Z" fill="#3a2a1a"/><path d="M86 56a37 37 0 0 1-52 28" stroke="#3a2a1a" stroke-width="6" fill="none"/><path d="M40 92 30 83l12-5Z" fill="#3a2a1a"/></svg>',
-    d2: '<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="22" y="20" width="36" height="50" rx="5" fill="#f3e2bd" stroke="#3a2a1a" stroke-width="4" transform="rotate(-10 40 45)"/><rect x="42" y="30" width="36" height="50" rx="5" fill="#f3e2bd" stroke="#3a2a1a" stroke-width="4" transform="rotate(8 60 55)"/><text x="61" y="64" text-anchor="middle" font-family="Pirata One,serif" font-size="30" fill="#8a1d12" transform="rotate(8 60 55)">+2</text></svg>',
-    wild: '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 30q6-16 20-18" stroke="#3b6b2a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M60 18q14-8 22 2-12 8-22-2Z" fill="#4f8f36"/><circle cx="50" cy="60" r="29" fill="#8c3fb0"/><path d="M28 54q10-12 22 0t22 0M26 68q12-12 24 0t24 0M34 42q8-8 16 0t16 0" stroke="#e2b6f5" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="40" cy="48" r="5" fill="rgba(255,255,255,.35)"/></svg>',
-    w4: '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 6 58 34 86 22 68 46 96 56 66 62 76 92 50 72 24 92 34 62 4 56 32 46 14 22 42 34Z" fill="#111" stroke="#c8281e" stroke-width="4" stroke-linejoin="round"/><text x="50" y="62" text-anchor="middle" font-family="Pirata One,serif" font-size="30" fill="#ffd23f">+4</text></svg>'
+  // ---- card art: Marine WANTED posters ----
+  // The poster's "photo" holds the numeral, or for action cards an illustration of a One Piece item, drawn here:
+  // Seastone Cuffs (Skip), Log Pose (Reverse), Den Den Mushi (Draw 2), Devil Fruit (Wild), Conqueror's Haki (Wild Draw 4).
+  const INK = "#24170e";
+  const ART = {
+    skip: `<svg viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M38 52c4-3 8-3 12 0s8 3 12 0" stroke="${INK}" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M38 52c4-3 8-3 12 0s8 3 12 0" stroke="#8a969c" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <g><circle cx="27" cy="54" r="18" fill="url(#ssA)" stroke="${INK}" stroke-width="3.5"/><circle cx="27" cy="54" r="9" fill="#1b2a33" stroke="${INK}" stroke-width="3"/><path d="M15 44a16 16 0 0 1 14-7" stroke="#e8f1f4" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/><rect x="21" y="32" width="12" height="7" rx="2" fill="#56636a" stroke="${INK}" stroke-width="2.5"/></g>
+      <g><circle cx="73" cy="54" r="18" fill="url(#ssA)" stroke="${INK}" stroke-width="3.5"/><circle cx="73" cy="54" r="9" fill="#1b2a33" stroke="${INK}" stroke-width="3"/><path d="M61 44a16 16 0 0 1 14-7" stroke="#e8f1f4" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/><rect x="67" y="32" width="12" height="7" rx="2" fill="#56636a" stroke="${INK}" stroke-width="2.5"/></g>
+      <path d="M27 82v6M73 82v6M20 88h60" stroke="${INK}" stroke-width="3" opacity=".35"/></svg>`,
+    rev: `<svg viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M8 62c10-6 22-8 42-8s32 2 42 8v14c-10-6-22-8-42-8S18 70 8 76z" fill="#8a5a2b" stroke="${INK}" stroke-width="3"/><path d="M14 66c10-4 20-5 36-5s26 1 36 5" stroke="#c99256" stroke-width="2" fill="none"/>
+      <ellipse cx="50" cy="60" rx="20" ry="6" fill="#c08a3e" stroke="${INK}" stroke-width="3"/>
+      <path d="M31 58a19 21 0 1 1 38 0z" fill="rgba(220,240,255,.55)" stroke="${INK}" stroke-width="3"/><path d="M36 46a14 15 0 0 1 10-10" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".85"/>
+      <path d="M50 34l4 18-4 4-4-4z" fill="#c62b25" stroke="${INK}" stroke-width="1.5"/><circle cx="50" cy="52" r="2.6" fill="${INK}"/>
+      <path d="M86 32A40 40 0 0 0 30 14" stroke="#fbf1d8" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M28 6l-6 10 11 3z" fill="#fbf1d8"/>
+      <path d="M14 32A40 40 0 0 1 30 14" stroke="#fbf1d8" stroke-width="5" fill="none" stroke-linecap="round" opacity="0"/></svg>`,
+    d2: `<svg viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M10 80c0-10 8-16 22-16h40c10 0 16 6 16 14 0 4-3 6-7 6H16c-4 0-6-2-6-4z" fill="#e8c27a" stroke="${INK}" stroke-width="3"/>
+      <path d="M22 62c-4-18 8-34 28-34s30 14 26 30c-2 8-10 10-18 6" fill="#d9782e" stroke="${INK}" stroke-width="3"/><path d="M50 40c9 0 14 6 13 12-1 5-7 7-11 3-3-3-1-7 2-6" stroke="${INK}" stroke-width="3" fill="none"/>
+      <path d="M66 66c4-8 6-16 8-24" stroke="${INK}" stroke-width="3" fill="none"/><path d="M60 66c6-10 14-14 22-12 6 2 8 8 6 12" fill="#e8c27a" stroke="${INK}" stroke-width="3"/>
+      <path d="M78 54l-2-14M86 56l4-12" stroke="${INK}" stroke-width="2.5"/><circle cx="76" cy="38" r="4" fill="#fbf1d8" stroke="${INK}" stroke-width="2"/><circle cx="91" cy="42" r="4" fill="#fbf1d8" stroke="${INK}" stroke-width="2"/><circle cx="76" cy="38" r="1.6" fill="${INK}"/><circle cx="91" cy="42" r="1.6" fill="${INK}"/>
+      <path d="M34 20c4-8 18-10 24-4l4 4c2 2 1 5-2 5l-6-1c-6-1-10 1-12 5" fill="#3a3a3a" stroke="${INK}" stroke-width="2.5"/><path d="M48 22c-3 2-5 6-4 10" stroke="#3a3a3a" stroke-width="2" fill="none"/>
+      <text x="20" y="30" text-anchor="middle" font-family="Alfa Slab One,serif" font-size="24" fill="#fbf1d8" stroke="${INK}" stroke-width="3" paint-order="stroke">+2</text></svg>`,
+    wild: `<svg viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M50 30c-2-10 2-18 10-22" stroke="#3f6b23" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M58 12c8-8 22-6 26 2-8 6-20 6-26-2z" fill="#5c9a33" stroke="${INK}" stroke-width="2.5"/><path d="M62 12c6 0 12 0 18 2" stroke="#2f5a1a" stroke-width="1.5" fill="none"/>
+      <path d="M50 32c-18-8-38 4-36 26 2 18 18 32 36 32s34-14 36-32c2-22-18-34-36-26z" fill="url(#dfA)" stroke="${INK}" stroke-width="3.5"/>
+      <g stroke="#e9c8fb" stroke-width="3.2" fill="none" stroke-linecap="round"><path d="M30 46c0-5 8-5 8 0s-5 6-6 3"/><path d="M58 44c0-5 8-5 8 0s-5 6-6 3"/><path d="M40 64c0-6 10-6 10 0s-6 7-8 4"/><path d="M64 66c0-5 8-5 8 0s-5 6-6 3"/><path d="M24 64c0-4 6-4 6 0"/><path d="M48 80c0-4 6-4 6 0"/><path d="M44 42c0-3 5-3 5 0"/></g>
+      <path d="M26 44c2-6 6-10 12-12" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/></svg>`,
+    w4: `<svg viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="52" r="46" fill="url(#hkA)"/>
+      <g stroke="${INK}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M50 52 36 30 42 22 30 4"/><path d="M50 52 70 36 66 26 86 14"/><path d="M50 52 76 62 84 56 98 72"/><path d="M50 52 28 66 20 60 4 76"/><path d="M50 52 54 76 46 84 52 98"/></g>
+      <g stroke="#ff3b2f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M50 52 36 30 42 22 30 4"/><path d="M50 52 70 36 66 26 86 14"/><path d="M50 52 76 62 84 56 98 72"/><path d="M50 52 28 66 20 60 4 76"/><path d="M50 52 54 76 46 84 52 98"/></g>
+      <circle cx="50" cy="52" r="18" fill="${INK}" stroke="#ff3b2f" stroke-width="2.5"/><text x="50" y="60" text-anchor="middle" font-family="Alfa Slab One,serif" font-size="21" fill="#fbf1d8">+4</text></svg>`
   };
+  // gradients the card art shares, defined once in a visible zero-size SVG (ids repeated per card would break when the first copy is hidden)
+  document.body.insertAdjacentHTML("afterbegin", `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="ssA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b9c4c9"/><stop offset=".55" stop-color="#6f7f88"/><stop offset="1" stop-color="#3b474e"/></linearGradient><radialGradient id="dfA" cx=".38" cy=".35" r=".75"><stop offset="0" stop-color="#c58ae6"/><stop offset=".6" stop-color="#7d33a8"/><stop offset="1" stop-color="#3f1460"/></radialGradient><radialGradient id="hkA"><stop offset="0" stop-color="#ff5240"/><stop offset=".45" stop-color="#8a0c14"/><stop offset="1" stop-color="#1a0204" stop-opacity="0"/></radialGradient></defs></svg>`);
+  // small single-colour marks for the wax-seal pip
+  const PIP = {
+    skip: `<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#fbf1d8" stroke-width="2.6"><circle cx="7" cy="13" r="4.5"/><circle cx="17" cy="13" r="4.5"/><path d="M10.5 11.5h3"/></g></svg>`,
+    rev: `<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#fbf1d8" stroke-width="2.6" stroke-linecap="round"><path d="M5 9h12l-3-3M19 15H7l3 3"/></g></svg>`,
+    d2: "+2", w4: "+4",
+    wild: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7c-5-2-9 1-8.5 6 .5 4 4 7 8.5 7s8-3 8.5-7C21 8 17 5 12 7z" fill="#fbf1d8"/><path d="M12 7c0-2 1-4 3-5" stroke="#fbf1d8" stroke-width="2" fill="none"/></svg>`
+  };
+  const BERRY = `<svg viewBox="0 0 12 16" aria-hidden="true"><path d="M3 3h4.2a2.6 2.6 0 0 1 0 5.2H3zM3 8.2h5a2.9 2.9 0 0 1 0 5.8H3z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 1v14M8 1v2M8 13v2" stroke="currentColor" stroke-width="1.6"/></svg>`;
   const SKULL = (hat = "#e8b83c", band = "#c62b25") => `<svg viewBox="0 0 60 60" aria-hidden="true"><path d="M14 16 46 46M46 16 14 46" stroke="#f1e6cc" stroke-width="5" stroke-linecap="round"/><circle cx="30" cy="31" r="12" fill="#f1e6cc"/><rect x="23" y="37" width="14" height="9" rx="2" fill="#f1e6cc"/><circle cx="25.5" cy="31" r="3.3" fill="#111"/><circle cx="34.5" cy="31" r="3.3" fill="#111"/><path d="M28.5 37h3l-1.5 2.4z" fill="#111"/><ellipse cx="30" cy="21" rx="19" ry="4.6" fill="${hat}"/><path d="M20 21a10 8 0 0 1 20 0z" fill="${hat}"/><rect x="20.4" y="17.6" width="19.2" height="3" fill="${band}"/></svg>`;
-  const short = v => v === "skip" ? "⊘" : v === "rev" ? "⇄" : v === "d2" ? "+2" : v === "w4" ? "+4" : v === "wild" ? "W" : v;
+  // bounties: points x 10,000,000 Berries, written the way the posters write them, with a trailing dash
+  const bounty = id => (U.points(id) * 10000000 || 1000).toLocaleString("en-US") + "-";
   function cardHTML(id, o = {}) {
-    if (id == null || id < 0) return `<${o.tag || "div"} class="ucard back ${o.cls || ""}" ${o.attrs || ""}><span class="uf"></span><span class="port">${SKULL()}</span><span class="bt">UNO</span></${o.tag || "div"}>`;
-    const c = U.card(id), K = U.KINDS[c.v], g = o.tag || "div";
-    return `<${g} class="ucard c-${c.c} v-${c.v} ${o.cls || ""}" ${o.attrs || ""} aria-label="${esc(U.label(id))}"><span class="uf"></span>
-      <span class="cn tl">${short(c.v)}</span><span class="port">${K ? GLYPH[c.v] : `<span class="big">${c.v}</span>`}</span><span class="cn br">${short(c.v)}</span>
-      ${K ? `<span class="nm">${K.alias}</span>` : ""}</${g}>`;
+    const g = o.tag || "div";
+    if (id == null || id < 0) return `<${g} class="ucard uback ${o.cls || ""}" ${o.attrs || ""}><span class="fl">${SKULL()}</span><span class="bt2">GRAND LINE</span><span class="bt">UNO</span></${g}>`;
+    const c = U.card(id), K = U.KINDS[c.v], pip = K ? PIP[c.v] : c.v;
+    const who = K ? K.alias : U.COLORS[c.c].sea;
+    return `<${g} class="ucard c-${c.c} v-${c.v} ${o.cls || ""}" ${o.attrs || ""} aria-label="${esc(U.label(id))}"><span class="pw">
+        <span class="wt">WANTED</span>
+        <span class="ph">${K ? ART[c.v] : `<span class="num">${c.v}</span>`}</span>
+        <span class="doa">DEAD OR ALIVE</span><span class="who" style="--ws:${who.length > 13 ? .056 : who.length > 10 ? .068 : .092}">${esc(who.toUpperCase())}</span>
+        <span class="bty">${BERRY}${bounty(id)}</span><span class="mar">MARINE</span></span>
+      <span class="pip tl">${pip}</span></${g}>`;
   }
   const FLAG_COLORS = ["#e8b83c", "#c8281e", "#2f9a52", "#1f6fd1", "#8c3fb0", "#f08a24", "#21a3a3", "#e05a9a", "#9aa4ad", "#6b4423", "#d6d03a", "#4a5bd6"];
   const flagFor = i => SKULL(FLAG_COLORS[i % 12], i % 2 ? "#111" : "#c62b25");
@@ -159,7 +226,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const pick = c => U.CARDS.find(k => k.c === c.c && k.v === c.v).id;
     const fan = [{ c: "r", v: "7" }, { c: "b", v: "rev" }, { c: "w", v: "wild" }, { c: "w", v: "w4" }].map(pick);
     return `<header class="umast"><div><h1>Grand Line<span>UNO</span></h1>
-      <p>Set sail with up to 12 friends, each on their own phone or computer. Match the colour or the symbol, fire Cannonballs and Bounties at your rivals, stack the draws to sink them, and be the first crew to empty your hand. Don't forget to shout UNO!</p></div>
+      <p>Set sail with up to 12 friends, each on their own phone or computer. Match the colour or the symbol, cuff your rivals with Seastone, call in backup on the Den Den Mushi, stack the draws to sink them, and be the first crew to empty your hand. Don't forget to shout UNO!</p></div>
       <div class="fanu" aria-hidden="true">${fan.map((id, i) => cardHTML(id, { attrs: `style="transform:translate(calc(-50% + ${FAN[i][2]}px),calc(-50% + ${FAN[i][3]}px)) rotate(${FAN[i][1]})"` })).join("")}</div></header>`;
   }
   function rulesHTML() {
@@ -173,14 +240,14 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
         <li>When you play your second-to-last card, press <b>UNO!</b> first. If you forget, anyone can <b>Catch</b> you before the next move and you draw 2.</li>
         <li><b>Win</b> by playing your last card.</li></ul></div>
       <div><h3>The cards</h3><ul>
-        <li><span class="mini">${ex("skip")}</span><b>Cannonball</b> (Skip): the next player loses their turn.</li>
-        <li><span class="mini">${ex("rev")}</span><b>Log Pose</b> (Reverse): play turns the other way. With two players it acts like a Skip.</li>
-        <li><span class="mini">${ex("d2")}</span><b>Bounty</b> (Draw 2): the next player draws 2, unless they stack.</li>
+        <li><span class="mini">${ex("skip")}</span><b>Seastone Cuffs</b> (Skip): the next player is cuffed and loses their turn.</li>
+        <li><span class="mini">${ex("rev")}</span><b>Log Pose</b> (Reverse): the course swings round and play turns the other way. With two players it acts like a Skip.</li>
+        <li><span class="mini">${ex("d2")}</span><b>Den Den Mushi</b> (Draw 2): backup is called in; the next player draws 2, unless they stack.</li>
         <li><span class="mini">${ex("wild")}</span><b>Devil Fruit</b> (Wild): choose the next colour.</li>
-        <li><span class="mini">${ex("w4")}</span><b>Haki</b> (Wild Draw 4): choose the colour; the next player draws 4, unless they stack.</li></ul></div>
+        <li><span class="mini">${ex("w4")}</span><b>Conqueror's Haki</b> (Wild Draw 4): choose the colour; the next player draws 4, unless they stack.</li></ul></div>
       <div><h3>Stacking</h3><ul>
-        <li>Hit by a Draw 2? Answer with another <b>Draw 2</b> or a <b>Wild Draw 4</b> to pass the pile on, bigger.</li>
-        <li>Hit by a Wild Draw 4? Only another <b>Wild Draw 4</b> passes it on.</li>
+        <li>Hit by a Den Den Mushi? Answer with another <b>Den Den Mushi</b> or a <b>Conqueror's Haki</b> to pass the pile on, bigger.</li>
+        <li>Hit by Conqueror's Haki? Only another <b>Conqueror's Haki</b> passes it on.</li>
         <li>The player who can't (or won't) stack draws the whole pile and loses their turn.</li></ul>
         <h3 style="margin-top:1rem">EXP (its own Hall of Fame)</h3><ul>
         <li>Winner: <b>${X.win}</b>, plus 1 EXP for every ${X.haulPer} points left in the other hands (up to ${X.haulCap}).</li>
@@ -220,7 +287,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     let say = "", btns = "";
     if (S.status === "play") {
       if (myTurn) {
-        if (S.stack > 0) { say = `Hit for +${S.stack}!<small>Stack a ${S.stackKind === "d2" ? "Bounty (+2) or Haki (+4)" : "Haki (+4)"} to pass it on, or take all ${S.stack}.</small>`; btns = `<button class="ubtn go" data-u="draw">Take ${S.stack} cards</button>`; }
+        if (S.stack > 0) { say = `Hit for +${S.stack}!<small>Stack a ${S.stackKind === "d2" ? "Den Den Mushi (+2) or Conqueror's Haki (+4)" : "Conqueror's Haki (+4)"} to pass it on, or take all ${S.stack}.</small>`; btns = `<button class="ubtn go" data-u="draw">Take ${S.stack} cards</button>`; }
         else if (S.drew != null) { say = `You drew a card that fits<small>Play it now, or keep it and end your turn.</small>`; btns = `<button class="ubtn go" data-u="play" data-id="${S.drew}">Play it</button><button class="ubtn" data-u="pass">Keep it</button>`; }
         else { say = `Your turn<small>Match ${col ? `<b style="color:${col.hex}">${col.n}</b>` : "the colour"} or the symbol, play a Wild, or draw.</small>`; btns = `<button class="ubtn" data-u="draw">Draw a card</button>`; }
         if (P.hand.length === 2) btns += `<button class="ubtn uno" data-u="arm" aria-pressed="${ui.uno}">${ui.uno ? "UNO called!" : "UNO!"}</button>`;
@@ -277,7 +344,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     if (!same) return;
     const calm = noMotion(), L = S.last;
     if (snap.last !== prev.last && L) {
-      const disc = box(document.querySelector(".udisc .top")), pile = box(document.querySelector(".upile .ucard.back")), seat = i => box(document.querySelector(`.useat[data-p="${i}"] .flag`));
+      const disc = box(document.querySelector(".udisc .top")), pile = box(document.querySelector(".upile .ucard.uback")), seat = i => box(document.querySelector(`.useat[data-p="${i}"] .flag`));
       if (L.k === "play") {
         const c = U.card(L.card), from = L.p === v && ui.rects.get(L.card) ? ui.rects.get(L.card).rect : seat(L.p);
         const top = document.querySelector(".udisc .top");
@@ -285,7 +352,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
         if (window.Sfx) Sfx.place();
         const K = U.KINDS[c.v], who = nameOf(L.p), colr = U.COLORS[L.col] ? U.COLORS[L.col].hex : "#ffd23f";
         if (K) {
-          const sub = c.v === "skip" ? `${who} fires at the next player` : c.v === "rev" ? "The course turns around" : c.v === "d2" ? `The bounty stands at +${S.stack}` : c.v === "w4" ? `+${S.stack} · the sea turns ${U.COLORS[L.col].n}` : `The sea turns ${U.COLORS[L.col].n}`;
+          const sub = c.v === "skip" ? `${who} cuffs the next pirate · they lose a turn` : c.v === "rev" ? "The needle swings · the course turns around" : c.v === "d2" ? `Backup is on its way · +${S.stack}` : c.v === "w4" ? `+${S.stack} · the sea turns ${U.COLORS[L.col].n}` : `The sea turns ${U.COLORS[L.col].n}`;
           if (window.CutIn) CutIn.banner(`${K.alias}!`, sub, colr);
           if (window.Sfx) setTimeout(() => Sfx.spell("u-" + c.v, { targets: c.v === "rev" || c.v === "wild" ? 0 : 1 }), 120);
           if (!calm && disc) burst(disc, colr, c.v === "w4" ? 30 : 18);
@@ -311,7 +378,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       if (!calm) { const fl = document.querySelector(`.useat[data-p="${snap.turn}"] .flag`); if (fl) fl.animate([{ transform: "scale(1)" }, { transform: "scale(1.25)" }, { transform: "scale(1)" }], { duration: 600, easing: "cubic-bezier(.3,.7,.2,1)" }); }
     }
     // new cards in my hand slide up from the deck
-    const added = snap.hand.filter(id => !prev.hand.includes(id)), pile = box(document.querySelector(".upile .ucard.back"));
+    const added = snap.hand.filter(id => !prev.hand.includes(id)), pile = box(document.querySelector(".upile .ucard.uback"));
     if (!calm && pile) added.forEach((id, k) => { const el = document.querySelector(`.uhand .ucard[data-id="${id}"]`); if (!el) return; const r = box(el);
       el.animate([{ transform: `translate(${pile.left - r.left}px,${pile.top - r.top}px) scale(.6) rotateY(180deg)`, opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 600, delay: k * 90, easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" }); });
     if (snap.status === "over" && prev.status !== "over") { fireworks(["#ffd23f", "#c8281e", "#1f6fd1", "#2f9a52", "#fff3c8"]); if (window.Sfx) setTimeout(() => Sfx.win(S.winner === v), 300); }
