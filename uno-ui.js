@@ -310,8 +310,8 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     return `<details class="ref urules"><summary>How to play Grand Line UNO</summary><div class="cols">
       <div><h3>Your turn</h3><ul>
         <li>Play one card that matches the top card's <b>colour</b> or <b>number/symbol</b>, or play a Wild.</li>
-        <li>Can't (or won't) play? <b>Draw one card</b>. If it fits, you may play it straight away; otherwise your turn passes.</li>
-        <li>Each turn has <b>${U.TURN_MS / 1000} seconds</b>. If time runs out you draw (or take the stack) and pass.</li>
+        <li>Can't (or won't) play? <b>Draw until a card fits</b>, then play it. Holding a Wild? You can play that instead of drawing.</li>
+        <li>Each turn has <b>${U.TURN_MS / 1000} seconds</b>. If time runs out you take the stack, or draw until a card fits and it is played for you.</li>
         <li>When you play your second-to-last card, press <b>UNO!</b> first. If you forget, anyone can <b>Catch</b> you before the next move and you draw 2.</li>
         <li>Holding the <b>same number or symbol in other colours</b>? Once one of them fits, play them all together; the last one sets the colour. Each card counts: two Skips skip two players, two Draw Twos add 4. Wilds go one at a time.</li>
         <li><b>Win</b> by playing your last card.</li></ul></div>
@@ -371,11 +371,12 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     if (S.status === "play") {
       if (myTurn) {
         if (S.stack > 0) { say = `Hit for +${S.stack}!<small>Stack a ${S.stackKind === "d2" ? "Draw Two (+2) or Wild Draw Four (+4)" : "Wild Draw Four (+4)"} to pass it on, or take all ${S.stack}.</small>`; btns = `<button class="ubtn go" data-u="draw">Take ${S.stack} cards</button>`; }
-        else if (S.drew != null) { say = `You drew a card that fits<small>Play it now, or keep it and end your turn.</small>`; btns = `<button class="ubtn go" data-u="play" data-id="${S.drew}">Play it</button><button class="ubtn" data-u="pass">Keep it</button>`; }
+        else if (S.drew != null) { const n = S.last && S.last.k === "draw" && S.last.p === v ? S.last.count : 1;
+          say = `You drew ${n} card${n === 1 ? "" : "s"} until one fit<small>Play the card that fits to end your turn.</small>`; btns = `<button class="ubtn go" data-u="play" data-id="${S.drew}">Play it</button>`; }
         else if (ui.sel.length) { const end = U.COLORS[U.card(ui.sel[ui.sel.length - 1]).c];
           say = `Play your ${many(U.card(ui.sel[0]).v)} together<small>Tap more ${many(U.card(ui.sel[0]).v)} in any colour, or tap one again to put it back. The last one picked sets the colour: <b style="color:${end.hex}">${end.n}</b>.</small>`;
           btns = `<button class="ubtn go" data-u="playsel">Play ${ui.sel.length} card${ui.sel.length > 1 ? "s" : ""}</button><button class="ubtn" data-u="nosel">Cancel</button>`; }
-        else { say = `Your turn<small>Match ${col ? `<b style="color:${col.hex}">${col.n}</b>` : "the colour"} or the symbol, play a Wild, or draw. Got the same number or symbol in other colours? Play them together.</small>`; btns = `<button class="ubtn" data-u="draw">Draw a card</button>`; }
+        else { say = `Your turn<small>Match ${col ? `<b style="color:${col.hex}">${col.n}</b>` : "the colour"} or the symbol, play a Wild, or draw until one fits. Got the same number or symbol in other colours? Play them together.</small>`; btns = `<button class="ubtn" data-u="draw">Draw until one fits</button>`; }
         if (left === 1) btns += `<button class="ubtn uno" data-u="arm" aria-pressed="${ui.uno}">${ui.uno ? "UNO called!" : "UNO!"}</button>`;
       } else if (v >= 0) say = `${esc(nameOf(S.turn))} is on turn<small>${S.stack > 0 ? `They face +${S.stack}.` : "Watch for anyone who forgets to call UNO."}</small>`;
       else say = `You're watching<small>${esc(nameOf(S.turn))} is on turn.</small>`;
@@ -500,7 +501,6 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       case "col": { const id = ui.pick; ui.pick = null; render(); return send({ t: "play", card: id, col: d.c, uno: ui.uno }); }
       case "nopick": ui.pick = null; return render();
       case "draw": return send({ t: "draw" });
-      case "pass": return send({ t: "pass" });
       case "arm": ui.uno = !ui.uno; if (ui.uno && window.Sfx) Sfx.set(); return render();
       case "uno": return send({ t: "uno" });
       case "catch": return send({ t: "catch", p: +d.p });

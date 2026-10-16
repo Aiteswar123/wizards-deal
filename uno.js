@@ -145,17 +145,14 @@
         s.stack = 0; s.stackKind = null; advance(s);
         return { state: s };
       }
-      if (s.drew != null) return err("You've already drawn this turn.");
-      const id = drawOne(s);
-      if (id == null) { log(s, `@${a} couldn't draw and passes.`); advance(s); return { state: s }; }
-      P.hand.push(id); s.last = { k: "draw", p: a, count: 1, n: s.plays };
-      if (playable(s, id)) { s.drew = id; log(s, `@${a} drew a card.`); }
-      else { log(s, `@${a} drew a card and passes.`); advance(s); }
-      return { state: s };
-    }
-    if (t === "pass") {
-      if (s.drew == null) return err("Draw a card first.");
-      log(s, `@${a} keeps the card and passes.`); advance(s);
+      if (s.drew != null) return err("Play the card you drew.");
+      // draw until a card fits; that card must then be played. Only an empty deck and discard pile ends it early.
+      let id = null, n = 0;
+      while ((id = drawOne(s)) != null) { P.hand.push(id); n++; if (playable(s, id)) break; }
+      s.last = { k: "draw", p: a, count: n, n: s.plays };
+      const many = `${n} card${n === 1 ? "" : "s"}`;
+      if (id != null) { s.drew = id; log(s, `@${a} drew ${many} until one fit.`); }
+      else { log(s, n ? `@${a} drew ${many}, the deck ran out and nothing fit, so they pass.` : `@${a} couldn't draw and passes.`); advance(s); }
       return { state: s };
     }
     s.unoMiss = missed;
@@ -174,9 +171,14 @@
     if (s0.status !== "play" || !c || now - c.since < c.left) return null;
     const a = s0.turn; let s = clone(s0);
     log(s, `@${a} ran out of time.`);
-    let r = apply(s, a, { t: s.drew != null ? "pass" : "draw" });
+    // take the stack, or draw until a card fits, then play that card for them (a Wild picks the colour they hold most)
+    let r = s.drew == null ? apply(s, a, { t: "draw" }) : { state: s };
     if (!r.error) s = r.state;
-    if (s.turn === a && s.drew != null) { r = apply(s, a, { t: "pass" }); if (!r.error) s = r.state; }
+    if (s.turn === a && s.drew != null) {
+      const counts = {}; s.players[a].hand.forEach(id => { const k = card(id).c; if (k !== "w") counts[k] = (counts[k] || 0) + 1; });
+      const col = COLOR_KEYS.slice().sort((x, y) => (counts[y] || 0) - (counts[x] || 0))[0];
+      r = apply(s, a, { t: "play", card: s.drew, col }); if (!r.error) s = r.state;
+    }
     if (s.turnN === s0.turnN && s.status === "play") { s.unoMiss = null; advance(s); }   // never leave the clock stuck
     return syncClock(s0, s, now);
   }
