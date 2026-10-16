@@ -322,8 +322,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
         <li><span class="mini">${ex("wild")}</span><b>Wild Card</b>: choose the next colour.</li>
         <li><span class="mini">${ex("w4")}</span><b>Wild Draw Four</b> (+4): choose the colour; the next player draws 4, unless they stack.</li></ul></div>
       <div><h3>Stacking</h3><ul>
-        <li>Hit by a Draw Two? Answer with another <b>Draw Two</b> or a <b>Wild Draw Four</b> to pass the pile on, bigger.</li>
-        <li>Hit by a Wild Draw Four? Only another <b>Wild Draw Four</b> passes it on.</li>
+        <li>Hit by a Draw Two or a Wild Draw Four? Answer with a <b>Draw Two</b> or a <b>Wild Draw Four</b>, in any colour, to pass the pile on, bigger.</li>
         <li>The player who can't (or won't) stack draws the whole pile and loses their turn.</li></ul>
         <h3 style="margin-top:1rem">EXP (its own Hall of Fame)</h3><ul>
         <li>Winner: <b>${X.win}</b>, plus 1 EXP for every ${X.haulPer} points left in the other hands (up to ${X.haulCap}).</li>
@@ -370,7 +369,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     let say = "", btns = "";
     if (S.status === "play") {
       if (myTurn) {
-        if (S.stack > 0) { say = `Hit for +${S.stack}!<small>Stack a ${S.stackKind === "d2" ? "Draw Two (+2) or Wild Draw Four (+4)" : "Wild Draw Four (+4)"} to pass it on, or take all ${S.stack}.</small>`; btns = `<button class="ubtn go" data-u="draw">Take ${S.stack} cards</button>`; }
+        if (S.stack > 0) { say = `Hit for +${S.stack}!<small>Stack a Draw Two (+2) or Wild Draw Four (+4), any colour, to pass it on, or take all ${S.stack}.</small>`; btns = `<button class="ubtn go" data-u="draw">Take ${S.stack} cards</button>`; }
         else if (S.drew != null) { const n = S.last && S.last.k === "draw" && S.last.p === v ? S.last.count : 1;
           say = `You drew ${n} card${n === 1 ? "" : "s"} until one fit<small>Play the card that fits to end your turn.</small>`; btns = `<button class="ubtn go" data-u="play" data-id="${S.drew}">Play it</button>`; }
         else if (P.hand.length === 1 && U.KINDS[U.card(P.hand[0]).v]) { say = `Your last card is a power card<small>Nobody goes out on a power card. Draw until a card fits.</small>`; btns = `<button class="ubtn go" data-u="draw">Draw until one fits</button>`; }

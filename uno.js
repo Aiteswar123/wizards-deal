@@ -1,5 +1,5 @@
 // Grand Line UNO: the rules engine, shared by the browser and the server (like engine.js).
-// Plays like UNO with stacking: answer a Draw 2 with a Draw 2, or a Draw 2 / Wild Draw 4 with a Wild Draw 4, to pass
+// Plays like UNO with stacking: answer a Draw 2 or a Wild Draw 4 with either one, in any colour, to pass
 // the growing pile to the next player. A card that fits can take every other card of the same number or symbol with it (not Wilds). Pirate flavour only: the cards are still red, yellow, green and blue numbers,
 // Skip, Reverse, Draw 2, Wild and Wild Draw 4.
 (function (G) {
@@ -43,7 +43,7 @@
   function newGame(players) {
     const n = players.length, deck = shuffle(CARDS.filter(c => c.id < BASE * decksFor(n)).map(c => c.id));
     const s = { kind: "uno", status: "play", players: players.map(p => ({ uid: p.uid, nick: p.nick, hand: [], played: 0 })),
-      deck, discard: [], col: null, turn: Math.floor(Math.random() * n), dir: 1, stack: 0, stackKind: null, drew: null,
+      deck, discard: [], col: null, turn: Math.floor(Math.random() * n), dir: 1, stack: 0, drew: null,
       unoMiss: null, winner: null, turnN: 1, last: null, plays: 0, log: [] };
     for (let k = 0; k < HAND; k++) for (const P of s.players) P.hand.push(s.deck.pop());
     // flip until a number card starts the discard pile
@@ -70,7 +70,8 @@
     const c = card(id), t = top(s), P = s.players[s.turn];
     // nobody goes out on a power card: a last card that is an action card or a Wild can't be played
     if (KINDS[c.v] && P && P.hand.length === 1 && P.hand[0] === id) return false;
-    if (s.stack > 0) return c.v === "w4" || (c.v === "d2" && s.stackKind === "d2");
+    // a draw pile is passed on by any Draw 2 or Wild Draw 4, whatever its colour and whatever started the pile
+    if (s.stack > 0) return c.v === "w4" || c.v === "d2";
     if (isWild(c)) return true;
     return c.c === s.col || c.v === t.v;
   }
@@ -109,7 +110,7 @@
       if (!P.hand.includes(id)) return err("That card isn't in your hand.");
       if (s.drew != null && id !== s.drew) return err("After drawing you can only play the card you drew.");
       if (KINDS[card(id).v] && P.hand.length === 1) return err(`Your last card can't be a power card. ${s.stack > 0 ? `Take the ${s.stack}.` : "Draw until a card fits."}`);
-      if (!playable(s, id)) return err(s.stack > 0 ? `Answer with a ${s.stackKind === "d2" ? "Draw 2 or Wild Draw 4" : "Wild Draw 4"}, or draw ${s.stack}.` : "That card doesn't match the colour or the symbol.");
+      if (!playable(s, id)) return err(s.stack > 0 ? `Answer with a Draw 2 or Wild Draw 4, or draw ${s.stack}.` : "That card doesn't match the colour or the symbol.");
       const c = card(id);
       if (isWild(c) && !COLOR_KEYS.includes(act.col)) return err("Choose a colour.");
       // more cards with the same number, in any colour, can go down with it; the last one sets the colour
@@ -137,7 +138,7 @@
       let steps = 1;
       if (c.v === "skip") { steps = 1 + n; for (let k = 1; k <= n; k++) log(s, `@${nextSeat(s, a, k)} is skipped.`); }
       if (c.v === "rev") { if (s.players.length === 2) steps = 1 + n; else if (n % 2) s.dir *= -1; }
-      if (c.v === "d2" || c.v === "w4") { s.stack += (c.v === "d2" ? 2 : 4) * n; s.stackKind = c.v === "w4" ? "w4" : (s.stackKind === "w4" ? "w4" : "d2"); }
+      if (c.v === "d2" || c.v === "w4") s.stack += (c.v === "d2" ? 2 : 4) * n;
       advance(s, steps);
       return { state: s };
     }
@@ -146,7 +147,7 @@
         const n = drawN(s, a, s.stack);
         log(s, `@${a} draws ${n}.`);
         s.last = { k: "draw", p: a, count: n, n: s.plays };
-        s.stack = 0; s.stackKind = null; advance(s);
+        s.stack = 0; advance(s);
         return { state: s };
       }
       if (s.drew != null) return err("Play the card you drew.");

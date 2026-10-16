@@ -8,7 +8,7 @@ An online table for playing Monopoly Deal: Harry Potter edition with 2 to 12 fri
 - Everyone sits around one table: items and banks are visible to all, your hand is visible only to you.
 - The server runs every move through the rules engine, so other players' hands never reach your browser.
 
-The same site also hosts **Grand Line UNO**, a pirate-themed UNO for 2 to 12 players with stacking (+2 on +2, +4 on +2 or +4), its own one-minute turn clock and its own leaderboard ("Most Wanted"). Pick the game at the top of the home page.
+The same site also hosts **Grand Line UNO**, a pirate-themed UNO for 2 to 12 players with stacking (any +2 or +4 on any +2 or +4, any colour), its own one-minute turn clock and its own leaderboard ("Most Wanted"). Pick the game at the top of the home page.
 
 Fan-made and unofficial; not affiliated with Hasbro or Warner Bros. Some item card names are stand-ins. Grand Line UNO is fan-made with original artwork, inspired by UNO and One Piece; not affiliated with Mattel, Eiichiro Oda, Shueisha or Toei Animation.
 
