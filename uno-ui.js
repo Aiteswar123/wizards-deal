@@ -314,7 +314,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
         <li>Each turn has <b>${U.TURN_MS / 1000} seconds</b>. If time runs out you take the stack, or draw until a card fits and it is played for you.</li>
         <li>When you play your second-to-last card, press <b>UNO!</b> first. If you forget, anyone can <b>Catch</b> you before the next move and you draw 2.</li>
         <li>Holding the <b>same number or symbol in other colours</b>? Once one of them fits, play them all together; the last one sets the colour. Each card counts: two Skips skip two players, two Draw Twos add 4. Wilds go one at a time.</li>
-        <li><b>Win</b> by playing your last card.</li></ul></div>
+        <li><b>Win</b> by playing your last card. It must be a number card: nobody goes out on a Skip, Reverse, Draw Two or Wild. If your only card left is one of those, draw until a card fits.</li></ul></div>
       <div><h3>The cards</h3><ul>
         <li><span class="mini">${ex("skip")}</span><b>Skip</b>: the next player loses their turn.</li>
         <li><span class="mini">${ex("rev")}</span><b>Reverse</b>: play turns the other way. With two players it acts like a Skip.</li>
@@ -373,6 +373,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
         if (S.stack > 0) { say = `Hit for +${S.stack}!<small>Stack a ${S.stackKind === "d2" ? "Draw Two (+2) or Wild Draw Four (+4)" : "Wild Draw Four (+4)"} to pass it on, or take all ${S.stack}.</small>`; btns = `<button class="ubtn go" data-u="draw">Take ${S.stack} cards</button>`; }
         else if (S.drew != null) { const n = S.last && S.last.k === "draw" && S.last.p === v ? S.last.count : 1;
           say = `You drew ${n} card${n === 1 ? "" : "s"} until one fit<small>Play the card that fits to end your turn.</small>`; btns = `<button class="ubtn go" data-u="play" data-id="${S.drew}">Play it</button>`; }
+        else if (P.hand.length === 1 && U.KINDS[U.card(P.hand[0]).v]) { say = `Your last card is a power card<small>Nobody goes out on a power card. Draw until a card fits.</small>`; btns = `<button class="ubtn go" data-u="draw">Draw until one fits</button>`; }
         else if (ui.sel.length) { const end = U.COLORS[U.card(ui.sel[ui.sel.length - 1]).c];
           say = `Play your ${many(U.card(ui.sel[0]).v)} together<small>Tap more ${many(U.card(ui.sel[0]).v)} in any colour, or tap one again to put it back. The last one picked sets the colour: <b style="color:${end.hex}">${end.n}</b>.</small>`;
           btns = `<button class="ubtn go" data-u="playsel">Play ${ui.sel.length} card${ui.sel.length > 1 ? "s" : ""}</button><button class="ubtn" data-u="nosel">Cancel</button>`; }
@@ -494,6 +495,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       }
       case "playsel": {
         const lead = ui.sel.find(id => U.playable(S, id)); if (lead == null) return;
+        if (ui.sel.length === S.players[v].hand.length && U.KINDS[U.card(lead).v]) { flash("Your last card can't be a power card. Keep one back."); if (window.Sfx) Sfx.error(); return; }
         const more = ui.sel.filter(id => id !== lead); ui.sel = [];
         return send({ t: "play", card: lead, more, uno: ui.uno });
       }

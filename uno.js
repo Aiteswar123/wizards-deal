@@ -67,7 +67,9 @@
 
   // Can this card go on the pile right now?
   function playable(s, id) {
-    const c = card(id), t = top(s);
+    const c = card(id), t = top(s), P = s.players[s.turn];
+    // nobody goes out on a power card: a last card that is an action card or a Wild can't be played
+    if (KINDS[c.v] && P && P.hand.length === 1 && P.hand[0] === id) return false;
     if (s.stack > 0) return c.v === "w4" || (c.v === "d2" && s.stackKind === "d2");
     if (isWild(c)) return true;
     return c.c === s.col || c.v === t.v;
@@ -106,6 +108,7 @@
       const id = act.card;
       if (!P.hand.includes(id)) return err("That card isn't in your hand.");
       if (s.drew != null && id !== s.drew) return err("After drawing you can only play the card you drew.");
+      if (KINDS[card(id).v] && P.hand.length === 1) return err(`Your last card can't be a power card. ${s.stack > 0 ? `Take the ${s.stack}.` : "Draw until a card fits."}`);
       if (!playable(s, id)) return err(s.stack > 0 ? `Answer with a ${s.stackKind === "d2" ? "Draw 2 or Wild Draw 4" : "Wild Draw 4"}, or draw ${s.stack}.` : "That card doesn't match the colour or the symbol.");
       const c = card(id);
       if (isWild(c) && !COLOR_KEYS.includes(act.col)) return err("Choose a colour.");
@@ -120,6 +123,7 @@
           if (card(m).v !== c.v) return err("Cards played together must have the same number or symbol.");
           seen.add(m);
         }
+        if (KINDS[c.v] && seen.size === P.hand.length) return err("Your last card can't be a power card. Keep one back.");
       }
       for (const x of [id, ...more]) { P.hand.splice(P.hand.indexOf(x), 1); s.discard.push(x); P.played = (P.played || 0) + 1; s.plays++; }
       const lastId = more.length ? more[more.length - 1] : id;
