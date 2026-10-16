@@ -1,12 +1,16 @@
-// Sound effects for Wizard's Deal, synthesised live with the Web Audio API (no sound files, nothing to license).
+// Sound effects and background music for Wizard's Deal, synthesised live with the Web Audio API (no sound files,
+// nothing to license). The music is generated as it plays: an original slow waltz in E minor on celesta, harp, soft
+// strings and a low bass, never the same twice, quieter and sparser during a game. Music and sound effects each have
+// their own switch, remembered per device ("wd-music", "wd-sound").
 // Every sound runs through a soft hall reverb and a limiter. Sound is on by default and remembered per device
 // ("wd-sound"); browsers only allow audio after the first tap or key press, so the context starts then.
 (function () {
   "use strict";
-  let ctx = null, out = null, wet = null, noiseBuf = null;
-  const KEY = "wd-sound";
-  const read = () => { try { const v = localStorage.getItem(KEY); return v == null ? true : v === "1"; } catch (e) { return true; } };
-  let on = read();
+  let ctx = null, out = null, wet = null, noiseBuf = null, mGain = null, mBus = null;
+  const KEY = "wd-sound", MKEY = "wd-music";
+  const read = k => { try { const v = localStorage.getItem(k); return v == null ? true : v === "1"; } catch (e) { return true; } };
+  const save = (k, v) => { try { localStorage.setItem(k, v ? "1" : "0"); } catch (e) {} };
+  let on = read(KEY), musicOn = read(MKEY);
 
   function init() {
     if (ctx) return ctx;
@@ -20,17 +24,21 @@
     for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2); }
     const conv = ctx.createConvolver(); conv.buffer = ir;
     wet = ctx.createGain(); wet.gain.value = .28; wet.connect(conv); conv.connect(master);
+    // the music has its own bus and its own reverb, so muting or ducking it takes the echoes too
+    mGain = ctx.createGain(); mGain.gain.value = 0; mGain.connect(master);
+    const mConv = ctx.createConvolver(); mConv.buffer = ir; const mWet = ctx.createGain(); mWet.gain.value = .45; mWet.connect(mConv); mConv.connect(mGain);
+    mBus = { dry: mGain, wet: mWet };
     noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
     const nd = noiseBuf.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
     return ctx;
   }
-  const unlock = () => { if (!on) return; init(); if (ctx && ctx.state === "suspended") ctx.resume(); };
+  const unlock = () => { if (!on && !musicOn) return; init(); if (ctx && ctx.state === "suspended") ctx.resume(); if (musicOn) startMusic(); };
   addEventListener("pointerdown", unlock, { capture: true, passive: true });
   addEventListener("keydown", unlock, { capture: true });
 
   const ready = () => on && !document.hidden && ctx && ctx.state === "running";
   // route a node to the dry bus and, a little, to the hall
-  function send(node, rev = 1) { node.connect(out); if (rev > 0) { const g = ctx.createGain(); g.gain.value = rev; node.connect(g); g.connect(wet); } }
+  function send(node, rev = 1, bus) { node.connect(bus ? bus.dry : out); if (rev > 0) { const g = ctx.createGain(); g.gain.value = rev; node.connect(g); g.connect(bus ? bus.wet : wet); } }
 
   // A tone with an attack/decay envelope. Optional pitch glide (to), vibrato, and pan.
   function tone(f, t, dur, o = {}) {
@@ -42,7 +50,7 @@
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
     osc.connect(g);
     let last = g; if (p) { p.pan.value = o.pan || 0; g.connect(p); last = p; }
-    send(last, o.rev ?? 1);
+    send(last, o.rev ?? 1, o.bus);
     osc.start(t); osc.stop(t + dur + .05);
   }
   // A bell: a few inharmonic partials decaying at different rates.
@@ -123,9 +131,80 @@
     error() { const t = now(); tone(196, t, .18, { vol: .07, type: "triangle", rev: .4 }); tone(164.8, t + .12, .22, { vol: .07, type: "triangle", rev: .4 }); }
   };
 
+  // ---------- background music ----------
+  // An original generative waltz (3/4, 66 bpm) in E harmonic minor. Each bar has a chord; strings hold it, a bass
+  // note marks the downbeat, and a celesta improvises a line over it, stepping through the scale and landing on
+  // chord tones on the strong beats. A harp glissando opens each 8-bar phrase.
+  const mtof = n => 440 * Math.pow(2, (n - 69) / 12);
+  const PROG = [[52, 55, 59, 64], [48, 52, 55, 60], [45, 48, 52, 57], [47, 51, 54, 57], [52, 55, 59, 64], [43, 47, 50, 55], [45, 48, 52, 60], [47, 51, 54, 57]];
+  const SCALE = [71, 72, 75, 76, 78, 79, 81, 83, 84, 87, 88];   // B C D# E F# G A B C D# E
+  const EIGHTH = 60 / 66 / 2;
+  let mTimer = null, nextT = 0, step = 0, mNote = 76;
+  function feel() {
+    const sc = document.documentElement.dataset.screen;
+    return sc === "game" ? { dens: .5, vol: .75 } : sc === "lobby" ? { dens: .65, vol: 1 } : { dens: .72, vol: 1.05 };
+  }
+  function celesta(n, t, v) { const f = mtof(n), b = mBus, pan = (n - 79) / 14;
+    tone(f, t, 2.2, { vol: .05 * v, att: .003, pan, rev: 1, bus: b }); tone(f * 2, t, .9, { vol: .014 * v, att: .002, pan, rev: 1, bus: b }); tone(f * 4.01, t, .22, { vol: .008 * v, att: .001, pan, rev: 1, bus: b }); }
+  function strings(ch, t, len) { ch.forEach((n, i) => [-4, 4].forEach(dt => {
+    const osc = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter();
+    osc.type = "sawtooth"; osc.frequency.value = mtof(n); osc.detune.value = dt;
+    lp.type = "lowpass"; lp.frequency.value = 700; lp.Q.value = .3;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.0075, t + 1.1); g.gain.setValueAtTime(.0075, t + len - .2); g.gain.linearRampToValueAtTime(0, t + len + 1.2);
+    osc.connect(lp); lp.connect(g); send(g, .9, mBus); osc.start(t); osc.stop(t + len + 1.3); })); }
+  function scheduleStep(t) {
+    const bar = Math.floor(step / 6), pos = step % 6, ch = PROG[bar % PROG.length], F = feel();
+    if (pos === 0) {
+      strings(ch, t, EIGHTH * 6);
+      tone(mtof(ch[0] - 12), t, EIGHTH * 5, { vol: .07, att: .02, rev: .6, bus: mBus });
+      if (bar % 8 === 0) for (let i = 0; i < 9; i++) { const n = ch[i % 4] + 12 * (1 + Math.floor(i / 4)); tone(mtof(n), t + i * .055, 1.4, { vol: .028, type: "triangle", pan: -.5 + i * .12, rev: 1.3, bus: mBus }); }
+    }
+    if (pos === 2 || pos === 4) tone(mtof(ch[1]), t, EIGHTH * 1.6, { vol: .025, type: "triangle", att: .01, rev: .7, bus: mBus });   // the waltz "pah"
+    const strong = pos === 0 || pos === 2 || pos === 4;
+    if (Math.random() < (strong ? F.dens + .2 : F.dens * .6)) {
+      let idx = SCALE.indexOf(mNote); if (idx < 0) idx = 3;
+      if (strong) {   // land on a chord tone within a fifth, leaning towards the middle of the range
+        const tones = SCALE.filter(n => ch.some(c => (n - c) % 12 === 0) && Math.abs(n - mNote) <= 7 && n !== mNote);
+        const pool = tones.length ? tones : SCALE.filter(n => ch.some(c => (n - c) % 12 === 0));
+        const w = pool.map(n => 1 / (1 + Math.abs(n - 79) / 6)), sum = w.reduce((a, b) => a + b, 0);
+        let x = Math.random() * sum; mNote = pool.find((n, i) => (x -= w[i]) <= 0) ?? pool[0];
+      } else {
+        idx = Math.max(0, Math.min(SCALE.length - 1, idx + [-2, -1, -1, 1, 1, 2][Math.floor(Math.random() * 6)]));
+        mNote = SCALE[idx];
+      }
+      celesta(mNote, t + (Math.random() - .5) * .015, strong ? 1 : .7);
+    }
+    step++;
+  }
+  function pump() {
+    if (!ctx || document.hidden) return;
+    if (nextT < ctx.currentTime) nextT = ctx.currentTime + .1;
+    while (nextT < ctx.currentTime + .5) { scheduleStep(nextT); nextT += EIGHTH; }
+    const want = feel().vol; if (mGain && Math.abs(mGain.gain.value - want) > .01 && !duckUntil) mGain.gain.setTargetAtTime(want, ctx.currentTime, 1.5);
+    if (duckUntil && ctx.currentTime > duckUntil) duckUntil = 0;
+  }
+  let duckUntil = 0;
+  function startMusic() {
+    if (!ctx || mTimer) return;
+    step = 0; nextT = ctx.currentTime + .15;
+    mGain.gain.cancelScheduledValues(ctx.currentTime); mGain.gain.setValueAtTime(mGain.gain.value, ctx.currentTime); mGain.gain.linearRampToValueAtTime(feel().vol, ctx.currentTime + 3);
+    mTimer = setInterval(pump, 120); pump();
+  }
+  function stopMusic() {
+    if (!mTimer) return; clearInterval(mTimer); mTimer = null;
+    if (ctx) { mGain.gain.cancelScheduledValues(ctx.currentTime); mGain.gain.setTargetAtTime(0, ctx.currentTime, .3); }
+  }
+  // dip the music under a big moment so the effect reads clearly
+  function duck(len = 2) { if (!mTimer || !ctx) return; const t = ctx.currentTime, v = feel().vol; duckUntil = t + len + 1;
+    mGain.gain.cancelScheduledValues(t); mGain.gain.setValueAtTime(mGain.gain.value, t); mGain.gain.linearRampToValueAtTime(v * .3, t + .15); mGain.gain.setValueAtTime(v * .3, t + len); mGain.gain.linearRampToValueAtTime(v, t + len + 1); }
+  ["spell", "win", "reveal", "set"].forEach(k => { const f = S[k]; S[k] = (...a) => { duck(k === "win" ? 4 : k === "reveal" ? 3 : 1.6); return f(...a); }; });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && ctx) nextT = ctx.currentTime + .1; });
+
   window.Sfx = new Proxy(S, { get(target, k) {
     if (k === "enabled") return on;
-    if (k === "toggle") return () => { on = !on; try { localStorage.setItem(KEY, on ? "1" : "0"); } catch (e) {} if (on) { unlock(); setTimeout(() => window.Sfx.tap(), 60); } else if (ctx) ctx.suspend(); return on; };
+    if (k === "musicEnabled") return musicOn;
+    if (k === "toggle") return () => { on = !on; save(KEY, on); if (on) { unlock(); setTimeout(() => window.Sfx.tap(), 60); } return on; };
+    if (k === "toggleMusic") return () => { musicOn = !musicOn; save(MKEY, musicOn); if (musicOn) unlock(); else stopMusic(); return musicOn; };
     const fn = target[k]; if (typeof fn !== "function") return fn;
     return (...a) => { if (!ready()) return; try { fn(...a); } catch (e) {} };
   } });

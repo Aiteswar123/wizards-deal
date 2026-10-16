@@ -680,11 +680,12 @@ button.card:hover::before,.card.tilting::before,.card.sel::before{opacity:1}
 }
 @media (prefers-reduced-motion:reduce){.ci .ci-band{transform:none}.ci-streaks{display:none}.d-bolts path{stroke-dashoffset:0}.d-hit{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-/* sound toggle: in the top bar during a game, pinned top-right on home and lobby */
+/* music and sound toggles: in the top bar during a game, pinned top-right on home and lobby */
 .sndbtn{display:inline-grid;place-items:center;width:2.4rem;padding:0}
 .sndbtn svg{width:1.15rem;height:1.15rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .sndbtn[aria-pressed=false]{opacity:.65}
-.sndfix{position:fixed;top:max(.7rem,env(safe-area-inset-top));right:.8rem;z-index:40;background:color-mix(in srgb,var(--board) 70%,transparent);backdrop-filter:blur(4px)}
+.sndfix{position:fixed;top:max(.7rem,env(safe-area-inset-top));right:.8rem;z-index:40;display:flex;gap:.35rem}
+.sndfix .sndbtn{background:color-mix(in srgb,var(--board) 70%,transparent);backdrop-filter:blur(4px)}
 html[data-screen=game] .sndfix{display:none}
 </style>
 </head>
@@ -810,13 +811,16 @@ function flash(msg, good) {
   t.textContent = msg; t.hidden = false; t.classList.toggle("good", !!good);
   clearTimeout(flash.h); flash.h = setTimeout(() => { t.hidden = true; }, 3200);
 }
-// Sound on/off, remembered per device by sfx.js.
+// Music and sound effects on/off, each remembered per device by sfx.js.
 const sndIcon = on => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/>${on ? '<path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/>' : '<path d="M16 9.5l5 5M21 9.5l-5 5"/>'}</svg>`;
-const sndBtn = (cls = "") => { const on = !window.Sfx || Sfx.enabled; return `<button class="btn ghost small sndbtn ${cls}" data-snd aria-pressed="${on}" aria-label="Sound effects" title="${on ? "Sound on" : "Sound off"}">${sndIcon(on)}</button>`; };
+const musIcon = on => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17.5V5.5l10-2v12"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="15.5" r="2.5"/>${on ? "" : '<path d="M3 3l18 18"/>'}</svg>`;
+const AUDIO = { snd: { on: () => Sfx.enabled, flip: () => Sfx.toggle(), icon: sndIcon, label: "Sound effects" }, mus: { on: () => Sfx.musicEnabled, flip: () => Sfx.toggleMusic(), icon: musIcon, label: "Music" } };
+const audioBtn = k => { const A = AUDIO[k], on = !window.Sfx || A.on(); return `<button class="btn ghost small sndbtn" data-audio="${k}" aria-pressed="${on}" aria-label="${A.label}" title="${A.label} ${on ? "on" : "off"}">${A.icon(on)}</button>`; };
+const sndBtn = () => audioBtn("mus") + audioBtn("snd");
 document.addEventListener("click", e => {
-  const b = e.target.closest("[data-snd]"); if (!b || !window.Sfx) return;
-  const on = Sfx.toggle();
-  document.querySelectorAll("[data-snd]").forEach(x => { x.setAttribute("aria-pressed", String(on)); x.title = on ? "Sound on" : "Sound off"; x.innerHTML = sndIcon(on); });
+  const b = e.target.closest("[data-audio]"); if (!b || !window.Sfx) return;
+  const k = b.dataset.audio, A = AUDIO[k], on = A.flip();
+  document.querySelectorAll(`[data-audio="${k}"]`).forEach(x => { x.setAttribute("aria-pressed", String(on)); x.title = `${A.label} ${on ? "on" : "off"}`; x.innerHTML = A.icon(on); });
 });
 const mySeat = () => S && S.players ? S.players.findIndex(p => p.uid === me) : -1;
 
@@ -1709,7 +1713,7 @@ setInterval(() => {
 }, 250);
 
 // Start: go straight back to your table if you were seated at one.
-document.body.insertAdjacentHTML("beforeend", sndBtn("sndfix"));
+document.body.insertAdjacentHTML("beforeend", `<div class="sndfix">${sndBtn()}</div>`);
 (async () => {
   render();
   const last = LS.get("wd-last");
