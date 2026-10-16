@@ -23,51 +23,88 @@
 .umast .fanu .ucard{position:absolute;left:50%;top:50%;--w:104px}
 @media (max-width:760px){.umast{grid-template-columns:1fr}.umast .fanu{height:9.5rem}.umast .fanu .ucard{--w:72px}}
 .tagkind{font:600 .66rem/1 var(--label);letter-spacing:.08em;text-transform:uppercase;padding:.2rem .4rem;border-radius:3px;background:var(--stand-3);color:var(--crest);margin-left:.4rem}
-/* cards: every card is a Marine WANTED poster pasted on a coloured board */
-.ucard{--w:74px;--cc:#444;--ink:#24170e;width:var(--w);aspect-ratio:5/7.4;border-radius:calc(var(--w)*.1);position:relative;flex:none;display:block;padding:0;border:0;
-  background:var(--cc);background-image:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,0) 38%,rgba(0,0,0,.28));
-  box-shadow:inset 0 0 0 calc(var(--w)*.012) rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.55),0 calc(var(--w)*.08) calc(var(--w)*.18) calc(var(--w)*-.06) rgba(0,0,0,.75);
-  color:var(--ink);transition:transform .18s var(--ease),filter .18s,box-shadow .18s;overflow:hidden}
-.ucard.c-r{--cc:#c92a24;--cl:#ff6a52;--cd:#7d120f}.ucard.c-y{--cc:#e8a812;--cl:#ffd85a;--cd:#8f5c00}.ucard.c-g{--cc:#25884a;--cl:#4fc979;--cd:#0f4a26}.ucard.c-b{--cc:#1b5fc0;--cl:#4f9bff;--cd:#0b2f6b}
-.ucard.c-w{--cc:#1d140d;--cl:#3a2a1d;--cd:#000;background-image:conic-gradient(from 45deg,#c92a24 0 25%,#1b5fc0 0 50%,#25884a 0 75%,#e8a812 0)}
-/* the poster: aged parchment, darker at the edges, with a thin printed rule */
-.ucard .pw{position:absolute;inset:calc(var(--w)*.06);border-radius:calc(var(--w)*.025);overflow:hidden;
-  background:#e9d6a6 url(assets/parchment.jpg) center/calc(var(--w)*3);
-  box-shadow:inset 0 0 calc(var(--w)*.16) rgba(92,52,18,.55),inset 0 0 0 calc(var(--w)*.008) rgba(60,32,10,.5),0 calc(var(--w)*.01) calc(var(--w)*.03) rgba(0,0,0,.4)}
-.ucard .pw::after{content:"";position:absolute;inset:calc(var(--w)*.035);border:calc(var(--w)*.006) solid rgba(36,23,14,.55);pointer-events:none}
-.ucard .wt{position:absolute;left:0;right:0;top:calc(var(--w)*.05);text-align:center;font:400 calc(var(--w)*.165)/1 "Rye",serif;letter-spacing:.02em;color:var(--ink)}
-.ucard .ph{position:absolute;left:calc(var(--w)*.085);right:calc(var(--w)*.085);top:calc(var(--w)*.245);height:calc(var(--w)*.6);
-  border:calc(var(--w)*.016) solid var(--ink);display:grid;place-items:center;overflow:hidden;
-  background:radial-gradient(circle,rgba(0,0,0,.2) 28%,transparent 31%) 0 0/calc(var(--w)*.045) calc(var(--w)*.045),radial-gradient(120% 90% at 50% 35%,var(--cl),var(--cc) 55%,var(--cd))}
-.ucard.c-w .ph{background:radial-gradient(circle,rgba(0,0,0,.22) 28%,transparent 31%) 0 0/calc(var(--w)*.045) calc(var(--w)*.045),conic-gradient(from 45deg,#e2493c 0 25%,#3a7ee0 0 50%,#38a862 0 75%,#f4c13a 0)}
+/* cards: every card is a Marine WANTED poster, pinned inside a lacquered, gold-ruled board */
+.ucard{--w:74px;--cc:#444;--ink:#24170e;--gold:linear-gradient(135deg,#f9e7a8 0%,#c9952f 22%,#fff3c6 46%,#a8721c 66%,#f4d98c 84%,#b5822a 100%);
+  width:var(--w);aspect-ratio:5/7.4;border-radius:calc(var(--w)*.09);position:relative;flex:none;display:block;padding:0;border:0;isolation:isolate;
+  background:
+    repeating-radial-gradient(circle at 50% 118%,rgba(255,255,255,.075) 0 calc(var(--w)*.006),transparent calc(var(--w)*.006) calc(var(--w)*.03)),
+    repeating-radial-gradient(circle at 50% -18%,rgba(0,0,0,.09) 0 calc(var(--w)*.006),transparent calc(var(--w)*.006) calc(var(--w)*.03)),
+    linear-gradient(150deg,rgba(255,255,255,.3),rgba(255,255,255,0) 32%,rgba(0,0,0,0) 62%,rgba(0,0,0,.35)),
+    linear-gradient(165deg,var(--cl) -30%,var(--cc) 42%,var(--cd) 125%);
+  box-shadow:inset 0 calc(var(--w)*.008) 0 rgba(255,255,255,.35),inset 0 calc(var(--w)*-.01) 0 rgba(0,0,0,.35),inset 0 0 0 calc(var(--w)*.01) rgba(0,0,0,.25),
+    0 calc(var(--w)*.01) calc(var(--w)*.015) rgba(0,0,0,.45),0 calc(var(--w)*.09) calc(var(--w)*.2) calc(var(--w)*-.06) rgba(0,0,0,.7);
+  color:var(--ink);transition:transform .22s var(--ease),filter .18s,box-shadow .22s;overflow:hidden}
+.ucard.c-r{--cc:#b8241f;--cl:#ff7a5c;--cd:#5e0c0a}.ucard.c-y{--cc:#d99a0c;--cl:#ffe07a;--cd:#7a4a00}.ucard.c-g{--cc:#1f7a42;--cl:#5fd48a;--cd:#0a3a1d}.ucard.c-b{--cc:#1a55ad;--cl:#5ca4ff;--cd:#0a2556}
+.ucard.c-w{--cc:#1d140d;--cl:#3a2a1d;--cd:#000;background:
+    repeating-radial-gradient(circle at 50% 118%,rgba(255,255,255,.08) 0 calc(var(--w)*.006),transparent calc(var(--w)*.006) calc(var(--w)*.03)),
+    linear-gradient(150deg,rgba(255,255,255,.28),rgba(255,255,255,0) 32%,rgba(0,0,0,.35)),
+    conic-gradient(from 45deg,#b8241f 0 25%,#1a55ad 0 50%,#1f7a42 0 75%,#d99a0c 0)}
+/* the gold-leaf rule around the poster */
+.ucard::before{content:"";position:absolute;inset:calc(var(--w)*.038);border-radius:calc(var(--w)*.05);padding:calc(var(--w)*.011);background:var(--gold);z-index:0;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+  filter:drop-shadow(0 calc(var(--w)*.006) 0 rgba(0,0,0,.4))}
+/* foil: a holographic sheen on Wilds, the live discard and cards you point at */
+.ucard::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:3;pointer-events:none;opacity:0;mix-blend-mode:soft-light;
+  background:linear-gradient(115deg,transparent 28%,rgba(255,255,255,.85) 42%,rgba(255,190,240,.7) 48%,rgba(150,230,255,.7) 54%,transparent 68%) 0 0/260% 260%;
+  transition:opacity .3s}
+.ucard.c-w::after,.udisc .top::after{opacity:.9;animation:foil 5.5s cubic-bezier(.4,0,.2,1) infinite}
+.uhand .ucard:hover::after,.uhand .ucard:focus-visible::after{opacity:1;animation:foil 1.6s cubic-bezier(.4,0,.2,1) both}
+@keyframes foil{0%{background-position:120% 0}60%,100%{background-position:-60% 0}}
+/* the poster: deckled parchment, a fold, an inner printed rule, pinned with a brass tack */
+.ucard .pw{position:absolute;inset:calc(var(--w)*.062);z-index:1;clip-path:polygon(0.0% 0.54%,7.1% 0.62%,14.3% 0.13%,21.4% 0.27%,28.6% 0.49%,35.7% 0.56%,42.9% 0.09%,50.0% 0.97%,57.1% 0.65%,64.3% 0.45%,71.4% 0.31%,78.6% 0.86%,85.7% 0.72%,92.9% 0.08%,99.45% 0.0%,99.74% 5.0%,99.26% 10.0%,99.83% 15.0%,99.38% 20.0%,99.46% 25.0%,99.81% 30.0%,99.94% 35.0%,98.97% 40.0%,98.93% 45.0%,99.87% 50.0%,99.51% 55.0%,98.95% 60.0%,99.79% 65.0%,99.54% 70.0%,99.39% 75.0%,99.26% 80.0%,99.69% 85.0%,99.81% 90.0%,98.92% 95.0%,100.0% 99.51%,92.9% 99.74%,85.7% 99.40%,78.6% 99.64%,71.4% 99.83%,64.3% 99.15%,57.1% 99.61%,50.0% 99.61%,42.9% 99.91%,35.7% 98.98%,28.6% 99.74%,21.4% 99.03%,14.3% 99.48%,7.1% 99.74%,0.66% 100.0%,0.44% 95.0%,0.83% 90.0%,0.72% 85.0%,0.15% 80.0%,0.25% 75.0%,0.50% 70.0%,0.10% 65.0%,0.05% 60.0%,0.45% 55.0%,0.75% 50.0%,0.71% 45.0%,1.05% 40.0%,0.36% 35.0%,0.48% 30.0%,0.55% 25.0%,0.48% 20.0%,0.92% 15.0%,0.50% 10.0%,0.48% 5.0%);
+  background:
+    linear-gradient(180deg,transparent 46.6%,rgba(80,45,15,.13) 47.2%,rgba(255,250,235,.22) 47.8%,transparent 49%),
+    radial-gradient(120% 100% at 50% 45%,transparent 55%,rgba(110,62,20,.42)),
+    #e8d3a1 url(assets/parchment.jpg) center/calc(var(--w)*3)}
+.ucard .pw::after{content:"";position:absolute;inset:calc(var(--w)*.032);border:calc(var(--w)*.005) solid rgba(36,23,14,.6);outline:calc(var(--w)*.003) solid rgba(36,23,14,.35);outline-offset:calc(var(--w)*.012);pointer-events:none}
+.ucard .tack{position:absolute;left:50%;top:calc(var(--w)*.058);width:calc(var(--w)*.075);height:calc(var(--w)*.075);margin-left:calc(var(--w)*-.0375);border-radius:50%;z-index:2;
+  background:radial-gradient(circle at 35% 30%,#fff4c8,#d9a640 45%,#7a5212 100%);box-shadow:0 calc(var(--w)*.012) calc(var(--w)*.018) rgba(0,0,0,.55)}
+.ucard .wt{position:absolute;left:0;right:0;top:calc(var(--w)*.072);text-align:center;font:400 calc(var(--w)*.158)/1 "Rye",serif;letter-spacing:.03em;color:var(--ink);
+  text-shadow:0 calc(var(--w)*.004) 0 rgba(255,245,220,.5)}
+.ucard .ph{position:absolute;left:calc(var(--w)*.09);right:calc(var(--w)*.09);top:calc(var(--w)*.255);height:calc(var(--w)*.585);
+  border:calc(var(--w)*.014) solid var(--ink);display:grid;place-items:center;overflow:hidden;
+  box-shadow:0 0 0 calc(var(--w)*.006) rgba(255,248,226,.6),inset 0 0 0 calc(var(--w)*.008) rgba(255,255,255,.22),inset 0 calc(var(--w)*-.05) calc(var(--w)*.09) rgba(0,0,0,.35);
+  background:radial-gradient(circle,rgba(0,0,0,.18) 26%,transparent 30%) 0 0/calc(var(--w)*.04) calc(var(--w)*.04),radial-gradient(120% 90% at 50% 30%,var(--cl),var(--cc) 58%,var(--cd))}
+.ucard .ph::after{content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;background:linear-gradient(180deg,rgba(255,226,170,.25),rgba(120,70,20,.28))}
+.ucard.c-w .ph{background:radial-gradient(circle,rgba(0,0,0,.2) 26%,transparent 30%) 0 0/calc(var(--w)*.04) calc(var(--w)*.04),conic-gradient(from 45deg,#e2493c 0 25%,#3a7ee0 0 50%,#38a862 0 75%,#f4c13a 0)}
 .ucard .ph svg{width:96%;height:96%;filter:drop-shadow(0 calc(var(--w)*.012) 0 rgba(0,0,0,.35))}
 .ucard .ph.crew{place-items:end center}
 .ucard .ph.crew svg{width:100%;height:100%;filter:none}
-.ucard .numc{position:absolute;right:calc(var(--w)*.015);bottom:calc(var(--w)*-.035);font:400 calc(var(--w)*.26)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.014) var(--ink);paint-order:stroke fill;text-shadow:calc(var(--w)*.012) calc(var(--w)*.016) 0 rgba(0,0,0,.45);transform:rotate(-6deg)}
+.ucard .numc{position:absolute;right:calc(var(--w)*.015);bottom:calc(var(--w)*-.035);z-index:1;font:400 calc(var(--w)*.26)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.014) var(--ink);paint-order:stroke fill;text-shadow:calc(var(--w)*.012) calc(var(--w)*.016) 0 rgba(0,0,0,.45);transform:rotate(-6deg)}
 .ucard .num{font:400 calc(var(--w)*.5)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.016) var(--ink);paint-order:stroke fill;
   text-shadow:calc(var(--w)*.018) calc(var(--w)*.026) 0 rgba(0,0,0,.4);transform:rotate(-4deg);margin-top:calc(var(--w)*.02)}
-.ucard .doa{position:absolute;left:0;right:0;top:calc(var(--w)*.875);text-align:center;font:400 calc(var(--w)*.066)/1 "Alfa Slab One",serif;letter-spacing:.08em;color:var(--ink)}
-.ucard .who{position:absolute;left:calc(var(--w)*.03);right:calc(var(--w)*.03);top:calc(var(--w)*.965);text-align:center;font:400 calc(var(--w)*var(--ws,.092))/1 "Alfa Slab One",serif;letter-spacing:.03em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:clip}
-.ucard .bty{position:absolute;left:0;right:0;top:calc(var(--w)*1.085);display:flex;justify-content:center;align-items:center;gap:calc(var(--w)*.015);font:400 calc(var(--w)*.064)/1 "Alfa Slab One",serif;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ucard .doa{position:absolute;left:calc(var(--w)*.12);right:calc(var(--w)*.12);top:calc(var(--w)*.865);padding:calc(var(--w)*.012) 0;text-align:center;
+  font:400 calc(var(--w)*.06)/1 "Alfa Slab One",serif;letter-spacing:.09em;color:var(--ink);white-space:nowrap;
+  border-top:calc(var(--w)*.012) double rgba(36,23,14,.8);border-bottom:calc(var(--w)*.012) double rgba(36,23,14,.8)}
+.ucard .who{position:absolute;left:calc(var(--w)*.05);right:calc(var(--w)*.05);top:calc(var(--w)*.98);text-align:center;font:400 calc(var(--w)*var(--ws,.092))/1 "Alfa Slab One",serif;letter-spacing:.03em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:clip}
+.ucard .bty{position:absolute;left:0;right:0;top:calc(var(--w)*1.09);display:flex;justify-content:center;align-items:center;gap:calc(var(--w)*.015);font:400 calc(var(--w)*.068)/1 "Alfa Slab One",serif;color:#5a140f;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ucard .bty svg{width:calc(var(--w)*.075);height:calc(var(--w)*.1)}
-.ucard .mar{position:absolute;left:0;right:0;bottom:calc(var(--w)*.055);text-align:center;font:700 calc(var(--w)*.05)/1 var(--label);letter-spacing:.3em;color:rgba(36,23,14,.75)}
-/* the wax-seal pip: colour and value, readable when the hand is fanned */
-.ucard .pip{position:absolute;width:calc(var(--w)*.25);height:calc(var(--w)*.25);border-radius:50%;display:grid;place-items:center;
-  background:radial-gradient(circle at 35% 30%,var(--cl),var(--cc) 60%,var(--cd));box-shadow:0 0 0 calc(var(--w)*.016) #f3e3bd,0 calc(var(--w)*.01) calc(var(--w)*.03) rgba(0,0,0,.6);
-  font:400 calc(var(--w)*.15)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.006) var(--ink);paint-order:stroke fill;z-index:2}
-.ucard .pip svg{width:68%;height:68%}
-.ucard .pip.tl{left:calc(var(--w)*.025);top:calc(var(--w)*.2)}
-.ucard.c-w .pip{background:conic-gradient(from 45deg,#c92a24 0 25%,#1b5fc0 0 50%,#25884a 0 75%,#e8a812 0)}
-/* the back: a black Jolly Roger flag inside a rope border */
-.ucard.uback{--cc:#4a2c14;background:#5a3a1c;background-image:repeating-linear-gradient(45deg,#c79a5a 0 calc(var(--w)*.03),#7a5328 calc(var(--w)*.03) calc(var(--w)*.06))}
-.ucard.uback .fl{position:absolute;inset:calc(var(--w)*.07);border-radius:calc(var(--w)*.05);background:radial-gradient(120% 80% at 50% 40%,#2a2620,#0b0a08 70%);
-  box-shadow:inset 0 0 calc(var(--w)*.12) #000,0 0 0 calc(var(--w)*.012) #2a1a0c;display:grid;place-items:center}
-.ucard.uback .fl svg{width:66%}
-.ucard.uback .bt{position:absolute;left:0;right:0;bottom:calc(var(--w)*.12);text-align:center;font:400 calc(var(--w)*.13)/1 "Rye",serif;color:#f3e3bd;letter-spacing:.06em}
-.ucard.uback .bt2{position:absolute;left:0;right:0;top:calc(var(--w)*.13);text-align:center;font:700 calc(var(--w)*.06)/1 var(--label);color:#c9a86a;letter-spacing:.32em}
-/* tiny cards (the rules list) show only the seal and the picture */
-.mini .ucard .wt,.mini .ucard .doa,.mini .ucard .who,.mini .ucard .bty,.mini .ucard .mar,.mini .ucard .pip{display:none}
+.ucard .mar{position:absolute;left:0;right:0;bottom:calc(var(--w)*.06);text-align:center;font:700 calc(var(--w)*.046)/1 var(--label);letter-spacing:.34em;color:rgba(36,23,14,.72)}
+/* the wax seal: colour and value, hand-pressed, readable when the hand is fanned */
+.ucard .pip{position:absolute;width:calc(var(--w)*.26);height:calc(var(--w)*.25);border-radius:47% 53% 44% 56% / 55% 45% 55% 45%;display:grid;place-items:center;z-index:2;
+  background:radial-gradient(circle at 34% 28%,color-mix(in srgb,var(--cl) 80%,#fff),var(--cc) 52%,var(--cd));
+  box-shadow:inset 0 0 0 calc(var(--w)*.022) rgba(0,0,0,.16),inset 0 calc(var(--w)*.012) calc(var(--w)*.014) rgba(255,255,255,.35),inset 0 calc(var(--w)*-.014) calc(var(--w)*.02) rgba(0,0,0,.3),
+    0 calc(var(--w)*.014) calc(var(--w)*.022) rgba(0,0,0,.55);
+  font:400 calc(var(--w)*.15)/1 "Alfa Slab One",serif;color:#fbf1d8;-webkit-text-stroke:calc(var(--w)*.006) var(--ink);paint-order:stroke fill;text-shadow:0 calc(var(--w)*-.005) 0 rgba(0,0,0,.35)}
+.ucard .pip svg{width:66%;height:66%}
+.ucard .pip.tl{left:calc(var(--w)*.03);top:calc(var(--w)*.2)}
+.ucard.c-w .pip{background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.4),transparent 45%),conic-gradient(from 45deg,#b8241f 0 25%,#1a55ad 0 50%,#1f7a42 0 75%,#d99a0c 0)}
+/* the back: a woven black flag with a gold compass rose under the Jolly Roger, in a twisted rope border */
+.ucard.uback{--cc:#3a2410;--cl:#6b4521;--cd:#1a0f06;
+  background:repeating-linear-gradient(55deg,#e0b878 0 calc(var(--w)*.012),#a8783e calc(var(--w)*.012) calc(var(--w)*.03),#6b4521 calc(var(--w)*.03) calc(var(--w)*.042),#c99a5a calc(var(--w)*.042) calc(var(--w)*.054))}
+.ucard.uback::before{inset:calc(var(--w)*.06)}
+.ucard.uback .fl{position:absolute;inset:calc(var(--w)*.075);border-radius:calc(var(--w)*.045);z-index:1;overflow:hidden;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 1px,transparent 1px 3px),radial-gradient(120% 80% at 50% 42%,#2c2822,#0a0907 72%);
+  box-shadow:inset 0 0 calc(var(--w)*.14) #000;display:grid;place-items:center}
+.ucard.uback .rose{position:absolute;width:118%;left:-9%;top:50%;transform:translateY(-52%);opacity:.32}
+.ucard.uback .fl > svg:not(.rose){width:64%;position:relative;filter:drop-shadow(0 calc(var(--w)*.02) calc(var(--w)*.03) rgba(0,0,0,.8))}
+.ucard.uback .bt{position:absolute;left:0;right:0;bottom:calc(var(--w)*.13);z-index:2;text-align:center;font:400 calc(var(--w)*.14)/1 "Rye",serif;color:#e8c77a;letter-spacing:.08em;
+  text-shadow:0 calc(var(--w)*.008) 0 #5a3a10,0 calc(var(--w)*-.004) 0 #fff3c8}
+.ucard.uback .bt2{position:absolute;left:0;right:0;top:calc(var(--w)*.14);z-index:2;text-align:center;font:700 calc(var(--w)*.058)/1 var(--label);color:#d4b06a;letter-spacing:.34em}
+/* tiny cards (the rules list) show only the picture */
+.mini .ucard .wt,.mini .ucard .doa,.mini .ucard .who,.mini .ucard .bty,.mini .ucard .mar,.mini .ucard .pip,.mini .ucard .tack{display:none}
 .mini .ucard .ph{top:calc(var(--w)*.3);height:calc(var(--w)*.8)}
+@media (prefers-reduced-motion:reduce){.ucard::after{animation:none!important}}
 /* the table */
 .ugame{max-width:84rem;margin:0 auto}
 .ugame .board .mark{font-family:"Pirata One",serif;font-weight:400}
@@ -206,11 +243,13 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
   };
   const BERRY = `<svg viewBox="0 0 12 16" aria-hidden="true"><path d="M3 3h4.2a2.6 2.6 0 0 1 0 5.2H3zM3 8.2h5a2.9 2.9 0 0 1 0 5.8H3z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 1v14M8 1v2M8 13v2" stroke="currentColor" stroke-width="1.6"/></svg>`;
   const SKULL = (hat = "#e8b83c", band = "#c62b25") => `<svg viewBox="0 0 60 60" aria-hidden="true"><path d="M14 16 46 46M46 16 14 46" stroke="#f1e6cc" stroke-width="5" stroke-linecap="round"/><circle cx="30" cy="31" r="12" fill="#f1e6cc"/><rect x="23" y="37" width="14" height="9" rx="2" fill="#f1e6cc"/><circle cx="25.5" cy="31" r="3.3" fill="#111"/><circle cx="34.5" cy="31" r="3.3" fill="#111"/><path d="M28.5 37h3l-1.5 2.4z" fill="#111"/><ellipse cx="30" cy="21" rx="19" ry="4.6" fill="${hat}"/><path d="M20 21a10 8 0 0 1 20 0z" fill="${hat}"/><rect x="20.4" y="17.6" width="19.2" height="3" fill="${band}"/></svg>`;
+  // a compass rose, engraved faintly behind the Jolly Roger on the back
+  const ROSE = '<svg class="rose" viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#d4b06a" stroke-width=".7"><circle cx="50" cy="50" r="44"/><circle cx="50" cy="50" r="38"/><circle cx="50" cy="50" r="16"/></g><g fill="#d4b06a"><path d="M50 4l5 42-5 4-5-4zM50 96l5-42-5-4-5 4zM4 50l42-5 4 5-4 5zM96 50l-42-5-4 5 4 5z"/><path d="M50 50l22-22-18 26zM50 50l-22 22 18-26zM50 50l22 22-26-18zM50 50L28 28l26 18z" opacity=".6"/></g></svg>';
   // bounties: points x 10,000,000 Berries, written the way the posters write them, with a trailing dash
   const bounty = id => (U.points(id) * 10000000 || 1000).toLocaleString("en-US") + "-";
   function cardHTML(id, o = {}) {
     const g = o.tag || "div";
-    if (id == null || id < 0) return `<${g} class="ucard uback ${o.cls || ""}" ${o.attrs || ""}><span class="fl">${SKULL()}</span><span class="bt2">GRAND LINE</span><span class="bt">UNO</span></${g}>`;
+    if (id == null || id < 0) return `<${g} class="ucard uback ${o.cls || ""}" ${o.attrs || ""}><span class="fl">${ROSE}${SKULL()}</span><span class="bt2">GRAND LINE</span><span class="bt">UNO</span></${g}>`;
     const c = U.card(id), K = U.KINDS[c.v], pip = K ? PIP[c.v] : c.v;
     const crew = !K && window.UnoCrew ? UnoCrew[+c.v] : null, who = K ? K.alias : crew ? crew.name : U.COLORS[c.c].sea;
     return `<${g} class="ucard c-${c.c} v-${c.v} ${o.cls || ""}" ${o.attrs || ""} aria-label="${esc(U.label(id))}"><span class="pw">
@@ -218,7 +257,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
         <span class="ph${crew ? " crew" : ""}">${K ? ART[c.v] : crew ? `${crew.art}<span class="numc">${c.v}</span>` : `<span class="num">${c.v}</span>`}</span>
         <span class="doa">DEAD OR ALIVE</span><span class="who" style="--ws:${who.length > 13 ? .056 : who.length > 10 ? .068 : .092}">${esc(who.toUpperCase())}</span>
         <span class="bty">${BERRY}${bounty(id)}</span><span class="mar">MARINE</span></span>
-      <span class="pip tl">${pip}</span></${g}>`;
+      <span class="tack"></span><span class="pip tl">${pip}</span></${g}>`;
   }
   const FLAG_COLORS = ["#e8b83c", "#c8281e", "#2f9a52", "#1f6fd1", "#8c3fb0", "#f08a24", "#21a3a3", "#e05a9a", "#9aa4ad", "#6b4423", "#d6d03a", "#4a5bd6"];
   const flagFor = i => SKULL(FLAG_COLORS[i % 12], i % 2 ? "#111" : "#c62b25");

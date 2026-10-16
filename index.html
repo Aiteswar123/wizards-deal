@@ -808,7 +808,7 @@ async function joinGame(c) {
 
 // ---------- helpers ----------
 function nameOf(i) { const p = S && S.players && S.players[i]; return p ? (p.nick || `Player ${i + 1}`) : "Someone"; }
-const fmt = m => esc(m).replace(/@(\d)/g, (_, i) => `<b>${esc(nameOf(+i))}</b>`);
+const fmt = m => esc(m).replace(/@(\d+)/g, (_, i) => `<b>${esc(nameOf(+i))}</b>`);
 const colName = c => E.COLORS[c].n;
 const swatch = c => `<i class="sw" style="background:${E.COLORS[c].hex}"></i>`;
 function flash(msg, good) {
