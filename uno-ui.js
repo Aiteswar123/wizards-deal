@@ -260,7 +260,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     rev: '<path d="M3.5 15.5 12 7"/><path d="M7 6.5H12.5V12"/><path d="M20.5 8.5 12 17"/><path d="M17 17.5H11.5V12"/>',
     wild: '<ellipse cx="12" cy="12" rx="9" ry="5.6" transform="rotate(-35 12 12)"/>'
   };
-  const sign = v => `<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#fbf1d8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${SIGN[v]}</g></svg>`;
+  const sign = v => `<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${SIGN[v]}</g></svg>`;
   const PIP = { skip: sign("skip"), rev: sign("rev"), wild: sign("wild"), d2: "+2", w4: "+4" };
   const BERRY = `<svg viewBox="0 0 12 16" aria-hidden="true"><path d="M3 3h4.2a2.6 2.6 0 0 1 0 5.2H3zM3 8.2h5a2.9 2.9 0 0 1 0 5.8H3z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 1v14M8 1v2M8 13v2" stroke="currentColor" stroke-width="1.6"/></svg>`;
   const SKULL = (band = "#c8281e") => `<svg viewBox="0 0 60 60" aria-hidden="true"><g stroke-linecap="round"><path d="M12 48 44 14" stroke="#d8dde0" stroke-width="3.4"/><path d="M48 48 16 14" stroke="#d8dde0" stroke-width="3.4"/><path d="M14 42l4 4M46 42l-4 4" stroke="#c9952f" stroke-width="4"/></g><circle cx="30" cy="31" r="12" fill="#f1e6cc"/><rect x="23" y="37" width="14" height="9" rx="2" fill="#f1e6cc"/><circle cx="25.5" cy="31.5" r="3.3" fill="#111"/><circle cx="34.5" cy="31.5" r="3.3" fill="#111"/><path d="M28.5 37.5h3l-1.5 2.4z" fill="#111"/><path d="M26 42.5v3M30 42.5v3M34 42.5v3" stroke="#111" stroke-width="1"/><path d="M17.6 27c1-8 6-12 12.4-12s11.4 4 12.4 12c-4-2-8-3-12.4-3s-8.4 1-12.4 3z" fill="${band}"/><path d="M41 22l7-3-2 6 5 1-6 3z" fill="${band}"/></svg>`;
@@ -280,9 +280,14 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     // a player's own picture for this number (Card art, this browser only) takes the photo box; otherwise the Sunwake crew
     const mine = !K && window.UnoArt ? UnoArt.get(+c.v) || (window.UnoPhoto ? UnoPhoto.forCard(+c.v) : null) : null, crew = !K && window.UnoCrew ? UnoCrew[+c.v] : null;
     const who = K ? K.alias : mine && mine.name ? mine.name : crew ? crew.name : U.COLORS[c.c].sea;
+    const art = K ? (ART_IMG[c.v] ? imgHTML(ART_IMG[c.v]) : "") + ART[c.v] : mine ? `<img class="custom" src="${mine.src}" alt="">` : crew ? `${crew.img ? imgHTML(crew) : ""}${crew.art}` : "";
+    // the front this player chose (uno-faces.js); the classic WANTED poster is drawn here
+    const face = o.face || (window.UnoFaces ? UnoFaces.get() : "classic");
+    const inner = window.UnoFaces ? UnoFaces.render(face, { art, val: pip, name: esc(who), num: K ? null : +c.v }) : null;
+    if (inner != null) return `<${g} class="ucard face ${face} c-${c.c} v-${c.v} ${o.cls || ""}" ${o.attrs || ""} aria-label="${esc(U.label(id))}">${inner}</${g}>`;
     return `<${g} class="ucard c-${c.c} v-${c.v} ${o.cls || ""}" ${o.attrs || ""} aria-label="${esc(U.label(id))}"><span class="pw">
         <span class="wt">WANTED</span>
-        <span class="ph${crew || mine ? " crew" : ""}">${K ? (ART_IMG[c.v] ? imgHTML(ART_IMG[c.v]) : "") + ART[c.v] : mine ? `<img class="custom" src="${mine.src}" alt="">` : crew ? `${crew.img ? imgHTML(crew) : ""}${crew.art}` : `<span class="num">${c.v}</span>`}</span>
+        <span class="ph${crew || mine ? " crew" : ""}">${K ? art : mine || crew ? art : `<span class="num">${c.v}</span>`}</span>
         <span class="doa">DEAD OR ALIVE</span><span class="who" style="--ws:${who.length > 13 ? .056 : who.length > 10 ? .068 : .092}">${esc(who.toUpperCase())}</span>
         <span class="bty">${BERRY}${bounty(id)}</span><span class="mar">MARINE</span></span>
       <span class="tack"></span><span class="pip tl">${pip}</span></${g}>`;

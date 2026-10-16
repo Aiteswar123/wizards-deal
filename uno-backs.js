@@ -1,4 +1,5 @@
-// Grand Line UNO: deck designs. Each player picks the back of the cards they see (this browser only): the Sunwake's
+// Grand Line UNO: the Card design panel and the card backs. Each player picks the fronts (uno-faces.js) and the back of
+// the cards they see (this browser only). The backs: the Sunwake's
 // Jolly Roger, or one of five more One Piece themed backs, all original drawings: a straw hat, a Marine gull and
 // anchor, a snail phone, a chart of the Grand Line and a swirled Devil Fruit. The choice is kept in localStorage.
 (function () {
@@ -49,7 +50,8 @@ html[data-back=fruit] .useat .fanb i{background:linear-gradient(#8e3fc0,#2a0a40)
 .dback .opt{appearance:none;border:2px solid transparent;background:rgba(255,255,255,.3);border-radius:12px;padding:.6rem .4rem .5rem;display:flex;flex-direction:column;align-items:center;gap:.45rem;cursor:pointer;color:#2b1a10}
 .dback .opt .ucard{--w:96px;flex:none;height:calc(var(--w)*1.48)}
 .dback .opt b{font:400 1.1rem/1 "Pirata One",serif}
-.dback .opt[aria-pressed=true]{border-color:#2b1a10;background:rgba(255,255,255,.6);box-shadow:0 0 0 2px #c9952f}`;
+.dback .opt[aria-pressed=true]{border-color:#2b1a10;background:rgba(255,255,255,.6);box-shadow:0 0 0 2px #c9952f}
+.dback h4{font:400 1.35rem/1 "Pirata One",serif;color:#2b1a10;margin:1.1rem 0 .6rem}`;
   const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
 
   // the art for each back, drawn in a 60 x 60 box like the Jolly Roger
@@ -117,32 +119,40 @@ html[data-back=fruit] .useat .fanb i{background:linear-gradient(#8e3fc0,#2a0a40)
 
   const ICON = '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 9l3-3 3 3M12 6v8M8 17h8"/>';
   const ICON_X = '<path d="M6 6l12 12M18 6L6 18"/>';
-  const dlg = document.createElement("div"); dlg.className = "dback"; dlg.hidden = true; dlg.setAttribute("role", "dialog"); dlg.setAttribute("aria-label", "Deck design");
+  const dlg = document.createElement("div"); dlg.className = "dback"; dlg.hidden = true; dlg.setAttribute("role", "dialog"); dlg.setAttribute("aria-label", "Card design");
   document.body.appendChild(dlg);
+  // the fronts are shown on Luffy's red 0, so every design is compared on the same card
+  const sample = () => window.Uno ? Uno.CARDS.find(k => k.c === "r" && k.v === "0").id : 0;
   function html() {
-    return `<div class="box"><header><h3>Deck design</h3><button class="x" data-b="close" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON_X}</svg></button></header>
-      <p class="lead">Choose the back of the cards on your screen: the draw pile and everyone's hands. It stays in this browser; every player picks their own.</p>
-      <div class="opts">${DESIGNS.map(d => `<button class="opt" data-b="pick" data-k="${d.k}" aria-pressed="${d.k === cur}">${window.UnoUI ? UnoUI.backHTML(d.k) : ""}<b>${d.n}</b></button>`).join("")}</div></div>`;
+    const F = window.UnoFaces, U = window.UnoUI;
+    return `<div class="box"><header><h3>Card design</h3><button class="x" data-b="close" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON_X}</svg></button></header>
+      <p class="lead">Choose how the cards look on your screen. It stays in this browser; every player picks their own, and nobody else's game changes.</p>
+      ${F && U ? `<h4>Card fronts</h4><div class="opts">${F.list.map(d => `<button class="opt" data-b="face" data-k="${d.k}" aria-pressed="${d.k === F.get()}">${U.cardHTML(sample(), { face: d.k })}<b>${d.n}</b></button>`).join("")}</div>` : ""}
+      <h4>Card backs</h4><div class="opts">${DESIGNS.map(d => `<button class="opt" data-b="pick" data-k="${d.k}" aria-pressed="${d.k === cur}">${U ? U.backHTML(d.k) : ""}<b>${d.n}</b></button>`).join("")}</div></div>`;
   }
   function open() { dlg.hidden = false; dlg.innerHTML = html(); }
   function close() { dlg.hidden = true; if (typeof render === "function") render(); }
+  // redraw in place, keeping the panel's scroll position
+  function redraw() { const box = dlg.querySelector(".box"), y = box ? box.scrollTop : 0; dlg.innerHTML = html(); const nb = dlg.querySelector(".box"); if (nb) nb.scrollTop = y; }
   function set(k) {
     if (!valid(k)) return;
     cur = k; document.documentElement.dataset.back = k;
     try { localStorage.setItem(KEY, k); } catch (e) { /* not remembered, still applied */ }
-    dlg.innerHTML = html();
+    redraw();
   }
   dlg.addEventListener("click", e => {
     if (e.target === dlg) return close();
     const b = e.target.closest("[data-b]"); if (!b) return;
     if (b.dataset.b === "close") return close();
-    if (b.dataset.b === "pick") { if (window.Sfx) Sfx.tap(); set(b.dataset.k); }
+    if (window.Sfx && b.dataset.b !== "close") Sfx.tap();
+    if (b.dataset.b === "pick") set(b.dataset.k);
+    if (b.dataset.b === "face" && window.UnoFaces) { UnoFaces.set(b.dataset.k); redraw(); }
   });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !dlg.hidden) close(); });
   document.addEventListener("click", e => { if (e.target.closest("[data-deckback]")) open(); });
 
   window.UnoBacks = {
     inner, get: () => cur,
-    button: () => `<button class="btn ghost small backbtn" data-deckback aria-label="Deck design: choose the back of the cards" title="Deck design"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON}</svg></button>`
+    button: () => `<button class="btn ghost small backbtn" data-deckback aria-label="Card design: choose how the fronts and backs of the cards look" title="Card design"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON}</svg></button>`
   };
 })();
