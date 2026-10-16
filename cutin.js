@@ -160,7 +160,7 @@
       ${self ? "" : `<div class="d-targets">${shown.map((t, i) => `<div class="d-target" style="--d:${i * 70}ms;--tc:${(LOOK[t.ch] || LOOK.harry).c}"><div class="d-fig">${figure(t.ch, block ? (SPARK.stupefy) : "#ffffff00", block ? "cast" : "hit")}</div><i class="d-hit"></i><span class="d-name">${esc(t.name)}</span></div>`).join("")}${extra > 0 ? `<span class="d-more">+${extra}</span>` : ""}</div>`}
       <svg class="d-bolts" aria-hidden="true"></svg>
       <div class="d-text"><span class="ci-who">${esc(verb)}</span><span class="ci-call">${esc(CALL[job.k] || "Spell!")}</span>${on ? `<span class="d-on">${esc(on)}</span>` : ""}</div></div>`;
-    if (window.Sfx) Sfx.spell(job.k, { targets: job.targets.length });
+    if (window.Sfx) Sfx.spell(job.k, { targets: job.targets.length, ch: job.ch });
     play(self ? 1700 : 2300);
     // aim once the panel has finished sliding in (the bolt itself fires at 0.55s)
     if (!self) setTimeout(() => aim(block), reduce() ? 30 : 400);

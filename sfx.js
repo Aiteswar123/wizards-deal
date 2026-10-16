@@ -78,6 +78,42 @@
     for (let i = 0; i < n; i++) { const f = PENTA[Math.floor(Math.random() * PENTA.length)] * (o.oct || 1); tone(f, t + i * (o.gap || .045) + Math.random() * .02, .35, { vol: (o.vol || .05) * (1 - i / (n * 1.6)), pan: Math.random() * 1.2 - .6, rev: 1.6, type: "triangle" }); }
   }
 
+  // ---------- spoken spells ----------
+  // The browser's own speech voice calls the spell, low and slow for drama, pitched to the caster. Spellings are
+  // phonetic so every voice says them the way they're said in the films.
+  const SAY = { stupefy: "Stoo-puh-fy!", petrificus: "Peh-trih-fih-kus  Toh-tah-lus!", protego: "Pro-tay-go!", obliviate: "Oh-blih-vee-ate!",
+    levicorpus: "Leh-vee-kor-pus!", wingardium: "Win-gar-dee-um  Leh-vee-oh-sah!", accio2: "Ak-ee-oh!", accioAny: "Ak-ee-oh!", confundo: "Kon-fun-doh!",
+    alohomora: "Ah-loh-hoh-mor-ah!", geminio: "Jeh-min-ee-oh!", reparo: "Reh-par-oh!" };
+  const KIND = { protego: "charm", wingardium: "charm", accio2: "charm", accioAny: "charm", alohomora: "charm", geminio: "charm", reparo: "charm" };
+  // voice per caster: [female?, pitch, rate]
+  const CAST = { harry: [0, .8, .82], ron: [0, .9, .85], lupin: [0, .7, .78], hagrid: [0, .45, .75], draco: [0, .85, .8], cedric: [0, .8, .82], peeves: [0, 1.45, 1],
+    hermione: [1, 1, .85], luna: [1, 1.15, .78], cho: [1, 1.05, .84], myrtle: [1, 1.5, .85], umbridge: [1, 1.6, .8] };
+  let voices = [];
+  const loadVoices = () => { try { voices = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang)); } catch (e) {} };
+  if (window.speechSynthesis) { loadVoices(); speechSynthesis.addEventListener ? speechSynthesis.addEventListener("voiceschanged", loadVoices) : (speechSynthesis.onvoiceschanged = loadVoices); }
+  const FEM = /female|zira|hazel|susan|libby|sonia|maisie|samantha|karen|serena|moira|tessa|kate|emma|amy|jenny|aria|natasha/i;
+  const MALE = /male|george|ryan|david|mark|thomas|daniel|arthur|oliver|guy|james|brian|alfie/i;
+  function pickVoice(fem) {
+    const want = v => fem ? FEM.test(v.name) : MALE.test(v.name) && !FEM.test(v.name);
+    const gb = v => /en[-_]GB/i.test(v.lang);
+    return voices.find(v => want(v) && gb(v)) || voices.find(want) || voices.find(gb) || voices[0] || null;
+  }
+  function say(k, ch) {
+    if (!window.speechSynthesis || !SAY[k]) return;
+    const [fem, pitch, rate] = CAST[ch] || CAST.harry, u = new SpeechSynthesisUtterance(SAY[k]);
+    const v = pickVoice(fem); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = "en-GB";
+    u.pitch = pitch; u.rate = rate; u.volume = 1;
+    try { speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {}
+  }
+  function stab(f, t) {
+    [-7, 7].forEach(dt => { const osc = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter();
+      osc.type = "sawtooth"; osc.frequency.value = f; osc.detune.value = dt;
+      lp.type = "lowpass"; lp.frequency.setValueAtTime(2600, t); lp.frequency.exponentialRampToValueAtTime(500, t + .9);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.028, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + 1.1);
+      osc.connect(lp); lp.connect(g); send(g, 1.1); osc.start(t); osc.stop(t + 1.2); });
+  }
+  const mtof0 = n => 440 * Math.pow(2, (n - 69) / 12);
+
   const S = {
     // light wooden tap for buttons
     tap() { const t = now(); noise(t, .05, { f: 2800, q: 2, vol: .08, rev: .2 }); tone(jit(520, .05), t, .06, { vol: .05, type: "triangle", rev: .2 }); },
@@ -101,8 +137,17 @@
     // a spell: a whoosh from the wand, its own colour, and, if it lands, a hit
     spell(k, o = {}) {
       const t = now();
+      say(k, o.ch);
+      // the build: a reversed-cymbal swell and a low drone rising into the hit
+      noise(t, .62, { filter: "highpass", f: 2500, to: 6000, q: .5, vol: .16, att: .55, rev: 1.2 });
+      tone(55, t, .7, { to: 110, vol: .1, att: .5, type: "sawtooth", rev: .6 });
       noise(t, .55, { f: 400, to: 5200, q: 2.2, vol: .14, att: .12, rev: 1, pan: -.3 });
       const hit = t + .55, many = o.targets > 1;
+      // the hit: a deep boom and a brass-like stab (minor for curses, major for helpful charms)
+      tone(95, hit, 1.4, { to: 32, vol: .3, att: .004, rev: .9 });
+      noise(hit, .9, { filter: "lowpass", f: 500, to: 80, q: .5, vol: .28, att: .003, rev: 1.2 });
+      const kind = KIND[k] || "curse";
+      (kind === "charm" ? [50, 57, 62, 66, 69] : [40, 47, 52, 55, 59]).forEach((n, i) => stab(mtof0(n + (kind === "charm" ? 0 : 12)), hit + i * .008));
       switch (k) {
         case "stupefy": tone(1400, hit, .35, { to: 180, type: "sawtooth", vol: .07, rev: .8 }); noise(hit, .3, { f: 3000, to: 300, q: .9, vol: .2, rev: 1 }); break;
         case "petrificus": for (let i = 0; i < 10; i++) tone(jit(3200, .3), hit + i * .03, .18, { vol: .04, type: "square", rev: 1.4, pan: Math.random() - .5 }); tone(196, hit, .9, { vol: .08, rev: 1.2 }); break;
@@ -197,7 +242,7 @@
   // dip the music under a big moment so the effect reads clearly
   function duck(len = 2) { if (!mTimer || !ctx) return; const t = ctx.currentTime, v = feel().vol; duckUntil = t + len + 1;
     mGain.gain.cancelScheduledValues(t); mGain.gain.setValueAtTime(mGain.gain.value, t); mGain.gain.linearRampToValueAtTime(v * .3, t + .15); mGain.gain.setValueAtTime(v * .3, t + len); mGain.gain.linearRampToValueAtTime(v, t + len + 1); }
-  ["spell", "win", "reveal", "set"].forEach(k => { const f = S[k]; S[k] = (...a) => { duck(k === "win" ? 4 : k === "reveal" ? 3 : 1.6); return f(...a); }; });
+  ["spell", "win", "reveal", "set"].forEach(k => { const f = S[k]; S[k] = (...a) => { duck(k === "win" ? 4 : k === "reveal" ? 3 : k === "spell" ? 2.4 : 1.6); return f(...a); }; });
   document.addEventListener("visibilitychange", () => { if (!document.hidden && ctx) nextT = ctx.currentTime + .1; });
 
   window.Sfx = new Proxy(S, { get(target, k) {
