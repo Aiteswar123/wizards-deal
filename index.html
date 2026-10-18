@@ -607,6 +607,10 @@ button.card:hover::before,.card.tilting::before,.card.sel::before{opacity:1}
 .log li:first-child{color:var(--ink)}
 .log li:first-child::before{background:var(--live)}
 .lc{white-space:nowrap}.lc .sw{margin-right:.25em}
+.takes{display:flex;flex-direction:column;gap:.15rem;margin-top:.25rem}
+.takes > span{display:flex;align-items:center;gap:.3em;color:var(--ink)}
+.takes .sw{margin-right:0}
+.takes .tv{font-style:normal;font-weight:700;font-size:.72rem;padding:.05rem .32rem;border-radius:999px;background:var(--stand-3);color:var(--chalk)}
 .log .stamp{font-size:.66rem;padding:.12rem .3rem;margin-left:.4rem;transform:rotate(-3deg);vertical-align:.1em}
 .log .stamp.win{color:var(--ok)}
 .winner{text-align:center;padding:2rem 1rem 1.6rem;display:flex;flex-direction:column;gap:.9rem;align-items:center;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(0 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") top left/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(90 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") top right/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(270 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") bottom left/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(180 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") bottom right/34px 34px no-repeat,var(--board);border-radius:8px;margin-top:1rem;box-shadow:0 18px 30px -18px rgba(0,0,0,.9)}
@@ -1328,6 +1332,16 @@ function renderGame() {
   fxAfterRender(v, P);
 }
 
+// a card in one line with its colours and value, e.g. for the discard cards Cedric would take
+function cardLine(id) {
+  const c = E.card(id), sws = cs => cs.map(swatch).join(""), names = cs => cs.map(colName).join("/");
+  const what = c.type === "item" ? `${swatch(c.col)}${esc(c.name)}`
+    : c.type === "wild" ? `${sws(c.cols)}Wild item (${names(c.cols)})`
+    : c.type === "any" ? "Wild item (any colour)"
+    : c.k === "accio2" ? `${sws(c.cols)}Accio (${names(c.cols)})`
+    : c.k === "accioAny" ? "Accio (any colour)" : esc(c.name);
+  return `${what} <i class="tv">${c.val}</i>`;
+}
 // which spell card it was: for Accio, the two-colour card or the any-colour one, and the colour charged
 function spellLabel(pd) {
   const c = E.card(pd.card);
@@ -1395,7 +1409,12 @@ function panelHTML(v) {
     let draws;
     if (E.has(P, "ron") && holders.length) draws = holders.map(p => opt("draw", { src: "ron", p }, `Draw ${n - 1} from the pile and 1 from ${esc(nameOf(p))}`, `Ron's ability · a random card from their ${S.players[p].hand.length}`)).join("");
     else draws = opt("draw", { src: "deck" }, "Draw from the pile");
-    if (E.has(P, "cedric") && S.discard.length) draws += opt("draw", { src: "discard" }, "Draw from the discard pile", `Cedric's ability · top card: ${esc(E.card(S.discard[S.discard.length - 1]).name)}`);
+    if (E.has(P, "cedric") && S.discard.length) {
+      // every card he'd take, top first, so he can weigh them against a blind draw from the pile
+      const k = Math.min(n, S.discard.length), top = S.discard.slice(-k).reverse();
+      draws += opt("draw", { src: "discard" }, `Draw ${k === n ? "" : k + " "}from the discard pile`,
+        `Cedric's ability · you'd take: <span class="takes">${top.map(id => `<span>${cardLine(id)}</span>`).join("")}</span>${k < n ? ` and ${n - k} from the pile` : ""}`);
+    }
     if (E.has(P, "myrtle")) draws += opt("draw", { src: "myrtle" }, "Look at 3, keep 2", "Myrtle's ability · the third goes back into the deck");
     if (E.has(P, "lupin")) draws += opt("draw", { src: "skip" }, "Skip drawing", "Lupin's ability · play up to 5 cards this turn");
     return `<h3>Draw ${n} cards</h3>${copy}${copied}<div class="opts">${draws}</div>`;
