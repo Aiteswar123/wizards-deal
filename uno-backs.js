@@ -38,6 +38,13 @@ html[data-back=marine] .useat .fanb i{background:linear-gradient(#fff,#cdd8e8);b
 html[data-back=denden] .useat .fanb i{background:linear-gradient(#3fc1b0,#0d5a63);border-color:#ffe9b5}
 html[data-back=chart] .useat .fanb i{background:linear-gradient(#efdcae,#c9a76a);border-color:#5a2a10}
 html[data-back=fruit] .useat .fanb i{background:linear-gradient(#8e3fc0,#2a0a40);border-color:#ffd23f}
+/* at a table, each seat's fan shows that player's own back */
+.udeck .useat[data-back=sunwake] .fanb i{background:linear-gradient(#5a3018,#1c0c06);border-color:#c9873a}
+.udeck .useat[data-back=strawhat] .fanb i{background:linear-gradient(#f0c662,#b37a1c);border-color:#b3121b}
+.udeck .useat[data-back=marine] .fanb i{background:linear-gradient(#fff,#cdd8e8);border-color:#1f4fa0}
+.udeck .useat[data-back=denden] .fanb i{background:linear-gradient(#3fc1b0,#0d5a63);border-color:#ffe9b5}
+.udeck .useat[data-back=chart] .fanb i{background:linear-gradient(#efdcae,#c9a76a);border-color:#5a2a10}
+.udeck .useat[data-back=fruit] .fanb i{background:linear-gradient(#8e3fc0,#2a0a40);border-color:#ffd23f}
 .dback{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(3,8,14,.72);backdrop-filter:blur(3px);padding:12px}
 .dback[hidden]{display:none}
 .dback .box{width:min(44rem,100%);max-height:calc(100vh - 24px);overflow:auto;background:#efe0bb url(assets/parchment.jpg) center/600px;color:#2b1a10;border-radius:14px;padding:1rem 1.1rem 1.2rem;box-shadow:0 0 0 2px #6b4423,0 0 0 4px #c9952f,0 30px 60px rgba(0,0,0,.7)}
@@ -126,7 +133,7 @@ html[data-back=fruit] .useat .fanb i{background:linear-gradient(#8e3fc0,#2a0a40)
   function html() {
     const F = window.UnoFaces, U = window.UnoUI;
     return `<div class="box"><header><h3>Card design</h3><button class="x" data-b="close" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true">${ICON_X}</svg></button></header>
-      <p class="lead">Choose how the cards look on your screen. It stays in this browser; every player picks their own, and nobody else's game changes.</p>
+      <p class="lead">Choose how your cards look. Everyone at your table sees the cards you play in your front design and the backs of your hand in your back design; every player picks their own. Your hand and the draw pile always show your choice.</p>
       ${F && U ? `<h4>Card fronts</h4><div class="opts">${F.list.map(d => `<button class="opt" data-b="face" data-k="${d.k}" aria-pressed="${d.k === F.get()}">${U.cardHTML(sample(), { face: d.k })}<b>${d.n}</b></button>`).join("")}</div>` : ""}
       <h4>Card backs</h4><div class="opts">${DESIGNS.map(d => `<button class="opt" data-b="pick" data-k="${d.k}" aria-pressed="${d.k === cur}">${U ? U.backHTML(d.k) : ""}<b>${d.n}</b></button>`).join("")}</div></div>`;
   }
@@ -147,6 +154,7 @@ html[data-back=fruit] .useat .fanb i{background:linear-gradient(#8e3fc0,#2a0a40)
     if (window.Sfx && b.dataset.b !== "close") Sfx.tap();
     if (b.dataset.b === "pick") set(b.dataset.k);
     if (b.dataset.b === "face" && window.UnoFaces) { UnoFaces.set(b.dataset.k); redraw(); }
+    if ((b.dataset.b === "pick" || b.dataset.b === "face") && window.UnoUI && UnoUI.syncStyle) UnoUI.syncStyle();
   });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !dlg.hidden) close(); });
   document.addEventListener("click", e => { if (e.target.closest("[data-deckback]")) open(); });

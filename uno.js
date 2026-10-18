@@ -9,6 +9,8 @@
   const COLORS = { r: { n: "Red", sea: "Red Line", hex: "#d81f38" }, y: { n: "Yellow", sea: "South Blue", hex: "#f0ae16" },
     g: { n: "Green", sea: "West Blue", hex: "#12a065" }, b: { n: "Blue", sea: "East Blue", hex: "#1f66e0" } };
   const COLOR_KEYS = ["r", "y", "g", "b"];
+  // the card designs a player can show the table (uno-faces.js, uno-backs.js)
+  const STYLES = { faces: ["classic", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10"], backs: ["sunwake", "strawhat", "marine", "denden", "chart", "fruit"] };
   // Action cards and the names printed on their posters.
   const KINDS = { skip: { n: "Skip", alias: "Skip", pts: 20 }, rev: { n: "Reverse", alias: "Reverse", pts: 20 }, d2: { n: "Draw 2", alias: "Draw Two", pts: 20 },
     wild: { n: "Wild", alias: "Wild Card", pts: 50 }, w4: { n: "Wild Draw 4", alias: "Wild Draw Four", pts: 50 } };
@@ -42,9 +44,9 @@
 
   function newGame(players) {
     const n = players.length, deck = shuffle(CARDS.filter(c => c.id < BASE * decksFor(n)).map(c => c.id));
-    const s = { kind: "uno", status: "play", players: players.map(p => ({ uid: p.uid, nick: p.nick, hand: [], played: 0 })),
+    const s = { kind: "uno", status: "play", players: players.map(p => Object.assign({ uid: p.uid, nick: p.nick, hand: [], played: 0 }, p.face ? { face: p.face } : {}, p.back ? { back: p.back } : {})),
       deck, discard: [], col: null, turn: Math.floor(Math.random() * n), dir: 1, stack: 0, drew: null,
-      unoMiss: null, winner: null, turnN: 1, last: null, plays: 0, log: [] };
+      unoMiss: null, winner: null, turnN: 1, last: null, plays: 0, log: [], by: {} };
     for (let k = 0; k < HAND; k++) for (const P of s.players) P.hand.push(s.deck.pop());
     // flip until a number card starts the discard pile
     let first; do { first = s.deck.pop(); if (KINDS[card(first).v]) s.deck.unshift(first); else break; } while (true);
@@ -126,7 +128,9 @@
         }
         if (KINDS[c.v] && seen.size === P.hand.length) return err("Your last card can't be a power card. Keep one back.");
       }
-      for (const x of [id, ...more]) { P.hand.splice(P.hand.indexOf(x), 1); s.discard.push(x); P.played = (P.played || 0) + 1; s.plays++; }
+      // by: who played each card, so every screen can draw it in that player's card design
+      s.by = s.by || {};
+      for (const x of [id, ...more]) { P.hand.splice(P.hand.indexOf(x), 1); s.discard.push(x); s.by[x] = a; P.played = (P.played || 0) + 1; s.plays++; }
       const lastId = more.length ? more[more.length - 1] : id;
       s.col = isWild(c) ? act.col : card(lastId).c;
       s.last = { k: "play", p: a, card: lastId, cards: [id, ...more], col: s.col, n: s.plays };
@@ -206,6 +210,6 @@
     });
   }
 
-  G.Uno = { MAX_PLAYERS, HAND, TURN_MS, RESPOND_MS: 30000, COLORS, COLOR_KEYS, KINDS, CARDS, BASE, XP, card, decksFor, points, label, playable,
+  G.Uno = { MAX_PLAYERS, HAND, TURN_MS, RESPOND_MS: 30000, COLORS, COLOR_KEYS, STYLES, KINDS, CARDS, BASE, XP, card, decksFor, points, label, playable,
     canPlayAny, newGame, apply, syncClock, expire, waitingOn, awards, handPoints, top };
 })(typeof window !== "undefined" ? window : globalThis);

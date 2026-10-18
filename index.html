@@ -842,6 +842,7 @@ async function pollLobbies() {
   }
 }
 function gotState() {
+  if (S && S.kind === "uno" && window.UnoUI) UnoUI.syncStyle();   // your card designs reach the table, lobby included
   if (window.Sfx && S && S.players) { const n = S.players.length; if (S.status === "lobby" && gotState.code === S.code && n > gotState.n) Sfx.join(); gotState.n = n; gotState.code = S.code; } if (window.UnoPhoto && S && S.kind === "uno") UnoPhoto.sync(); if (window.CutIn && S && S.kind !== "uno") { window.CutIn.reveal(S, nameOf, mySeat()); window.CutIn.observe(S, nameOf, mySeat()); } }
 function enter(c) { code = c; poll(); }
 function goHome() { pollGen++; code = null; S = null; view = "home"; ui = freshUI(); if (window.UnoUI) UnoUI.reset(); render(); pollLobbies(); }

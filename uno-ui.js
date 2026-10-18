@@ -275,7 +275,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
   }
   function cardHTML(id, o = {}) {
     const g = o.tag || "div";
-    if (id == null || id < 0) return backHTML(window.UnoBacks ? UnoBacks.get() : "sunwake", o);
+    if (id == null || id < 0) return backHTML(o.back || (window.UnoBacks ? UnoBacks.get() : "sunwake"), o);
     const c = U.card(id), K = U.KINDS[c.v], pip = K ? PIP[c.v] : c.v;
     // a player's own picture for this number (Card art, this browser only) takes the photo box; otherwise the Sunwake crew
     const mine = !K && window.UnoArt ? UnoArt.get(+c.v) || (window.UnoPhoto ? UnoPhoto.forCard(+c.v) : null) : null, crew = !K && window.UnoCrew ? UnoCrew[+c.v] : null;
@@ -332,6 +332,24 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     </div></details>`;
   }
 
+  // ---- everyone's card designs ----
+  // Each player's chosen front and back are saved on their seat (op "style"), so the cards they play show in their
+  // front design on every screen and the backs fanned at their seat in their back design. Your own hand and the draw
+  // pile keep your own choice.
+  const faceOf = i => { const p = S.players[i]; return p && p.face && i !== mySeat() ? p.face : undefined; };
+  const backOf = i => { const p = S.players[i]; return p && p.back && i !== mySeat() ? p.back : (window.UnoBacks ? UnoBacks.get() : "sunwake"); };
+  const playedFace = id => S.by && S.by[id] != null ? faceOf(S.by[id]) : undefined;
+  let styleSent = "";
+  // tell the table your designs whenever they differ from what your seat shows
+  function syncStyle() {
+    if (typeof S === "undefined" || !S || S.kind !== "uno" || !S.players || typeof call !== "function") return;
+    const v = mySeat(); if (v < 0) return;
+    const face = window.UnoFaces ? UnoFaces.get() : "classic", back = window.UnoBacks ? UnoBacks.get() : "sunwake", P = S.players[v];
+    if (P.face === face && P.back === back) { styleSent = ""; return; }
+    const k = `${S.code}:${face}:${back}`; if (styleSent === k) return;
+    styleSent = k; call("style", { face, back });
+  }
+
   // ---- the table ----
   // sel: cards of one number or symbol picked to go down together, in the order picked (the last one sets the colour)
   const ui = { pick: null, uno: false, sel: [], prev: null, rects: new Map() };
@@ -357,14 +375,14 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
     const seats = S.players.map((p, i) => {
       const k = v >= 0 ? (i - v + n) % n : i, [x, y] = seatPos(k, n, phone), on = S.status === "play" && S.turn === i, cnt = p.hand.length;
       const catchable = S.unoMiss === i && i !== v && v >= 0;
-      return `<div class="useat${on ? " on" : ""}" data-p="${i}" style="left:${x}%;top:${y}%;--fc:${FLAG_COLORS[i % 12]}">
+      return `<div class="useat${on ? " on" : ""}" data-p="${i}" data-back="${backOf(i)}" style="left:${x}%;top:${y}%;--fc:${FLAG_COLORS[i % 12]}">
         <span class="flag">${window.UnoPhoto && UnoPhoto.src(i) ? `<img class="pface" src="${UnoPhoto.src(i)}" alt="">` : flagFor(i)}</span><span class="nm">${i === v ? "You" : esc(nameOf(i))}</span>
         ${i !== v ? `<span class="fanb">${Array.from({ length: Math.min(cnt, 8) }, () => "<i></i>").join("")}</span>` : ""}
         <span class="cc">${cnt} card${cnt === 1 ? "" : "s"}${on && S.clock ? ` · <span data-clock="turn">1:00</span>` : ""}</span>
         ${cnt === 1 && S.unoMiss !== i ? `<span class="unob">UNO!</span>` : ""}
         ${catchable ? `<button class="catch" data-u="catch" data-p="${i}">Catch!</button>` : ""}</div>`;
     }).join("");
-    const under = S.discard.slice(-3, -1).map((id, k) => cardHTML(id, { attrs: `style="transform:rotate(${((id * 37) % 24) - 12}deg)"` })).join("");
+    const under = S.discard.slice(-3, -1).map((id, k) => cardHTML(id, { face: playedFace(id), attrs: `style="transform:rotate(${((id * 37) % 24) - 12}deg)"` })).join("");
     const canDraw = myTurn && (S.stack > 0 || S.drew == null);
     let say = "", btns = "";
     if (S.status === "play") {
@@ -399,7 +417,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
           <div class="upile">${cardHTML(-1, { tag: canDraw ? "button" : "div", cls: canDraw ? "drawme" : "", attrs: canDraw ? `data-u="draw" aria-label="Draw"` : "" })}<span class="cnt">${S.deck.length} in deck</span></div>
           <div class="upile"><div class="udisc" style="--cur:${col ? col.hex : "#fff"}">
             <svg class="udir${S.dir < 0 ? " ccw" : ""}" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4a46 46 0 0 1 40 23" stroke="#ffe9b5" stroke-width="2.4" fill="none"/><path d="M91 20l-1 9-8-3z" fill="#ffe9b5"/><path d="M50 96a46 46 0 0 1-40-23" stroke="#ffe9b5" stroke-width="2.4" fill="none"/><path d="M9 80l1-9 8 3z" fill="#ffe9b5"/></svg>
-            <span class="ucompass"></span>${under}${cardHTML(topId, { cls: "top" })}${S.stack > 0 ? `<span class="ustack">+${S.stack}</span>` : ""}
+            <span class="ucompass"></span>${under}${cardHTML(topId, { cls: "top", face: playedFace(topId) })}${S.stack > 0 ? `<span class="ustack">+${S.stack}</span>` : ""}
             <span class="ucolname">${col ? `${col.n}<span class="sea"> · ${col.sea}</span>` : ""}</span></div></div>
         </div>
       </section>
@@ -409,7 +427,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       ${ui.pick != null ? pickHTML() : ""}
       ${S.status === "over" ? winHTML(v) : ""}
     </div>`;
-    motion(v);
+    motion(v); syncStyle();
   }
   function pickHTML() {
     return `<div class="upick" role="dialog" aria-label="Choose a colour"><div class="box"><h3>Choose the next colour</h3><div class="cols">
@@ -436,7 +454,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       if (L.k === "play") {
         const c = U.card(L.card), from = L.p === v && ui.rects.get(L.card) ? ui.rects.get(L.card).rect : seat(L.p);
         const top = document.querySelector(".udisc .top");
-        if (!calm && from && disc && top) { top.style.opacity = "0"; ghost(cardHTML(L.card), from, disc, { w: disc.width, h: disc.height, end: 1, mid: 1.15, spin: 16, arc: 60, dur: 520, land: () => { top.style.opacity = ""; top.animate([{ transform: "scale(1.25)", filter: "brightness(1.8)" }, { transform: "none", filter: "none" }], { duration: 360, easing: "ease-out" }); } }); }
+        if (!calm && from && disc && top) { top.style.opacity = "0"; ghost(cardHTML(L.card, { face: faceOf(L.p) }), from, disc, { w: disc.width, h: disc.height, end: 1, mid: 1.15, spin: 16, arc: 60, dur: 520, land: () => { top.style.opacity = ""; top.animate([{ transform: "scale(1.25)", filter: "brightness(1.8)" }, { transform: "none", filter: "none" }], { duration: 360, easing: "ease-out" }); } }); }
         if (window.Sfx) Sfx.place();
         const K = U.KINDS[c.v], who = nameOf(L.p), colr = U.COLORS[L.col] ? U.COLORS[L.col].hex : "#ffd23f";
         if (K) {
@@ -448,7 +466,7 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
       } else if (L.k === "draw") {
         if (window.Sfx) Sfx.draw(Math.min(L.count, 5));
         const to = L.p === v ? box(document.querySelector(".uhand")) : seat(L.p);
-        if (!calm && pile && to) for (let k = 0; k < Math.min(L.count, 6); k++) ghost(cardHTML(-1), pile, to, { w: pile.width, h: pile.height, end: .4, delay: k * 90, dur: 560, arc: 40, fade: true });
+        if (!calm && pile && to) for (let k = 0; k < Math.min(L.count, 6); k++) ghost(cardHTML(-1, { back: backOf(L.p) }), pile, to, { w: pile.width, h: pile.height, end: .4, delay: k * 90, dur: 560, arc: 40, fade: true });
         if (L.count >= 4 && !calm && to) floatText(to, `+${L.count}`, "#ff6b6b");
       } else if (L.k === "catch") {
         if (window.CutIn) CutIn.banner("Caught!", `${nameOf(L.q)} forgot to call UNO · +2`, "#ffd23f");
@@ -509,5 +527,5 @@ button.ucard.drawme:hover{transform:translateY(-6px) rotate(-2deg)}
   });
   async function send(action) { await act(action); ui.uno = false; }
 
-  window.UnoUI = { render, mastHTML, rulesHTML, cardHTML, backHTML, reset() { ui.prev = null; ui.pick = null; ui.uno = false; ui.sel = []; } };
+  window.UnoUI = { render, mastHTML, rulesHTML, cardHTML, backHTML, syncStyle, reset() { ui.prev = null; ui.pick = null; ui.uno = false; ui.sel = []; } };
 })();

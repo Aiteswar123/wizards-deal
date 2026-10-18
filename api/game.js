@@ -233,12 +233,12 @@ async function handle(req) {
         if (g.host !== pid || g.status !== "lobby") fail("Only the table owner can start the game.");
         if (g.players.length < 2) fail("You need at least 2 players.");
         next = Object.assign({ code, host: g.host, created: g.created, tokens: g.tokens }, ENG(g).newGame(g.players), g.kind ? { kind: g.kind } : {});
-        next.players.forEach((p, i) => { if (g.players[i].photoV) p.photoV = g.players[i].photoV; if (g.players[i].card != null) p.card = g.players[i].card; });
+        next.players.forEach((p, i) => { const o = g.players[i]; if (o.photoV) p.photoV = o.photoV; if (o.card != null) p.card = o.card; if (o.face) p.face = o.face; if (o.back) p.back = o.back; });
         await redis(["ZREM", "wd:lobbies", code]);
         break;
       case "again":
         if (g.host !== pid || g.status !== "over") fail("Only the table owner can start a rematch.");
-        next = { status: "lobby", kind: g.kind, recorded: false, code, host: g.host, created: Date.now(), tokens: g.tokens, players: g.players.map(p => Object.assign({ uid: p.uid, nick: p.nick }, p.photoV ? { photoV: p.photoV } : {}, p.card != null ? { card: p.card } : {})) };
+        next = { status: "lobby", kind: g.kind, recorded: false, code, host: g.host, created: Date.now(), tokens: g.tokens, players: g.players.map(p => Object.assign({ uid: p.uid, nick: p.nick }, p.photoV ? { photoV: p.photoV } : {}, p.card != null ? { card: p.card } : {}, p.face ? { face: p.face } : {}, p.back ? { back: p.back } : {})) };
         await redis(["ZADD", "wd:lobbies", String(next.created), code]);
         break;
       case "photo": {
@@ -256,6 +256,13 @@ async function handle(req) {
         const other = n == null ? -1 : g.players.findIndex((p, i) => i !== seat && p.card === n);
         if (other >= 0) fail(`${g.players[other].nick || "Another player"} already has card ${n}.`);
         if (n == null) delete g.players[seat].card; else g.players[seat].card = n;
+        break;
+      }
+      // a player's card designs, shown to the whole table (Grand Line UNO); allowed in the lobby and during play
+      case "style": {
+        if (seat < 0) fail("You're not at this table.");
+        if (!U.STYLES.faces.includes(q.face) || !U.STYLES.backs.includes(q.back)) fail("Unknown card design.");
+        g.players[seat].face = q.face; g.players[seat].back = q.back;
         break;
       }
       case "act": {
