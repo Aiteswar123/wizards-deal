@@ -653,6 +653,38 @@ button.card:hover::before,.card.tilting::before,.card.sel::before{opacity:1}
 .ci-go{appearance:none;margin-top:.7rem;transform:skewX(8deg);background:var(--chalk);color:var(--board);border:0;border-radius:4px;padding:.85rem 1.5rem;font:700 1.05rem/1 var(--label);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 20px -10px rgba(0,0,0,.8)}
 .ci-go:hover{background:#fff}
 @media (max-width:640px){.ci-band.ci-tall{height:min(78vh,36rem)}.ci-tall .ci-art{opacity:.5}.ci-tall .ci-text{max-width:88%}}
+/* the win: rays of house light, the winner rising, the headline landing, their sets flipping in, confetti */
+.ci.victory{background:rgba(4,6,12,0)}
+.ci.victory.on{background:rgba(4,6,12,.86)}
+.ci.victory.out{background:rgba(4,6,12,0)}
+.vic{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden;opacity:0;transition:opacity .3s}
+.ci.on .vic{opacity:1}.ci.out .vic{opacity:0}
+.vic-rays{position:absolute;left:50%;top:40%;width:190vmax;aspect-ratio:1;translate:-50% -50%;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--ci) 55%,transparent) 0 6deg,transparent 6deg 15deg,color-mix(in srgb,var(--ci2) 40%,transparent) 15deg 19deg,transparent 19deg 30deg);
+  -webkit-mask:radial-gradient(circle,#000 6%,transparent 52%);mask:radial-gradient(circle,#000 6%,transparent 52%);animation:vic-turn 40s linear infinite,vic-fade 1.2s ease-out both}
+.vic-glow{position:absolute;left:50%;top:40%;width:min(90vw,40rem);aspect-ratio:1;translate:-50% -50%;border-radius:50%;background:radial-gradient(circle,rgba(255,236,170,.55),color-mix(in srgb,var(--ci) 30%,transparent) 40%,transparent 70%);animation:vic-fade 1s ease-out both}
+@keyframes vic-turn{to{rotate:360deg}}
+@keyframes vic-fade{from{opacity:0;scale:.7}to{opacity:1;scale:1}}
+.vic-confetti i{position:absolute;top:-4vh;border-radius:2px;opacity:.95;animation:vic-fall linear infinite both}
+@keyframes vic-fall{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(var(--sw),110vh) rotate(var(--rot))}}
+.vic-stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:.55rem;padding:16px;text-align:center;max-width:40rem}
+.vic-hero{position:relative;width:min(56vw,15rem);aspect-ratio:270/320;margin-bottom:-.6rem}
+.vic-fig{position:absolute;inset:0;animation:vic-rise 1s cubic-bezier(.2,1.4,.4,1) .15s both,vic-float 4s ease-in-out 1.3s infinite}
+.vic-fig .ci-spark{animation:ci-pulse .6s ease-in-out infinite alternate}
+@keyframes vic-rise{from{transform:translateY(55%) scale(.8);opacity:0}to{transform:none;opacity:1}}
+@keyframes vic-float{50%{transform:translateY(-4%)}}
+.vic-stars i{position:absolute;left:50%;top:42%;width:.7rem;height:.7rem;rotate:var(--a);translate:0 calc(var(--r) * -1);background:#fff6d6;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:vic-twinkle 1.6s ease-in-out var(--d) infinite both}
+@keyframes vic-twinkle{0%,100%{opacity:0;scale:.3}50%{opacity:1;scale:1.2}}
+.vic-name{font:700 clamp(3rem,12vw,6rem)/.9 var(--magic);color:#ffe08a;text-wrap:balance;text-shadow:0 0 28px color-mix(in srgb,var(--ci) 70%,transparent),0 0 60px rgba(255,214,120,.45),0 6px 14px rgba(0,0,0,.6);animation:ci-slam .55s var(--ease) .75s both}
+.vic-house{font:700 .85rem/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:#fff;background:color-mix(in srgb,var(--ci) 72%,#0b0f17);border:1px solid var(--ci2);padding:.45rem .75rem;border-radius:4px;animation:vic-up .5s var(--ease) 1.05s both}
+.vic-sets{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-top:.4rem;perspective:600px}
+.vic-set{display:flex;align-items:center;justify-content:center;min-width:5.6rem;min-height:3.4rem;padding:.6rem .8rem;border-radius:8px;background:linear-gradient(160deg,color-mix(in srgb,var(--sc) 85%,#fff),var(--sc) 55%,color-mix(in srgb,var(--sc) 70%,#000));
+  color:#fff;font:700 .8rem/1 var(--label);letter-spacing:.05em;text-transform:uppercase;text-shadow:0 1px 3px rgba(0,0,0,.6);box-shadow:0 0 0 2px #ffe08a,0 10px 24px rgba(0,0,0,.55),0 0 28px color-mix(in srgb,var(--sc) 60%,transparent);
+  animation:vic-flip .6s cubic-bezier(.2,1.3,.4,1) calc(1.3s + var(--i) * .18s) both}
+@keyframes vic-flip{from{transform:rotateY(90deg) translateY(30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes vic-up{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+.vic-go{margin-top:.9rem;transform:none;animation:vic-up .5s var(--ease) 1.9s both}
+@media (prefers-reduced-motion:reduce){.vic *,.vic{animation:none!important;transition:none!important}.vic-confetti{display:none}}
 @media (max-width:640px){.ci-band{height:min(40vh,18rem)}.ci-art{left:-6%}.ci-text{max-width:66%;right:4%}}
 /* the duel */
 .ci-band.ci-duel{height:min(64vh,30rem);clip-path:polygon(0 10%,100% 0,100% 90%,0 100%)}
@@ -1752,6 +1784,8 @@ function fxAfterRender(v, P) {
     // a win sets off fireworks in the winner's house colours
     if (snap.status === "over" && prev.status !== "over") { const w = S.players[S.winner], H = houseOf(w.char); fireworks([H.c, H.c2, "#fff3c8", "#ffd27a"]); }
   }
+  // the winner's moment plays for everyone, still for reduced motion
+  if (same && prev.v !== snap.v && snap.status === "over" && prev.status !== "over" && window.CutIn) CutIn.victory(S, nameOf, v);
   // the panel slides in when its content changes
   if (panel && key !== FX.panel && !noMotion()) {
     panel.animate([{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "none" }], { duration: 380, easing: "cubic-bezier(.2,.8,.2,1)" });

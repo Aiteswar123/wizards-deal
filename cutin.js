@@ -127,7 +127,7 @@
   const reduce = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   function finish() {
-    clearTimeout(timer); layer.classList.remove("reveal"); layer.classList.remove("on", "out"); layer.hidden = true; playing = false;
+    clearTimeout(timer); layer.classList.remove("reveal", "victory"); layer.classList.remove("on", "out"); layer.hidden = true; playing = false;
     if (queue.length) setTimeout(next, 80);
   }
   layer.addEventListener("click", finish);
@@ -135,6 +135,7 @@
   function next() {
     const job = queue.shift(); if (!job) return;
     playing = true;
+    if (job.victory) return showVictory(job);
     if (job.reveal) return showReveal(job);
     if (job.banner) return showBanner(job);
     return showDuel(job);
@@ -213,6 +214,29 @@
     timer = setTimeout(() => { layer.classList.add("out"); timer = setTimeout(finish, 380); }, 9000);
   }
 
+  // The win: the winner's portrait rises into turning rays of house light, the headline lands, their three completed
+  // sets flip in one by one, and confetti in house colours and gold falls. Stays until dismissed (or 12 seconds).
+  function showVictory(job) {
+    const L = LOOK[job.ch] || LOOK.harry, gold = "#ffd977";
+    layer.style.setProperty("--ci", L.c); layer.style.setProperty("--ci2", L.c2);
+    const hue = [L.c, L.c2, gold, "#fff3c8"];
+    const confetti = Array.from({ length: reduce() ? 0 : 56 }, (_, i) => {
+      const r = k => ((i * 9301 + k * 49297) % 233280) / 233280;
+      return `<i style="left:${(r(1) * 100).toFixed(1)}%;background:${hue[i % hue.length]};animation-delay:${(r(2) * 2.4).toFixed(2)}s;animation-duration:${(3.2 + r(3) * 2.6).toFixed(2)}s;--sw:${(r(4) * 80 - 40).toFixed(0)}px;--rot:${(r(5) * 720 - 360).toFixed(0)}deg;width:${(5 + r(6) * 6).toFixed(1)}px;height:${(8 + r(7) * 8).toFixed(1)}px"></i>`;
+    }).join("");
+    const stars = Array.from({ length: 9 }, (_, i) => `<i style="--a:${i * 40}deg;--d:${(i * 0.23).toFixed(2)}s;--r:${8 + (i % 3) * 3}rem"></i>`).join("");
+    const sets = job.sets.map((c, i) => `<span class="vic-set" style="--sc:${E.COLORS[c].hex};--i:${i}">${esc(E.COLORS[c].n)}</span>`).join("");
+    layer.innerHTML = `<div class="vic"><div class="vic-rays"></div><div class="vic-glow"></div><div class="vic-confetti">${confetti}</div>
+      <div class="vic-stage"><div class="vic-hero"><div class="vic-stars">${stars}</div><div class="vic-fig">${figure(job.ch, gold, "proud")}</div></div>
+        <h2 class="vic-name">${job.you ? "You win!" : esc(job.name) + " wins!"}</h2>
+        <span class="vic-house">${esc(charName(job.ch))} · House ${esc(HOUSE[job.ch] || "")}</span>
+        <div class="vic-sets" aria-label="Completed sets">${sets}</div>
+        <button class="ci-go vic-go" type="button">See the results</button></div></div>`;
+    layer.classList.add("victory");
+    layer.hidden = false; void layer.offsetWidth; layer.classList.add("on");
+    timer = setTimeout(() => { layer.classList.add("out"); timer = setTimeout(finish, 380); }, 12000);
+  }
+
   let seen = null;
   window.CutIn = {
     /** Call with every fresh game state. */
@@ -238,6 +262,16 @@
       const others = S.players.map((p, i) => ({ name: nameOf(i), ch: p.char, i })).filter(o => o.i !== meSeat);
       queue.unshift({ reveal: true, ch: S.players[meSeat].char, others });
       if (!playing) next();
+    },
+    /** The winner's moment, once per game on this device; it goes ahead of anything still queued. */
+    victory(S, nameOf, meSeat) {
+      if (!S || S.status !== "over" || S.winner == null || !S.players[S.winner]) return;
+      const key = "wd-victory-" + S.code + "-" + S.created;
+      try { if (localStorage.getItem(key)) return; localStorage.setItem(key, "1"); } catch (e) {}
+      const W = S.players[S.winner];
+      queue.length = 0;
+      queue.push({ victory: true, ch: W.char, name: nameOf(S.winner), you: S.winner === meSeat, sets: E.completeCols(W).slice(0, 3) });
+      if (playing) { clearTimeout(timer); finish(); } else next();
     },
     /** A short banner, such as "Your turn". */
     banner(text, sub, color) { if (queue.some(j => j.banner)) return; queue.push({ banner: true, text, sub, color }); if (!playing) next(); },
