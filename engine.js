@@ -225,7 +225,7 @@
         if (!colsFor(c).includes(act.col)) return fail("Pick a colour this card allows.");
         take(P.hand, act.card); P.table.push({ c: act.card, col: act.col }); s.plays++;
         undoable(s, { k: "place", c: act.card });
-        log(s, `@${a} played ${c.type === "item" ? c.name : "a wild item"} as ${COLORS[act.col].n}.`);
+        log(s, `@${a} played ${c.type === "item" ? c.name : "a wild item"} as {c:${act.col}}.`);
         break;
       }
       case "cast": {
@@ -252,7 +252,7 @@
         if (u.k === "bank") { if (!P.bank.includes(u.c)) return fail("That card has moved."); take(P.bank, u.c); P.hand.push(u.c); s.plays--; }
         else if (u.k === "place") { const i = P.table.findIndex(e => e.c === u.c); if (i < 0) return fail("That card has moved."); P.table.splice(i, 1); P.hand.push(u.c); s.plays--; }
         else { const e = entryOf(P, u.c); if (!e) return fail("That card has moved."); e.col = u.from; }
-        log(s, u.k === "recolor" ? `@${a} moved the wild item back to ${COLORS[u.from].n}.` : `@${a} took back ${isItem(c) && c.type !== "item" ? "a wild item" : c.name}.`);
+        log(s, u.k === "recolor" ? `@${a} moved the wild item back to {c:${u.from}}.` : `@${a} took back ${isItem(c) && c.type !== "item" ? "a wild item" : c.name}.`);
         return { state: s };
       }
       case "keep": {
@@ -303,7 +303,7 @@
         if (!myTurn || !has(P, "harry")) return fail("Only Harry can choose a protected colour, on his turn.");
         if (!COLORS[act.col]) return fail("Unknown colour.");
         P.harryCol = act.col;
-        log(s, `@${a} now protects ${COLORS[act.col].n} items.`);
+        log(s, `@${a} now protects {c:${act.col}} items.`);
         break;
       }
       case "unpetrify": {
@@ -419,7 +419,9 @@
 
     take(P.hand, act.card); s.plays++; P.casts = (P.casts || 0) + 1;
     stamp(s, a, k, { col: prm.col || null, t: tg ? (tg.length > 1 ? -1 : tg[0].p) : null });
-    const label = k === "accio2" || k === "accioAny" ? `Accio (${COLORS[prm.col].n})` : c.name;
+    // say which Accio card it was (a two-colour one or the any-colour one), the colour charged and what each owes;
+    // colours are written as {c:key} so the table can draw a swatch beside the name
+    const label = k === "accio2" ? `Accio ({c:${c.cols[0]}}/{c:${c.cols[1]}} card) for {c:${prm.col}}` : k === "accioAny" ? `Accio (any-colour card) for {c:${prm.col}}` : c.name;
     if (k === "geminio") {
       drawN(s, P, 2); s.discard.push(act.card);
       log(s, `@${a} cast Geminio and drew two cards.`);
@@ -432,7 +434,7 @@
     } else {
       s.pending = { k, caster: a, card: act.card, prm, tg };
       const who = tg.length > 1 ? "everyone" : `@${tg[0].p}`;
-      log(s, `@${a} cast ${label} on ${who}.`);
+      log(s, k === "accio2" || k === "accioAny" ? `@${a} cast ${label}: ${tg.length > 1 ? "everyone owes" : `@${tg[0].p} owes`} ${rent(P, prm.col)}.` : `@${a} cast ${label} on ${who}.`);
     }
     return null;
   }
@@ -520,7 +522,7 @@
         if (!canObliviate(T, col)) return fizzle();
         const set = T.table.filter(e => e.col === col).sort((x, y) => (card(x.c).type === "any") - (card(y.c).type === "any")).slice(0, COLORS[col].size);
         set.forEach(e => { T.table.splice(T.table.indexOf(e), 1); C.table.push(e); });
-        log(s, `@${pd.caster} took @${t.p}'s whole ${COLORS[col].n} set!`); break;
+        log(s, `@${pd.caster} took @${t.p}'s whole {c:${col}} set!`); break;
       }
       case "petrificus": {
         if (T.petrified != null) return fizzle();

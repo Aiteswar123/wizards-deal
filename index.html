@@ -599,10 +599,14 @@ button.card:hover::before,.card.tilting::before,.card.sel::before{opacity:1}
 
 /* Table talk, winner, toast */
 .log{margin-top:1.5rem;background:var(--stand-2);border:1px solid var(--line);border-radius:8px;padding:1rem 1.1rem}
-.log ol{margin-top:.7rem;display:flex;flex-direction:column-reverse;gap:.3rem;font-size:.92rem;color:var(--muted);max-height:13rem;overflow:auto}
+.log ol{margin-top:.7rem;display:flex;flex-direction:column;gap:.3rem;font-size:.92rem;color:var(--muted);max-height:13rem;overflow:auto}
 .log li{padding-left:.75rem;position:relative}
 .log li::before{content:"";position:absolute;left:0;top:.6em;width:.3rem;height:.3rem;border-radius:50%;background:var(--line-2)}
 .log b{color:var(--ink);font-weight:600}
+.log h2 small{font:600 .7rem/1 var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-left:.4rem}
+.log li:first-child{color:var(--ink)}
+.log li:first-child::before{background:var(--live)}
+.lc{white-space:nowrap}.lc .sw{margin-right:.25em}
 .log .stamp{font-size:.66rem;padding:.12rem .3rem;margin-left:.4rem;transform:rotate(-3deg);vertical-align:.1em}
 .log .stamp.win{color:var(--ok)}
 .winner{text-align:center;padding:2rem 1rem 1.6rem;display:flex;flex-direction:column;gap:.9rem;align-items:center;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(0 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") top left/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(90 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") top right/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(270 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") bottom left/34px 34px no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='rotate(180 20 20)' fill='none' stroke='%23c9a95a' stroke-width='1.1' stroke-linecap='round' opacity='.7'%3E%3Cpath d='M3 37V12Q3 3 12 3H37'/%3E%3Cpath d='M7 37V15Q7 7 15 7H37' opacity='.5'/%3E%3Cpath d='M3 22Q11 22 11 14Q11 8 17 8Q22 8 22 3'/%3E%3Ccircle cx='12.5' cy='12.5' r='2.2' fill='%23c9a95a'/%3E%3Cpath d='M16 16Q21 13 24 16Q21 19 16 16Z' fill='%23c9a95a' opacity='.6'/%3E%3C/g%3E%3C/svg%3E") bottom right/34px 34px no-repeat,var(--board);border-radius:8px;margin-top:1rem;box-shadow:0 18px 30px -18px rgba(0,0,0,.9)}
@@ -832,7 +836,8 @@ async function joinGame(c) {
 
 // ---------- helpers ----------
 function nameOf(i) { const p = S && S.players && S.players[i]; return p ? (p.nick || `Player ${i + 1}`) : "Someone"; }
-const fmt = m => esc(m).replace(/@(\d+)/g, (_, i) => `<b>${esc(nameOf(+i))}</b>`);
+// log lines: @n is a player, {c:key} a colour (drawn with its swatch)
+const fmt = m => esc(m).replace(/@(\d+)/g, (_, i) => `<b>${esc(nameOf(+i))}</b>`).replace(/\{c:([a-z]+)\}/g, (t, c) => E.COLORS[c] ? `<span class="lc">${swatch(c)}${esc(colName(c))}</span>` : t);
 const colName = c => E.COLORS[c].n;
 const swatch = c => `<i class="sw" style="background:${E.COLORS[c].hex}"></i>`;
 function flash(msg, good) {
@@ -1317,13 +1322,19 @@ function renderGame() {
       ${tableHTML(S.players[i], false, false)}<div class="bankrow"><span class="lbl" style="margin-right:.35rem">Bank</span>${bankHTML(S.players[i])}</div></section>`).join("")}</div></aside>
     <div class="scrim" data-a="side" aria-hidden="true"></div>
   </div>
-  <section class="log"><h2>Table talk</h2><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}${/blocked|Protego!/.test(m) ? `<span class="stamp">Blocked</span>` : /wins!$/.test(m) ? `<span class="stamp win">Full time</span>` : ""}</li>`).join("")}</ol></section>
+  <section class="log"><h2>Table talk <small>newest first</small></h2><ol>${S.log.slice(-25).reverse().map(m => `<li>${fmt(m)}${/blocked|Protego!/.test(m) ? `<span class="stamp">Blocked</span>` : /wins!$/.test(m) ? `<span class="stamp win">Full time</span>` : ""}</li>`).join("")}</ol></section>
   ${refHTML()}`;
   miniPrimed = true;
   fxAfterRender(v, P);
 }
 
-function spellLabel(pd) { return (pd.k === "accio2" || pd.k === "accioAny") ? `Accio (${colName(pd.prm.col)})` : E.card(pd.card).name; }
+// which spell card it was: for Accio, the two-colour card or the any-colour one, and the colour charged
+function spellLabel(pd) {
+  const c = E.card(pd.card);
+  if (pd.k === "accio2") return `Accio (${c.cols.map(colName).join("/")} card) for ${colName(pd.prm.col)}`;
+  if (pd.k === "accioAny") return `Accio (any-colour card) for ${colName(pd.prm.col)}`;
+  return c.name;
+}
 function winnerHTML(v) {
   const sets = E.completeCols(S.players[S.winner]);
   return `<div class="winner${v === S.winner ? " you" : ""}"><span class="lbl">Full time</span><h2>${v === S.winner ? "You win!" : esc(nameOf(S.winner)) + " wins!"}</h2>
