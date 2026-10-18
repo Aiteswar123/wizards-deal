@@ -534,6 +534,8 @@ input::placeholder{color:var(--dim);opacity:1}
 .opt:hover:not(:disabled){border-color:var(--chalk);background:color-mix(in srgb,var(--board-2) 60%,var(--line))}
 .opt small{display:block;color:var(--muted);font-size:.84rem;font-weight:400;margin-top:.1rem}
 .paylist{display:flex;flex-wrap:wrap;gap:.35rem}
+.btn .kbd{font:600 .66rem/1 var(--label);letter-spacing:.04em;opacity:.65;margin-left:.45rem;padding:.15rem .3rem;border:1px solid currentColor;border-radius:3px;text-transform:none}
+@media (hover:none){.btn .kbd{display:none}}
 .paybtn{appearance:none;display:inline-flex;align-items:center;gap:.45rem;border:1px solid var(--line);background:var(--board-2);border-radius:4px;padding:.45rem .6rem;font-size:.88rem;text-align:left;min-height:2.5rem}
 .paybtn b{font:800 1rem/1 var(--display)}
 .paybtn:hover{border-color:var(--chalk)}
@@ -1397,11 +1399,13 @@ function panelHTML(v) {
   }
   const max = E.maxPlays(P, S);
   const endBtn = `<button class="btn" data-a="end">End turn</button>`;
+  // take back the last card placed, banked or moved this turn (also Ctrl+Z / Cmd+Z)
+  const undoBtn = S.undo && S.undo.length ? `<button class="btn ghost" data-a="undo" title="Undo (Ctrl+Z)">Undo<small class="kbd">Ctrl+Z</small></button>` : "";
   const notes = (E.umbridgeLimits(P, S) ? `<p class="answerclock">Umbridge limits you to 2 plays while you have more complete sets than her.</p>` : "")
     + (P.copy ? `<p class="muted" style="font-size:.88rem">Copied for this turn: <b>${E.CHARS[P.copy].n}</b></p>` : "")
     + (E.has(P, "peeves") && !P.peeved && P.hand.length ? `<div class="opts">${S.players.map((q, i) => i).filter(i => i !== v && S.players[i].hand.length).map(p => opt("peeves", { p }, `Blind-swap with ${esc(nameOf(p))}`, "Peeves's ability · a random card each way, once per turn, free")).join("")}</div>` : "");
-  if (S.plays >= max) return notes + `<h3>All ${max} plays used</h3><p class="muted">Move wild items if you like, then end your turn.</p><div class="row"><button class="btn primary" data-a="end">End turn</button></div>`;
-  if (ui.sel == null) return notes + `<h3>Choose a card</h3><p class="muted">Tap a card in your hand to see what you can do with it. ${max - S.plays} play${max - S.plays === 1 ? "" : "s"} left.</p><div class="row">${endBtn}</div>`;
+  if (S.plays >= max) return notes + `<h3>All ${max} plays used</h3><p class="muted">Move wild items if you like, then end your turn.</p><div class="row"><button class="btn primary" data-a="end">End turn</button>${undoBtn}</div>`;
+  if (ui.sel == null) return notes + `<h3>Choose a card</h3><p class="muted">Tap a card in your hand to see what you can do with it. ${max - S.plays} play${max - S.plays === 1 ? "" : "s"} left.</p><div class="row">${endBtn}${undoBtn}</div>`;
   return selectedHTML(v) + `<div class="row" style="margin-top:.2rem"><button class="btn ghost small" data-a="unsel">Cancel</button>${endBtn.replace('class="btn"', 'class="btn small"')}</div>`;
 }
 
@@ -1527,6 +1531,7 @@ $app.addEventListener("click", async e => {
     case "draw": return act({ t: "draw", src: d.src, p: num("p") });
     case "peekpick": { const id = num("id"), want = Math.min(2, S.peek.cards.length); ui.keep = ui.keep.includes(id) ? ui.keep.filter(x => x !== id) : [...ui.keep, id].slice(-want); return render(); }
     case "keep": return act({ t: "keep", cards: ui.keep });
+    case "undo": return act({ t: "undo" });
     case "copy": return act({ t: "copy", ch: d.ch });
     case "peeves": return act({ t: "peeves", p: num("p") });
     case "snitch": return act({ t: "snitch", use: d.use === "1" });
@@ -1550,6 +1555,13 @@ $app.addEventListener("click", async e => {
     case "counterP": return act({ t: "counter", p: num("p"), choice: "protego" });
     case "yield": return act({ t: "counter", p: num("p"), choice: "yield" });
   }
+});
+// Ctrl+Z / Cmd+Z: undo, on your own Wizard's Deal turn, when something can be taken back (not while typing)
+document.addEventListener("keydown", e => {
+  if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== "z") return;
+  if (e.target.closest && e.target.closest("input, textarea, select, [contenteditable]")) return;
+  if (view !== "game" || !S || S.kind === "uno" || S.status !== "play" || S.turn !== mySeat() || !S.undo || !S.undo.length) return;
+  e.preventDefault(); if (window.Sfx) Sfx.tap(); act({ t: "undo" });
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && document.querySelector(".arena.side-open") && !matchMedia("(min-width:1000px)").matches) setSide(false); });
 $app.addEventListener("submit", e => { if (e.target.id === "joinForm") { e.preventDefault(); joinGame(document.getElementById("joincode").value); } });

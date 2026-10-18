@@ -7,6 +7,7 @@ An online table for playing Monopoly Deal: Harry Potter edition with 2 to 12 fri
 - Bigger tables shuffle in more decks: one for up to 5 players, two for 6 to 10, three for 11 or 12.
 - Everyone sits around one table: items and banks are visible to all, your hand is visible only to you.
 - The server runs every move through the rules engine, so other players' hands never reach your browser.
+- Changed your mind? Undo (or Ctrl+Z / Cmd+Z) takes back the cards you placed, banked or moved on your turn, one at a time, until you cast a spell or end the turn.
 
 The same site also hosts **Grand Line UNO**, a pirate-themed UNO for 2 to 12 players with stacking (any +2 or +4 on any +2 or +4, any colour), its own one-minute turn clock and its own leaderboard ("Most Wanted"). Pick the game at the top of the home page.
 

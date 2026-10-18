@@ -149,6 +149,11 @@
     return s;
   }
 
+  // ---- undo: each placed, banked or moved card leaves a note of how to reverse it, until any other move clears them.
+  // The notes only name cards that are face up on the table or in the bank, so they reveal nothing private. ----
+  const UNDOABLE = ["bank", "place", "recolor", "harry"];
+  const undoable = (s, u) => { (s.undo = s.undo || []).push(u); };
+
   // ---- the one entry point ----
   function apply(s0, a, act) {
     const s = clone(s0);
@@ -209,6 +214,7 @@
         if (!canPlay()) return fail("You can't play a card now.");
         if (!P.hand.includes(act.card) || isItem(c)) return fail("That card can't go in the bank.");
         take(P.hand, act.card); P.bank.push(act.card); s.plays++;
+        undoable(s, { k: "bank", c: act.card });
         log(s, `@${a} banked ${c.name} (${c.val}).`);
         break;
       }
@@ -218,6 +224,7 @@
         if (!P.hand.includes(act.card) || !isItem(c)) return fail("That isn't an item card.");
         if (!colsFor(c).includes(act.col)) return fail("Pick a colour this card allows.");
         take(P.hand, act.card); P.table.push({ c: act.card, col: act.col }); s.plays++;
+        undoable(s, { k: "place", c: act.card });
         log(s, `@${a} played ${c.type === "item" ? c.name : "a wild item"} as ${COLORS[act.col].n}.`);
         break;
       }
@@ -232,8 +239,21 @@
         if (!myTurn || s.pending) return fail("You can only move wild items on your own turn.");
         const e = entryOf(P, act.card);
         if (!e || !colsFor(card(e.c)).includes(act.col) || card(e.c).type === "item") return fail("That item can't change colour.");
+        undoable(s, { k: "recolor", c: e.c, from: e.col });
         e.col = act.col;
         break;
+      }
+      // take back the last card placed, banked or moved this turn; spells, draws and the turn's end can't be undone
+      case "undo": {
+        if (!myTurn || s.pending || s.snitch || s.peek) return fail("Nothing to undo right now.");
+        const u = (s.undo || []).pop();
+        if (!u) return fail("Nothing to undo.");
+        const c = card(u.c);
+        if (u.k === "bank") { if (!P.bank.includes(u.c)) return fail("That card has moved."); take(P.bank, u.c); P.hand.push(u.c); s.plays--; }
+        else if (u.k === "place") { const i = P.table.findIndex(e => e.c === u.c); if (i < 0) return fail("That card has moved."); P.table.splice(i, 1); P.hand.push(u.c); s.plays--; }
+        else { const e = entryOf(P, u.c); if (!e) return fail("That card has moved."); e.col = u.from; }
+        log(s, u.k === "recolor" ? `@${a} moved the wild item back to ${COLORS[u.from].n}.` : `@${a} took back ${isItem(c) && c.type !== "item" ? "a wild item" : c.name}.`);
+        return { state: s };
       }
       case "keep": {
         const pk = s.peek;
@@ -315,6 +335,7 @@
       }
       default: return fail("Unknown action.");
     }
+    if (!UNDOABLE.includes(act.t)) s.undo = [];
     return finish(s, a, null, s0);
   }
 
