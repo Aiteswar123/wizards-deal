@@ -24,6 +24,7 @@
   .pz-card li.ok{background:#1f3a2c}
   .pz-card li span:last-child{color:#b3aac7;font-size:.88rem}
   .pz-card li.ok span:last-child{color:#82d6a4}
+  .pz-bar[hidden],.pz-over[hidden]{display:none!important}
   @media (prefers-reduced-motion:reduce){.pz-over{backdrop-filter:none}}`;
   document.head.appendChild(css);
 
