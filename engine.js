@@ -159,6 +159,7 @@
     const s = clone(s0);
     const P = s.players[a];
     const fail = m => ({ error: m });
+    if (s.status === "paused") return fail("The game is paused. Vote to continue first.");
     if (s.status !== "play") return fail("The game is over.");
     if (!P) return fail("You are not in this game.");
     const myTurn = s.turn === a;

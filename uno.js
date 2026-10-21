@@ -83,6 +83,7 @@
   function apply(s0, a, act) {
     const s = clone(s0), P = s.players[a];
     const err = m => ({ error: m });
+    if (s.status === "paused") return err("The game is paused. Vote to continue first.");
     if (s.status !== "play") return err("The game is over.");
     if (!P) return err("You're not at this table.");
     const t = act && act.t;

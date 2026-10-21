@@ -38,14 +38,16 @@ function memRedis([op, ...a]) {
   throw new Error("unsupported " + op);
 }
 
-const TTL = 60 * 60 * 48;
+// Photos and live games are kept a week; a paused game is kept a month so it can be finished later.
+const TTL = 60 * 60 * 24 * 30;
+const gameTTL = g => (g.status === "paused" ? 30 : 7) * 24 * 3600;
 // Crew photos: each player's own small JPEG for a table, kept beside the table (not in it, so polls stay light).
 const photoKey = (code, uid) => "wd:photo:" + code + ":" + uid;
 const PHOTO_MAX = 90000;   // characters of data URL, about 65 KB of JPEG
 const okPhoto = d => typeof d === "string" && d.length <= PHOTO_MAX && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(d);
 const key = code => "wd:game:" + code;
 const load = async code => { const v = await redis(["GET", key(code)]); return v ? JSON.parse(v) : null; };
-const save = (code, g) => redis(["SET", key(code), JSON.stringify(g), "EX", String(TTL)]);
+const save = (code, g) => redis(["SET", key(code), JSON.stringify(g), "EX", String(gameTTL(g))]);
 
 async function withLock(code, fn) {
   const lk = "wd:lock:" + code, me = Math.random().toString(36).slice(2);
@@ -263,6 +265,33 @@ async function handle(req) {
         if (seat < 0) fail("You're not at this table.");
         if (!U.STYLES.faces.includes(q.face) || !U.STYLES.backs.includes(q.back)) fail("Unknown card design.");
         g.players[seat].face = q.face; g.players[seat].back = q.back;
+        break;
+      }
+      case "vote": {
+        // Pause or continue once more than half the table agrees. The turn clock stops while paused.
+        if (seat < 0) fail("You're watching this game.");
+        const kind = q.kind === "resume" ? "resume" : "pause";
+        if (kind === "pause" && g.status !== "play") fail("Only a game in progress can be paused.");
+        if (kind === "resume" && g.status !== "paused") fail("This game isn't paused.");
+        const n = g.players.length, need = Math.floor(n / 2) + 1, now = Date.now();
+        const say = m => { g.log = g.log || []; g.log.push(m); if (g.log.length > 60) g.log.splice(0, g.log.length - 60); };
+        if (!g.vote || g.vote.kind !== kind || (kind === "pause" && now - g.vote.at > 10 * 60e3)) {
+          if (q.yes === false) fail("There's no vote to answer.");
+          g.vote = { kind, by: seat, at: now, yes: [], no: [] };
+          say(kind === "pause" ? `@${seat} asked to pause the game.` : `@${seat} is back and ready to continue.`);
+        }
+        const v = g.vote;
+        v.yes = v.yes.filter(x => x !== seat); v.no = v.no.filter(x => x !== seat);
+        (q.yes === false ? v.no : v.yes).push(seat);
+        if (v.yes.length >= need) {
+          g.status = kind === "pause" ? "paused" : "play";
+          if (kind === "pause") g.pausedAt = now; else delete g.pausedAt;
+          g.vote = null;
+          say(kind === "pause" ? "The table agreed: the game is paused. Every hand is saved for 30 days." : "The table is back: the game continues!");
+        } else if (v.no.length > n - need) {
+          g.vote = null;
+          say(kind === "pause" ? "Not enough players wanted to pause, so the game goes on." : "Not enough players are back yet, so the game stays paused.");
+        }
         break;
       }
       case "act": {

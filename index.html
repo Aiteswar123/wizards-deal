@@ -751,6 +751,7 @@ html[data-screen=game] .sndfix{display:none}
 <script src="sfx.js"></script>
 <script src="radio.js"></script>
 <script src="cutin.js"></script>
+<script src="pause.js"></script>
 <script src="sky.js"></script>
 <script src="uno.js"></script>
 <script src="uno-crew.js"></script>
@@ -830,7 +831,7 @@ async function poll() {
       if (j.gone) { flash("That table has closed."); return goHome(); }
       if (j.game) { S = j.game; render(); gotState(); }
     } catch (e) { if (!netDown) { netDown = true; render(); } }
-    await sleep(document.hidden ? 5000 : 1200);
+    await sleep(S && S.status === "paused" ? 5000 : document.hidden ? 5000 : 1200);
   }
 }
 let rankingList = [];
@@ -843,9 +844,9 @@ async function pollLobbies() {
 }
 function gotState() {
   if (S && S.kind === "uno" && window.UnoUI) UnoUI.syncStyle();   // your card designs reach the table, lobby included
-  if (window.Sfx && S && S.players) { const n = S.players.length; if (S.status === "lobby" && gotState.code === S.code && n > gotState.n) Sfx.join(); gotState.n = n; gotState.code = S.code; } if (window.UnoPhoto && S && S.kind === "uno") UnoPhoto.sync(); if (window.CutIn && S && S.kind !== "uno") { window.CutIn.reveal(S, nameOf, mySeat()); window.CutIn.observe(S, nameOf, mySeat()); } }
+  if (window.Sfx && S && S.players) { const n = S.players.length; if (S.status === "lobby" && gotState.code === S.code && n > gotState.n) Sfx.join(); gotState.n = n; gotState.code = S.code; } if (window.UnoPhoto && S && S.kind === "uno") UnoPhoto.sync(); if (window.CutIn && S && S.kind !== "uno") { window.CutIn.reveal(S, nameOf, mySeat()); window.CutIn.observe(S, nameOf, mySeat()); } if (window.PauseUI) PauseUI.update(view === "game" ? S : null, mySeat(), nameOf); }
 function enter(c) { code = c; poll(); }
-function goHome() { pollGen++; code = null; S = null; view = "home"; ui = freshUI(); if (window.UnoUI) UnoUI.reset(); render(); pollLobbies(); }
+function goHome() { if (window.PauseUI) PauseUI.update(null); pollGen++; code = null; S = null; view = "home"; ui = freshUI(); if (window.UnoUI) UnoUI.reset(); render(); pollLobbies(); }
 // Which game the home page shows: Wizard's Deal or Grand Line UNO, remembered per device.
 const homeGame = () => LS.get("wd-game") === "uno" ? "uno" : "deal";
 // The home ranking shows the chosen game's list or the overall one (both games added together), remembered per device.
