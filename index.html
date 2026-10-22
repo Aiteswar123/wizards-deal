@@ -845,7 +845,8 @@ async function pollLobbies() {
   }
 }
 function gotState() {
-  if (S && S.kind === "uno" && window.UnoUI) UnoUI.syncStyle();   // your card designs reach the table, lobby included
+  if (S && S.kind === "uno" && window.UnoUI) UnoUI.syncStyle();
+  if (S && S.kind === "nasi" && window.NasiUI) NasiUI.syncStyle();   // your card designs reach the table, lobby included
   if (window.Sfx && S && S.players) { const n = S.players.length; if (S.status === "lobby" && gotState.code === S.code && n > gotState.n) Sfx.join(); gotState.n = n; gotState.code = S.code; } if (window.UnoPhoto && S && S.kind === "uno") UnoPhoto.sync(); if (window.CutIn && S && !S.kind) { window.CutIn.reveal(S, nameOf, mySeat()); window.CutIn.observe(S, nameOf, mySeat()); } if (window.PauseUI) PauseUI.update(view === "game" ? S : null, mySeat(), nameOf); }
 function enter(c) { code = c; poll(); }
 function goHome() { if (window.PauseUI) PauseUI.update(null); pollGen++; code = null; S = null; view = "home"; ui = freshUI(); if (window.UnoUI) UnoUI.reset(); if (window.NasiUI) NasiUI.reset(); render(); pollLobbies(); }
@@ -1052,6 +1053,7 @@ function renderLobby() {
       <button class="btn small" data-a="copyCode">Copy code</button></div>
     <p class="hint">Friends open this website on their own device, type their name, then join with this code.</p>
     ${S.kind === "uno" && window.UnoPhoto && mySeat() >= 0 ? UnoPhoto.lobbyHTML() : ""}
+    ${S.kind === "nasi" && window.NasiUI && mySeat() >= 0 ? NasiUI.lobbyHTML() : ""}
     <div><h2>Seated at the table · ${S.players.length}/${ENGINE(S.kind).MAX_PLAYERS}</h2>
     <ul class="seats">${S.players.map((p, i) => `<li><span class="no">${i + 1}</span><b>${esc(nameOf(i))}</b><span class="tag">${p.uid === S.host ? "Table owner" : ""}${p.uid === me ? (p.uid === S.host ? " · you" : "You") : ""}</span></li>`).join("")}
       ${S.players.length < ENGINE(S.kind).MAX_PLAYERS ? `<li class="open"><span class="no">${S.players.length + 1}</span><span>Waiting for players · ${ENGINE(S.kind).MAX_PLAYERS - S.players.length} more can join · ${ENGINE(S.kind).decksFor(S.players.length)} deck${ENGINE(S.kind).decksFor(S.players.length) > 1 ? "s" : ""} in play</span></li>` : ""}</ul></div>

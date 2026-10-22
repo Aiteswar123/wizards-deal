@@ -94,11 +94,57 @@
     if (fxEl.hidden) fxPlay();
   }
 
+  // ---- card designs: each player picks a front and a back; the table sees them on your played cards and your stall ----
+  const FACES = { classic: "Classic", batik: "Batik", songket: "Songket", kopitiam: "Kopitiam", pasar: "Pasar Malam", kampung: "Kampung" };
+  const BACKS = { daun: "Banana Leaf", batik: "Batik", songket: "Songket", jubin: "Kopitiam Tile", wau: "Wau" };
+  const store = { get(k, d) { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* not remembered, still applied */ } } };
+  let myFace = store.get("nl-face", "classic"), myBack = store.get("nl-back", "daun");
+  if (!FACES[myFace]) myFace = "classic";
+  if (!BACKS[myBack]) myBack = "daun";
+  const faceOf = i => { const v = typeof mySeat === "function" ? mySeat() : -1; if (i === v) return myFace; const p = S && S.players && S.players[i]; return p && FACES[p.face] ? p.face : "classic"; };
+  const backOf = i => { const v = typeof mySeat === "function" ? mySeat() : -1; if (i === v) return myBack; const p = S && S.players && S.players[i]; return p && BACKS[p.back] ? p.back : "daun"; };
+  let styleSent = "";
+  function syncStyle() {
+    if (typeof S === "undefined" || !S || S.kind !== "nasi" || !S.players || typeof call !== "function") return;
+    const v = mySeat(); if (v < 0) return;
+    const P = S.players[v];
+    if (P.face === myFace && P.back === myBack) { styleSent = ""; return; }
+    const k = `${S.code}:${myFace}:${myBack}`; if (styleSent === k) return;
+    styleSent = k; call("style", { face: myFace, back: myBack });
+  }
+  const designEl = document.createElement("div");
+  designEl.className = "nl-design"; designEl.hidden = true;
+  designEl.setAttribute("role", "dialog"); designEl.setAttribute("aria-modal", "true"); designEl.setAttribute("aria-label", "Card design");
+  document.body.appendChild(designEl);
+  function designHTML() {
+    return `<div class="nl-designbox nl"><header><h2>Card design</h2><button class="nl-btn small" data-nd="close">Done</button></header>
+      <p class="nl-muted">Everyone at the table sees your fronts on the cards you play, and your backs on your stall.</p>
+      <h3>Fronts</h3><div class="nl-designrow">${Object.entries(FACES).map(([k, n]) => `<button class="nl-designopt" data-nd="face" data-k="${k}" aria-pressed="${k === myFace}">${cardHTML(11, { face: k })}<span>${n}</span></button>`).join("")}</div>
+      <h3>Backs</h3><div class="nl-designrow">${Object.entries(BACKS).map(([k, n]) => `<button class="nl-designopt" data-nd="back" data-k="${k}" aria-pressed="${k === myBack}"><span class="nl-backcard b-${k}"></span><span>${n}</span></button>`).join("")}</div></div>`;
+  }
+  function openDesign() { designEl.innerHTML = designHTML(); designEl.hidden = false; designEl.querySelector("[data-nd=close]").focus(); }
+  designEl.addEventListener("click", e => {
+    if (e.target === designEl) { designEl.hidden = true; return; }
+    const b = e.target.closest("[data-nd]"); if (!b) return;
+    if (b.dataset.nd === "close") { designEl.hidden = true; return; }
+    if (b.dataset.nd === "face") { myFace = b.dataset.k; store.set("nl-face", myFace); }
+    if (b.dataset.nd === "back") { myBack = b.dataset.k; store.set("nl-back", myBack); }
+    designEl.innerHTML = designHTML();
+    syncStyle(); if (typeof window.render === "function" && S) window.render();
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !designEl.hidden) designEl.hidden = true; });
+  // the lobby's card-design corner (index.html places it under the code)
+  function lobbyHTML() {
+    return `<div class="nl-lobbydesign nl"><div class="nl-lobbyprev">${cardHTML(11, { face: myFace })}<span class="nl-backcard b-${myBack}"></span></div>
+      <div><b>Your card design</b><p class="nl-muted">${FACES[myFace]} fronts · ${BACKS[myBack]} backs. Everyone sees them.</p><button class="nl-btn small" data-nd-open="1">Change design</button></div></div>`;
+  }
+  document.addEventListener("click", e => { if (e.target.closest("[data-nd-open]")) openDesign(); });
+
   function cardHTML(id, o = {}) {
     if (id == null || id < 0) return `<div class="nl-back">?</div>`;
     const t = N.typeOf(id), ing = N.ING[t], A = N.ACTIONS[t];
     const tag = o.tag || "div";
-    return `<${tag} class="nl-card ${ing ? "ing" : "act"} ${o.cls || ""}" style="--band:${ing ? BAND[t] : t === "fly" ? "#8f86ad" : "#ff8a1f"};${o.style || ""}" ${o.attrs || ""}>${svg(t)}<b>${esc(ing ? ing.n : A.n)}</b><i>${esc(ing ? ing.ms : A.ms)}</i></${tag}>`;
+    return `<${tag} class="nl-card ${ing ? "ing" : "act"} f-${o.face || "classic"} ${o.cls || ""}" style="--band:${ing ? BAND[t] : t === "fly" ? "#8f86ad" : "#ff8a1f"};${o.style || ""}" ${o.attrs || ""}>${svg(t)}<b>${esc(ing ? ing.n : A.n)}</b><i>${esc(ing ? ing.ms : A.ms)}</i></${tag}>`;
   }
   const packsHTML = (p, mine, fresh = Infinity) => p.nl.length ? `<div class="nl-packs">${p.nl.map((e, k) => `<span class="nl-pack${e.fly != null ? " flied" : ""}${k >= fresh ? " fresh" : ""}" title="${e.fly != null ? "A fly is on this Nasi Lemak: it doesn't count" : mine || e.n >= 0 ? N.packsOf(e.n) + " pack" + (N.packsOf(e.n) > 1 ? "s" : "") : "Face down"}">${parcel(e.n >= 0 ? N.packsOf(e.n) : "", e.n >= 0)}${e.fly != null ? svg("fly", "fly") : ""}<span class="cnt">${k + 1}</span></span>`).join("")}</div>` : `<p class="nl-empty">No Nasi Lemak yet.</p>`;
 
@@ -131,7 +177,7 @@
     if (pd && pd.k === "officer") {
       const hand = pd.hand || [], need = Math.min(2, hand.length);
       return `<h3>${esc(nameOf(pd.to))}'s hand</h3><p class="nl-muted">Only you can see these. Tap ${need} to take.</p>
-        <div class="nl-hand" style="padding-top:.2rem">${hand.map(id => cardHTML(id, { tag: "button", cls: ui.take.includes(id) ? "sel" : "", attrs: `data-n="pick" data-id="${id}"` })).join("")}</div>
+        <div class="nl-hand" style="padding-top:.2rem">${hand.map(id => cardHTML(id, { tag: "button", face: faceOf(pd.to), cls: ui.take.includes(id) ? "sel" : "", attrs: `data-n="pick" data-id="${id}"` })).join("")}</div>
         <div class="nl-row"><button class="nl-btn go" data-n="take" ${ui.take.length === need ? "" : "disabled"}>Take ${need} card${need === 1 ? "" : "s"}</button></div>`;
     }
     if (!S.drew) return `<h3>Your turn</h3><p class="nl-muted">Start by drawing 2 cards. Drawing isn't one of your 3 moves.</p><div class="nl-row"><button class="nl-btn go" data-n="draw">Draw 2 cards</button></div>`;
@@ -219,7 +265,7 @@
     if (myTurn) ui.stampTurn = S.turnN;
     let fresh = 0;
     $app.innerHTML = `<div class="nl">
-      <header class="nl-top"><span class="mark">Nasi Lemak</span><span class="nl-code">TABLE ${esc(S.code)}</span><span class="grow"></span>${netDown ? `<span class="nl-muted">Reconnecting…</span>` : ""}${typeof sndBtn === "function" ? sndBtn() : ""}<button class="nl-btn small" data-a="home">Leave table</button></header>
+      <header class="nl-top"><span class="mark">Nasi Lemak</span><span class="nl-code">TABLE ${esc(S.code)}</span><span class="grow"></span>${netDown ? `<span class="nl-muted">Reconnecting…</span>` : ""}<button class="nl-btn small" data-nd-open="1">Card design</button>${typeof sndBtn === "function" ? sndBtn() : ""}<button class="nl-btn small" data-a="home">Leave table</button></header>
       <p class="nl-ticker">${fmt(last)}</p>
       ${S.status === "over" ? winHTML(v) : ""}
       <section class="nl-market${n >= 7 ? " many" : ""}" aria-label="The night market">
@@ -231,11 +277,12 @@
             <div class="nl-awning" aria-hidden="true"></div>
             <div class="nl-sign"><b>${esc(i === v ? "You" : nameOf(i))}</b>${on ? `<span class="nl-open">Serving</span>` : ""}</div>
             <div class="nl-counter">
+              <div class="nl-minis" aria-hidden="true">${Array.from({ length: Math.min(O.hand.length, 7) }, () => `<i class="nl-mini b-${backOf(i)}"></i>`).join("")}</div>
               <div class="nl-stats"><span><b>${O.hand.length}</b> cards</span><span><b>${O.nl.length}</b> wrapped</span>${S.status === "over" || i === v ? `<span><b>${N.packs(O)}</b> packs</span>` : ""}</div>
               ${O.nl.length ? packsHTML(O, i === v, prevPacks ? prevPacks[i] : Infinity) : `<p class="nl-empty">Nothing wrapped yet</p>`}</div></article>`; }).join("")}
         <div class="nl-felt${stamp ? " yourturn" : ""}"><span class="nl-leafmat" aria-hidden="true"></span>
           <div class="nl-piles"><div class="nl-pile"><div class="nl-back">${S.deck.length}</div>Draw pile</div>
-            <div class="nl-pile">${topId != null ? cardHTML(topId, { cls: "small" }) : `<div class="nl-back" style="opacity:.35"></div>`}Discard</div>
+            <div class="nl-pile">${topId != null ? cardHTML(topId, { cls: "small", face: S.by && S.by[topId] != null ? faceOf(S.by[topId]) : "classic" }) : `<div class="nl-back" style="opacity:.35"></div>`}Discard</div>
             <div class="nl-pile"><div class="nl-back gold">${S.nlPile.length}</div>Nasi Lemak</div></div>
           <div class="nl-say">${say}</div><div class="nl-sub">${sub}</div>
         </div>
@@ -248,11 +295,12 @@
         <section class="nl-panel" aria-live="polite">${panelHTML(v)}</section>
         <div class="nl-handwrap"><span class="nl-cap">Your hand · ${P.hand.length} cards · only you can see it</span>
           <div class="nl-hand">${handOrder(P.hand).map(id => { const g = ui.trade && ui.trade.p != null && ui.trade.give.includes(id), s = ui.sel === id, isNew = !prevHand || !prevHand.includes(id);
-            return cardHTML(id, { tag: "button", cls: (g ? "give" : s ? "sel" : "") + (isNew ? " fresh" : ""), attrs: `data-n="card" data-id="${id}"`, style: isNew ? `--d:${fresh++}` : "" }); }).join("") || `<p class="nl-empty">No cards in hand.</p>`}</div></div>
+            return cardHTML(id, { tag: "button", cls: (g ? "give" : s ? "sel" : "") + (isNew ? " fresh" : ""), attrs: `data-n="card" data-id="${id}"`, face: myFace, style: isNew ? `--d:${fresh++}` : "" }); }).join("") || `<p class="nl-empty">No cards in hand.</p>`}</div></div>
       </div>` : `<p class="nl-muted" style="margin-top:1rem">You're watching this game.</p>`}
       <section class="nl-log"><span class="nl-cap">At the stalls</span><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}</li>`).join("")}</ol></section>
       ${rulesHTML()}</div>`;
     fxObserve(v);
+    syncStyle();
   }
   const handOrder = h => h.slice().sort((a, b) => { const A = N.card(a), B = N.card(b); return (A.kind === B.kind ? 0 : A.kind === "ing" ? -1 : 1) || A.t.localeCompare(B.t) || a - b; });
 
@@ -323,5 +371,5 @@
     }
   });
 
-  window.NasiUI = { render, mastHTML, rulesHTML, cardHTML, reset };
+  window.NasiUI = { render, mastHTML, rulesHTML, cardHTML, reset, syncStyle, lobbyHTML };
 })();

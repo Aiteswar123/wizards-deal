@@ -22,6 +22,8 @@
     swatter:    { n: "Fly Swatter", ms: "Pemukul Lalat", count: 2, d: "Swat a fly off one of your Nasi Lemak." },
     fan:        { n: "Fan", ms: "Kipas", count: 3, d: "Fan the fly off one of your Nasi Lemak onto another player's." }
   };
+  // Card designs each player can show the table (nasi-ui.js draws them): fronts for the cards you play, backs for your hand.
+  const STYLES = { faces: ["classic", "batik", "songket", "kopitiam", "pasar", "kampung"], backs: ["daun", "batik", "songket", "jubin", "wau"] };
   const tradable = t => !!ING[t] || t === "swatter" || t === "fan";
 
   const BASE = 75, NL_BASE = 15, DECKS = 2;
@@ -58,7 +60,7 @@
 
   function newGame(players) {
     const n = players.length;
-    const s = { kind: "nasi", status: "play", players: players.map(p => ({ uid: p.uid, nick: p.nick, hand: [], nl: [], made: 0, moved: 0 })),
+    const s = { kind: "nasi", status: "play", players: players.map(p => Object.assign({ uid: p.uid, nick: p.nick, hand: [], nl: [], made: 0, moved: 0 }, p.face ? { face: p.face } : {}, p.back ? { back: p.back } : {})),
       deck: shuffle(CARDS.filter(c => c.id < BASE * decksFor(n)).map(c => c.id)), discard: [], nlPile: shuffle(NLC.filter(c => c.id < NL_BASE * decksFor(n)).map(c => c.id)),
       turn: Math.floor(Math.random() * n), drew: false, moves: 0, pending: null, winner: null, turnN: 1, last: null, seq: 0, log: [] };
     for (let k = 0; k < HAND; k++) for (const P of s.players) P.hand.push(s.deck.pop());
@@ -75,6 +77,7 @@
     return s.deck.pop();
   }
   function drawN(s, p, n) { let got = 0; for (let i = 0; i < n; i++) { const id = drawOne(s); if (id == null) break; s.players[p].hand.push(id); got++; } return got; }
+  const toDiscard = (s, id, a) => { s.discard.push(id); s.by = s.by || {}; s.by[id] = a; };
   const stamp = (s, o) => { s.seq = (s.seq || 0) + 1; s.last = Object.assign({ n: s.seq }, o); };
 
   // When the Nasi Lemak pile has run out, the game ends after that turn: most packs wins, then most Nasi Lemak cards.
@@ -159,7 +162,7 @@
       if (mk != null && (!P.hand.includes(mk) || typeOf(mk) !== "makcik")) return err("That Mak Cik card isn't in your hand.");
       if (ids.length !== need || new Set(ids).size !== need || !ids.every(id => P.hand.includes(id) && isIng(id))) return err(`Pick ${need} ingredients from your hand.`);
       if (new Set(ids.map(typeOf)).size !== need) return err(need === 5 ? "You need one of each: Rice, Egg, Peanuts, Sambal Bilis and Cucumber." : "Mak Cik needs 3 different ingredients.");
-      [...ids, ...(mk != null ? [mk] : [])].forEach(id => { take(P.hand, id); s.discard.push(id); });
+      [...ids, ...(mk != null ? [mk] : [])].forEach(id => { take(P.hand, id); toDiscard(s, id, a); });
       const n = s.nlPile.pop();
       P.nl.push({ n, fly: null }); P.made = (P.made || 0) + 1; P.moved = (P.moved || 0) + 1; s.moves++;
       stamp(s, { k: "make", p: a, makcik: mk != null });
@@ -209,7 +212,7 @@
         }
         case "wholesaler": {
           const shown = [];
-          take(P.hand, id); s.discard.push(id); discard = false;
+          take(P.hand, id); toDiscard(s, id, a); discard = false;
           for (let i = 0; i < 3; i++) { const x = drawOne(s); if (x == null) break; shown.push(x); if (isIng(x)) P.hand.push(x); else s.discard.push(x); }
           info = { shown };
           log(s, `@${a} called the Wholesaler: ${shown.length ? shown.map(x => cardName(typeOf(x))).join(", ") : "nothing left"}. They keep the ingredients.`);
@@ -235,7 +238,7 @@
         case "swatter": {
           const slot = P.nl[act.slot];
           if (!slot || slot.fly == null) return err("Choose one of your Nasi Lemak with a fly on it.");
-          s.discard.push(slot.fly); slot.fly = null;
+          toDiscard(s, slot.fly, a); slot.fly = null;
           info = { slot: act.slot };
           log(s, `@${a} swatted the fly off their Nasi Lemak.`);
           break;
@@ -253,7 +256,7 @@
         }
         default: return err("Unknown card.");
       }
-      if (discard) { take(P.hand, id); s.discard.push(id); }
+      if (discard) { take(P.hand, id); toDiscard(s, id, a); }
       s.moves++; P.moved = (P.moved || 0) + 1;
       stamp(s, Object.assign({ k, p: a }, info));
       checkWin(s, a);
@@ -312,6 +315,6 @@
     });
   }
 
-  G.Nasi = { MAX_PLAYERS, BASE, NL_BASE, HAND, MOVES, GOAL, TURN_MS, RESPOND_MS, ING, ING_KEYS, ACTIONS, CARDS, NLC, XP, card, typeOf, cardName, isIng, tradable,
+  G.Nasi = { STYLES, MAX_PLAYERS, BASE, NL_BASE, HAND, MOVES, GOAL, TURN_MS, RESPOND_MS, ING, ING_KEYS, ACTIONS, CARDS, NLC, XP, card, typeOf, cardName, isIng, tradable,
     packs, packsOf, decksFor, newGame, apply, syncClock, expire, waitingOn, awards, shuffle };
 })(typeof window !== "undefined" ? window : globalThis);

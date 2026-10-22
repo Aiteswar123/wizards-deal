@@ -261,3 +261,51 @@ html[data-game=nasi] .seats li{background:var(--k-paper)!important;border:2.5px 
   .k-fx .kfx-rays{animation:none;opacity:.55}
   .k-fx .kfx-panel,.k-fx .kfx-icon{animation:none}
 }
+
+/* ---- card designs: six fronts, five backs (each player's choice is shown to the whole table) ---- */
+.nl-card.f-batik{background:radial-gradient(circle at 30% 30%,#2b4a8b 0 2.2px,transparent 2.8px) 0 0/15px 15px,radial-gradient(circle at 75% 75%,#c2642a 0 2.4px,transparent 3px) 0 0/15px 15px,radial-gradient(circle at 75% 25%,rgba(43,74,139,.35) 0 4px,transparent 4.6px) 0 0/15px 15px,#f7ead2}
+.nl-card.f-batik i{color:#2b4a8b}
+.nl-card.f-songket{background:repeating-linear-gradient(45deg,rgba(240,192,64,.38) 0 2px,transparent 2px 13px),repeating-linear-gradient(-45deg,rgba(240,192,64,.38) 0 2px,transparent 2px 13px),radial-gradient(ellipse at 50% 60%,#8c1c3d,#5e1029);color:#fff3cf}
+.nl-card.f-songket b{color:#ffd76a;-webkit-text-stroke:.6px var(--k-ink);paint-order:stroke fill}
+.nl-card.f-songket i{color:#f3d58a}
+.nl-card.f-kopitiam{background:conic-gradient(#d9f2e1 25%,#fff 0 50%,#d9f2e1 0 75%,#fff 0) 0 0/16px 16px}
+.nl-card.f-kopitiam b{color:#c0281f}
+.nl-card.f-kopitiam i{color:#1f8f3c}
+.nl-card.f-pasar{background:radial-gradient(circle,#ffd23f 0 2px,transparent 2.6px) 0 4px/18px 18px,radial-gradient(circle,#ff6fb1 0 1.8px,transparent 2.4px) 9px 13px/18px 18px,linear-gradient(180deg,#26236b,#151340);color:#fff}
+.nl-card.f-pasar b{color:#fff;-webkit-text-stroke:.6px var(--k-ink);paint-order:stroke fill}
+.nl-card.f-pasar i{color:#ffd23f}
+.nl-card.f-kampung{background:repeating-linear-gradient(90deg,#dba66d 0 17px,#c98f55 17px 19px,#d69d60 19px 36px)}
+.nl-card.f-kampung i{color:#5b3416}
+.nl-card.f-songket.act,.nl-card.f-pasar.act,.nl-card.f-batik.act,.nl-card.f-kopitiam.act,.nl-card.f-kampung.act{background-blend-mode:normal}
+
+.nl-backcard,.nl-mini{display:inline-block;border:2.5px solid var(--k-ink);border-radius:8px;background:repeating-linear-gradient(45deg,var(--k-leaf) 0 6px,#2bb04f 6px 12px)}
+.nl-backcard{width:3.4rem;height:4.7rem;box-shadow:0 4px 0 -1px var(--k-ink)}
+.nl-mini{width:.95rem;height:1.35rem;border-width:2px;border-radius:4px;margin-left:-.45rem;box-shadow:0 2px 0 -1px var(--k-ink)}
+.nl-mini:first-child{margin-left:0}
+.nl-minis{display:flex;min-height:1.35rem;padding-left:.1rem}
+.b-batik{background:radial-gradient(circle at 30% 30%,#ff9a3c 0 2px,transparent 2.6px) 0 0/10px 10px,radial-gradient(circle at 75% 75%,#fff2d6 0 1.6px,transparent 2.2px) 0 0/10px 10px,#24407d}
+.b-songket{background:repeating-linear-gradient(45deg,rgba(240,192,64,.55) 0 1.5px,transparent 1.5px 8px),repeating-linear-gradient(-45deg,rgba(240,192,64,.55) 0 1.5px,transparent 1.5px 8px),#6d1630}
+.b-jubin{background:radial-gradient(circle at 50% 50%,transparent 0 30%,#c0281f 31% 38%,transparent 39%),conic-gradient(#1f8f3c 25%,#fff 0 50%,#1f8f3c 0 75%,#fff 0) 0 0/10px 10px}
+.b-wau{background:conic-gradient(from 45deg at 50% 50%,#ff4b3e 0 25%,#ffd23f 0 50%,#34c25a 0 75%,#3d7bff 0)}
+
+/* the picker */
+.nl-design{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:16px;background:rgba(34,22,58,.55)}
+.nl-design[hidden]{display:none!important}
+.nl-designbox{width:min(46rem,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--k-paper,#fffdf6);border:3px solid #22163a;border-radius:22px;padding:1.1rem 1.2rem 1.3rem;box-shadow:0 9px 0 -2px #22163a,0 40px 60px -30px rgba(34,22,58,.8);display:flex;flex-direction:column;gap:.6rem}
+.nl-designbox header{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.nl-designbox h2{font-size:1.7rem;color:#ff4b3e;-webkit-text-stroke:1px #22163a;paint-order:stroke fill}
+.nl-designbox h3{font-size:1.05rem;margin-top:.4rem}
+.nl-designrow{display:flex;gap:.7rem;overflow-x:auto;padding:.4rem .2rem .9rem}
+.nl-designopt{appearance:none;flex:none;display:flex;flex-direction:column;align-items:center;gap:.45rem;padding:.55rem .55rem .5rem;border:2.5px solid transparent;border-radius:16px;background:transparent;cursor:pointer;font:700 .85rem/1.1 "Baloo 2",system-ui,sans-serif;color:#22163a}
+.nl-designopt .nl-card{cursor:pointer;width:5.8rem;min-height:8rem}
+.nl-designopt .nl-card svg{width:3.8rem;height:3.8rem}
+.nl-designopt[aria-pressed=true]{border-color:#22163a;background:#ffd23f}
+.nl-designopt:focus-visible{outline:3px solid #ff8a1f;outline-offset:2px}
+.nl-lobbydesign{display:flex;gap:1rem;align-items:center;padding:.8rem 1rem;border:3px solid #22163a;border-radius:18px;background:#fffdf6;color:#22163a;box-shadow:0 6px 0 -1px #22163a}
+.nl-lobbydesign p{margin:.15rem 0 .5rem}
+.nl-lobbyprev{display:flex;align-items:flex-end;gap:.4rem}
+.nl-lobbyprev .nl-card{width:4.6rem;min-height:6.4rem;cursor:default}
+.nl-lobbyprev .nl-card svg{width:2.9rem;height:2.9rem}
+
+/* phones: keep the floating sound buttons clear of the game picker */
+@media (max-width:600px){.gamepick{margin-top:3.4rem!important}}

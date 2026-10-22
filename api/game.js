@@ -273,7 +273,8 @@ async function handle(req) {
       // a player's card designs, shown to the whole table (Grand Line UNO); allowed in the lobby and during play
       case "style": {
         if (seat < 0) fail("You're not at this table.");
-        if (!U.STYLES.faces.includes(q.face) || !U.STYLES.backs.includes(q.back)) fail("Unknown card design.");
+        const ST = ENG(g).STYLES || U.STYLES;
+        if (!ST.faces.includes(q.face) || !ST.backs.includes(q.back)) fail("Unknown card design.");
         g.players[seat].face = q.face; g.players[seat].back = q.back;
         break;
       }
