@@ -268,7 +268,7 @@
     const say = S.status === "over" ? `${esc(S.winner === v ? "You win!" : nameOf(S.winner) + " wins!")}`
       : pd && pd.k === "trade" ? `${esc(nm(pd.from, v))} → ${esc(nm(pd.to, v))}: trade offer`
       : myTurn ? (S.drew ? "Your turn" : "Your turn: draw 2") : `${esc(nameOf(S.turn))}'s turn`;
-    const sub = S.status !== "play" ? "" : `${S.drew ? `${S.moves} of ${N.MOVES} moves` : "Drawing"}<span class="nl-dots">${Array.from({ length: N.MOVES }, (_, i) => `<i class="${i < S.moves ? "used" : ""}"></i>`).join("")}</span>${S.clock ? ` · <b data-clock="turn">2:00</b> left` : ""}`;
+    const sub = S.status !== "play" ? "" : `${S.drew ? `${S.moves} of ${N.MOVES} moves` : "Drawing"}<span class="nl-dots">${Array.from({ length: N.MOVES }, (_, i) => `<i class="${i < S.moves ? "used" : ""}"></i>`).join("")}</span>${S.clock ? ` · <b data-clock="turn">${N.TURN_MS / 60000}:00</b> left` : ""}`;
     const last = S.log[S.log.length - 1] || "";
     const myPacks = P ? N.packs(P) : 0;
     // what's new since the last screen: cards drop into your hand, freshly wrapped packs pop onto counters

@@ -6,7 +6,7 @@
 (function (G) {
   "use strict";
   // Up to 10 players: from 6 players on, a second full deck (and a second Nasi Lemak pile) is shuffled in.
-  const MAX_PLAYERS = 10, HAND = 7, MOVES = 3, GOAL = 5, TURN_MS = 120000, RESPOND_MS = 30000;
+  const MAX_PLAYERS = 10, HAND = 7, MOVES = 3, GOAL = 5, TURN_MS = 180000, RESPOND_MS = 30000;
   const ING = {
     rice: { n: "Rice", ms: "Nasi" }, egg: { n: "Egg", ms: "Telur" }, peanut: { n: "Peanuts", ms: "Kacang" },
     sambal: { n: "Sambal Bilis", ms: "Sambal Bilis" }, cucumber: { n: "Cucumber", ms: "Timun" }
@@ -265,7 +265,7 @@
     return err("Unknown move.");
   }
 
-  // ---- turn clock: two minutes a turn; a trade offer waits 30 seconds for an answer ----
+  // ---- turn clock: three minutes a turn; a trade offer waits 30 seconds for an answer ----
   function syncClock(prev, s, now) {
     if (s.status !== "play") { s.clock = null; return s; }
     const fresh = !prev || prev.status !== "play" || !prev.clock || prev.created !== s.created || prev.turnN !== s.turnN;
