@@ -378,3 +378,34 @@ html[data-game=nasi] .seats li{background:var(--k-paper)!important;border:2.5px 
 @keyframes k-pin-r{from{rotate:6deg}to{rotate:3.5deg}}
 @media (max-width:760px){.nl-crew{right:auto;left:-.5rem;top:auto;bottom:-1.6rem;width:50%;rotate:-6deg;animation-name:k-pin}.nl-kiosk{margin-bottom:1.6rem}}
 @media (prefers-reduced-motion:reduce){.nl-crew{animation:none}}
+/* ---- BoBoiBoy Elemental fronts: deep-space blue, the element's colour as band and glow, a Power Watch badge ---- */
+.nl-card.f-boboiboy{--el:#22c3e6;--el2:#b8f4ff;--gl:var(--el);color:#fff;
+  background:radial-gradient(circle,#fff 0 .7px,transparent 1.2px) 3px 7px/23px 29px,radial-gradient(circle,#bcd8ff 0 .6px,transparent 1.1px) 14px 18px/31px 23px,
+    radial-gradient(ellipse at 50% 32%,color-mix(in srgb,var(--el) 38%,#1c2c6e),#141c47 62%,#0a0f2a)}
+.nl-card.f-boboiboy::before{background:linear-gradient(90deg,var(--el),var(--el2)) top/100% calc(100% - 3px) no-repeat,var(--k-ink)}
+.nl-card.f-boboiboy svg:not(.bb-badge svg){filter:drop-shadow(0 0 7px color-mix(in srgb,var(--el) 75%,transparent)) drop-shadow(0 3px 0 rgba(0,0,0,.3))}
+.nl-card.f-boboiboy b{color:#fff;text-shadow:0 0 10px color-mix(in srgb,var(--el) 70%,transparent),0 2px 0 rgba(0,0,0,.5)}
+.nl-card.f-boboiboy i{color:color-mix(in srgb,var(--el2) 70%,#fff)}
+.nl-card.el-light{--el:#f6c832;--el2:#fff6c8}
+.nl-card.el-lightning{--el:#e8262f;--el2:#ff8a5a;--gl:#ffd23f}
+.nl-card.el-earth{--el:#b8742c;--el2:#f5b53a;--gl:#f5c35a}
+.nl-card.el-fire{--el:#ff5a1f;--el2:#ffb03a}
+.nl-card.el-water{--el:#2a7bff;--el2:#8fd0ff}
+.nl-card.el-leaf{--el:#2fbf4a;--el2:#a8f0a0}
+.nl-card.el-wind{--el:#22c3e6;--el2:#b8f4ff}
+/* the Power Watch badge: a dark hexagon screen in an element-coloured rim, the element's symbol glowing on it */
+.bb-badge{position:absolute;z-index:2;top:.55rem;right:.4rem;width:1.75rem;aspect-ratio:1;display:grid;place-items:center;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--el) 70%,transparent))}
+.bb-badge::before,.bb-badge::after{content:"";position:absolute;inset:0;clip-path:polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%)}
+.bb-badge::before{background:linear-gradient(160deg,var(--el2),var(--el))}
+.bb-badge::after{inset:2.5px;background:radial-gradient(circle at 50% 40%,#1d2a5e,#070b1f)}
+.nl-card .bb-badge svg{position:relative;z-index:1;width:62%;height:62%;margin:0;color:var(--gl);filter:none}
+.nl-card.small .bb-badge{top:.3rem;right:.2rem;width:1.05rem}
+button.nl-card.f-boboiboy:hover .bb-badge,.nl-card.f-boboiboy.sel .bb-badge{animation:bb-charge .9s ease-in-out infinite alternate}
+@keyframes bb-charge{to{filter:drop-shadow(0 0 12px var(--el)) brightness(1.25)}}
+.nl-card.f-boboiboy.act{background-blend-mode:normal}
+/* the BoBoiBoy Cap back: cap orange, the dark brim, the yellow lightning emblem in its black badge */
+.b-boboiboy{background:
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%23161616'/%3E%3Ccircle cx='12' cy='12' r='9.6' fill='none' stroke='%23ffd23f' stroke-width='1'/%3E%3Cpath d='M13.6 3.6 6.4 13h5l-1.2 7.4 7.4-10h-5z' fill='%23ffd23f'/%3E%3C/svg%3E") 50% 42%/58% auto no-repeat,
+  linear-gradient(180deg,transparent 0 80%,#1d1d1d 80% 84%,#2b2b2b 84%),
+  radial-gradient(ellipse at 40% 22%,#ffc06a,#f28a1c 45%,#c85a08)}
+@media (prefers-reduced-motion:reduce){button.nl-card.f-boboiboy:hover .bb-badge,.nl-card.f-boboiboy.sel .bb-badge{animation:none}}

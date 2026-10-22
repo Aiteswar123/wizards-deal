@@ -23,7 +23,7 @@
     fan:        { n: "Fan", ms: "Kipas", count: 3, d: "Fan the fly off one of your Nasi Lemak onto another player's." }
   };
   // Card designs each player can show the table (nasi-ui.js draws them): fronts for the cards you play, backs for your hand.
-  const STYLES = { faces: ["classic", "batik", "songket", "kopitiam", "pasar", "kampung"], backs: ["daun", "batik", "songket", "jubin", "wau"] };
+  const STYLES = { faces: ["classic", "batik", "songket", "kopitiam", "pasar", "kampung", "boboiboy"], backs: ["daun", "batik", "songket", "jubin", "wau", "boboiboy"] };
   const tradable = t => !!ING[t] || t === "swatter" || t === "fan";
 
   const BASE = 75, NL_BASE = 15, DECKS = 2;

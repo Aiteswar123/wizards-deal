@@ -96,8 +96,8 @@
   }
 
   // ---- card designs: each player picks a front and a back; the table sees them on your played cards and your stall ----
-  const FACES = { classic: "Classic", batik: "Batik", songket: "Songket", kopitiam: "Kopitiam", pasar: "Pasar Malam", kampung: "Kampung" };
-  const BACKS = { daun: "Banana Leaf", batik: "Batik", songket: "Songket", jubin: "Kopitiam Tile", wau: "Wau" };
+  const FACES = { classic: "Classic", batik: "Batik", songket: "Songket", kopitiam: "Kopitiam", pasar: "Pasar Malam", kampung: "Kampung", boboiboy: "BoBoiBoy Elemental" };
+  const BACKS = { daun: "Banana Leaf", batik: "Batik", songket: "Songket", jubin: "Kopitiam Tile", wau: "Wau", boboiboy: "BoBoiBoy Cap" };
   const store = { get(k, d) { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* not remembered, still applied */ } } };
   let myFace = store.get("nl-face", "classic"), myBack = store.get("nl-back", "daun");
   if (!FACES[myFace]) myFace = "classic";
@@ -141,11 +141,24 @@
   }
   document.addEventListener("click", e => { if (e.target.closest("[data-nd-open]")) openDesign(); });
 
+  // BoBoiBoy Elemental fronts: each ingredient is one of BoBoiBoy's elements, shown on a Power Watch badge
+  const ELEMENT = { rice: "light", egg: "lightning", peanut: "earth", sambal: "fire", cucumber: "leaf", fly: "water" };
+  const GLYPH = {
+    lightning: '<path d="M13.5 2 4.5 13.5h6l-1.5 8.5 9.5-12.5h-6.2z"/>',
+    wind: '<path d="M3 8.5h10.5a3 3 0 1 0-3-3M3 12.5h14.5a3.2 3.2 0 1 1-3.2 3.2M3 16.5h7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
+    earth: '<path d="M12 2.5 20.5 9l-3 12.5h-11L3.5 9z"/><path d="M3.5 9h17M12 2.5 8.5 9l3.5 12.5L15.5 9z" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>',
+    fire: '<path d="M12 2c1.8 4.2 6.5 6.2 6.5 11.5a6.5 6.5 0 0 1-13 0c0-3 1.8-5 3-6.8.8 1.8 1.2 3 3 4 .2-3.2-1.2-5.2.5-8.7z"/>',
+    water: '<path d="M12 2.5c4.2 5.2 7 8.4 7 12.3a7 7 0 0 1-14 0c0-3.9 2.8-7.1 7-12.3z"/>',
+    leaf: '<path d="M4.5 19.5C4.5 9.5 10.5 4 20.5 3.5c0 10-5.5 16-16 16z"/><path d="M4.5 19.5 14 10" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.4" stroke-linecap="round"/>',
+    light: '<circle cx="12" cy="12" r="4.6"/><path d="M12 1.8v3.4M12 18.8v3.4M1.8 12h3.4M18.8 12h3.4M4.8 4.8l2.4 2.4M16.8 16.8l2.4 2.4M4.8 19.2l2.4-2.4M16.8 7.2l2.4-2.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'
+  };
+  const badge = el => `<span class="bb-badge bb-${el}" aria-hidden="true"><svg viewBox="0 0 24 24"><g fill="currentColor">${GLYPH[el]}</g></svg></span>`;
   function cardHTML(id, o = {}) {
     if (id == null || id < 0) return `<div class="nl-back">?</div>`;
     const t = N.typeOf(id), ing = N.ING[t], A = N.ACTIONS[t];
     const tag = o.tag || "div";
-    return `<${tag} class="nl-card ${ing ? "ing" : "act"} f-${o.face || "classic"} ${o.cls || ""}" style="--band:${ing ? BAND[t] : t === "fly" ? "#8f86ad" : "#ff8a1f"};${o.style || ""}" ${o.attrs || ""}>${svg(t)}<b>${esc(ing ? ing.n : A.n)}</b><i>${esc(ing ? ing.ms : A.ms)}</i></${tag}>`;
+    const el = o.face === "boboiboy" ? ELEMENT[t] || "wind" : null;
+    return `<${tag} class="nl-card ${ing ? "ing" : "act"} f-${o.face || "classic"}${el ? " el-" + el : ""} ${o.cls || ""}" style="--band:${ing ? BAND[t] : t === "fly" ? "#8f86ad" : "#ff8a1f"};${o.style || ""}" ${o.attrs || ""}>${el ? badge(el) : ""}${svg(t)}<b>${esc(ing ? ing.n : A.n)}</b><i>${esc(ing ? ing.ms : A.ms)}</i></${tag}>`;
   }
   const packsHTML = (p, mine, fresh = Infinity) => p.nl.length ? `<div class="nl-packs">${p.nl.map((e, k) => `<span class="nl-pack${e.fly != null ? " flied" : ""}${k >= fresh ? " fresh" : ""}" title="${e.fly != null ? "A fly is on this Nasi Lemak: it doesn't count" : mine || e.n >= 0 ? N.packsOf(e.n) + " pack" + (N.packsOf(e.n) > 1 ? "s" : "") : "Face down"}">${parcel(e.n >= 0 ? N.packsOf(e.n) : "", e.n >= 0)}${e.fly != null ? svg("fly", "fly") : ""}<span class="cnt">${k + 1}</span></span>`).join("")}</div>` : `<p class="nl-empty">No Nasi Lemak yet.</p>`;
 
