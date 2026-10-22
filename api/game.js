@@ -2,9 +2,11 @@
 // and runs every move through the shared rules engine.
 require("../engine.js");
 require("../uno.js");
-const E = globalThis.Engine, U = globalThis.Uno;
+require("../nasi.js");
+const E = globalThis.Engine, U = globalThis.Uno, N = globalThis.Nasi;
 // Each table plays one game: Wizard's Deal (the default) or Grand Line UNO (kind "uno"). ENG picks its rules engine.
-const ENG = g => g && g.kind === "uno" ? U : E;
+const ENG = g => g && g.kind === "uno" ? U : g && g.kind === "nasi" ? N : E;
+const KINDS = ["uno", "nasi"];
 
 // ---- storage: Upstash Redis over REST (Vercel Marketplace), or memory for local dev ----
 const R_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -70,6 +72,14 @@ function view(g, pid) {
   if (out.peek && out.players[out.peek.p] && out.players[out.peek.p].uid !== pid) out.peek.cards = out.peek.cards.map(() => -1);
   // UNO: which card the player on turn just drew is theirs to know
   if (out.kind === "uno" && out.drew != null && out.players[out.turn] && out.players[out.turn].uid !== pid) out.drew = -1;
+  // Nasi Lemak: each Nasi Lemak card lies face down (only its owner knows 1 or 2 packs) until the game ends;
+  // the Officer sees the inspected hand, nobody else does
+  if (out.kind === "nasi") {
+    if (Array.isArray(out.nlPile)) out.nlPile = out.nlPile.map(() => -1);
+    if (out.status !== "over") out.players.forEach(p => { if (p.uid !== pid && Array.isArray(p.nl)) p.nl.forEach(e => { e.n = -1; }); });
+    const pd = out.pending;
+    if (pd && pd.k === "officer" && out.players[pd.from] && out.players[pd.from].uid === pid) pd.hand = g.players[pd.to].hand.slice();
+  }
   return out;
 }
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -80,14 +90,14 @@ async function lobbies() {
   const codes = await redis(["ZRANGEBYSCORE", "wd:lobbies", String(Date.now() - 6 * 3600e3), "+inf"]);
   if (!codes || !codes.length) return [];
   const docs = await redis(["MGET", ...codes.slice(0, 30).map(key)]);
-  return docs.map(d => d && JSON.parse(d)).filter(g => g && g.status === "lobby" && g.players.length < E.MAX_PLAYERS)
+  return docs.map(d => d && JSON.parse(d)).filter(g => g && g.status === "lobby" && g.players.length < ENG(g).MAX_PLAYERS)
     .map(g => ({ code: g.code, kind: g.kind || "deal", host: (g.players.find(p => p.uid === g.host) || {}).nick || "A wizard", count: g.players.length }));
 }
 
 // ---- ranking: one shared record of every player, matched by name (ignoring capitals and spaces) ----
 const RANK_KEY = "wd:ranking";
 // UNO has its own Hall of Fame
-const rankKey = kind => kind === "uno" ? "wd:uno:ranking" : RANK_KEY;
+const rankKey = kind => kind === "uno" ? "wd:uno:ranking" : kind === "nasi" ? "wd:nasi:ranking" : RANK_KEY;
 const profileKey = nick => String(nick || "").trim().toLowerCase().replace(/s+/g, " ");
 async function loadRanking(kind) { const v = await redis(["GET", rankKey(kind)]); return v ? JSON.parse(v) : {}; }
 // One-time corrections to records made under older EXP rules. Each runs once, marked done by its own key.
@@ -116,7 +126,7 @@ async function recordGame(g) {
   await fixRanking();
   const list = ENG(g).awards(g);
   g.recorded = true; g.awards = list;
-  await withLock(g.kind === "uno" ? "UNORANK" : "RANKING", async () => {
+  await withLock(g.kind === "uno" ? "UNORANK" : g.kind === "nasi" ? "NASIRANK" : "RANKING", async () => {
     const r = await loadRanking(g.kind);
     for (const a of list) {
       const k = profileKey(a.nick); if (!k) continue;
@@ -132,19 +142,19 @@ async function recordGame(g) {
 // The overall ranking adds each player's Wizard's Deal and Grand Line UNO records together, matched by name.
 async function overallRanking() {
   await fixRanking();
-  const [deal, uno] = await Promise.all([loadRanking("deal"), loadRanking("uno")]);
+  const [deal, uno, nasi] = await Promise.all([loadRanking("deal"), loadRanking("uno"), loadRanking("nasi")]);
   const all = {};
-  for (const [src, r] of [["deal", deal], ["uno", uno]]) for (const [k, p] of Object.entries(r)) {
-    const t = all[k] || (all[k] = { name: p.name, xp: 0, games: 0, wins: 0, deal: 0, uno: 0, last: -1 });
+  for (const [src, r] of [["deal", deal], ["uno", uno], ["nasi", nasi]]) for (const [k, p] of Object.entries(r)) {
+    const t = all[k] || (all[k] = { name: p.name, xp: 0, games: 0, wins: 0, deal: 0, uno: 0, nasi: 0, last: -1 });
     t.xp += p.xp; t.games += p.games; t.wins += p.wins; t[src] = p.xp;
     if ((p.last || 0) > t.last) { t.last = p.last || 0; t.name = p.name; }   // show the name they used most recently
   }
   return Object.values(all).sort((a, b) => b.xp - a.xp || b.wins - a.wins).slice(0, 100)
-    .map(p => Object.assign({ name: p.name, xp: p.xp, games: p.games, wins: p.wins, deal: p.deal, uno: p.uno }, E.levelFor(p.xp)));
+    .map(p => Object.assign({ name: p.name, xp: p.xp, games: p.games, wins: p.wins, deal: p.deal, uno: p.uno, nasi: p.nasi }, E.levelFor(p.xp)));
 }
 async function ranking(kind) {
   if (kind === "all") return overallRanking();
-  if (kind !== "uno") await fixRanking();
+  if (!KINDS.includes(kind)) await fixRanking();
   const r = await loadRanking(kind);
   return Object.values(r).sort((a, b) => b.xp - a.xp || b.wins - a.wins).slice(0, 100)
     .map(p => Object.assign({ name: p.name, xp: p.xp, games: p.games, wins: p.wins }, E.levelFor(p.xp)));
@@ -175,7 +185,7 @@ async function handle(req) {
       if (!/^[A-Z]{4}$/.test(code) || !okId(uid)) return { photo: null };
       return { photo: await redis(["GET", photoKey(code, uid)]) };
     }
-    if (q.ranking) return { ranking: await ranking(q.kind === "uno" || q.kind === "all" ? q.kind : "deal") };
+    if (q.ranking) return { ranking: await ranking(KINDS.includes(q.kind) || q.kind === "all" ? q.kind : "deal") };
     const code = String(q.code || "").toUpperCase();
     const g = await settleClock(code, await load(code));
     if (!g) return { gone: true };
@@ -192,7 +202,7 @@ async function handle(req) {
       code = Array.from({ length: 4 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join("");
       if (!(await load(code))) break;
     }
-    const g = { status: "lobby", kind: q.kind === "uno" ? "uno" : undefined, code, host: pid, created: Date.now(), v: 1, players: [{ uid: pid, nick: cleanNick(q.nick) }], tokens: { [pid]: token } };
+    const g = { status: "lobby", kind: KINDS.includes(q.kind) ? q.kind : undefined, code, host: pid, created: Date.now(), v: 1, players: [{ uid: pid, nick: cleanNick(q.nick) }], tokens: { [pid]: token } };
     await save(code, g);
     await redis(["ZADD", "wd:lobbies", String(g.created), code]);
     return { game: view(g, pid) };
