@@ -47,12 +47,26 @@
   const leaf = (c, v) => `<svg viewBox="0 0 100 100"><g fill="${c}"><path d="M8 8 C40 6 70 22 92 54 C62 52 30 40 8 8Z"/><path d="M6 10 C10 44 26 74 58 94 C52 62 38 32 6 10Z" opacity=".85"/></g><path d="M8 8 C38 26 60 48 90 54 M8 8 C24 38 38 62 56 92" stroke="${v}" stroke-width="1.6" fill="none" opacity=".7"/></svg>`;
   const scene = document.createElement("div");
   scene.className = "k-scene"; scene.setAttribute("aria-hidden", "true");
+  // one weather layer per Kopitiam event; render() switches on the round's one
+  const EV_FX = { hujan: `<i class="rain far"></i><i class="rain"></i><i class="flash"></i>`,
+    rush: [12, 34, 58, 80].map((x, k) => `<i class="steam" style="--x:${x}%;--d:${-k * 1.5}s"></i>`).join(""),
+    pasar: `<i class="glow"></i><i class="lights"></i><i class="lights two"></i>`,
+    kenduri: `<i class="sparkle"></i><i class="bunting two"></i><i class="bunting"></i>`,
+    raya: `<i class="ketupat two"></i><i class="ketupat"></i><i class="pelita"></i>`,
+    lewat: `<i class="stars"></i><i class="lamp"></i><i class="moon"></i>` };
   scene.innerHTML = `<div class="k-bokeh"></div><div class="k-beams"></div>
+    ${Object.entries(EV_FX).map(([k, h]) => `<div class="k-ev ev-${k}">${h}</div>`).join("")}
     <div class="k-leaf" style="left:-3rem;top:-2.5rem;--t:7s">${leaf("#3f8d3c", "#2a6a2c")}</div>
     <div class="k-leaf" style="right:-3.5rem;top:-3rem;--r:90deg;--o:100% 0;--t:8.5s">${leaf("#4a9a45", "#2a6a2c")}</div>
     <div class="k-leaf" style="right:-4rem;top:38vh;--r:150deg;--o:100% 50%;--t:9.5s;opacity:.85">${leaf("#3a7f37", "#245a26")}</div>
     <div class="k-deck"></div>`;
   document.body.prepend(scene);
+  // the background follows the round's event while a game is in play, and goes back to the sunny kampung elsewhere
+  function setWeather(k) {
+    if ((scene.dataset.ev || "") === (k || "")) return;
+    if (k) scene.dataset.ev = k; else delete scene.dataset.ev;
+    scene.querySelectorAll(".k-ev").forEach(el => el.classList.toggle("on", el.classList.contains("ev-" + k)));
+  }
 
   // ---- comic power burst: plays once on every screen when someone wraps a Nasi Lemak or plays an action card ----
   const fxEl = document.createElement("div");
@@ -136,6 +150,7 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !designEl.hidden) designEl.hidden = true; });
   // the lobby's card-design corner (index.html places it under the code)
   function lobbyHTML() {
+    setWeather("");
     return `<div class="nl-lobbydesign nl"><div class="nl-lobbyprev">${cardHTML(11, { face: myFace })}<span class="nl-backcard b-${myBack}"></span></div>
       <div><b>Your card design</b><p class="nl-muted">${FACES[myFace]} fronts · ${BACKS[myBack]} backs. Everyone sees them.</p><button class="nl-btn small" data-nd-open="1">Change design</button></div></div>`;
   }
@@ -332,6 +347,7 @@
       ${rulesHTML()}</div>`;
     fxObserve(v);
     syncStyle();
+    setWeather(S.status === "play" && S.event ? S.event.k : "");
   }
   const handOrder = h => h.slice().sort((a, b) => { const A = N.card(a), B = N.card(b); return (A.kind === B.kind ? 0 : A.kind === "ing" ? -1 : 1) || A.t.localeCompare(B.t) || a - b; });
 
@@ -343,6 +359,7 @@
   }
 
   function mastHTML() {
+    setWeather("");
     const fan = [0, 10, 20, 30, 40].map((id, k) => cardHTML(id, { style: `--d:${k};--r:${[-8, -3, 2, 6, 10][k]}deg` })).join("");
     return `<header class="nl-mast nl"><div><h1>Nasi<span>Lemak</span></h1>
       <p>Run a Nasi Lemak stall in a hungry village. Collect rice, egg, peanuts, sambal bilis and cucumber, wrap your packs, and sabotage your neighbours with flies, thieves and officers. First to 5 packs wins. 2 to 10 players, each on their own phone or computer.</p></div>

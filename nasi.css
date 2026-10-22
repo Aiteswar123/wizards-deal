@@ -47,6 +47,62 @@ html[data-game=nasi] .k-scene{display:block}
   background:linear-gradient(180deg,rgba(255,226,170,.35),transparent 40%),repeating-linear-gradient(90deg,#b8743c 0 9%,#a8652f 9% 9.4%,#c27d43 9.4% 18.6%,#9a5a2a 18.6% 19%);
   box-shadow:inset 0 30px 40px -20px rgba(60,30,10,.45)}
 @media (prefers-reduced-motion:reduce){.k-bokeh,.k-beams,.k-leaf{animation:none}}
+/* ---- Kopitiam events change the weather: one themed layer per event, cross-fading in when the round's event flips ---- */
+.k-ev{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease}
+.k-ev.on{opacity:1}
+.k-ev:not(.on) *{animation-play-state:paused}
+.k-ev::before,.k-ev i{content:"";position:absolute;inset:0;display:block}
+.k-scene .k-bokeh,.k-scene .k-leaf,.k-scene .k-deck{transition:filter 1.6s ease}
+.k-scene[data-ev=hujan] .k-beams,.k-scene[data-ev=pasar] .k-beams,.k-scene[data-ev=lewat] .k-beams{display:none}
+.k-scene[data-ev=hujan] .k-leaf{filter:blur(1.5px) brightness(.6) saturate(.7)}
+.k-scene[data-ev=pasar] .k-leaf,.k-scene[data-ev=lewat] .k-leaf{filter:blur(1.5px) brightness(.45) saturate(.8)}
+.k-scene[data-ev=hujan] .k-deck{filter:brightness(.65) saturate(.7)}
+.k-scene[data-ev=pasar] .k-deck,.k-scene[data-ev=lewat] .k-deck{filter:brightness(.55)}
+.k-scene[data-ev=rush] .k-beams{animation-duration:5s;filter:brightness(1.35)}
+
+/* Hujan Lebat: grey storm sky, slanting rain, now and then a flash of lightning */
+.ev-hujan::before{background:linear-gradient(180deg,rgba(44,56,74,.86),rgba(70,86,100,.66) 55%,rgba(58,66,76,.5))}
+.ev-hujan .rain{background:repeating-linear-gradient(104deg,transparent 0 22px,rgba(214,230,250,.42) 22px 23px,transparent 23px 46px);background-size:170px 170px;animation:k-rain .45s linear infinite}
+.ev-hujan .rain.far{opacity:.5;background-size:90px 90px;animation-duration:.7s}
+.ev-hujan .flash{background:rgba(235,242,255,.9);opacity:0;animation:k-flash 9s linear infinite}
+@keyframes k-rain{to{background-position:-48px 170px}}
+@keyframes k-flash{0%,61%,63.5%,66%,100%{opacity:0}62%{opacity:.55}65%{opacity:.3}}
+
+/* Lunch Rush: the noon sun blazing over the stall, steam rising off the rice */
+.ev-rush::before{background:radial-gradient(circle at 84% 4%,rgba(255,252,220,.98) 0 5%,rgba(255,214,96,.6) 12%,rgba(255,170,60,0) 38%),linear-gradient(180deg,rgba(255,176,64,.26),rgba(255,140,40,.12))}
+.ev-rush .steam{inset:auto auto 16vh var(--x);width:9rem;height:9rem;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.55),transparent);filter:blur(10px);animation:k-steam 6s ease-in infinite;animation-delay:var(--d)}
+@keyframes k-steam{0%{transform:translateY(0) scale(.5);opacity:0}25%{opacity:.9}100%{transform:translateY(-55vh) scale(1.6);opacity:0}}
+
+/* Pasar Malam: night falls, strings of coloured bulbs twinkle over the market */
+.ev-pasar::before{background:radial-gradient(circle at 20% 70%,rgba(255,150,60,.3),transparent 30%),linear-gradient(180deg,rgba(18,22,60,.92),rgba(52,32,84,.8) 50%,rgba(90,40,50,.55))}
+.ev-pasar .lights{bottom:auto;height:70px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 240 70%22%3E%3Cpath d=%22M0 10 Q120 60 240 10%22 stroke=%22%231c1426%22 stroke-width=%222%22 fill=%22none%22/%3E%3Ccircle cx=%2224%22 cy=%2226%22 r=%229%22 fill=%22%23ffd76a%22 opacity=%22.35%22/%3E%3Ccircle cx=%2224%22 cy=%2226%22 r=%224.5%22 fill=%22%23ffd76a%22/%3E%3Ccircle cx=%2272%22 cy=%2238%22 r=%229%22 fill=%22%23ff6b6b%22 opacity=%22.35%22/%3E%3Ccircle cx=%2272%22 cy=%2238%22 r=%224.5%22 fill=%22%23ff6b6b%22/%3E%3Ccircle cx=%22120%22 cy=%2242%22 r=%229%22 fill=%22%237fe0ff%22 opacity=%22.35%22/%3E%3Ccircle cx=%22120%22 cy=%2242%22 r=%224.5%22 fill=%22%237fe0ff%22/%3E%3Ccircle cx=%22168%22 cy=%2238%22 r=%229%22 fill=%22%23b9ff7a%22 opacity=%22.35%22/%3E%3Ccircle cx=%22168%22 cy=%2238%22 r=%224.5%22 fill=%22%23b9ff7a%22/%3E%3Ccircle cx=%22216%22 cy=%2226%22 r=%229%22 fill=%22%23ff9be0%22 opacity=%22.35%22/%3E%3Ccircle cx=%22216%22 cy=%2226%22 r=%224.5%22 fill=%22%23ff9be0%22/%3E%3C/svg%3E") 0 0/240px 70px repeat-x;filter:drop-shadow(0 0 6px rgba(255,220,140,.8));animation:k-twinkle 1.8s ease-in-out infinite alternate}
+.ev-pasar .lights.two{top:64px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 240 70%22%3E%3Cpath d=%22M0 10 Q120 60 240 10%22 stroke=%22%231c1426%22 stroke-width=%222%22 fill=%22none%22/%3E%3Ccircle cx=%2224%22 cy=%2226%22 r=%229%22 fill=%22%23ff9a3c%22 opacity=%22.35%22/%3E%3Ccircle cx=%2224%22 cy=%2226%22 r=%224.5%22 fill=%22%23ff9a3c%22/%3E%3Ccircle cx=%2272%22 cy=%2238%22 r=%229%22 fill=%22%23c38bff%22 opacity=%22.35%22/%3E%3Ccircle cx=%2272%22 cy=%2238%22 r=%224.5%22 fill=%22%23c38bff%22/%3E%3Ccircle cx=%22120%22 cy=%2242%22 r=%229%22 fill=%22%23ffd76a%22 opacity=%22.35%22/%3E%3Ccircle cx=%22120%22 cy=%2242%22 r=%224.5%22 fill=%22%23ffd76a%22/%3E%3Ccircle cx=%22168%22 cy=%2238%22 r=%229%22 fill=%22%235fd0ff%22 opacity=%22.35%22/%3E%3Ccircle cx=%22168%22 cy=%2238%22 r=%224.5%22 fill=%22%235fd0ff%22/%3E%3Ccircle cx=%22216%22 cy=%2226%22 r=%229%22 fill=%22%23ff6b6b%22 opacity=%22.35%22/%3E%3Ccircle cx=%22216%22 cy=%2226%22 r=%224.5%22 fill=%22%23ff6b6b%22/%3E%3C/svg%3E") 120px 0/240px 70px repeat-x;animation-delay:-.9s}
+.ev-pasar .glow{filter:blur(22px);background:radial-gradient(circle at 15% 60%,rgba(255,120,80,.45) 0 4%,transparent 9%),radial-gradient(circle at 40% 72%,rgba(255,220,100,.4) 0 3%,transparent 8%),radial-gradient(circle at 66% 62%,rgba(140,200,255,.35) 0 4%,transparent 9%),radial-gradient(circle at 88% 74%,rgba(255,140,220,.4) 0 3%,transparent 8%);animation:k-breathe 8s ease-in-out infinite alternate}
+@keyframes k-twinkle{from{opacity:.65}to{opacity:1}}
+
+/* Kenduri: warm golden feast light, bunting across the top, sparkles drifting up */
+.ev-kenduri::before{background:radial-gradient(ellipse at 50% 0,rgba(255,226,140,.6),transparent 60%),linear-gradient(180deg,rgba(255,196,96,.28),rgba(255,150,80,.16))}
+.ev-kenduri .bunting{bottom:auto;height:70px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 70%22%3E%3Cpath d=%22M0 6 Q100 26 200 6%22 stroke=%22%235a3a1a%22 stroke-width=%222%22 fill=%22none%22/%3E%3Cpath d=%22M9 9.6 L31 9.6 L20 37.6Z%22 fill=%22%23d4442e%22 stroke=%22%235a3a1a%22 stroke-width=%221.2%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M49 14.4 L71 14.4 L60 42.4Z%22 fill=%22%23f6c35a%22 stroke=%22%235a3a1a%22 stroke-width=%221.2%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M89 16.0 L111 16.0 L100 44.0Z%22 fill=%22%234fa64a%22 stroke=%22%235a3a1a%22 stroke-width=%221.2%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M129 14.4 L151 14.4 L140 42.4Z%22 fill=%22%233f86d6%22 stroke=%22%235a3a1a%22 stroke-width=%221.2%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M169 9.6 L191 9.6 L180 37.6Z%22 fill=%22%23e5742a%22 stroke=%22%235a3a1a%22 stroke-width=%221.2%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E") 0 0/200px 70px repeat-x;transform-origin:top;animation:k-flutter 3s ease-in-out infinite alternate}
+.ev-kenduri .bunting.two{top:56px;background-position:100px 0;opacity:.85;animation-delay:-1.5s}
+.ev-kenduri .sparkle{background:radial-gradient(circle at 18% 40%,#fff6c8 0 2px,transparent 3px),radial-gradient(circle at 46% 28%,#ffe08a 0 2px,transparent 3px),radial-gradient(circle at 72% 46%,#fff6c8 0 1.6px,transparent 3px),radial-gradient(circle at 88% 22%,#ffe08a 0 2px,transparent 3px),radial-gradient(circle at 30% 64%,#fff6c8 0 1.6px,transparent 3px);background-size:100% 60vh;animation:k-sparkle 7s linear infinite}
+@keyframes k-flutter{from{transform:skewX(-2deg) scaleY(.96)}to{transform:skewX(2deg) scaleY(1.03)}}
+@keyframes k-sparkle{from{background-position:0 0}to{background-position:0 -60vh}}
+
+/* Hari Raya Open House: green and gold, ketupat swinging overhead, pelita flickering along the deck */
+.ev-raya::before{background:radial-gradient(ellipse at 50% 0,rgba(255,214,110,.45),transparent 55%),linear-gradient(180deg,rgba(24,104,56,.42),rgba(40,120,60,.2) 60%,rgba(255,190,90,.2))}
+.ev-raya .ketupat{bottom:auto;height:110px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 90 110%22%3E%3Cpath d=%22M45 0 V40%22 stroke=%22%23c9a24a%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M45 40 L67 62 L45 84 L23 62Z%22 fill=%22%233e9b45%22 stroke=%22%231f5a26%22 stroke-width=%222%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M34 51 L56 73 M56 51 L34 73 M45 40 L45 84 M23 62 L67 62%22 stroke=%22%23a9dc6a%22 stroke-width=%221.6%22 opacity=%22.8%22/%3E%3Cpath d=%22M45 84 q-6 10 -2 22 M45 84 q6 10 3 20%22 stroke=%22%233e9b45%22 stroke-width=%223%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") 10px 0/90px 110px repeat-x;transform-origin:top;animation:k-swing 4s ease-in-out infinite alternate}
+.ev-raya .ketupat.two{height:165px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 90 165%22%3E%3Cpath d=%22M45 0 V95%22 stroke=%22%23c9a24a%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M45 95 L67 117 L45 139 L23 117Z%22 fill=%22%233e9b45%22 stroke=%22%231f5a26%22 stroke-width=%222%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M34 106 L56 128 M56 106 L34 128 M45 95 L45 139 M23 117 L67 117%22 stroke=%22%23a9dc6a%22 stroke-width=%221.6%22 opacity=%22.8%22/%3E%3Cpath d=%22M45 139 q-6 10 -2 22 M45 139 q6 10 3 20%22 stroke=%22%233e9b45%22 stroke-width=%223%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") 55px 0/90px 165px repeat-x;animation-delay:-2s;opacity:.9}
+.ev-raya .pelita{top:auto;bottom:calc(max(18vh,90px) - 18px);height:90px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 160 90%22%3E%3Ccircle cx=%2280%22 cy=%2230%22 r=%2222%22 fill=%22%23ffb347%22 opacity=%22.25%22/%3E%3Crect x=%2276%22 y=%2240%22 width=%228%22 height=%2250%22 rx=%222%22 fill=%22%238a5a2b%22 stroke=%22%234a2c12%22 stroke-width=%221.5%22/%3E%3Crect x=%2272%22 y=%2236%22 width=%2216%22 height=%228%22 rx=%222%22 fill=%22%23c9a24a%22 stroke=%22%234a2c12%22 stroke-width=%221.5%22/%3E%3Cpath d=%22M80 12 C88 24 86 34 80 36 C74 34 72 24 80 12Z%22 fill=%22%23ffcf3f%22/%3E%3Cpath d=%22M80 22 C84 28 83 33 80 34 C77 33 76 28 80 22Z%22 fill=%22%23fff4c2%22/%3E%3C/svg%3E") 0 0/160px 90px repeat-x;filter:drop-shadow(0 0 10px rgba(255,190,80,.9));animation:k-flicker 1.3s steps(2) infinite}
+@keyframes k-swing{from{transform:rotate(-1.4deg)}to{transform:rotate(1.4deg)}}
+@keyframes k-flicker{0%,100%{opacity:1}50%{opacity:.78}}
+
+/* Buka Lewat: dusk turns to night, the moon is up, stars come out over the late-night kopitiam */
+.ev-lewat::before{background:linear-gradient(180deg,rgba(30,26,80,.9),rgba(100,52,112,.7) 42%,rgba(240,120,70,.5) 74%,rgba(255,180,100,.32))}
+.ev-lewat .stars{bottom:40%;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 220%22%3E%3Cg fill=%22%23fff8e0%22%3E%3Ccircle cx=%2220%22 cy=%2230%22 r=%221.4%22/%3E%3Ccircle cx=%2280%22 cy=%2212%22 r=%221%22/%3E%3Ccircle cx=%22130%22 cy=%2260%22 r=%221.6%22/%3E%3Ccircle cx=%22190%22 cy=%2224%22 r=%221.1%22/%3E%3Ccircle cx=%22250%22 cy=%2270%22 r=%221.4%22/%3E%3Ccircle cx=%22280%22 cy=%2218%22 r=%221%22/%3E%3Ccircle cx=%2260%22 cy=%22100%22 r=%221%22/%3E%3Ccircle cx=%22160%22 cy=%22130%22 r=%22.9%22/%3E%3Ccircle cx=%22230%22 cy=%22150%22 r=%221.2%22/%3E%3Ccircle cx=%2240%22 cy=%22170%22 r=%22.8%22/%3E%3C/g%3E%3C/svg%3E") 0 0/300px 220px repeat;animation:k-twinkle 2.6s ease-in-out infinite alternate}
+.ev-lewat .moon{inset:7% 12% auto auto;width:4.5rem;height:4.5rem;border-radius:50%;box-shadow:inset -1.1rem .5rem 0 0 #fff3cf,0 0 40px 6px rgba(255,240,200,.35)}
+.ev-lewat .lamp{background:radial-gradient(ellipse 40% 30% at 50% 40%,rgba(255,200,110,.35),transparent 70%)}
+
+@media (prefers-reduced-motion:reduce){.k-ev,.k-ev *{animation:none!important;transition:none}}
 .nl{position:relative;z-index:1}
 
 /* ---- type & base ---- */
