@@ -48,8 +48,9 @@
     box-shadow:0 0 0 2px #6b4423 inset}
   .nl-sign b{font-family:"Bungee","Arial Black",sans-serif;font-weight:400;font-size:.82rem;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .nl-open{font:800 .62rem/1 "Figtree",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:var(--nl-sambal);border-radius:3px;padding:.15rem .35rem;margin-top:.15rem}
-  .nl-counter{margin-top:.3rem;padding:.45rem .5rem .5rem;border-radius:0 0 10px 10px;border-top:5px solid #8a5a2e;
+  .nl-counter{position:relative;margin-top:.55rem;padding:.45rem .5rem .5rem;border-radius:0 0 10px 10px;
     background:repeating-linear-gradient(90deg,#4a3220 0 22px,#432d1c 22px 44px);display:flex;flex-direction:column;gap:.3rem}
+  .nl-counter::before{content:"";position:absolute;left:-.2rem;right:-.2rem;top:-.35rem;height:.4rem;border-radius:3px;background:#8a5a2e}
   .nl-stall.on .nl-counter{box-shadow:0 0 0 2px var(--nl-turmeric),0 0 24px -4px rgba(227,167,47,.7)}
   .nl-stall.wait .nl-counter{box-shadow:0 0 0 2px var(--nl-sambal)}
   .nl-stall.me .nl-sign{background:#fff6dc}
