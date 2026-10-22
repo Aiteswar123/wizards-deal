@@ -24,6 +24,6 @@ Generated with Piper text-to-speech (https://github.com/OHF-Voice/piper1-gpl), p
 
 The card pictures (`card-*.png`, `card-*.jpg`) and the UNO background (`sea-1.jpg`, with `sea-zunesha.png` and `sea-kings.png` cut out of two further stills) are One Piece artwork supplied by the site owner: anime stills and fan art of characters and scenes created by Eiichiro Oda (Shueisha, Toei Animation). They are not covered by an open licence; The two cut-outs are masked, upscaled and colour-graded from smaller stills.
 
-## Nasi Lemak picture
+## Nasi Lemak pictures
 
-`nasi-kiosk.jpg` is a still of Tok Aba at his kopitiam kiosk from the Upin & Ipin animated series (Les' Copaque Production), supplied by the site owner and cropped clear of a fan watermark. It is not covered by an open licence.
+`nasi-kiosk.jpg` (Tok Aba at Tok Aba's Kokotiam) and `nasi-crew.jpg` (BoBoiBoy, Ochobot, Gopal, Fang, Yaya and Ying, cropped and upscaled from a BoBoiBoy Galaxy poster) are artwork from the BoBoiBoy animated series (Animonsta Studios / Monsta), supplied by the site owner; the kiosk still is cropped clear of a fan watermark. They are not covered by an open licence.

@@ -316,7 +316,7 @@
     const fan = [0, 10, 20, 30, 40].map((id, k) => cardHTML(id, { style: `--d:${k};--r:${[-8, -3, 2, 6, 10][k]}deg` })).join("");
     return `<header class="nl-mast nl"><div><h1>Nasi<span>Lemak</span></h1>
       <p>Run a Nasi Lemak stall in a hungry village. Collect rice, egg, peanuts, sambal bilis and cucumber, wrap your packs, and sabotage your neighbours with flies, thieves and officers. First to 5 packs wins. 2 to 10 players, each on their own phone or computer.</p></div>
-      <figure class="nl-kiosk"><img src="assets/nasi-kiosk.jpg" alt="Tok Aba serving at his kopitiam kiosk" width="495" height="470"><div class="nl-mastfan" aria-hidden="true">${fan}</div></figure></header>`;
+      <figure class="nl-kiosk"><img src="assets/nasi-kiosk.jpg" alt="Tok Aba serving at Tok Aba's Kokotiam" width="495" height="470"><figure class="nl-crew"><img src="assets/nasi-crew.jpg" alt="BoBoiBoy, Ochobot, Gopal, Fang, Yaya and Ying" width="526" height="384"><figcaption>Tok Aba's regulars</figcaption></figure><div class="nl-mastfan" aria-hidden="true">${fan}</div></figure></header>`;
   }
   function rulesHTML() {
     const acts = Object.entries(N.ACTIONS).map(([k, a]) => `<li><b>${esc(a.n)}</b> (${a.count}): ${esc(a.d)}</li>`).join("");

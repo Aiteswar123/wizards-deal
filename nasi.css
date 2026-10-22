@@ -366,3 +366,15 @@ html[data-game=nasi] .seats li{background:var(--k-paper)!important;border:2.5px 
   box-shadow:0 0 0 2.5px var(--k-ink),0 26px 40px -18px rgba(40,20,8,.7)}
 .nl-kiosk .nl-mastfan{position:absolute;left:0;right:0;bottom:0;padding-top:0}
 @media (max-width:760px){.nl-mast h1{padding:.7rem 1.1rem .9rem}.nl-kiosk{max-width:24rem;margin-inline:auto;padding-bottom:0}}
+/* BoBoiBoy and friends, pinned to the kiosk like a photo stuck up at the counter */
+.nl-crew{position:absolute;right:-1.2rem;top:-1.4rem;width:44%;margin:0;padding:.45rem .45rem .2rem;background:#fffaf0;border-radius:6px;rotate:-7deg;z-index:2;
+  box-shadow:0 0 0 2px var(--k-ink),0 16px 22px -10px rgba(40,20,8,.6);animation:k-pin 6s ease-in-out infinite alternate}
+.nl-kiosk .nl-crew img{display:block;width:100%;height:auto;aspect-ratio:526/384;border:0;border-radius:3px;box-shadow:none}
+.nl-crew figcaption{font:400 clamp(.72rem,1.4vw,.9rem)/1.6 var(--k-display);color:var(--k-ink);text-align:center}
+.nl-crew::before{content:"";position:absolute;left:50%;top:-.45rem;width:.95rem;height:.95rem;margin-left:-.475rem;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#ffb08a,var(--k-red) 55%,#8a2316);box-shadow:0 2px 3px rgba(0,0,0,.4)}
+@keyframes k-pin{from{rotate:-7deg}to{rotate:-4.5deg}}
+.nl-crew{rotate:6deg;animation-name:k-pin-r}
+@keyframes k-pin-r{from{rotate:6deg}to{rotate:3.5deg}}
+@media (max-width:760px){.nl-crew{right:auto;left:-.5rem;top:auto;bottom:-1.6rem;width:50%;rotate:-6deg;animation-name:k-pin}.nl-kiosk{margin-bottom:1.6rem}}
+@media (prefers-reduced-motion:reduce){.nl-crew{animation:none}}

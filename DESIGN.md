@@ -153,10 +153,10 @@ A pirate theme of its own, entirely original artwork (no official One Piece art 
 
 ## Nasi Lemak
 
-"Kopitiam Kayu": a kampung kopitiam kiosk in the warm, soft 3D-animation look of Malaysian cartoons (`nasi.css`, `nasi-ui.js`). When a Nasi Lemak screen is showing, `<html data-game="nasi">` swaps in coffee-brown edges (`--k-ink #3d2414`) instead of black ink, roof orange (`--k-orange #e5742a`), cream (`--k-cream #fdf0d8`), polished wood (`--k-wood #b8743c`, `--k-wood-d #6e3d1e`), dark chalk boards (`--k-board #3a2216`) with cream lettering (`--k-chalk #fbe9c6`), and Lilita One over Baloo 2.
+"Kopitiam Kayu": Tok Aba's Kokotiam from BoBoiBoy: a kampung kopitiam kiosk in the warm, soft 3D-animation look of Malaysian cartoons (`nasi.css`, `nasi-ui.js`). When a Nasi Lemak screen is showing, `<html data-game="nasi">` swaps in coffee-brown edges (`--k-ink #3d2414`) instead of black ink, roof orange (`--k-orange #e5742a`), cream (`--k-cream #fdf0d8`), polished wood (`--k-wood #b8743c`, `--k-wood-d #6e3d1e`), dark chalk boards (`--k-board #3a2216`) with cream lettering (`--k-chalk #fbe9c6`), and Lilita One over Baloo 2.
 
 - **Behind everything**: a sun-dappled kampung out of focus (soft blurred greens and spots of light that slowly breathe), sunbeams drifting across, large leaves swaying at the corners, and a wooden deck floor in perspective. All motion stops under reduced motion.
 - **Signboards**: the home title and the table's top bar are the kiosk's signboard: a dark board in a polished wood frame ringed in roof orange, cream lettering, with an orange "Kopitiam" plate under the title.
-- **Home**: beside the title, a picture of Tok Aba's kiosk (`assets/nasi-kiosk.jpg`) in a wooden frame, with the ingredient cards fanned over its lower edge on wide screens.
+- **Home**: beside the title, a picture of Tok Aba's Kokotiam from BoBoiBoy (`assets/nasi-kiosk.jpg`) in a wooden frame, with a photo of BoBoiBoy and his friends (`assets/nasi-crew.jpg`) pinned to its corner, gently swaying, and the ingredient cards fanned over its lower edge on wide screens.
 - **The table**: the kiosk's round counter, a cream top with faint wood grain on a polished wood rim with its shadow, the banana leaf in the middle holding the piles.
 - **Stalls**: each player's stall is a little kiosk: a round orange roof band trimmed in the player's colour, a chalk name board (yours ringed in gold), and a cream counter on wooden slats.
