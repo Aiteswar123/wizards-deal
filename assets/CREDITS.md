@@ -23,3 +23,7 @@ Generated with Piper text-to-speech (https://github.com/OHF-Voice/piper1-gpl), p
 ## Grand Line UNO pictures
 
 The card pictures (`card-*.png`, `card-*.jpg`) and the UNO background (`sea-1.jpg`, with `sea-zunesha.png` and `sea-kings.png` cut out of two further stills) are One Piece artwork supplied by the site owner: anime stills and fan art of characters and scenes created by Eiichiro Oda (Shueisha, Toei Animation). They are not covered by an open licence; The two cut-outs are masked, upscaled and colour-graded from smaller stills.
+
+## Nasi Lemak picture
+
+`nasi-kiosk.jpg` is a still of Tok Aba at his kopitiam kiosk from the Upin & Ipin animated series (Les' Copaque Production), supplied by the site owner and cropped clear of a fan watermark. It is not covered by an open licence.

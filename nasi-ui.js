@@ -34,7 +34,7 @@
   const BAND = { rice: "#bfe7ff", egg: "#ffd23f", peanut: "#e0a35c", sambal: "#ff4b3e", cucumber: "#34c25a" };
   const svg = (t, cls) => `<svg viewBox="0 0 64 64" aria-hidden="true"${cls ? ` class="${cls}"` : ""}>${ICON[t] || ""}</svg>`;
   // A nasi lemak bungkus: banana leaf folded into a pyramid over newspaper, tied with a red rubber band.
-  const INK = "#22163a";
+  const INK = "#3d2414";
   const parcel = (packs, show) => `<svg class="parcel" viewBox="0 0 64 60" aria-hidden="true">
     <path d="M6 44 L32 10 L58 44 L32 56 Z" fill="#f4ecd8" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
     <path d="M10 42 L32 14 L54 42 L32 52 Z" fill="#34c25a" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
@@ -43,14 +43,15 @@
     <path d="M24 18 l4 -4 M40 18 l-4 -4" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>
     ${show ? `<circle cx="32" cy="27" r="8" fill="#ffd23f" stroke="${INK}" stroke-width="2.5"/><text x="32" y="31" text-anchor="middle" font-family="Lilita One,Arial Black,sans-serif" font-size="12" fill="${INK}">${packs}</text>` : ""}</svg>`;
 
-  // ---- the sky: sun, drifting clouds and kampung hills behind the whole Nasi Lemak world ----
+  // ---- behind the Nasi Lemak world: a sun-dappled kampung out of focus, sunbeams, swaying leaves and a wooden deck ----
+  const leaf = (c, v) => `<svg viewBox="0 0 100 100"><g fill="${c}"><path d="M8 8 C40 6 70 22 92 54 C62 52 30 40 8 8Z"/><path d="M6 10 C10 44 26 74 58 94 C52 62 38 32 6 10Z" opacity=".85"/></g><path d="M8 8 C38 26 60 48 90 54 M8 8 C24 38 38 62 56 92" stroke="${v}" stroke-width="1.6" fill="none" opacity=".7"/></svg>`;
   const scene = document.createElement("div");
   scene.className = "k-scene"; scene.setAttribute("aria-hidden", "true");
-  scene.innerHTML = `<div class="k-sun"></div>
-    ${[[9, 70, 0], [22, 95, -30], [4, 120, -62], [30, 80, -48]].map(([top, dur, delay]) => `<div class="k-cloud" style="top:${top}vh;animation-duration:${dur}s;animation-delay:${delay}s"></div>`).join("")}
-    <div class="k-hills"><svg viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 120 Q150 40 320 110 T640 90 T960 110 T1200 80 V200 H0Z" fill="#7ed957" stroke="${INK}" stroke-width="4"/>
-      <path d="M0 160 Q200 100 420 150 T860 140 T1200 130 V200 H0Z" fill="#4cc25e" stroke="${INK}" stroke-width="4"/>
-      <g fill="#2f9e47" stroke="${INK}" stroke-width="3"><path d="M180 132 q8-40 -6-62 q22 10 18 62z"/><path d="M1010 120 q6-44 -8-66 q24 12 20 66z"/></g></svg></div>`;
+  scene.innerHTML = `<div class="k-bokeh"></div><div class="k-beams"></div>
+    <div class="k-leaf" style="left:-3rem;top:-2.5rem;--t:7s">${leaf("#3f8d3c", "#2a6a2c")}</div>
+    <div class="k-leaf" style="right:-3.5rem;top:-3rem;--r:90deg;--o:100% 0;--t:8.5s">${leaf("#4a9a45", "#2a6a2c")}</div>
+    <div class="k-leaf" style="right:-4rem;top:38vh;--r:150deg;--o:100% 50%;--t:9.5s;opacity:.85">${leaf("#3a7f37", "#245a26")}</div>
+    <div class="k-deck"></div>`;
   document.body.prepend(scene);
 
   // ---- comic power burst: plays once on every screen when someone wraps a Nasi Lemak or plays an action card ----
@@ -315,7 +316,7 @@
     const fan = [0, 10, 20, 30, 40].map((id, k) => cardHTML(id, { style: `--d:${k};--r:${[-8, -3, 2, 6, 10][k]}deg` })).join("");
     return `<header class="nl-mast nl"><div><h1>Nasi<span>Lemak</span></h1>
       <p>Run a Nasi Lemak stall in a hungry village. Collect rice, egg, peanuts, sambal bilis and cucumber, wrap your packs, and sabotage your neighbours with flies, thieves and officers. First to 5 packs wins. 2 to 10 players, each on their own phone or computer.</p></div>
-      <div class="nl-mastfan" aria-hidden="true">${fan}</div></header>`;
+      <figure class="nl-kiosk"><img src="assets/nasi-kiosk.jpg" alt="Tok Aba serving at his kopitiam kiosk" width="495" height="470"><div class="nl-mastfan" aria-hidden="true">${fan}</div></figure></header>`;
   }
   function rulesHTML() {
     const acts = Object.entries(N.ACTIONS).map(([k, a]) => `<li><b>${esc(a.n)}</b> (${a.count}): ${esc(a.d)}</li>`).join("");
