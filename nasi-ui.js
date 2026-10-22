@@ -6,146 +6,12 @@
   const N = window.Nasi;
   const font = document.createElement("link");
   font.rel = "stylesheet";
-  font.href = "https://fonts.googleapis.com/css2?family=Bungee&family=Figtree:wght@400;600;800&display=swap";
+  font.href = "https://fonts.googleapis.com/css2?family=Lilita+One&family=Baloo+2:wght@500;600;700;800&display=swap";
   document.head.appendChild(font);
 
-  const css = document.createElement("style");
-  css.textContent = `
-  html[data-game=nasi]{--nl-night:#14100b;--nl-wood:#2a1d12;--nl-leaf:#2f6b3a;--nl-leaf2:#1d4a28;--nl-sambal:#c8372d;--nl-cream:#f6efdf;--nl-ink:#2a1a10;
-    --nl-turmeric:#e3a72f;--nl-text:#f6efdf;--nl-muted:#cdbfa6;--nl-line:#4a3624;color-scheme:dark}
-  html[data-game=nasi] body{background:radial-gradient(ellipse 90% 60% at 50% -10%,#4a2a14 0%,var(--nl-night) 60%) fixed,var(--nl-night)}
-  html[data-game=nasi] #sky{display:none}
-  .nl{font-family:"Figtree","Segoe UI",system-ui,sans-serif;color:var(--nl-text)}
-  .nl h1,.nl h2,.nl h3,.nl .mark{font-family:"Bungee","Arial Black",system-ui,sans-serif;font-weight:400;letter-spacing:.01em;margin:0;line-height:1.05}
-  .nl ::selection{background:var(--nl-turmeric);color:var(--nl-ink)}
-  .nl-top{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;padding-block:1rem;border-bottom:1px dashed var(--nl-line)}
-  .nl-top .mark{font-size:1.35rem;color:var(--nl-turmeric)}
-  .nl-top .grow{flex:1}
-  .nl-code{font-weight:800;letter-spacing:.18em;color:var(--nl-muted)}
-  .nl-ticker{margin:.75rem 0 0;font-size:.92rem;color:var(--nl-muted)}
-  .nl-ticker b{color:var(--nl-text)}
-  .nl-btn{appearance:none;border:1px solid var(--nl-line);background:#3a2817;color:var(--nl-text);border-radius:10px;padding:.6rem 1rem;font:800 .95rem/1 "Figtree",system-ui,sans-serif;cursor:pointer}
-  .nl-btn:hover:not(:disabled){border-color:var(--nl-turmeric)}
-  .nl-btn.go{background:var(--nl-turmeric);color:var(--nl-ink);border-color:var(--nl-turmeric)}
-  .nl-btn.red{background:var(--nl-sambal);border-color:var(--nl-sambal);color:#fff}
-  .nl-btn.small{padding:.4rem .7rem;font-size:.85rem}
-  .nl-btn:disabled{opacity:.45;cursor:not-allowed}
-  .nl-btn:focus-visible,.nl-card:focus-visible,.nl-opt:focus-visible{outline:2px solid var(--nl-turmeric);outline-offset:2px}
-  .nl-row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
-  .nl-muted{color:var(--nl-muted)}
-  /* the night market: every player's hawker stall in a ring around the shared banana-leaf table */
-  .nl-market{position:relative;height:clamp(34rem,72vh,44rem);margin-top:1rem}
-  .nl-felt{position:absolute;inset:24% 20%;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;text-align:center;padding:1rem 1.6rem;
-    background:radial-gradient(ellipse at 50% 45%,#4a9a55 0%,var(--nl-leaf) 45%,var(--nl-leaf2) 82%);border:14px solid #6b4423;
-    box-shadow:inset 0 0 50px rgba(0,0,0,.45),0 30px 50px -30px rgba(0,0,0,.9)}
-  .nl-felt::after{content:"";position:absolute;inset:8px;border-radius:50%;border:1px dashed rgba(207,233,192,.35);pointer-events:none}
-  .nl-stall{position:absolute;transform:translate(-50%,-50%);width:clamp(9.5rem,16vw,12.5rem);display:flex;flex-direction:column;z-index:1;filter:drop-shadow(0 14px 18px rgba(0,0,0,.55))}
-  .nl-market.many .nl-stall{width:clamp(8.5rem,12.5vw,10.5rem)}
-  /* striped awning with a scalloped edge */
-  .nl-awning{height:1.6rem;border-radius:8px 8px 0 0;background:repeating-linear-gradient(90deg,var(--awn) 0 14px,var(--nl-cream) 14px 28px);
-    -webkit-mask:radial-gradient(circle 7px at 7px 100%,transparent 6.5px,#000 7px) 0 0/14px 100% repeat-x;mask:radial-gradient(circle 7px at 7px 100%,transparent 6.5px,#000 7px) 0 0/14px 100% repeat-x}
-  .nl-sign{margin:-.15rem .5rem 0;padding:.25rem .5rem;border-radius:4px;background:var(--nl-cream);color:var(--nl-ink);text-align:center;display:flex;flex-direction:column;align-items:center;
-    box-shadow:0 0 0 2px #6b4423 inset}
-  .nl-sign b{font-family:"Bungee","Arial Black",sans-serif;font-weight:400;font-size:.82rem;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .nl-open{font:800 .62rem/1 "Figtree",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:var(--nl-sambal);border-radius:3px;padding:.15rem .35rem;margin-top:.15rem}
-  .nl-counter{position:relative;margin-top:.55rem;padding:.45rem .5rem .5rem;border-radius:0 0 10px 10px;
-    background:repeating-linear-gradient(90deg,#4a3220 0 22px,#432d1c 22px 44px);display:flex;flex-direction:column;gap:.3rem}
-  .nl-counter::before{content:"";position:absolute;left:-.2rem;right:-.2rem;top:-.35rem;height:.4rem;border-radius:3px;background:#8a5a2e}
-  .nl-stall.on .nl-counter{box-shadow:0 0 0 2px var(--nl-turmeric),0 0 24px -4px rgba(227,167,47,.7)}
-  .nl-stall.wait .nl-counter{box-shadow:0 0 0 2px var(--nl-sambal)}
-  .nl-stall.me .nl-sign{background:#fff6dc}
-  .nl-stall .nl-pack{width:2.2rem;height:2.1rem}
-  .nl-stall .nl-packs{min-height:2.1rem;gap:.25rem}
-  .nl-stall .nl-pack .cnt{display:none}
-  .nl-stall .nl-empty{font-size:.75rem;margin:0}
-  .nl-stall .nl-stats{font-size:.72rem}
-  @media (max-width:760px){.nl-market{height:auto;display:flex;flex-wrap:wrap;gap:.7rem}
-    .nl-felt{position:relative;inset:auto;flex:1 1 100%;border-radius:24px;min-height:11rem;order:-1;border-width:8px}
-    .nl-market .nl-stall,.nl-market.many .nl-stall{position:static;transform:none;width:calc(50% - .35rem)}}
-  .nl-who{display:flex;align-items:baseline;gap:.5rem;margin-top:.35rem;min-width:0}
-  .nl-who b{font-size:1.05rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .nl-who span{font-size:.8rem;color:var(--nl-muted);white-space:nowrap}
-  .nl-stats{display:flex;flex-wrap:wrap;gap:.3rem;font-size:.8rem;font-variant-numeric:tabular-nums}
-  .nl-stats span{background:rgba(0,0,0,.25);border-radius:999px;padding:.15rem .55rem;color:var(--nl-muted)}
-  .nl-stats b{color:var(--nl-text)}
-  .nl-packs{display:flex;flex-wrap:wrap;gap:.4rem;min-height:3rem;align-items:flex-end}
-  .nl-pack{position:relative;width:3.1rem;height:3rem;flex:none}
-  .nl-pack svg{width:100%;height:100%;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45))}
-  .nl-pack .cnt{position:absolute;right:-.3rem;top:-.3rem;min-width:1.25rem;height:1.25rem;border-radius:999px;background:var(--nl-cream);color:var(--nl-ink);font:800 .72rem/1.25rem "Figtree",sans-serif;text-align:center;padding:0 .2rem}
-  .nl-pack.flied svg{filter:grayscale(.7) brightness(.7) drop-shadow(0 6px 8px rgba(0,0,0,.45))}
-  .nl-pack .fly{position:absolute;left:50%;top:40%;width:1.6rem;height:1.6rem;transform:translate(-50%,-50%)}
-  .nl-empty{font-size:.85rem;color:var(--nl-muted)}
-  .nl-piles{display:flex;gap:.9rem;align-items:flex-end}
-  .nl-pile{display:flex;flex-direction:column;align-items:center;gap:.25rem;font-size:.78rem;color:#dfe9d6;font-variant-numeric:tabular-nums}
-  .nl-back{width:3.6rem;height:5rem;border-radius:8px;display:grid;place-items:center;font:800 1rem/1 "Figtree",sans-serif;color:var(--nl-cream);
-    background:radial-gradient(circle at 50% 40%,#3c8a4a 0%,#1d4a28 75%);border:2px solid #9bc88f;box-shadow:0 10px 16px -10px rgba(0,0,0,.7)}
-  .nl-back.gold{background:radial-gradient(circle at 50% 40%,#f1c75a 0%,#a97416 75%);border-color:#ffe39b;color:var(--nl-ink)}
-  .nl-say{font-family:"Bungee","Arial Black",sans-serif;font-size:clamp(1.2rem,3vw,1.7rem);line-height:1.1;color:#fff}
-  .nl-sub{font-size:.9rem;color:#dfe9d6;margin-top:.25rem}
-  .nl-dots{display:inline-flex;gap:5px;vertical-align:middle;margin-left:.4rem}
-  .nl-dots i{width:.65rem;height:.65rem;border-radius:50%;border:1.5px solid var(--nl-turmeric)}
-  .nl-dots i.used{background:var(--nl-turmeric)}
-  /* your stall */
-  .nl-zone{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,24rem);grid-template-areas:"mine panel" "hand hand";gap:1rem;margin-top:1rem}
-  .nl-mine{grid-area:mine;min-width:0}
-  .nl-panel{grid-area:panel;align-self:start;background:#2a1d12;border:1px solid var(--nl-turmeric);border-radius:14px;padding:1rem;display:flex;flex-direction:column;gap:.7rem;min-width:0}
-  .nl-panel h3{font-size:1.15rem;color:var(--nl-turmeric)}
-  .nl-opts{display:flex;flex-direction:column;gap:.4rem}
-  .nl-opt{appearance:none;text-align:left;background:#3a2817;color:var(--nl-text);border:1px solid var(--nl-line);border-radius:10px;padding:.55rem .75rem;font:600 .95rem/1.3 "Figtree",sans-serif;cursor:pointer}
-  .nl-opt:hover:not(:disabled){border-color:var(--nl-turmeric)}
-  .nl-opt:disabled{opacity:.45;cursor:not-allowed}
-  .nl-opt small{display:block;color:var(--nl-muted);font-weight:400;font-size:.8rem}
-  .nl-handwrap{grid-area:hand;min-width:0}
-  .nl-hand{display:flex;gap:.55rem;overflow-x:auto;padding:.7rem .2rem 1rem}
-  .nl-score{font-family:"Bungee",sans-serif;font-size:1.4rem;color:var(--nl-turmeric)}
-  .nl-score small{font-family:"Figtree",sans-serif;font-size:.9rem;color:var(--nl-muted)}
-  @media (max-width:820px){.nl-zone{grid-template-columns:minmax(0,1fr);grid-template-areas:"panel" "hand" "mine"}}
-  /* cards */
-  .nl-card{appearance:none;flex:none;position:relative;width:6.6rem;min-height:9rem;border-radius:12px;padding:.45rem .5rem .55rem;display:flex;flex-direction:column;align-items:center;gap:.2rem;text-align:center;
-    background:var(--nl-cream);color:var(--nl-ink);border:2px solid transparent;font:600 .78rem/1.15 "Figtree",sans-serif;cursor:pointer;transition:transform .15s,border-color .15s;box-shadow:0 10px 18px -12px rgba(0,0,0,.8)}
-  .nl-card::before{content:"";position:absolute;inset:0 0 auto 0;height:.55rem;border-radius:10px 10px 0 0;background:var(--band,var(--nl-leaf))}
-  .nl-card.act{background:#fbe9c8}
-  .nl-card svg{width:4.2rem;height:4.2rem;margin-top:.45rem}
-  .nl-card b{font-family:"Bungee",sans-serif;font-weight:400;font-size:.78rem;line-height:1.1}
-  .nl-card i{font-style:normal;font-size:.7rem;opacity:.7}
-  button.nl-card:hover{transform:translateY(-4px)}
-  .nl-card.sel{border-color:var(--nl-turmeric);transform:translateY(-10px)}
-  .nl-card.give{border-color:var(--nl-sambal);transform:translateY(-10px)}
-  .nl-card.small{width:3.6rem;min-height:5rem;padding:.25rem;cursor:default}
-  .nl-card.small svg{width:2.3rem;height:2.3rem;margin-top:.35rem}
-  .nl-card.small b{font-size:.55rem}
-  .nl-card.small i{display:none}
-  .nl-steps{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:.3rem .5rem;align-items:center;font-size:.9rem}
-  .nl-steps button{width:2rem;height:2rem;padding:0}
-  .nl-win{text-align:center;padding:1.6rem 1rem;margin-top:1rem;border-radius:16px;border:1px solid var(--nl-turmeric);background:#2a1d12;display:flex;flex-direction:column;gap:.7rem;align-items:center}
-  .nl-win h2{font-size:clamp(1.8rem,6vw,3rem);color:var(--nl-turmeric)}
-  .nl-log{margin-top:1.2rem;padding:.8rem 1rem;border-radius:14px;background:#1d150d;border:1px solid var(--nl-line)}
-  .nl-log ol{list-style:none;margin:.5rem 0 0;padding:0;display:flex;flex-direction:column-reverse;gap:.2rem;font-size:.88rem;color:var(--nl-muted);max-height:11rem;overflow:auto}
-  .nl-log b{color:var(--nl-text)}
-  .nl-cap{font:800 .7rem/1 "Figtree",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--nl-turmeric)}
-  /* home */
-  .nl-mast{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1.5rem;align-items:center;padding-block:2.2rem 1.6rem}
-  .nl-mast h1{font-size:clamp(2.6rem,9vw,5.2rem);color:var(--nl-cream)}
-  .nl-mast h1 span{display:block;color:var(--nl-sambal)}
-  .nl-mast p{max-width:58ch;color:var(--nl-muted);font-size:1.05rem;margin-top:.8rem}
-  .nl-mastfan{display:flex;justify-content:center}
-  .nl-mastfan .nl-card{cursor:default;margin-left:-1.6rem}
-  .nl-mastfan .nl-card:first-child{margin-left:0}
-  .nl-mastfan .nl-card:nth-child(odd){transform:rotate(-6deg)}
-  .nl-mastfan .nl-card:nth-child(even){transform:rotate(5deg) translateY(-.4rem)}
-  @media (max-width:760px){.nl-mast{grid-template-columns:minmax(0,1fr)}.nl-mastfan{display:none}}
-  .nl-rules{margin-top:2rem;border:1px solid var(--nl-line);border-radius:14px;padding:0 1.2rem;background:#1d150d}
-  .nl-rules summary{cursor:pointer;padding:1rem 0;font-family:"Bungee",sans-serif;font-size:1.15rem;color:var(--nl-turmeric)}
-  .nl-rules .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:1.2rem;padding-bottom:1.2rem}
-  .nl-rules h3{font-size:1rem;color:var(--nl-cream);margin-bottom:.4rem}
-  .nl-rules li{font-size:.92rem;margin-bottom:.35rem;color:var(--nl-muted)}
-  .nl-rules li b{color:var(--nl-text)}
-  html[data-game=nasi] .pz-bar{left:auto;right:16px}
-  .gamepick{max-width:46rem;flex-wrap:wrap}
-  .gamepick button{min-width:min(100%,12rem)}
-  .gamepick .gp-nasi b{font-family:"Bungee","Arial Black",sans-serif;font-size:1.1rem}
-  @media (prefers-reduced-motion:reduce){.nl-card{transition:none}}`;
-  document.head.appendChild(css);
+  const sheet = document.createElement("link");
+  sheet.rel = "stylesheet"; sheet.href = "nasi.css";
+  document.head.appendChild(sheet);
 
   // ---- drawn icons (one stroke family, filled shapes) ----
   const ICON = {
@@ -163,19 +29,78 @@
     swatter: `<rect x="14" y="10" width="26" height="26" rx="4" fill="#d94a3a" transform="rotate(-20 27 23)"/><g stroke="#a12f22" stroke-width="1.5" transform="rotate(-20 27 23)"><path d="M14 19h26M14 27h26M23 10v26M31 10v26"/></g><path d="M33 38l14 16" stroke="#7a5220" stroke-width="4" stroke-linecap="round"/>`,
     fan: `<path d="M32 46L14 20a26 26 0 0 1 36 0z" fill="#e3a72f"/><path d="M32 46L20 18M32 46V16M32 46l12-28" stroke="#a8742f" stroke-width="1.6"/><path d="M14 20a26 26 0 0 1 36 0" fill="none" stroke="#c8372d" stroke-width="3"/><path d="M32 46v10" stroke="#7a5220" stroke-width="4" stroke-linecap="round"/>`
   };
-  // each stall's awning colour: sambal red, pandan green, turmeric, bunga telang blue, teh tarik brown
-  const AWNING = ["#c8372d", "#3f8a4c", "#e3a72f", "#3d5fbf", "#9a5a2e"];
-  const BAND = { rice: "#e9e2cf", egg: "#f2a524", peanut: "#d9a35b", sambal: "#c8372d", cucumber: "#5e9e3c" };
+  // each stall's awning colour: sambal red, pandan green, sunshine orange, bunga telang blue, ube purple
+  const AWNING = ["#ff4b3e", "#34c25a", "#ff8a1f", "#3d7bff", "#a35bff"];
+  const BAND = { rice: "#bfe7ff", egg: "#ffd23f", peanut: "#e0a35c", sambal: "#ff4b3e", cucumber: "#34c25a" };
   const svg = (t, cls) => `<svg viewBox="0 0 64 64" aria-hidden="true"${cls ? ` class="${cls}"` : ""}>${ICON[t] || ""}</svg>`;
-  const parcel = (packs, show) => `<svg viewBox="0 0 64 60" aria-hidden="true"><path d="M8 40l24-30 24 30-24 16z" fill="#2f6b3a"/><path d="M8 40l24 16 24-16-24-8z" fill="#3f8a4c"/><path d="M32 10v22" stroke="#1d4a28" stroke-width="2"/><path d="M14 36l18-6 18 6" stroke="#cfe9c0" stroke-width="2" fill="none"/><rect x="28" y="22" width="8" height="18" fill="#f6efdf" opacity=".9"/>${show ? `<text x="32" y="36" text-anchor="middle" font-family="Figtree,sans-serif" font-weight="800" font-size="11" fill="#2a1a10">${packs}</text>` : ""}</svg>`;
+  // A nasi lemak bungkus: banana leaf folded into a pyramid over newspaper, tied with a red rubber band.
+  const INK = "#22163a";
+  const parcel = (packs, show) => `<svg class="parcel" viewBox="0 0 64 60" aria-hidden="true">
+    <path d="M6 44 L32 10 L58 44 L32 56 Z" fill="#f4ecd8" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M10 42 L32 14 L54 42 L32 52 Z" fill="#34c25a" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M32 14 L32 52" stroke="#1f8f3c" stroke-width="2.4"/><path d="M18 34 L32 40 L46 34" stroke="#8be09d" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M12 39 Q32 31 52 39" stroke="#ff4b3e" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+    <path d="M24 18 l4 -4 M40 18 l-4 -4" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>
+    ${show ? `<circle cx="32" cy="27" r="8" fill="#ffd23f" stroke="${INK}" stroke-width="2.5"/><text x="32" y="31" text-anchor="middle" font-family="Lilita One,Arial Black,sans-serif" font-size="12" fill="${INK}">${packs}</text>` : ""}</svg>`;
+
+  // ---- the sky: sun, drifting clouds and kampung hills behind the whole Nasi Lemak world ----
+  const scene = document.createElement("div");
+  scene.className = "k-scene"; scene.setAttribute("aria-hidden", "true");
+  scene.innerHTML = `<div class="k-sun"></div>
+    ${[[9, 70, 0], [22, 95, -30], [4, 120, -62], [30, 80, -48]].map(([top, dur, delay]) => `<div class="k-cloud" style="top:${top}vh;animation-duration:${dur}s;animation-delay:${delay}s"></div>`).join("")}
+    <div class="k-hills"><svg viewBox="0 0 1200 200" preserveAspectRatio="none"><path d="M0 120 Q150 40 320 110 T640 90 T960 110 T1200 80 V200 H0Z" fill="#7ed957" stroke="${INK}" stroke-width="4"/>
+      <path d="M0 160 Q200 100 420 150 T860 140 T1200 130 V200 H0Z" fill="#4cc25e" stroke="${INK}" stroke-width="4"/>
+      <g fill="#2f9e47" stroke="${INK}" stroke-width="3"><path d="M180 132 q8-40 -6-62 q22 10 18 62z"/><path d="M1010 120 q6-44 -8-66 q24 12 20 66z"/></g></svg></div>`;
+  document.body.prepend(scene);
+
+  // ---- comic power burst: plays once on every screen when someone wraps a Nasi Lemak or plays an action card ----
+  const fxEl = document.createElement("div");
+  fxEl.className = "k-fx"; fxEl.hidden = true; fxEl.setAttribute("role", "status"); fxEl.setAttribute("aria-live", "polite");
+  document.body.appendChild(fxEl);
+  const FX = {
+    make:       { call: "Siap!",       icon: null,        fx: "#ff8a1f", fx2: "#ffd23f", say: "wrapped a Nasi Lemak" },
+    supplier:   { call: "Supplier!",   icon: "supplier",  fx: "#34c25a", fx2: "#c8f5b4", say: "called the Supplier" },
+    thief:      { call: "Thief!",      icon: "thief",     fx: "#a35bff", fx2: "#e3cfff", say: "sent the Thief round every stall" },
+    wholesaler: { call: "Wholesaler!", icon: "wholesaler", fx: "#ff8a1f", fx2: "#ffe0a8", say: "called the Wholesaler" },
+    officer:    { call: "Officer!",    icon: "officer",   fx: "#3d7bff", fx2: "#cfe0ff", say: "sent the Officer to inspect" },
+    fly:        { call: "Bzzz!",       icon: "fly",       fx: "#5b4f78", fx2: "#d9d3ea", say: "landed a Fly on" },
+    swatter:    { call: "Swat!",       icon: "swatter",   fx: "#ff4b3e", fx2: "#ffd0cb", say: "swatted the fly away" },
+    fan:        { call: "Whoosh!",     icon: "fan",       fx: "#ffb52e", fx2: "#fff1b8", say: "fanned the fly over to" },
+    trade:      { call: "Deal!",       icon: null,        fx: "#34c25a", fx2: "#d6f7c9", say: "made a trade with" }
+  };
+  const fx = { seen: null, code: null, queue: [], timer: null };
+  function fxPlay() {
+    const job = fx.queue.shift();
+    if (!job) { fxEl.hidden = true; return; }
+    const F = FX[job.k];
+    fxEl.style.setProperty("--fx", F.fx); fxEl.style.setProperty("--fx2", F.fx2);
+    const art = F.icon ? svg(F.icon) : parcel("", false);
+    fxEl.innerHTML = `<div class="kfx-rays"></div><div class="kfx-panel"><div class="kfx-icon">${art}</div><div class="kfx-txt"><span class="kfx-call">${esc(F.call)}</span><span class="kfx-who"><b>${esc(job.by)}</b> ${esc(F.say)}${job.to ? ` <b>${esc(job.to)}</b>` : ""}</span></div></div>`;
+    fxEl.hidden = false;
+    clearTimeout(fx.timer);
+    fx.timer = setTimeout(fxPlay, 1500);
+  }
+  function fxObserve(v) {
+    const L = S.last;
+    if (fx.code !== S.code) { fx.code = S.code; fx.seen = null; }
+    if (!L) { if (fx.seen === null) fx.seen = 0; return; }
+    if (fx.seen === null || L.n < fx.seen) { fx.seen = L.n; return; }   // arriving mid-game: don't replay old moments
+    if (L.n === fx.seen) return;
+    fx.seen = L.n;
+    const k = L.k === "trade" ? (L.ok ? "trade" : null) : L.k;
+    if (!FX[k]) return;
+    const who = i => (i === v ? "you" : nameOf(i));
+    fx.queue.push({ k, by: L.p === v ? "You" : nameOf(L.p), to: L.q != null && k !== "supplier" && k !== "thief" ? who(L.q) : "" });
+    if (fxEl.hidden) fxPlay();
+  }
 
   function cardHTML(id, o = {}) {
     if (id == null || id < 0) return `<div class="nl-back">?</div>`;
     const t = N.typeOf(id), ing = N.ING[t], A = N.ACTIONS[t];
     const tag = o.tag || "div";
-    return `<${tag} class="nl-card ${ing ? "ing" : "act"} ${o.cls || ""}" style="--band:${ing ? BAND[t] : t === "fly" ? "#1d2420" : "#c8372d"}" ${o.attrs || ""}>${svg(t)}<b>${esc(ing ? ing.n : A.n)}</b><i>${esc(ing ? ing.ms : A.ms)}</i></${tag}>`;
+    return `<${tag} class="nl-card ${ing ? "ing" : "act"} ${o.cls || ""}" style="--band:${ing ? BAND[t] : t === "fly" ? "#8f86ad" : "#ff8a1f"};${o.style || ""}" ${o.attrs || ""}>${svg(t)}<b>${esc(ing ? ing.n : A.n)}</b><i>${esc(ing ? ing.ms : A.ms)}</i></${tag}>`;
   }
-  const packsHTML = (p, mine) => p.nl.length ? `<div class="nl-packs">${p.nl.map((e, k) => `<span class="nl-pack${e.fly != null ? " flied" : ""}" title="${e.fly != null ? "A fly is on this Nasi Lemak: it doesn't count" : mine || e.n >= 0 ? N.packsOf(e.n) + " pack" + (N.packsOf(e.n) > 1 ? "s" : "") : "Face down"}">${parcel(e.n >= 0 ? N.packsOf(e.n) : "", e.n >= 0)}${e.fly != null ? svg("fly", "fly") : ""}<span class="cnt">${k + 1}</span></span>`).join("")}</div>` : `<p class="nl-empty">No Nasi Lemak yet.</p>`;
+  const packsHTML = (p, mine, fresh = Infinity) => p.nl.length ? `<div class="nl-packs">${p.nl.map((e, k) => `<span class="nl-pack${e.fly != null ? " flied" : ""}${k >= fresh ? " fresh" : ""}" title="${e.fly != null ? "A fly is on this Nasi Lemak: it doesn't count" : mine || e.n >= 0 ? N.packsOf(e.n) + " pack" + (N.packsOf(e.n) > 1 ? "s" : "") : "Face down"}">${parcel(e.n >= 0 ? N.packsOf(e.n) : "", e.n >= 0)}${e.fly != null ? svg("fly", "fly") : ""}<span class="cnt">${k + 1}</span></span>`).join("")}</div>` : `<p class="nl-empty">No Nasi Lemak yet.</p>`;
 
   const ui = { sel: null, step: {}, trade: null, take: [], key: "" };
   function reset() { ui.sel = null; ui.step = {}; ui.trade = null; ui.take = []; ui.key = ""; }
@@ -286,6 +211,13 @@
     const sub = S.status !== "play" ? "" : `${S.drew ? `${S.moves} of ${N.MOVES} moves` : "Drawing"}<span class="nl-dots">${Array.from({ length: N.MOVES }, (_, i) => `<i class="${i < S.moves ? "used" : ""}"></i>`).join("")}</span>${S.clock ? ` · <b data-clock="turn">2:00</b> left` : ""}`;
     const last = S.log[S.log.length - 1] || "";
     const myPacks = P ? N.packs(P) : 0;
+    // what's new since the last screen: cards drop into your hand, freshly wrapped packs pop onto counters
+    const sameGame = ui.game === S.code + ":" + S.created;
+    const prevHand = sameGame ? ui.hand : null, prevPacks = sameGame ? ui.packs : null;
+    ui.game = S.code + ":" + S.created; ui.hand = P ? P.hand.slice() : []; ui.packs = S.players.map(p => p.nl.length);
+    const stamp = myTurn && !S.drew && ui.stampTurn !== S.turnN;
+    if (myTurn) ui.stampTurn = S.turnN;
+    let fresh = 0;
     $app.innerHTML = `<div class="nl">
       <header class="nl-top"><span class="mark">Nasi Lemak</span><span class="nl-code">TABLE ${esc(S.code)}</span><span class="grow"></span>${netDown ? `<span class="nl-muted">Reconnecting…</span>` : ""}${typeof sndBtn === "function" ? sndBtn() : ""}<button class="nl-btn small" data-a="home">Leave table</button></header>
       <p class="nl-ticker">${fmt(last)}</p>
@@ -300,8 +232,8 @@
             <div class="nl-sign"><b>${esc(i === v ? "You" : nameOf(i))}</b>${on ? `<span class="nl-open">Serving</span>` : ""}</div>
             <div class="nl-counter">
               <div class="nl-stats"><span><b>${O.hand.length}</b> cards</span><span><b>${O.nl.length}</b> wrapped</span>${S.status === "over" || i === v ? `<span><b>${N.packs(O)}</b> packs</span>` : ""}</div>
-              ${O.nl.length ? packsHTML(O, i === v) : `<p class="nl-empty">Nothing wrapped yet</p>`}</div></article>`; }).join("")}
-        <div class="nl-felt">
+              ${O.nl.length ? packsHTML(O, i === v, prevPacks ? prevPacks[i] : Infinity) : `<p class="nl-empty">Nothing wrapped yet</p>`}</div></article>`; }).join("")}
+        <div class="nl-felt${stamp ? " yourturn" : ""}"><span class="nl-leafmat" aria-hidden="true"></span>
           <div class="nl-piles"><div class="nl-pile"><div class="nl-back">${S.deck.length}</div>Draw pile</div>
             <div class="nl-pile">${topId != null ? cardHTML(topId, { cls: "small" }) : `<div class="nl-back" style="opacity:.35"></div>`}Discard</div>
             <div class="nl-pile"><div class="nl-back gold">${S.nlPile.length}</div>Nasi Lemak</div></div>
@@ -311,14 +243,16 @@
       ${P ? `<div class="nl-zone">
         <section class="nl-mine"><span class="nl-cap">Your stall</span>
           <p class="nl-score" style="margin:.4rem 0">${myPacks} <small>of ${N.GOAL} packs${P.nl.some(e => e.fly != null) ? " · a fly is spoiling one" : ""}</small></p>
-          ${packsHTML(P, true)}</section>
+          <div class="nl-meter" aria-hidden="true">${Array.from({ length: N.GOAL }, (_, k) => `<i class="${k < myPacks ? "on" : ""}"></i>`).join("")}</div>
+          ${packsHTML(P, true, prevPacks && prevPacks[v] != null ? prevPacks[v] : Infinity)}</section>
         <section class="nl-panel" aria-live="polite">${panelHTML(v)}</section>
         <div class="nl-handwrap"><span class="nl-cap">Your hand · ${P.hand.length} cards · only you can see it</span>
-          <div class="nl-hand">${handOrder(P.hand).map(id => { const g = ui.trade && ui.trade.p != null && ui.trade.give.includes(id), s = ui.sel === id;
-            return cardHTML(id, { tag: "button", cls: g ? "give" : s ? "sel" : "", attrs: `data-n="card" data-id="${id}"` }); }).join("") || `<p class="nl-empty">No cards in hand.</p>`}</div></div>
+          <div class="nl-hand">${handOrder(P.hand).map(id => { const g = ui.trade && ui.trade.p != null && ui.trade.give.includes(id), s = ui.sel === id, isNew = !prevHand || !prevHand.includes(id);
+            return cardHTML(id, { tag: "button", cls: (g ? "give" : s ? "sel" : "") + (isNew ? " fresh" : ""), attrs: `data-n="card" data-id="${id}"`, style: isNew ? `--d:${fresh++}` : "" }); }).join("") || `<p class="nl-empty">No cards in hand.</p>`}</div></div>
       </div>` : `<p class="nl-muted" style="margin-top:1rem">You're watching this game.</p>`}
       <section class="nl-log"><span class="nl-cap">At the stalls</span><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}</li>`).join("")}</ol></section>
       ${rulesHTML()}</div>`;
+    fxObserve(v);
   }
   const handOrder = h => h.slice().sort((a, b) => { const A = N.card(a), B = N.card(b); return (A.kind === B.kind ? 0 : A.kind === "ing" ? -1 : 1) || A.t.localeCompare(B.t) || a - b; });
 
@@ -330,7 +264,7 @@
   }
 
   function mastHTML() {
-    const fan = [0, 10, 20, 30, 40].map(id => cardHTML(id)).join("");
+    const fan = [0, 10, 20, 30, 40].map((id, k) => cardHTML(id, { style: `--d:${k};--r:${[-8, -3, 2, 6, 10][k]}deg` })).join("");
     return `<header class="nl-mast nl"><div><h1>Nasi<span>Lemak</span></h1>
       <p>Run a Nasi Lemak stall in a hungry village. Collect rice, egg, peanuts, sambal bilis and cucumber, wrap your packs, and sabotage your neighbours with flies, thieves and officers. First to 5 packs wins. 2 to 10 players, each on their own phone or computer.</p></div>
       <div class="nl-mastfan" aria-hidden="true">${fan}</div></header>`;
