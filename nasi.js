@@ -2,6 +2,7 @@
 // Follows Faculty of Fun's "Nasi Lemak The Game" rulebook: 50 ingredient cards (Rice, Egg, Peanuts, Sambal Bilis,
 // Cucumber, 10 each), 25 action cards and a separate pile of 15 Nasi Lemak cards (8 with one pack, 7 with two).
 // Deal 7. On your turn draw 2, then make up to 3 moves: make a Nasi Lemak, trade, or play an action card.
+// Twist: every round a Kopitiam event is flipped for the whole table (EVENTS) and bends one rule until the next round.
 // First to 5 packs on their own turn wins; a pack with a Fly on it doesn't count.
 (function (G) {
   "use strict";
@@ -43,8 +44,34 @@
   const isIng = id => CARDS[id].kind === "ing";
   const decksFor = n => n <= 5 ? 1 : 2;
   const packsOf = n => (NLC[n] ? NLC[n].packs : 0);
+  // a wrapped Nasi Lemak's packs: its card, plus a Lunch Rush bonus if it earned one
+  const entryPacks = e => packsOf(e.n) + (e.bonus || 0);
   // Packs that count: a Nasi Lemak with a Fly on it scores nothing until the fly is gone.
-  const packs = p => p.nl.reduce((t, e) => t + (e.fly == null ? packsOf(e.n) : 0), 0);
+  const packs = p => p.nl.reduce((t, e) => t + (e.fly == null ? entryPacks(e) : 0), 0);
+
+  // ---- Kopitiam events: each round (every player's turn once, from the first player) flips one for the whole table ----
+  const EVENTS = {
+    hujan:   { n: "Hujan Lebat", ms: "Heavy rain", d: "No trading this round." },
+    rush:    { n: "Lunch Rush", ms: "Waktu makan tengah hari", d: "The first Nasi Lemak wrapped this round is worth +1 pack." },
+    pasar:   { n: "Pasar Malam", ms: "Night market", d: "Trades don't use a move this round." },
+    kenduri: { n: "Kenduri", ms: "Feast", d: "Draw 3 cards instead of 2 this round." },
+    raya:    { n: "Hari Raya Open House", ms: "Rumah terbuka", d: "Everyone's friends: no Thief, Officer, Supplier, Fly or Fan this round." },
+    lewat:   { n: "Buka Lewat", ms: "Open late", d: "4 moves instead of 3 this round." }
+  };
+  const EVENT_KEYS = Object.keys(EVENTS);
+  const RAYA_BLOCKS = ["thief", "officer", "supplier", "fly", "fan"];
+  const evk = s => s.event && s.event.k;
+  const movesFor = s => MOVES + (evk(s) === "lewat" ? 1 : 0);
+  const drawFor = s => evk(s) === "kenduri" ? 3 : 2;
+  // the next event from a shuffled stack, never the one just played
+  function flipEvent(s) {
+    if (!s.events || !s.events.length) s.events = shuffle(EVENT_KEYS.slice());
+    if (s.events[s.events.length - 1] === evk(s) && s.events.length > 1) s.events.unshift(s.events.pop());
+    s.round = (s.round || 0) + 1;
+    s.event = { k: s.events.pop(), round: s.round };
+    const E = EVENTS[s.event.k];
+    log(s, `Round ${s.round} · Kopitiam event: ${E.n}. ${E.d}`);
+  }
 
   function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
@@ -65,6 +92,7 @@
       turn: Math.floor(Math.random() * n), drew: false, moves: 0, pending: null, winner: null, turnN: 1, last: null, seq: 0, log: [] };
     for (let k = 0; k < HAND; k++) for (const P of s.players) P.hand.push(s.deck.pop());
     log(s, `The stalls are open. @${s.turn} goes first.`);
+    s.first = s.turn; flipEvent(s);
     return s;
   }
 
@@ -89,6 +117,8 @@
   function advance(s) {
     if (!s.nlPile.length) return finishByPile(s);
     s.turn = (s.turn + 1) % s.players.length; s.drew = false; s.moves = 0; s.pending = null; s.turnN++;
+    // back round to the first player: a new round and a new event
+    if (s.turn === (s.first != null ? s.first : 0)) flipEvent(s);
     log(s, `@${s.turn}'s turn.`);
   }
   function checkWin(s, a) {
@@ -122,7 +152,7 @@
       if (!pd.give.every(id => T.hand.includes(id))) { s.pending = null; log(s, "The trade fell through."); return { state: s }; }
       pd.give.forEach(id => { take(T.hand, id); P.hand.push(id); });
       got.forEach(id => { take(P.hand, id); T.hand.push(id); });
-      s.pending = null; s.moves++; T.moved = (T.moved || 0) + 1;
+      s.pending = null; if (evk(s) !== "pasar") s.moves++; T.moved = (T.moved || 0) + 1;
       stamp(s, { k: "trade", p: pd.from, q: a, ok: true, gave: pd.give.length, got: got.length });
       log(s, `@${pd.from} and @${a} made a trade: ${plural(pd.give.length, "card")} for ${plural(got.length, "card")}.`);
       return { state: s };
@@ -146,14 +176,14 @@
 
     if (t === "draw") {
       if (s.drew) return err("You've already drawn this turn.");
-      const n = drawN(s, a, 2); s.drew = true;
+      const n = drawN(s, a, drawFor(s)); s.drew = true;
       stamp(s, { k: "draw", p: a, count: n });
       log(s, `@${a} drew ${plural(n, "card")}.`);
       return { state: s };
     }
-    if (!s.drew) return err("Draw your 2 cards first.");
+    if (!s.drew) return err(`Draw your ${drawFor(s)} cards first.`);
     if (t === "end") { advance(s); return { state: s }; }
-    if (s.moves >= MOVES) return err(`You've used your ${MOVES} moves. End your turn.`);
+    if (s.moves >= movesFor(s)) return err(`You've used your ${movesFor(s)} moves. End your turn.`);
 
     if (t === "make") {
       if (!s.nlPile.length) return err("The Nasi Lemak pile is empty.");
@@ -163,15 +193,17 @@
       if (ids.length !== need || new Set(ids).size !== need || !ids.every(id => P.hand.includes(id) && isIng(id))) return err(`Pick ${need} ingredients from your hand.`);
       if (new Set(ids.map(typeOf)).size !== need) return err(need === 5 ? "You need one of each: Rice, Egg, Peanuts, Sambal Bilis and Cucumber." : "Mak Cik needs 3 different ingredients.");
       [...ids, ...(mk != null ? [mk] : [])].forEach(id => { take(P.hand, id); toDiscard(s, id, a); });
-      const n = s.nlPile.pop();
-      P.nl.push({ n, fly: null }); P.made = (P.made || 0) + 1; P.moved = (P.moved || 0) + 1; s.moves++;
-      stamp(s, { k: "make", p: a, makcik: mk != null });
-      log(s, `@${a} wrapped a Nasi Lemak${mk != null ? " with Mak Cik's help" : ""}!`);
+      const n = s.nlPile.pop(), rush = evk(s) === "rush" && s.event.used == null;
+      P.nl.push(Object.assign({ n, fly: null }, rush ? { bonus: 1 } : {})); P.made = (P.made || 0) + 1; P.moved = (P.moved || 0) + 1; s.moves++;
+      if (rush) s.event.used = a;
+      stamp(s, { k: "make", p: a, makcik: mk != null, rush });
+      log(s, `@${a} wrapped a Nasi Lemak${mk != null ? " with Mak Cik's help" : ""}!${rush ? " Lunch Rush: +1 pack." : ""}`);
       checkWin(s, a);
       return { state: s };
     }
 
     if (t === "trade") {
+      if (evk(s) === "hujan") return err("Hujan Lebat: no trading this round.");
       const q = act.p, Q = s.players[q];
       if (q === a || !Q) return err("Choose another player to trade with.");
       const give = Array.isArray(act.give) ? act.give : [];
@@ -190,6 +222,7 @@
       const id = act.card;
       if (!P.hand.includes(id) || isIng(id)) return err("That isn't an action card in your hand.");
       const k = typeOf(id), others = s.players.map((x, i) => i).filter(i => i !== a);
+      if (evk(s) === "raya" && RAYA_BLOCKS.includes(k)) return err(`Hari Raya Open House: no ${cardName(k)} this round.`);
       const Q = s.players[act.p];
       const needOther = () => (act.p === a || !Q) ? "Choose another player." : null;
       let discard = true, info = {};
@@ -316,5 +349,5 @@
   }
 
   G.Nasi = { STYLES, MAX_PLAYERS, BASE, NL_BASE, HAND, MOVES, GOAL, TURN_MS, RESPOND_MS, ING, ING_KEYS, ACTIONS, CARDS, NLC, XP, card, typeOf, cardName, isIng, tradable,
-    packs, packsOf, decksFor, newGame, apply, syncClock, expire, waitingOn, awards, shuffle };
+    packs, packsOf, entryPacks, EVENTS, RAYA_BLOCKS, movesFor, drawFor, decksFor, newGame, apply, syncClock, expire, waitingOn, awards, shuffle };
 })(typeof window !== "undefined" ? window : globalThis);

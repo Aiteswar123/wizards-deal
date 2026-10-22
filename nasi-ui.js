@@ -160,9 +160,19 @@
     const el = o.face === "boboiboy" ? ELEMENT[t] || "wind" : null;
     return `<${tag} class="nl-card ${ing ? "ing" : "act"} f-${o.face || "classic"}${el ? " el-" + el : ""} ${o.cls || ""}" style="--band:${ing ? BAND[t] : t === "fly" ? "#8f86ad" : "#ff8a1f"};${o.style || ""}" ${o.attrs || ""}>${el ? badge(el) : ""}${svg(t)}<b>${esc(ing ? ing.n : A.n)}</b><i>${esc(ing ? ing.ms : A.ms)}</i></${tag}>`;
   }
-  const packsHTML = (p, mine, fresh = Infinity) => p.nl.length ? `<div class="nl-packs">${p.nl.map((e, k) => `<span class="nl-pack${e.fly != null ? " flied" : ""}${k >= fresh ? " fresh" : ""}" title="${e.fly != null ? "A fly is on this Nasi Lemak: it doesn't count" : mine || e.n >= 0 ? N.packsOf(e.n) + " pack" + (N.packsOf(e.n) > 1 ? "s" : "") : "Face down"}">${parcel(e.n >= 0 ? N.packsOf(e.n) : "", e.n >= 0)}${e.fly != null ? svg("fly", "fly") : ""}<span class="cnt">${k + 1}</span></span>`).join("")}</div>` : `<p class="nl-empty">No Nasi Lemak yet.</p>`;
+  const packsHTML = (p, mine, fresh = Infinity) => p.nl.length ? `<div class="nl-packs">${p.nl.map((e, k) => `<span class="nl-pack${e.fly != null ? " flied" : ""}${k >= fresh ? " fresh" : ""}" title="${e.fly != null ? "A fly is on this Nasi Lemak: it doesn't count" : mine || e.n >= 0 ? N.entryPacks(e) + " pack" + (N.entryPacks(e) > 1 ? "s" : "") : "Face down"}${e.bonus ? " (Lunch Rush +1)" : ""}">${parcel(e.n >= 0 ? N.entryPacks(e) : "", e.n >= 0)}${e.fly != null ? svg("fly", "fly") : ""}${e.bonus ? `<span class="nl-rush" aria-hidden="true">+1</span>` : ""}<span class="cnt">${k + 1}</span></span>`).join("")}</div>` : `<p class="nl-empty">No Nasi Lemak yet.</p>`;
 
   const ui = { sel: null, step: {}, trade: null, take: [], key: "" };
+  const ev = () => S.event && S.event.k;
+  // the round's Kopitiam event, chalked on the board; it flips over when a new round starts
+  function eventHTML() {
+    if (!S.event || S.status !== "play") return "";
+    const E = N.EVENTS[S.event.k], flip = ui.evRound != null && ui.evRound !== S.event.round;
+    ui.evRound = S.event.round;
+    const used = S.event.k === "rush" && S.event.used != null ? ` <em>Claimed by ${esc(nm(S.event.used, mySeat()))}.</em>` : "";
+    return `<aside class="nl-event ev-${S.event.k}${flip ? " flip" : ""}" aria-live="polite"><span class="nl-evtag">Round ${S.event.round} · Kopitiam event</span>
+      <b>${esc(E.n)}</b><i>${esc(E.ms)}</i><p>${esc(E.d)}${used}</p></aside>`;
+  }
   function reset() { ui.sel = null; ui.step = {}; ui.trade = null; ui.take = []; ui.key = ""; }
   const opt = (a, data, label, sub, dis) => `<button class="nl-opt" data-n="${a}" ${Object.entries(data).map(([k, x]) => `data-${k}="${esc(x)}"`).join(" ")}${dis ? " disabled" : ""}>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
   const others = v => S.players.map((_, i) => i).filter(i => i !== v);
@@ -194,9 +204,10 @@
         <div class="nl-hand" style="padding-top:.2rem">${hand.map(id => cardHTML(id, { tag: "button", face: faceOf(pd.to), cls: ui.take.includes(id) ? "sel" : "", attrs: `data-n="pick" data-id="${id}"` })).join("")}</div>
         <div class="nl-row"><button class="nl-btn go" data-n="take" ${ui.take.length === need ? "" : "disabled"}>Take ${need} card${need === 1 ? "" : "s"}</button></div>`;
     }
-    if (!S.drew) return `<h3>Your turn</h3><p class="nl-muted">Start by drawing 2 cards. Drawing isn't one of your 3 moves.</p><div class="nl-row"><button class="nl-btn go" data-n="draw">Draw 2 cards</button></div>`;
-    const left = N.MOVES - S.moves, end = `<button class="nl-btn" data-n="end">End turn</button>`;
-    if (left <= 0) return `<h3>All 3 moves used</h3><p class="nl-muted">End your turn when you're ready.</p><div class="nl-row">${end}</div>`;
+    const dn = N.drawFor(S), mv = N.movesFor(S);
+    if (!S.drew) return `<h3>Your turn</h3><p class="nl-muted">Start by drawing ${dn} cards. Drawing isn't one of your ${mv} moves.</p><div class="nl-row"><button class="nl-btn go" data-n="draw">Draw ${dn} cards</button></div>`;
+    const left = mv - S.moves, end = `<button class="nl-btn" data-n="end">End turn</button>`;
+    if (left <= 0) return `<h3>All ${mv} moves used</h3><p class="nl-muted">End your turn when you're ready.</p><div class="nl-row">${end}</div>`;
     if (ui.trade) return tradeHTML(v) ;
     if (ui.sel != null) return selectedHTML(v) + `<div class="nl-row"><button class="nl-btn small" data-n="unsel">Cancel</button>${end}</div>`;
     const by = ingsOf(P), types = Object.keys(by).length, mk = P.hand.find(id => N.typeOf(id) === "makcik");
@@ -205,7 +216,7 @@
       <div class="nl-opts">
         ${opt("make", {}, "Make a Nasi Lemak", types === 5 ? "Uses one of each ingredient" : `Still missing: ${missing.join(", ")}`, types < 5 || !S.nlPile.length)}
         ${mk != null ? opt("make", { mk }, "Make one with Mak Cik", types >= 3 ? "Uses Mak Cik plus 3 different ingredients" : "You need 3 different ingredients", types < 3 || !S.nlPile.length) : ""}
-        ${opt("tradeopen", {}, "Trade with a player", "Offer ingredients, Fly Swatters or Fans")}
+        ${opt("tradeopen", {}, "Trade with a player", ev() === "hujan" ? "Hujan Lebat: no trading this round" : ev() === "pasar" ? "Pasar Malam: trades are free this round" : "Offer ingredients, Fly Swatters or Fans", ev() === "hujan")}
       </div>
       <p class="nl-muted" style="font-size:.88rem">Or tap an action card in your hand to play it.</p>
       <div class="nl-row">${end}</div>`;
@@ -216,6 +227,7 @@
     const head = `<h3>${esc(A.n)}</h3><p class="nl-muted" style="font-size:.9rem">${esc(A.d)}</p>`;
     const none = m => `<p class="nl-muted">${m}</p>`;
     let body = "";
+    if (ev() === "raya" && N.RAYA_BLOCKS.includes(t)) return head + none("Hari Raya Open House: everyone's friends this round. Keep this card for the next one.");
     switch (t) {
       case "makcik": body = none("Use the “Make one with Mak Cik” button once you have 3 different ingredients."); break;
       case "supplier": body = N.ING_KEYS.map(k => opt("play", { ing: k }, `Call for ${esc(N.ING[k].n)}`, `You hold ${countIn(P, k)}`)).join(""); break;
@@ -252,7 +264,7 @@
       <p class="nl-muted" style="font-size:.88rem;margin-bottom:-.2rem"><b>You ask for:</b></p>
       <div class="nl-steps">${types.map(t => `<span>${esc(N.cardName(t))}</span><button class="nl-btn small" data-n="want" data-t="${t}" data-d="-1" aria-label="Fewer ${esc(N.cardName(t))}" ${tr.want[t] ? "" : "disabled"}>−</button><b style="text-align:center;min-width:1.2rem">${tr.want[t] || 0}</b><button class="nl-btn small" data-n="want" data-t="${t}" data-d="1" aria-label="More ${esc(N.cardName(t))}">+</button>`).join("")}</div>
       <div class="nl-row"><button class="nl-btn go" data-n="tradesend" ${giveN || wantN ? "" : "disabled"}>Send offer</button><button class="nl-btn small" data-n="tradeclose">Cancel</button></div>
-      <p class="nl-muted" style="font-size:.82rem">A trade only uses a move if they accept.</p>`;
+      <p class="nl-muted" style="font-size:.82rem">${ev() === "pasar" ? "Pasar Malam: this trade won't use a move." : "A trade only uses a move if they accept."}</p>`;
   }
 
   function render() {
@@ -267,8 +279,8 @@
     const topId = S.discard[S.discard.length - 1];
     const say = S.status === "over" ? `${esc(S.winner === v ? "You win!" : nameOf(S.winner) + " wins!")}`
       : pd && pd.k === "trade" ? `${esc(nm(pd.from, v))} → ${esc(nm(pd.to, v))}: trade offer`
-      : myTurn ? (S.drew ? "Your turn" : "Your turn: draw 2") : `${esc(nameOf(S.turn))}'s turn`;
-    const sub = S.status !== "play" ? "" : `${S.drew ? `${S.moves} of ${N.MOVES} moves` : "Drawing"}<span class="nl-dots">${Array.from({ length: N.MOVES }, (_, i) => `<i class="${i < S.moves ? "used" : ""}"></i>`).join("")}</span>${S.clock ? ` · <b data-clock="turn">${N.TURN_MS / 60000}:00</b> left` : ""}`;
+      : myTurn ? (S.drew ? "Your turn" : `Your turn: draw ${N.drawFor(S)}`) : `${esc(nameOf(S.turn))}'s turn`;
+    const sub = S.status !== "play" ? "" : `${S.drew ? `${S.moves} of ${N.movesFor(S)} moves` : "Drawing"}<span class="nl-dots">${Array.from({ length: N.movesFor(S) }, (_, i) => `<i class="${i < S.moves ? "used" : ""}"></i>`).join("")}</span>${S.clock ? ` · <b data-clock="turn">${N.TURN_MS / 60000}:00</b> left` : ""}`;
     const last = S.log[S.log.length - 1] || "";
     const myPacks = P ? N.packs(P) : 0;
     // what's new since the last screen: cards drop into your hand, freshly wrapped packs pop onto counters
@@ -281,6 +293,7 @@
     $app.innerHTML = `<div class="nl">
       <header class="nl-top"><span class="mark">Nasi Lemak</span><span class="nl-code">TABLE ${esc(S.code)}</span><span class="grow"></span>${netDown ? `<span class="nl-muted">Reconnecting…</span>` : ""}<button class="nl-btn small" data-nd-open="1">Card design</button>${typeof sndBtn === "function" ? sndBtn() : ""}<button class="nl-btn small" data-a="home">Leave table</button></header>
       <p class="nl-ticker">${fmt(last)}</p>
+      ${eventHTML()}
       ${S.status === "over" ? winHTML(v) : ""}
       <section class="nl-market${n >= 7 ? " many" : ""}" aria-label="The night market">
         ${S.players.map((O, i) => {
@@ -339,7 +352,9 @@
         <li>Then make up to 3 moves, in any order: <b>make a Nasi Lemak</b>, <b>trade</b>, or <b>play an action card</b>.</li>
         <li><b>Make a Nasi Lemak</b> with one each of Rice, Egg, Peanuts, Sambal Bilis and Cucumber. You take the top card of the Nasi Lemak pile, face down: it holds 1 or 2 packs.</li>
         <li><b>Trade</b> only on your turn, with anyone, on any terms: 2 for 1 is fine. Ingredients, Fly Swatters and Fans can be traded. It counts as a move only if they accept.</li>
-        <li><b>Win</b> with 5 packs on your turn. A Nasi Lemak with a Fly on it doesn't count. If the Nasi Lemak pile runs out, the most packs wins.</li></ul></div>
+        <li><b>Win</b> with 5 packs on your turn. A Nasi Lemak with a Fly on it doesn't count. If the Nasi Lemak pile runs out, the most packs wins.</li></ul>
+        <h3>Kopitiam events</h3><ul><li>Each round, once everyone has had a turn, a new event is flipped on the board. It changes one rule for the whole table until the next round.</li>
+        ${Object.values(N.EVENTS).map(E => `<li><b>${esc(E.n)}</b>: ${esc(E.d)}</li>`).join("")}</ul></div>
       <div><h3>Action cards</h3><ul>${acts}</ul></div>
       <div><h3>The deck</h3><ul><li>50 ingredients: 10 each of Rice, Egg, Peanuts, Sambal Bilis and Cucumber.</li><li>25 action cards.</li><li>15 Nasi Lemak cards: 8 with one pack, 7 with two.</li><li>Each player starts with 7 cards.</li><li>With 6 to 10 players, a second full deck and a second Nasi Lemak pile are shuffled in.</li></ul>
         <p class="nl-muted" style="font-size:.85rem">Based on Nasi Lemak The Game by Faculty of Fun. Fan-made and unofficial.</p></div>
@@ -358,7 +373,7 @@
           const k = ui.trade.give.indexOf(id); if (k >= 0) ui.trade.give.splice(k, 1); else ui.trade.give.push(id);
           return render();
         }
-        if (S.turn !== v || !S.drew || S.pending) return flash(S.turn !== v ? "Wait for your turn to play cards." : !S.drew ? "Draw your 2 cards first." : "Finish the current move first.");
+        if (S.turn !== v || !S.drew || S.pending) return flash(S.turn !== v ? "Wait for your turn to play cards." : !S.drew ? `Draw your ${N.drawFor(S)} cards first.` : "Finish the current move first.");
         if (N.isIng(id)) return flash("Ingredients are used when you make a Nasi Lemak or trade.");
         ui.sel = ui.sel === id ? null : id; ui.step = {}; return render();
       }
