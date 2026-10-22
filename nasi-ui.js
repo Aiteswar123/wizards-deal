@@ -173,7 +173,7 @@
     return `<aside class="nl-event ev-${S.event.k}${flip ? " flip" : ""}" aria-live="polite"><span class="nl-evtag">Round ${S.event.round} · Kopitiam event</span>
       <b>${esc(E.n)}</b><i>${esc(E.ms)}</i><p>${esc(E.d)}${used}</p></aside>`;
   }
-  function reset() { ui.sel = null; ui.step = {}; ui.trade = null; ui.take = []; ui.key = ""; }
+  function reset() { ui.sel = null; ui.step = {}; ui.trade = null; ui.take = []; ui.dump = null; ui.key = ""; }
   const opt = (a, data, label, sub, dis) => `<button class="nl-opt" data-n="${a}" ${Object.entries(data).map(([k, x]) => `data-${k}="${esc(x)}"`).join(" ")}${dis ? " disabled" : ""}>${label}${sub ? `<small>${sub}</small>` : ""}</button>`;
   const others = v => S.players.map((_, i) => i).filter(i => i !== v);
   const nm = (i, v) => i === v ? "you" : nameOf(i);
@@ -205,8 +205,11 @@
         <div class="nl-row"><button class="nl-btn go" data-n="take" ${ui.take.length === need ? "" : "disabled"}>Take ${need} card${need === 1 ? "" : "s"}</button></div>`;
     }
     const dn = N.drawFor(S), mv = N.movesFor(S);
-    if (!S.drew) return `<h3>Your turn</h3><p class="nl-muted">Start by drawing ${dn} cards. Drawing isn't one of your ${mv} moves.</p><div class="nl-row"><button class="nl-btn go" data-n="draw">Draw ${dn} cards</button></div>`;
-    const left = mv - S.moves, end = `<button class="nl-btn" data-n="end">End turn</button>`;
+    if (!S.drew) return `<h3>Your turn</h3><p class="nl-muted">Start by drawing ${dn} cards${!P.hand.length ? ", one extra because your hand is empty" : ""}. Drawing isn't one of your ${mv} moves.</p><div class="nl-row"><button class="nl-btn go" data-n="draw">Draw ${dn} cards</button></div>`;
+    const extra = P.hand.length - N.HAND;
+    if (ui.dump && extra > 0) return `<h3>Too many cards</h3><p class="nl-muted">You can keep ${N.HAND}. Tap ${extra} card${extra === 1 ? "" : "s"} in your hand to discard. ${ui.dump.length} of ${extra} picked.</p>
+      <div class="nl-row"><button class="nl-btn go" data-n="dumpgo" ${ui.dump.length === extra ? "" : "disabled"}>Discard and end turn</button><button class="nl-btn small" data-n="dumpclose">Back</button></div>`;
+    const left = mv - S.moves, end = `<button class="nl-btn" data-n="end">End turn</button>${extra > 0 ? `<span class="nl-muted" style="font-size:.85rem">${extra} over the ${N.HAND}-card limit: you'll discard ${extra === 1 ? "one" : extra} when you end.</span>` : ""}`;
     if (left <= 0) return `<h3>All ${mv} moves used</h3><p class="nl-muted">End your turn when you're ready.</p><div class="nl-row">${end}</div>`;
     if (ui.trade) return tradeHTML(v) ;
     if (ui.sel != null) return selectedHTML(v) + `<div class="nl-row"><button class="nl-btn small" data-n="unsel">Cancel</button>${end}</div>`;
@@ -273,7 +276,8 @@
     const waiting = N.waitingOn(S);
     document.title = waiting.includes(v) && v >= 0 ? "Your move · Nasi Lemak" : "Nasi Lemak";
     const key = `${S.code}:${S.turnN}:${S.status}:${pd ? pd.k + pd.from + pd.to : ""}`;
-    if (key !== ui.key) { ui.key = key; ui.sel = null; ui.step = {}; ui.trade = null; ui.take = []; }
+    if (key !== ui.key) { ui.key = key; ui.sel = null; ui.step = {}; ui.trade = null; ui.take = []; ui.dump = null; }
+    if (ui.dump && P) ui.dump = ui.dump.filter(id => P.hand.includes(id));
     if (P && ui.sel != null && !P.hand.includes(ui.sel)) { ui.sel = null; ui.step = {}; }
     if (ui.trade && P) ui.trade.give = ui.trade.give.filter(id => P.hand.includes(id));
     const topId = S.discard[S.discard.length - 1];
@@ -320,8 +324,8 @@
           <div class="nl-meter" aria-hidden="true">${Array.from({ length: N.GOAL }, (_, k) => `<i class="${k < myPacks ? "on" : ""}"></i>`).join("")}</div>
           ${packsHTML(P, true, prevPacks && prevPacks[v] != null ? prevPacks[v] : Infinity)}</section>
         <section class="nl-panel" aria-live="polite">${panelHTML(v)}</section>
-        <div class="nl-handwrap"><span class="nl-cap">Your hand · ${P.hand.length} cards · only you can see it</span>
-          <div class="nl-hand">${handOrder(P.hand).map(id => { const g = ui.trade && ui.trade.p != null && ui.trade.give.includes(id), s = ui.sel === id, isNew = !prevHand || !prevHand.includes(id);
+        <div class="nl-handwrap"><span class="nl-cap">Your hand · ${P.hand.length} cards${P.hand.length > N.HAND ? ` · keep ${N.HAND} at the end of your turn` : ""} · only you can see it</span>
+          <div class="nl-hand">${handOrder(P.hand).map(id => { const g = (ui.trade && ui.trade.p != null && ui.trade.give.includes(id)) || (ui.dump && ui.dump.includes(id)), s = ui.sel === id, isNew = !prevHand || !prevHand.includes(id);
             return cardHTML(id, { tag: "button", cls: (g ? "give" : s ? "sel" : "") + (isNew ? " fresh" : ""), attrs: `data-n="card" data-id="${id}"`, face: myFace, style: isNew ? `--d:${fresh++}` : "" }); }).join("") || `<p class="nl-empty">No cards in hand.</p>`}</div></div>
       </div>` : `<p class="nl-muted" style="margin-top:1rem">You're watching this game.</p>`}
       <section class="nl-log"><span class="nl-cap">At the stalls</span><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}</li>`).join("")}</ol></section>
@@ -352,6 +356,8 @@
         <li>Then make up to 3 moves, in any order: <b>make a Nasi Lemak</b>, <b>trade</b>, or <b>play an action card</b>.</li>
         <li><b>Make a Nasi Lemak</b> with one each of Rice, Egg, Peanuts, Sambal Bilis and Cucumber. You take the top card of the Nasi Lemak pile, face down: it holds 1 or 2 packs.</li>
         <li><b>Trade</b> only on your turn, with anyone, on any terms: 2 for 1 is fine. Ingredients, Fly Swatters and Fans can be traded. It counts as a move only if they accept.</li>
+        <li><b>Empty hand</b>: if you start your turn with no cards, draw 3 instead of 2.</li>
+        <li><b>Hand limit</b>: you can hold ${N.HAND} cards. When you end your turn with more, pick the extras to discard. If your time runs out, random ones go.</li>
         <li><b>Win</b> with 5 packs on your turn. A Nasi Lemak with a Fly on it doesn't count. If the Nasi Lemak pile runs out, the most packs wins.</li></ul>
         <h3>Kopitiam events</h3><ul><li>Each round, once everyone has had a turn, a new event is flipped on the board. It changes one rule for the whole table until the next round.</li>
         ${Object.values(N.EVENTS).map(E => `<li><b>${esc(E.n)}</b>: ${esc(E.d)}</li>`).join("")}</ul></div>
@@ -368,6 +374,11 @@
     switch (d.n) {
       case "card": {
         const id = +d.id;
+        if (ui.dump) {
+          const k = ui.dump.indexOf(id), extra = P.hand.length - N.HAND;
+          if (k >= 0) ui.dump.splice(k, 1); else if (ui.dump.length < extra) ui.dump.push(id); else return flash(`You only need to discard ${extra}.`);
+          return render();
+        }
         if (ui.trade && ui.trade.p != null) {
           if (!N.tradable(N.typeOf(id))) return flash("Only ingredients, Fly Swatters and Fans can be traded.");
           const k = ui.trade.give.indexOf(id); if (k >= 0) ui.trade.give.splice(k, 1); else ui.trade.give.push(id);
@@ -380,7 +391,9 @@
       case "unsel": ui.sel = null; ui.step = {}; return render();
       case "step": ui.step.slot = num("slot"); return render();
       case "draw": return act({ t: "draw" });
-      case "end": return act({ t: "end" });
+      case "end": if (P && P.hand.length > N.HAND) { ui.dump = []; ui.sel = null; ui.trade = null; return render(); } return act({ t: "end" });
+      case "dumpgo": return act({ t: "end", discard: ui.dump });
+      case "dumpclose": ui.dump = null; return render();
       case "make": {
         const by = ingsOf(P), mk = num("mk");
         const pickTypes = mk != null ? Object.keys(by).sort((x, y) => by[y].length - by[x].length).slice(0, 3) : N.ING_KEYS;

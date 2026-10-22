@@ -62,7 +62,9 @@
   const RAYA_BLOCKS = ["thief", "officer", "supplier", "fly", "fan"];
   const evk = s => s.event && s.event.k;
   const movesFor = s => MOVES + (evk(s) === "lewat" ? 1 : 0);
-  const drawFor = s => evk(s) === "kenduri" ? 3 : 2;
+  // an empty hand at the start of your turn draws one extra card
+  const emptyHanded = s => { const P = s.players[s.turn]; return !!P && !s.drew && !P.hand.length; };
+  const drawFor = s => (evk(s) === "kenduri" ? 3 : 2) + (emptyHanded(s) ? 1 : 0);
   // the next event from a shuffled stack, never the one just played
   function flipEvent(s) {
     if (!s.events || !s.events.length) s.events = shuffle(EVENT_KEYS.slice());
@@ -176,13 +178,23 @@
 
     if (t === "draw") {
       if (s.drew) return err("You've already drawn this turn.");
-      const n = drawN(s, a, drawFor(s)); s.drew = true;
+      const empty = emptyHanded(s), n = drawN(s, a, drawFor(s)); s.drew = true;
       stamp(s, { k: "draw", p: a, count: n });
-      log(s, `@${a} drew ${plural(n, "card")}.`);
+      log(s, `@${a} drew ${plural(n, "card")}${empty ? " (empty hand: one extra)" : ""}.`);
       return { state: s };
     }
     if (!s.drew) return err(`Draw your ${drawFor(s)} cards first.`);
-    if (t === "end") { advance(s); return { state: s }; }
+    if (t === "end") {
+      // hand limit: anything over HAND cards goes on the discard pile before the turn passes
+      const extra = P.hand.length - HAND, dump = Array.isArray(act.discard) ? act.discard : [];
+      if (extra > 0) {
+        if (dump.length !== extra || new Set(dump).size !== extra || !dump.every(id => P.hand.includes(id))) return err(`You can keep ${HAND} cards. Pick ${plural(extra, "card")} to discard.`);
+        dump.forEach(id => { take(P.hand, id); toDiscard(s, id, a); });
+        stamp(s, { k: "discard", p: a, count: extra });
+        log(s, `@${a} discarded ${plural(extra, "card")} to keep ${HAND}.`);
+      }
+      advance(s); return { state: s };
+    }
     if (s.moves >= movesFor(s)) return err(`You've used your ${movesFor(s)} moves. End your turn.`);
 
     if (t === "make") {
@@ -326,7 +338,9 @@
       if (s.pending && s.pending.k === "trade") s.pending = null;
       if (s.pending && s.pending.k === "officer") { const T = s.players[s.pending.to]; run(a, { t: "take", cards: shuffle(T.hand.slice()).slice(0, Math.min(2, T.hand.length)) }); }
       if (!s.drew) run(a, { t: "draw" });
-      if (s.status === "play" && s.turn === a) { if (!run(a, { t: "end" })) { s.pending = null; advance(s); } }
+      // out of time with too many cards: random ones go to the discard pile
+      const P = s.players[a], dump = shuffle(P.hand.slice()).slice(0, Math.max(0, P.hand.length - HAND));
+      if (s.status === "play" && s.turn === a) { if (!run(a, { t: "end", discard: dump })) { s.pending = null; advance(s); } }
     }
     return changed ? syncClock(s0, s, now) : null;
   }
