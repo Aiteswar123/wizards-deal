@@ -245,12 +245,12 @@ async function handle(req) {
         if (g.host !== pid || g.status !== "lobby") fail("Only the table owner can start the game.");
         if (g.players.length < 2) fail("You need at least 2 players.");
         next = Object.assign({ code, host: g.host, created: g.created, tokens: g.tokens }, ENG(g).newGame(g.players), g.kind ? { kind: g.kind } : {});
-        next.players.forEach((p, i) => { const o = g.players[i]; if (o.photoV) p.photoV = o.photoV; if (o.card != null) p.card = o.card; if (o.face) p.face = o.face; if (o.back) p.back = o.back; });
+        next.players.forEach((p, i) => { const o = g.players[i]; if (o.photoV) p.photoV = o.photoV; if (o.card != null) p.card = o.card; if (o.face) p.face = o.face; if (o.back) p.back = o.back; if (o.char) p.char = o.char; });
         await redis(["ZREM", "wd:lobbies", code]);
         break;
       case "again":
         if (g.host !== pid || g.status !== "over") fail("Only the table owner can start a rematch.");
-        next = { status: "lobby", kind: g.kind, recorded: false, code, host: g.host, created: Date.now(), tokens: g.tokens, players: g.players.map(p => Object.assign({ uid: p.uid, nick: p.nick }, p.photoV ? { photoV: p.photoV } : {}, p.card != null ? { card: p.card } : {}, p.face ? { face: p.face } : {}, p.back ? { back: p.back } : {})) };
+        next = { status: "lobby", kind: g.kind, recorded: false, code, host: g.host, created: Date.now(), tokens: g.tokens, players: g.players.map(p => Object.assign({ uid: p.uid, nick: p.nick }, p.photoV ? { photoV: p.photoV } : {}, p.card != null ? { card: p.card } : {}, p.face ? { face: p.face } : {}, p.back ? { back: p.back } : {}, p.char ? { char: p.char } : {})) };
         await redis(["ZADD", "wd:lobbies", String(next.created), code]);
         break;
       case "photo": {
@@ -275,7 +275,9 @@ async function handle(req) {
         if (seat < 0) fail("You're not at this table.");
         const ST = ENG(g).STYLES || U.STYLES;
         if (!ST.faces.includes(q.face) || !ST.backs.includes(q.back)) fail("Unknown card design.");
+        if (q.char && !(ST.chars || []).includes(q.char)) fail("Unknown character.");
         g.players[seat].face = q.face; g.players[seat].back = q.back;
+        if (q.char) g.players[seat].char = q.char; else delete g.players[seat].char;
         break;
       }
       case "vote": {

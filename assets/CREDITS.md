@@ -26,4 +26,4 @@ The card pictures (`card-*.png`, `card-*.jpg`) and the UNO background (`sea-1.jp
 
 ## Nasi Lemak pictures
 
-`nasi-kiosk.jpg` (Tok Aba at Tok Aba's Kokotiam) and `nasi-crew.jpg` (BoBoiBoy, Ochobot, Gopal, Fang, Yaya and Ying, cropped and upscaled from a BoBoiBoy Galaxy poster) are artwork from the BoBoiBoy animated series (Animonsta Studios / Monsta), supplied by the site owner; the kiosk still is cropped clear of a fan watermark. They are not covered by an open licence.
+The pictures in `bb/` are artwork from the BoBoiBoy animated series (Animonsta Studios / Monsta), supplied by the site owner: `crew.webp` (BoBoiBoy, Yaya, Gopal, Ochobot, Fang and Ying floating in space, from BoBoiBoy Galaxy), and thirteen character renders cut out of their plain backgrounds for the stalls: `halilintar`, `ais`, `blaze`, `solar`, `yaya`, `ying`, `gopal`, `fang`, `ochobot`, `tokaba`, `papazola`, `adudu` and `probe` (`.webp`). They are not covered by an open licence.

@@ -34,8 +34,6 @@
     lori: `<rect x="6" y="20" width="32" height="22" rx="2" fill="#3d7bff" stroke="#1b3466" stroke-width="2"/><path d="M38 26h10l8 9v7H38z" fill="#ffd23f" stroke="#1b3466" stroke-width="2" stroke-linejoin="round"/><path d="M42 29h5l4 5h-9z" fill="#cfe6f5"/><circle cx="16" cy="45" r="5" fill="#1d2420"/><circle cx="46" cy="45" r="5" fill="#1d2420"/><path d="M22 12c2 3 0 5 2 8M30 10c2 3 0 6 2 9" stroke="#8a8a8a" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M44 18l3-6 2 4 3-5" stroke="#c8372d" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
     fan: `<path d="M32 46L14 20a26 26 0 0 1 36 0z" fill="#e3a72f"/><path d="M32 46L20 18M32 46V16M32 46l12-28" stroke="#a8742f" stroke-width="1.6"/><path d="M14 20a26 26 0 0 1 36 0" fill="none" stroke="#c8372d" stroke-width="3"/><path d="M32 46v10" stroke="#7a5220" stroke-width="4" stroke-linecap="round"/>`
   };
-  // each stall's awning colour: sambal red, pandan green, sunshine orange, bunga telang blue, ube purple
-  const AWNING = ["#ff4b3e", "#34c25a", "#ff8a1f", "#3d7bff", "#a35bff"];
   const BAND = { rice: "#bfe7ff", egg: "#ffd23f", peanut: "#e0a35c", sambal: "#ff4b3e", cucumber: "#34c25a" };
   const svg = (t, cls) => `<svg viewBox="0 0 64 64" aria-hidden="true"${cls ? ` class="${cls}"` : ""}>${ICON[t] || ""}</svg>`;
   // A nasi lemak bungkus: banana leaf folded into a pyramid over newspaper, tied with a red rubber band.
@@ -48,8 +46,7 @@
     <path d="M24 18 l4 -4 M40 18 l-4 -4" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>
     ${show ? `<circle cx="32" cy="27" r="8" fill="#ffd23f" stroke="${INK}" stroke-width="2.5"/><text x="32" y="31" text-anchor="middle" font-family="Lilita One,Arial Black,sans-serif" font-size="12" fill="${INK}">${packs}</text>` : ""}</svg>`;
 
-  // ---- behind the Nasi Lemak world: a sun-dappled kampung out of focus, sunbeams, swaying leaves and a wooden deck ----
-  const leaf = (c, v) => `<svg viewBox="0 0 100 100"><g fill="${c}"><path d="M8 8 C40 6 70 22 92 54 C62 52 30 40 8 8Z"/><path d="M6 10 C10 44 26 74 58 94 C52 62 38 32 6 10Z" opacity=".85"/></g><path d="M8 8 C38 26 60 48 90 54 M8 8 C24 38 38 62 56 92" stroke="${v}" stroke-width="1.6" fill="none" opacity=".7"/></svg>`;
+  // ---- behind the Nasi Lemak world: deep space, nebula, stars, a ringed planet, a shooting star and Ochobot on patrol ----
   const scene = document.createElement("div");
   scene.className = "k-scene"; scene.setAttribute("aria-hidden", "true");
   // one weather layer per Kopitiam event; render() switches on the round's one
@@ -59,12 +56,10 @@
     kenduri: `<i class="sparkle"></i><i class="bunting two"></i><i class="bunting"></i>`,
     raya: `<i class="ketupat two"></i><i class="ketupat"></i><i class="pelita"></i>`,
     lewat: `<i class="stars"></i><i class="lamp"></i><i class="moon"></i>` };
-  scene.innerHTML = `<div class="k-bokeh"></div><div class="k-beams"></div>
-    ${Object.entries(EV_FX).map(([k, h]) => `<div class="k-ev ev-${k}">${h}</div>`).join("")}
-    <div class="k-leaf" style="left:-3rem;top:-2.5rem;--t:7s">${leaf("#3f8d3c", "#2a6a2c")}</div>
-    <div class="k-leaf" style="right:-3.5rem;top:-3rem;--r:90deg;--o:100% 0;--t:8.5s">${leaf("#4a9a45", "#2a6a2c")}</div>
-    <div class="k-leaf" style="right:-4rem;top:38vh;--r:150deg;--o:100% 50%;--t:9.5s;opacity:.85">${leaf("#3a7f37", "#245a26")}</div>
-    <div class="k-deck"></div>`;
+  scene.innerHTML = `<div class="k-nebula"></div><div class="k-stars far"></div><div class="k-stars"></div>
+    <div class="k-planet"></div><div class="k-moon"></div><div class="k-comet"></div>
+    <div class="k-ocho"><img src="assets/bb/ochobot.webp" alt="" decoding="async"></div>
+    ${Object.entries(EV_FX).map(([k, h]) => `<div class="k-ev ev-${k}">${h}</div>`).join("")}`;
   document.body.prepend(scene);
   // the background follows the round's event while a game is in play, and goes back to the sunny kampung elsewhere
   function setWeather(k) {
@@ -99,7 +94,7 @@
     const F = FX[job.k];
     fxEl.style.setProperty("--fx", F.fx); fxEl.style.setProperty("--fx2", F.fx2);
     const art = F.icon ? svg(F.icon) : parcel("", false);
-    fxEl.innerHTML = `<div class="kfx-rays"></div><div class="kfx-panel"><div class="kfx-icon">${art}</div><div class="kfx-txt"><span class="kfx-call">${esc(F.call)}</span><span class="kfx-who"><b>${esc(job.by)}</b> ${esc(F.say)}${job.to ? ` <b>${esc(job.to)}</b>` : ""}</span></div></div>`;
+    fxEl.innerHTML = `<div class="kfx-rays"></div>${job.ch ? `<img class="kfx-hero" src="${charSrc(job.ch)}" alt="">` : ""}<div class="kfx-panel"><div class="kfx-icon">${art}</div><div class="kfx-txt"><span class="kfx-call">${esc(F.call)}</span><span class="kfx-who"><b>${esc(job.by)}</b> ${esc(F.say)}${job.to ? ` <b>${esc(job.to)}</b>` : ""}</span></div></div>`;
     fxEl.hidden = false;
     clearTimeout(fx.timer);
     fx.timer = setTimeout(fxPlay, 1500);
@@ -114,7 +109,7 @@
     const k = L.k === "trade" ? (L.ok ? "trade" : null) : L.k;
     if (!FX[k]) return;
     const who = i => (i === v ? "you" : nameOf(i));
-    fx.queue.push({ k, by: L.p === v ? "You" : nameOf(L.p), to: L.q != null && k !== "supplier" && k !== "thief" ? who(L.q) : "" });
+    fx.queue.push({ k, ch: charOf(L.p), by: L.p === v ? "You" : nameOf(L.p), to: L.q != null && k !== "supplier" && k !== "thief" ? who(L.q) : "" });
     if (fxEl.hidden) fxPlay();
   }
 
@@ -122,27 +117,41 @@
   const FACES = { classic: "Classic", batik: "Batik", songket: "Songket", kopitiam: "Kopitiam", pasar: "Pasar Malam", kampung: "Kampung", boboiboy: "BoBoiBoy Elemental" };
   const BACKS = { daun: "Banana Leaf", batik: "Batik", songket: "Songket", jubin: "Kopitiam Tile", wau: "Wau", boboiboy: "BoBoiBoy Cap" };
   const store = { get(k, d) { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* not remembered, still applied */ } } };
-  let myFace = store.get("nl-face", "classic"), myBack = store.get("nl-back", "daun");
-  if (!FACES[myFace]) myFace = "classic";
-  if (!BACKS[myBack]) myBack = "daun";
-  const faceOf = i => { const v = typeof mySeat === "function" ? mySeat() : -1; if (i === v) return myFace; const p = S && S.players && S.players[i]; return p && FACES[p.face] ? p.face : "classic"; };
-  const backOf = i => { const v = typeof mySeat === "function" ? mySeat() : -1; if (i === v) return myBack; const p = S && S.players && S.players[i]; return p && BACKS[p.back] ? p.back : "daun"; };
+  // each player picks a BoBoiBoy character; it stands behind their stall, leaps in on their moves and takes the win.
+  // Name, and the colour their stall roof and booth light take.
+  const CHARS = {
+    halilintar: ["BoBoiBoy Halilintar", "#ff3b4a"], ais: ["BoBoiBoy Ais", "#5fd4ff"], blaze: ["BoBoiBoy Blaze", "#ff8a1f"], solar: ["BoBoiBoy Solar", "#ffc83a"],
+    yaya: ["Yaya", "#ff5fb4"], ying: ["Ying", "#ffd23f"], gopal: ["Gopal", "#3ccf63"], fang: ["Fang", "#9b7bff"], ochobot: ["Ochobot", "#ffb21a"],
+    tokaba: ["Tok Aba", "#5b8cff"], papazola: ["Papa Zola", "#3f73ff"], adudu: ["Adu Du", "#21c9a6"], probe: ["Probe", "#2fd6c0"]
+  };
+  const CHAR_KEYS = Object.keys(CHARS);
+  const charSrc = k => `assets/bb/${k}.webp`;
+  let myFace = store.get("nl-face", "boboiboy"), myBack = store.get("nl-back", "boboiboy"), myChar = store.get("nl-char", "");
+  if (!FACES[myFace]) myFace = "boboiboy";
+  if (!BACKS[myBack]) myBack = "boboiboy";
+  if (!CHARS[myChar]) myChar = "";
+  const faceOf = i => { const v = typeof mySeat === "function" ? mySeat() : -1; if (i === v) return myFace; const p = S && S.players && S.players[i]; return p && FACES[p.face] ? p.face : "boboiboy"; };
+  const backOf = i => { const v = typeof mySeat === "function" ? mySeat() : -1; if (i === v) return myBack; const p = S && S.players && S.players[i]; return p && BACKS[p.back] ? p.back : "boboiboy"; };
+  // someone who hasn't picked gets a character by seat
+  const charOf = i => { const v = typeof mySeat === "function" ? mySeat() : -1; if (i === v && myChar) return myChar; const p = S && S.players && S.players[i]; return p && CHARS[p.char] ? p.char : CHAR_KEYS[Math.max(0, i) % CHAR_KEYS.length]; };
   let styleSent = "";
   function syncStyle() {
     if (typeof S === "undefined" || !S || S.kind !== "nasi" || !S.players || typeof call !== "function") return;
     const v = mySeat(); if (v < 0) return;
     const P = S.players[v];
-    if (P.face === myFace && P.back === myBack) { styleSent = ""; return; }
-    const k = `${S.code}:${myFace}:${myBack}`; if (styleSent === k) return;
-    styleSent = k; call("style", { face: myFace, back: myBack });
+    if (P.face === myFace && P.back === myBack && (P.char || "") === myChar) { styleSent = ""; return; }
+    const k = `${S.code}:${myFace}:${myBack}:${myChar}`; if (styleSent === k) return;
+    styleSent = k; call("style", { face: myFace, back: myBack, char: myChar });
   }
   const designEl = document.createElement("div");
   designEl.className = "nl-design"; designEl.hidden = true;
   designEl.setAttribute("role", "dialog"); designEl.setAttribute("aria-modal", "true"); designEl.setAttribute("aria-label", "Card design");
   document.body.appendChild(designEl);
   function designHTML() {
-    return `<div class="nl-designbox nl"><header><h2>Card design</h2><button class="nl-btn small" data-nd="close">Done</button></header>
-      <p class="nl-muted">Everyone at the table sees your fronts on the cards you play, and your backs on your stall.</p>
+    const mine = myChar || charOf(typeof mySeat === "function" ? mySeat() : 0);
+    return `<div class="nl-designbox nl"><header><h2>Your look</h2><button class="nl-btn small" data-nd="close">Done</button></header>
+      <p class="nl-muted">Everyone at the table sees your character at your stall, your fronts on the cards you play, and your backs on your stall.</p>
+      <h3>Your character</h3><div class="nl-chargrid">${CHAR_KEYS.map(k => `<button class="nl-charopt" data-nd="char" data-k="${k}" aria-pressed="${k === mine}" style="--c:${CHARS[k][1]}"><img src="${charSrc(k)}" alt="" loading="lazy" decoding="async"><span>${CHARS[k][0]}</span></button>`).join("")}</div>
       <h3>Fronts</h3><div class="nl-designrow">${Object.entries(FACES).map(([k, n]) => `<button class="nl-designopt" data-nd="face" data-k="${k}" aria-pressed="${k === myFace}">${cardHTML(11, { face: k })}<span>${n}</span></button>`).join("")}</div>
       <h3>Backs</h3><div class="nl-designrow">${Object.entries(BACKS).map(([k, n]) => `<button class="nl-designopt" data-nd="back" data-k="${k}" aria-pressed="${k === myBack}"><span class="nl-backcard b-${k}"></span><span>${n}</span></button>`).join("")}</div></div>`;
   }
@@ -151,6 +160,7 @@
     if (e.target === designEl) { designEl.hidden = true; return; }
     const b = e.target.closest("[data-nd]"); if (!b) return;
     if (b.dataset.nd === "close") { designEl.hidden = true; return; }
+    if (b.dataset.nd === "char") { myChar = b.dataset.k; store.set("nl-char", myChar); }
     if (b.dataset.nd === "face") { myFace = b.dataset.k; store.set("nl-face", myFace); }
     if (b.dataset.nd === "back") { myBack = b.dataset.k; store.set("nl-back", myBack); }
     designEl.innerHTML = designHTML();
@@ -160,8 +170,9 @@
   // the lobby's card-design corner (index.html places it under the code)
   function lobbyHTML() {
     setWeather("");
-    return `<div class="nl-lobbydesign nl"><div class="nl-lobbyprev">${cardHTML(11, { face: myFace })}<span class="nl-backcard b-${myBack}"></span></div>
-      <div><b>Your card design</b><p class="nl-muted">${FACES[myFace]} fronts · ${BACKS[myBack]} backs. Everyone sees them.</p><button class="nl-btn small" data-nd-open="1">Change design</button></div></div>`;
+    const ch = myChar || charOf(typeof mySeat === "function" ? mySeat() : 0);
+    return `<div class="nl-lobbydesign nl"><div class="nl-lobbyprev"><img class="nl-lobbyhero" src="${charSrc(ch)}" alt="">${cardHTML(11, { face: myFace })}<span class="nl-backcard b-${myBack}"></span></div>
+      <div><b>${esc(CHARS[ch][0])}</b><p class="nl-muted">${myChar ? "Your character" : "Given by your seat until you pick one"} · ${FACES[myFace]} fronts · ${BACKS[myBack]} backs. Everyone sees them.</p><button class="nl-btn small" data-nd-open="1">Change your look</button></div></div>`;
   }
   document.addEventListener("click", e => { if (e.target.closest("[data-nd-open]")) openDesign(); });
 
@@ -361,17 +372,19 @@
       const O = S.players[i], on = S.turn === i && S.status === "play", nick = i === v ? "You" : nameOf(i);
       const tag = on ? `<span class="nl-open">${pd && pd.k === "market" ? "Market open" : "Serving"}</span>`
         : pd && pd.k === "market" && pd.bids[i] ? `<span class="nl-open bid">Bid in</span>` : "";
-      return `<article class="nl-stall${i === v ? " me" : ""}${on ? " on" : ""}${waiting.includes(i) && pd ? " wait" : ""}" style="--awn:${AWNING[i % AWNING.length]}">
+      const ch = charOf(i);
+      return `<article class="nl-stall${i === v ? " me" : ""}${on ? " on" : ""}${waiting.includes(i) && pd ? " wait" : ""}" style="--awn:${CHARS[ch][1]}">
         <div class="nl-roof" aria-hidden="true"></div>
-        <div class="nl-sign"><i class="nl-av" aria-hidden="true">${esc((nameOf(i) || "?").trim().charAt(0).toUpperCase())}</i><b>${esc(nick)}</b>${tag}</div>
+        <div class="nl-booth"><img src="${charSrc(ch)}" alt="${esc(CHARS[ch][0])}"></div>
         <div class="nl-counter">
+          <div class="nl-sign"><b>${esc(nick)}</b><small>${esc(CHARS[ch][0])}</small>${tag}</div>
           <div class="nl-minis" aria-hidden="true">${Array.from({ length: Math.min(O.hand.length, 7) }, () => `<i class="nl-mini b-${backOf(i)}"></i>`).join("")}</div>
           <div class="nl-stats"><span><b>${O.hand.length}</b> cards</span><span><b>${O.nl.length}</b> wrapped</span>${O.lori ? `<span class="lori">Lori rosak</span>` : ""}${S.status === "over" || i === v ? `<span><b>${N.packs(O)}</b> packs</span>` : ""}</div>
           ${O.nl.length ? packsHTML(O, i === v, prevPacks ? prevPacks[i] : Infinity) : `<p class="nl-empty">Nothing wrapped yet</p>`}</div></article>`;
     };
     let fresh = 0;
     $app.innerHTML = `<div class="nl">
-      <header class="nl-top"><span class="mark">Nasi Lemak</span><span class="nl-code">TABLE ${esc(S.code)}</span><span class="grow"></span>${netDown ? `<span class="nl-muted">Reconnecting…</span>` : ""}<button class="nl-btn small" data-nd-open="1">Card design</button>${typeof sndBtn === "function" ? sndBtn() : ""}<button class="nl-btn small" data-a="home">Leave table</button></header>
+      <header class="nl-top"><span class="mark">Nasi Lemak</span><span class="nl-code">TABLE ${esc(S.code)}</span><span class="grow"></span>${netDown ? `<span class="nl-muted">Reconnecting…</span>` : ""}<button class="nl-btn small" data-nd-open="1">Your look</button>${typeof sndBtn === "function" ? sndBtn() : ""}<button class="nl-btn small" data-a="home">Leave table</button></header>
       <p class="nl-ticker">${fmt(last)}</p>
       ${eventHTML()}
       ${S.status === "over" ? winHTML(v) : ""}
@@ -405,7 +418,7 @@
 
   function winHTML(v) {
     const rows = S.players.map((p, i) => ({ i, packs: N.packs(p), cards: p.nl.length })).sort((a, b) => b.packs - a.packs || b.cards - a.cards);
-    return `<div class="nl-win"><h2>${S.winner === v ? "You win!" : esc(nameOf(S.winner)) + " wins!"}</h2>
+    return `<div class="nl-win"><img class="nl-winhero" src="${charSrc(charOf(S.winner))}" alt="${esc(CHARS[charOf(S.winner)][0])}"><h2>${S.winner === v ? "You win!" : esc(nameOf(S.winner)) + " wins!"}</h2>
       <p class="nl-muted">${rows.map(r => `${esc(nm(r.i, v))}: ${r.packs} pack${r.packs === 1 ? "" : "s"}`).join(" · ")}</p>
       <div class="nl-row" style="justify-content:center">${S.host === me ? `<button class="nl-btn go" data-a="again">Open the stalls again</button>` : `<span class="nl-muted">The table owner can start a rematch.</span>`}<button class="nl-btn" data-a="home">Leave table</button></div></div>`;
   }
@@ -414,8 +427,9 @@
     setWeather("");
     const fan = [0, 10, 20, 30, 40].map((id, k) => cardHTML(id, { style: `--d:${k};--r:${[-8, -3, 2, 6, 10][k]}deg` })).join("");
     return `<header class="nl-mast nl"><div><h1>Nasi<span>Lemak</span></h1>
-      <p>Run a Nasi Lemak stall in a hungry village. Collect rice, egg, peanuts, sambal bilis and cucumber, wrap your packs, and sabotage your neighbours with flies, thieves and officers. First to 5 packs wins. 2 to 10 players, each on their own phone or computer.</p></div>
-      <figure class="nl-kiosk"><img src="assets/nasi-kiosk.jpg" alt="Tok Aba serving at Tok Aba's Kokotiam" width="495" height="470"><figure class="nl-crew"><img src="assets/nasi-crew.jpg" alt="BoBoiBoy, Ochobot, Gopal, Fang, Yaya and Ying" width="526" height="384"><figcaption>Tok Aba's regulars</figcaption></figure><div class="nl-mastfan" aria-hidden="true">${fan}</div></figure></header>`;
+      <p>Run a Nasi Lemak stall at Tok Aba's Kokotiam with BoBoiBoy and friends. Collect rice, egg, peanuts, sambal bilis and cucumber, wrap your packs, and sabotage your neighbours with flies, thieves and officers. First to 5 packs wins. 2 to 10 players, each on their own phone or computer.</p></div>
+      <figure class="nl-galaxy"><img class="shot" src="assets/bb/crew.webp" alt="BoBoiBoy, Yaya, Gopal, Ochobot, Fang and Ying floating in space" width="670" height="417">
+        <img class="pop l" src="assets/bb/blaze.webp" alt="" decoding="async"><img class="pop r" src="assets/bb/ais.webp" alt="" decoding="async"><div class="nl-mastfan" aria-hidden="true">${fan}</div></figure></header>`;
   }
   function rulesHTML() {
     const acts = Object.entries(N.ACTIONS).map(([k, a]) => `<li><b>${esc(a.n)}</b> (${a.count}): ${esc(a.d)}</li>`).join("");

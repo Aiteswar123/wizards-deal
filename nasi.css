@@ -1,64 +1,64 @@
-/* Nasi Lemak — "Kopitiam Kayu": a kampung kopitiam kiosk in the warm, soft 3D-animation look of Malaysian cartoons.
-   Polished wood, a round orange roof band, dark chalk signboards with cream lettering, cream counters with wooden
-   slats, white cups; soft lighting and coffee-brown edges instead of black ink; a sun-dappled kampung out of focus.
-   Layout: the kiosk's round counter in the middle, every player's stall around it, your hand at the thumb. */
+/* Nasi Lemak — "BoBoiBoy Galaxy": Tok Aba's Kokotiam floating in deep space, in the look of BoBoiBoy Galaxy.
+   A starfield with drifting nebula, a ringed orange planet and Ochobot on patrol; the round counter is a hovering
+   platform in BoBoiBoy-cap orange with a hologram ring; each stall is staffed by the character its player picked.
+   Panels are bright hologram white with navy ink, so text stays dark on light; signboards are navy in Power Sphera blue.
+   Layout: the round counter in the middle, every player's stall in lanes either side, your hand at the thumb. */
 html[data-game=nasi]{
-  --k-ink:#3d2414;            /* coffee brown: every edge, all text on light */
-  --k-sky:#9fd18a; --k-sky-2:#e7f2c8;
-  --k-sun:#f6c35a; --k-orange:#e5742a; --k-red:#d4442e; --k-leaf:#4fa64a; --k-leaf-d:#2f7a36;
-  --k-cream:#fdf0d8; --k-paper:#fff9ee; --k-wood:#b8743c; --k-wood-d:#6e3d1e; --k-marble:#fbf0dc;
-  --k-board:#3a2216; --k-board-2:#2a170e; --k-chalk:#fbe9c6;
-  --k-muted:#7a5640;
+  --k-ink:#12143d;            /* deep navy: every edge, all text on light */
+  --k-sun:#ffd23f; --k-orange:#ff7a1a; --k-red:#e8263a; --k-leaf:#3ccf63; --k-leaf-d:#1d8f43;
+  --k-cream:#eaf0ff; --k-paper:#f7f9ff; --k-wood:#4757e6; --k-wood-d:#232c8f; --k-marble:#e6ecff;
+  --k-board:#161b52; --k-board-2:#0d1038; --k-chalk:#eaf2ff;
+  --k-muted:#4c5590;
+  --g-space:#070921; --g-cyan:#45d8ff; --g-text:#eef2ff; --g-text-2:#b9c1f0;
   --k-display:"Lilita One","Arial Rounded MT Bold","Arial Black",system-ui,sans-serif;
   --k-body:"Baloo 2","Nunito","Segoe UI",system-ui,sans-serif;
   --k-line:2.5px solid var(--k-ink);
   --k-pop:cubic-bezier(.16,1,.3,1);
   color-scheme:light;
 }
-html[data-game=nasi] body{background:linear-gradient(180deg,#7fb86a 0%,#a9d08a 40%,#d9e7b2 72%,#c58a52 100%) fixed,#a9d08a;color:var(--k-ink)}
+html[data-game=nasi] body{background:radial-gradient(ellipse 60% 45% at 12% 6%,rgba(91,43,201,.5),transparent 70%),radial-gradient(ellipse 55% 50% at 92% 88%,rgba(195,58,168,.36),transparent 70%),
+  linear-gradient(180deg,#0b0d33,var(--g-space) 55%,#100a35) fixed,var(--g-space);color:var(--g-text)}
 html[data-game=nasi] #sky{display:none}
 html[data-game=nasi] ::selection{background:var(--k-sun);color:var(--k-ink)}
 html[data-game=nasi] .pz-bar{left:auto;right:16px;bottom:auto;top:calc(5.4rem + env(safe-area-inset-top,0px));background:var(--k-paper);color:var(--k-ink);border:3px solid var(--k-ink);box-shadow:0 5px 0 -1px var(--k-ink)}
-html[data-game=nasi] .pz-bar.vote{border-color:var(--k-ink);background:#fff3d6}
+html[data-game=nasi] .pz-bar.vote{border-color:var(--k-ink);background:#e6edff}
 html[data-game=nasi] .pz-bar .pz-btn{border:2.5px solid var(--k-ink);background:#fff;color:var(--k-ink);font-family:var(--k-display);font-weight:400}
 html[data-game=nasi] .pz-bar .pz-btn.go{background:var(--k-orange);color:#fff}
 html[data-game=nasi] .pz-muted{color:var(--k-muted)}
 
-/* ---- behind everything: a sun-dappled kampung out of focus, slow sunbeams, swaying leaves, a wooden deck ---- */
+/* ---- behind everything: deep space, drifting nebula, two layers of twinkling stars, a ringed planet, a shooting star and Ochobot on patrol ---- */
 .k-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}
 html[data-game=nasi] .k-scene{display:block}
-.k-bokeh{position:absolute;inset:-10%;filter:blur(18px);animation:k-breathe 16s ease-in-out infinite alternate;
-  background:
-    radial-gradient(circle at 12% 18%,rgba(255,244,190,.85) 0 3%,transparent 7%),radial-gradient(circle at 28% 9%,rgba(255,250,214,.7) 0 2.4%,transparent 6%),
-    radial-gradient(circle at 74% 14%,rgba(255,240,180,.8) 0 3.4%,transparent 8%),radial-gradient(circle at 90% 30%,rgba(255,250,214,.6) 0 2%,transparent 5%),
-    radial-gradient(circle at 58% 24%,rgba(255,236,170,.55) 0 2%,transparent 5.5%),radial-gradient(circle at 40% 36%,rgba(255,250,220,.45) 0 1.6%,transparent 4.5%),
-    radial-gradient(ellipse 30% 26% at 8% 34%,#3d7f3a 0 40%,transparent 70%),radial-gradient(ellipse 34% 30% at 94% 40%,#356f34 0 40%,transparent 70%),
-    radial-gradient(ellipse 40% 24% at 50% 8%,#5f9e48 0 40%,transparent 72%),radial-gradient(ellipse 28% 22% at 30% 46%,#78b257 0 40%,transparent 72%),
-    radial-gradient(ellipse 26% 20% at 74% 52%,#6aa752 0 40%,transparent 72%),radial-gradient(ellipse 22% 30% at 18% 62%,#a5654a 0 30%,transparent 70%),
-    radial-gradient(ellipse 18% 26% at 86% 66%,#b36a52 0 30%,transparent 70%)}
-@keyframes k-breathe{from{transform:scale(1) translate(0,0)}to{transform:scale(1.06) translate(-1.5%,1%)}}
-.k-beams{position:absolute;inset:-20% -10% 30% -10%;mix-blend-mode:soft-light;animation:k-beam 9s ease-in-out infinite alternate;
-  background:repeating-linear-gradient(112deg,rgba(255,250,220,0) 0 6%,rgba(255,250,220,.55) 8%,rgba(255,250,220,0) 11% 19%)}
-@keyframes k-beam{from{opacity:.55;transform:translateX(-2%)}to{opacity:1;transform:translateX(2%)}}
-.k-leaf{position:absolute;width:clamp(7rem,18vw,13rem);aspect-ratio:1;transform-origin:var(--o,0 0);animation:k-sway var(--t,7s) ease-in-out infinite alternate;filter:blur(1.5px) drop-shadow(0 10px 14px rgba(30,50,20,.35))}
-.k-leaf svg{width:100%;height:100%}
-@keyframes k-sway{from{rotate:calc(var(--r,0deg) - 4deg)}to{rotate:calc(var(--r,0deg) + 4deg)}}
-.k-deck{position:absolute;left:-10%;right:-10%;bottom:0;height:18vh;min-height:90px;transform:perspective(500px) rotateX(48deg);transform-origin:bottom;
-  background:linear-gradient(180deg,rgba(255,226,170,.35),transparent 40%),repeating-linear-gradient(90deg,#b8743c 0 9%,#a8652f 9% 9.4%,#c27d43 9.4% 18.6%,#9a5a2a 18.6% 19%);
-  box-shadow:inset 0 30px 40px -20px rgba(60,30,10,.45)}
-@media (prefers-reduced-motion:reduce){.k-bokeh,.k-beams,.k-leaf{animation:none}}
+.k-nebula{position:absolute;inset:-15%;will-change:transform;animation:k-breathe 26s ease-in-out infinite alternate;
+  background:radial-gradient(ellipse 30% 22% at 20% 25%,rgba(124,64,230,.55),transparent 70%),radial-gradient(ellipse 34% 26% at 80% 18%,rgba(69,216,255,.26),transparent 70%),
+    radial-gradient(ellipse 40% 30% at 70% 75%,rgba(214,64,170,.38),transparent 70%),radial-gradient(ellipse 26% 20% at 25% 82%,rgba(255,122,26,.2),transparent 70%)}
+@keyframes k-breathe{from{transform:scale(1) translate(0,0)}to{transform:scale(1.08) translate(-2%,1.5%)}}
+.k-stars{position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 400%22%3E%3Ccircle cx=%22130%22 cy=%2260%22 r=%221.3%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%2229%22 cy=%22214%22 r=%220.8%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%2223%22 cy=%22203%22 r=%220.6%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%22173%22 cy=%2228%22 r=%220.6%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%22170%22 cy=%22331%22 r=%220.6%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%22252%22 cy=%22233%22 r=%220.6%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%22234%22 cy=%2220%22 r=%220.7%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%22223%22 cy=%2253%22 r=%220.9%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%22216%22 cy=%22228%22 r=%221.1%22 fill=%22%23e6d4ff%22/%3E%3Ccircle cx=%2272%22 cy=%22233%22 r=%221.3%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%22149%22 cy=%22219%22 r=%220.6%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%2224%22 cy=%2282%22 r=%221.3%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%22171%22 cy=%22126%22 r=%221.1%22 fill=%22%23cfe4ff%22/%3E%3Ccircle cx=%22145%22 cy=%2299%22 r=%220.7%22 fill=%22%23e6d4ff%22/%3E%3Ccircle cx=%22312%22 cy=%2233%22 r=%220.8%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%22198%22 cy=%22137%22 r=%220.9%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%22244%22 cy=%2229%22 r=%221.1%22 fill=%22%23cfe4ff%22/%3E%3Ccircle cx=%2266%22 cy=%22137%22 r=%220.9%22 fill=%22%23cfe4ff%22/%3E%3Ccircle cx=%2216%22 cy=%22267%22 r=%221.6%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%22229%22 cy=%22350%22 r=%220.8%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%22278%22 cy=%22238%22 r=%221.1%22 fill=%22%23cfe4ff%22/%3E%3Ccircle cx=%2228%22 cy=%2237%22 r=%220.8%22 fill=%22%23cfe4ff%22/%3E%3Ccircle cx=%22279%22 cy=%2226%22 r=%221.3%22 fill=%22%23e6d4ff%22/%3E%3Ccircle cx=%22124%22 cy=%22231%22 r=%221.3%22 fill=%22%23cfe4ff%22/%3E%3Ccircle cx=%22114%22 cy=%22154%22 r=%221.3%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%229%22 cy=%22185%22 r=%220.7%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%2247%22 cy=%2224%22 r=%221.6%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%2252%22 cy=%2299%22 r=%220.9%22 fill=%22%23cfe4ff%22/%3E%3Ccircle cx=%2232%22 cy=%22180%22 r=%221.1%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%22353%22 cy=%22328%22 r=%221.6%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%22111%22 cy=%22166%22 r=%220.8%22 fill=%22%23e6d4ff%22/%3E%3Ccircle cx=%22354%22 cy=%22383%22 r=%220.7%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%2270%22 cy=%2293%22 r=%220.7%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%22194%22 cy=%22236%22 r=%220.8%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%222%22 cy=%22168%22 r=%220.8%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%22227%22 cy=%22381%22 r=%221.3%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%22380%22 cy=%22262%22 r=%221.3%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%22183%22 cy=%22348%22 r=%221.6%22 fill=%22%23e6d4ff%22/%3E%3Ccircle cx=%22319%22 cy=%22157%22 r=%220.9%22 fill=%22%23cfe4ff%22/%3E%3Ccircle cx=%2241%22 cy=%22254%22 r=%220.6%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%2227%22 cy=%2284%22 r=%220.7%22 fill=%22%23ffffff%22/%3E%3Ccircle cx=%22136%22 cy=%2221%22 r=%220.6%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%2261%22 cy=%2241%22 r=%220.8%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%2210%22 cy=%22350%22 r=%221.1%22 fill=%22%23cfe4ff%22/%3E%3Ccircle cx=%2259%22 cy=%22101%22 r=%220.8%22 fill=%22%23ffe9b8%22/%3E%3Ccircle cx=%22146%22 cy=%2249%22 r=%221.6%22 fill=%22%23cfe4ff%22/%3E%3Cpath d=%22M80 114 L81.2 118.8 L86 120 L81.2 121.2 L80 126 L78.8 121.2 L74 120 L78.8 118.8Z%22 fill=%22%23fff%22/%3E%3Cpath d=%22M300 254 L301.2 258.8 L306 260 L301.2 261.2 L300 266 L298.8 261.2 L294 260 L298.8 258.8Z%22 fill=%22%23fff%22/%3E%3C/svg%3E") 0 0/400px 400px;inset:-400px 0 0 -400px;will-change:transform,opacity;animation:g-twinkle 4.5s ease-in-out infinite alternate,g-drift 260s linear infinite}
+.k-stars.far{background-size:230px 230px;inset:-230px 0 0 -230px;opacity:.55;animation-name:g-twinkle,g-drift-far;animation-duration:7s,300s;animation-direction:alternate-reverse,normal}
+@keyframes g-twinkle{from{opacity:.55}to{opacity:1}}
+/* the star tiles repeat, so sliding exactly one tile loops without a seam; transform keeps it off the paint thread */
+@keyframes g-drift{to{transform:translate(400px,400px)}}
+@keyframes g-drift-far{to{transform:translate(230px,230px)}}
+.k-planet{position:absolute;left:-16vmin;bottom:-24vmin;width:64vmin;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 66% 30%,#ffe2b0 0,#ffa04a 20%,#d4560f 50%,#6a2209 78%,#2a0c06 100%);
+  box-shadow:inset -4vmin -3vmin 7vmin rgba(0,0,0,.55),0 0 10vmin rgba(255,140,60,.22)}
+.k-planet::before{content:"";position:absolute;inset:40% -30%;border-radius:50%;border:1.3vmin solid rgba(255,214,150,.38);transform:rotate(-16deg);box-shadow:0 0 2vmin rgba(255,180,90,.25)}
+.k-moon{position:absolute;right:9vw;top:9vh;width:9vmin;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e8fbff,#7fd8ff 40%,#2a62c8 80%,#14286b);box-shadow:inset -1.4vmin -1vmin 2.4vmin rgba(0,0,0,.45),0 0 4vmin rgba(69,216,255,.35)}
+.k-comet{position:absolute;top:10%;left:-25%;width:24vmin;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#fff);opacity:0;animation:g-comet 13s linear infinite}
+@keyframes g-comet{0%{transform:translate(0,0) rotate(20deg);opacity:0}2%{opacity:1}11%{transform:translate(150vw,55vw) rotate(20deg);opacity:0}100%{transform:translate(150vw,55vw) rotate(20deg);opacity:0}}
+.k-ocho{position:absolute;right:5vw;top:24vh;width:clamp(3.6rem,7vw,6.2rem);animation:g-float 10s ease-in-out infinite alternate;filter:drop-shadow(0 0 16px rgba(255,190,40,.35))}
+.k-ocho img{display:block;width:100%;height:auto}
+@keyframes g-float{from{transform:translate(0,0) rotate(-7deg)}to{transform:translate(-4vw,6vh) rotate(6deg)}}
+@media (prefers-reduced-motion:reduce){.k-nebula,.k-stars,.k-comet,.k-ocho{animation:none}}
 /* ---- Kopitiam events change the weather: one themed layer per event, cross-fading in when the round's event flips ---- */
 .k-ev{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease}
 .k-ev.on{opacity:1}
 .k-ev:not(.on) *{animation-play-state:paused}
 .k-ev::before,.k-ev i{content:"";position:absolute;inset:0;display:block}
-.k-scene .k-bokeh,.k-scene .k-leaf,.k-scene .k-deck{transition:filter 1.6s ease}
-.k-scene[data-ev=hujan] .k-beams,.k-scene[data-ev=pasar] .k-beams,.k-scene[data-ev=lewat] .k-beams{display:none}
-.k-scene[data-ev=hujan] .k-leaf{filter:blur(1.5px) brightness(.6) saturate(.7)}
-.k-scene[data-ev=pasar] .k-leaf,.k-scene[data-ev=lewat] .k-leaf{filter:blur(1.5px) brightness(.45) saturate(.8)}
-.k-scene[data-ev=hujan] .k-deck{filter:brightness(.65) saturate(.7)}
-.k-scene[data-ev=pasar] .k-deck,.k-scene[data-ev=lewat] .k-deck{filter:brightness(.55)}
-.k-scene[data-ev=rush] .k-beams{animation-duration:5s;filter:brightness(1.35)}
+.k-scene .k-stars,.k-scene .k-planet,.k-scene .k-moon{transition:opacity 1.6s ease,filter 1.6s ease}
+.k-scene[data-ev=hujan] .k-stars,.k-scene[data-ev=hujan] .k-moon{opacity:.2}
+.k-scene[data-ev=rush] .k-planet{filter:brightness(1.3) saturate(1.15)}
+.k-scene[data-ev=raya] .k-planet{filter:hue-rotate(70deg) saturate(.9)}
 
 /* Hujan Lebat: grey storm sky, slanting rain, now and then a flash of lightning */
 .ev-hujan::before{background:linear-gradient(180deg,rgba(44,56,74,.86),rgba(70,86,100,.66) 55%,rgba(58,66,76,.5))}
@@ -92,7 +92,7 @@ html[data-game=nasi] .k-scene{display:block}
 .ev-raya::before{background:radial-gradient(ellipse at 50% 0,rgba(255,214,110,.45),transparent 55%),linear-gradient(180deg,rgba(24,104,56,.42),rgba(40,120,60,.2) 60%,rgba(255,190,90,.2))}
 .ev-raya .ketupat{bottom:auto;height:110px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 90 110%22%3E%3Cpath d=%22M45 0 V40%22 stroke=%22%23c9a24a%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M45 40 L67 62 L45 84 L23 62Z%22 fill=%22%233e9b45%22 stroke=%22%231f5a26%22 stroke-width=%222%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M34 51 L56 73 M56 51 L34 73 M45 40 L45 84 M23 62 L67 62%22 stroke=%22%23a9dc6a%22 stroke-width=%221.6%22 opacity=%22.8%22/%3E%3Cpath d=%22M45 84 q-6 10 -2 22 M45 84 q6 10 3 20%22 stroke=%22%233e9b45%22 stroke-width=%223%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") 10px 0/90px 110px repeat-x;transform-origin:top;animation:k-swing 4s ease-in-out infinite alternate}
 .ev-raya .ketupat.two{height:165px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 90 165%22%3E%3Cpath d=%22M45 0 V95%22 stroke=%22%23c9a24a%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M45 95 L67 117 L45 139 L23 117Z%22 fill=%22%233e9b45%22 stroke=%22%231f5a26%22 stroke-width=%222%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M34 106 L56 128 M56 106 L34 128 M45 95 L45 139 M23 117 L67 117%22 stroke=%22%23a9dc6a%22 stroke-width=%221.6%22 opacity=%22.8%22/%3E%3Cpath d=%22M45 139 q-6 10 -2 22 M45 139 q6 10 3 20%22 stroke=%22%233e9b45%22 stroke-width=%223%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3C/svg%3E") 55px 0/90px 165px repeat-x;animation-delay:-2s;opacity:.9}
-.ev-raya .pelita{top:auto;bottom:calc(max(18vh,90px) - 18px);height:90px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 160 90%22%3E%3Ccircle cx=%2280%22 cy=%2230%22 r=%2222%22 fill=%22%23ffb347%22 opacity=%22.25%22/%3E%3Crect x=%2276%22 y=%2240%22 width=%228%22 height=%2250%22 rx=%222%22 fill=%22%238a5a2b%22 stroke=%22%234a2c12%22 stroke-width=%221.5%22/%3E%3Crect x=%2272%22 y=%2236%22 width=%2216%22 height=%228%22 rx=%222%22 fill=%22%23c9a24a%22 stroke=%22%234a2c12%22 stroke-width=%221.5%22/%3E%3Cpath d=%22M80 12 C88 24 86 34 80 36 C74 34 72 24 80 12Z%22 fill=%22%23ffcf3f%22/%3E%3Cpath d=%22M80 22 C84 28 83 33 80 34 C77 33 76 28 80 22Z%22 fill=%22%23fff4c2%22/%3E%3C/svg%3E") 0 0/160px 90px repeat-x;filter:drop-shadow(0 0 10px rgba(255,190,80,.9));animation:k-flicker 1.3s steps(2) infinite}
+.ev-raya .pelita{top:auto;bottom:2vh;height:90px;background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 160 90%22%3E%3Ccircle cx=%2280%22 cy=%2230%22 r=%2222%22 fill=%22%23ffb347%22 opacity=%22.25%22/%3E%3Crect x=%2276%22 y=%2240%22 width=%228%22 height=%2250%22 rx=%222%22 fill=%22%238a5a2b%22 stroke=%22%234a2c12%22 stroke-width=%221.5%22/%3E%3Crect x=%2272%22 y=%2236%22 width=%2216%22 height=%228%22 rx=%222%22 fill=%22%23c9a24a%22 stroke=%22%234a2c12%22 stroke-width=%221.5%22/%3E%3Cpath d=%22M80 12 C88 24 86 34 80 36 C74 34 72 24 80 12Z%22 fill=%22%23ffcf3f%22/%3E%3Cpath d=%22M80 22 C84 28 83 33 80 34 C77 33 76 28 80 22Z%22 fill=%22%23fff4c2%22/%3E%3C/svg%3E") 0 0/160px 90px repeat-x;filter:drop-shadow(0 0 10px rgba(255,190,80,.9));animation:k-flicker 1.3s steps(2) infinite}
 @keyframes k-swing{from{transform:rotate(-1.4deg)}to{transform:rotate(1.4deg)}}
 @keyframes k-flicker{0%,100%{opacity:1}50%{opacity:.78}}
 
@@ -115,7 +115,7 @@ html[data-game=nasi] .k-scene{display:block}
 /* glossy cartoon buttons: outline, top gloss, a press that sinks */
 .nl-btn{appearance:none;position:relative;border:var(--k-line);border-radius:14px;padding:.6rem 1.05rem;cursor:pointer;
   font:400 1rem/1 var(--k-display);letter-spacing:.02em;color:var(--k-ink);
-  background:linear-gradient(180deg,#fff 0%,#fff 48%,#ffe9c2 52%,#ffdba0 100%);
+  background:linear-gradient(180deg,#fff 0%,#fff 48%,#e3e9ff 52%,#c9d4ff 100%);
   box-shadow:0 6px 0 -1px var(--k-ink),0 12px 18px -10px rgba(34,22,58,.5);transition:transform .12s var(--k-pop),box-shadow .12s var(--k-pop)}
 .nl-btn:hover:not(:disabled){transform:translateY(-2px)}
 .nl-btn:active:not(:disabled){transform:translateY(4px);box-shadow:0 2px 0 -1px var(--k-ink)}
@@ -211,8 +211,6 @@ html[data-game=nasi] .k-scene{display:block}
 .nl-sign{position:relative;z-index:1;margin:1rem .95rem 0;padding:.35rem .5rem;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:.4rem;
   background:linear-gradient(180deg,#52301d,var(--k-board));border:3px solid var(--k-wood);box-shadow:0 0 0 2px var(--k-ink),0 6px 10px -4px rgba(40,20,8,.55)}
 .nl-sign b{min-width:0;font:400 1rem/1.1 var(--k-display);color:var(--k-chalk);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nl-av{flex:none;width:1.55rem;height:1.55rem;border-radius:50%;display:grid;place-items:center;font:400 .85rem/1 var(--k-display);font-style:normal;color:#fff;
-  background:var(--awn);border:2px solid var(--k-chalk);text-shadow:0 1px 0 rgba(0,0,0,.35)}
 .nl-stall.me .nl-sign{background:linear-gradient(180deg,#6a3d22,#48291a);box-shadow:0 0 0 2px var(--k-ink),0 0 0 4.5px var(--k-sun),0 6px 10px -4px rgba(40,20,8,.55)}
 .nl-open{position:absolute;right:-.6rem;top:-.85rem;transform:rotate(5deg);font:800 .6rem/1 var(--k-body);letter-spacing:.12em;text-transform:uppercase;color:#fff;white-space:nowrap;
   background:var(--k-red);border:2px solid var(--k-ink);border-radius:999px;padding:.22rem .45rem;box-shadow:0 2px 0 -.5px var(--k-ink);animation:k-serve 1.4s ease-in-out infinite alternate}
@@ -261,7 +259,7 @@ html[data-game=nasi] .k-scene{display:block}
 .nl-opts{display:flex;flex-direction:column;gap:.45rem}
 .nl-opt{appearance:none;text-align:left;background:#fff;color:var(--k-ink);border:2.5px solid var(--k-ink);border-radius:14px;padding:.6rem .8rem;font:400 1rem/1.25 var(--k-display);cursor:pointer;
   box-shadow:0 4px 0 -1px var(--k-ink);transition:transform .12s var(--k-pop),background .12s}
-.nl-opt:hover:not(:disabled){background:#fff3d6;transform:translateY(-2px)}
+.nl-opt:hover:not(:disabled){background:#e6edff;transform:translateY(-2px)}
 .nl-opt:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 -1px var(--k-ink)}
 .nl-opt:disabled{opacity:.5;cursor:not-allowed}
 .nl-opt small{display:block;margin-top:.15rem;font:600 .82rem/1.3 var(--k-body);color:var(--k-muted)}
@@ -325,7 +323,7 @@ button.nl-card:hover{transform:translateY(-6px) rotate(-1.5deg)}
 .nl-mast{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:1.5rem;align-items:center;padding-block:2.4rem 1.8rem}
 .nl-mast h1{font-size:clamp(3.2rem,11vw,6.4rem);color:#fff;-webkit-text-stroke:3px var(--k-ink);paint-order:stroke fill;text-shadow:0 7px 0 var(--k-ink)}
 .nl-mast h1 span{display:block;color:var(--k-orange)}
-.nl-mast p{max-width:56ch;color:var(--k-ink);font-size:1.12rem;font-weight:600;margin-top:1rem;background:rgba(255,253,246,.85);border:3px solid var(--k-ink);border-radius:16px;padding:.8rem 1rem;box-shadow:0 5px 0 -1px var(--k-ink)}
+.nl-mast p{max-width:56ch;color:var(--k-ink);font-size:1.12rem;font-weight:600;margin-top:1rem;background:rgba(234,240,255,.95);border:3px solid var(--k-ink);border-radius:16px;padding:.8rem 1rem;box-shadow:0 5px 0 -1px var(--k-ink)}
 .nl-mastfan{display:flex;justify-content:center;padding-top:1rem}
 .nl-mastfan .nl-card{cursor:default;margin-left:-1.7rem;animation:k-float 6s ease-in-out infinite;animation-delay:calc(var(--d) * -1.2s)}
 .nl-mastfan .nl-card:first-child{margin-left:0}
@@ -343,7 +341,7 @@ html[data-game=nasi] .kit h2,html[data-game=nasi] .fixtures h2,html[data-game=na
 html[data-game=nasi] .kit p,html[data-game=nasi] .fixtures p,html[data-game=nasi] .ranks p,html[data-game=nasi] .kit .divider,html[data-game=nasi] .lbl{color:var(--k-muted)!important}
 html[data-game=nasi] .kit input{background:#fff!important;color:var(--k-ink)!important;border:3px solid var(--k-ink)!important;border-radius:12px!important}
 html[data-game=nasi] .kit .btn,html[data-game=nasi] .fixtures .btn,html[data-game=nasi] .ranks button{font-family:var(--k-display)!important;color:var(--k-ink)!important;border:3px solid var(--k-ink)!important;border-radius:12px!important;
-  background:linear-gradient(180deg,#fff 0 48%,#ffe9c2 52%,#ffdba0)!important;box-shadow:0 5px 0 -1px var(--k-ink)!important}
+  background:linear-gradient(180deg,#fff 0 48%,#e3e9ff 52%,#c9d4ff)!important;box-shadow:0 5px 0 -1px var(--k-ink)!important}
 html[data-game=nasi] .kit .btn.primary{color:#fff!important;text-shadow:0 2px 0 rgba(34,22,58,.45);background:linear-gradient(180deg,#ffb04f 0 48%,var(--k-orange) 52%,#f06a0c)!important}
 html[data-game=nasi] .ranks,html[data-game=nasi] .ranks *{color:var(--k-ink)}
 html[data-game=nasi] .fine{color:var(--k-ink)!important;opacity:.75}
@@ -403,17 +401,17 @@ html[data-game=nasi] .seats li{background:var(--k-paper)!important;border:2.5px 
 /* the picker */
 .nl-design{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:16px;background:rgba(34,22,58,.55)}
 .nl-design[hidden]{display:none!important}
-.nl-designbox{width:min(46rem,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--k-paper,#fffdf6);border:3px solid #3d2414;border-radius:22px;padding:1.1rem 1.2rem 1.3rem;box-shadow:0 9px 0 -2px #3d2414,0 40px 60px -30px rgba(34,22,58,.8);display:flex;flex-direction:column;gap:.6rem}
+.nl-designbox{width:min(46rem,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--k-paper,#f7f9ff);border:3px solid #12143d;border-radius:22px;padding:1.1rem 1.2rem 1.3rem;box-shadow:0 9px 0 -2px #12143d,0 40px 60px -30px rgba(34,22,58,.8);display:flex;flex-direction:column;gap:.6rem}
 .nl-designbox header{display:flex;justify-content:space-between;align-items:center;gap:1rem}
-.nl-designbox h2{font-size:1.7rem;color:#d4442e;-webkit-text-stroke:1px #3d2414;paint-order:stroke fill}
+.nl-designbox h2{font-size:1.7rem;color:#d4442e;-webkit-text-stroke:1px #12143d;paint-order:stroke fill}
 .nl-designbox h3{font-size:1.05rem;margin-top:.4rem}
 .nl-designrow{display:flex;gap:.7rem;overflow-x:auto;padding:.4rem .2rem .9rem}
-.nl-designopt{appearance:none;flex:none;display:flex;flex-direction:column;align-items:center;gap:.45rem;padding:.55rem .55rem .5rem;border:2.5px solid transparent;border-radius:16px;background:transparent;cursor:pointer;font:700 .85rem/1.1 "Baloo 2",system-ui,sans-serif;color:#3d2414}
+.nl-designopt{appearance:none;flex:none;display:flex;flex-direction:column;align-items:center;gap:.45rem;padding:.55rem .55rem .5rem;border:2.5px solid transparent;border-radius:16px;background:transparent;cursor:pointer;font:700 .85rem/1.1 "Baloo 2",system-ui,sans-serif;color:#12143d}
 .nl-designopt .nl-card{cursor:pointer;width:5.8rem;min-height:8rem}
 .nl-designopt .nl-card svg{width:3.8rem;height:3.8rem}
-.nl-designopt[aria-pressed=true]{border-color:#3d2414;background:#f6c35a}
+.nl-designopt[aria-pressed=true]{border-color:#12143d;background:#ffd23f}
 .nl-designopt:focus-visible{outline:3px solid #ff8a1f;outline-offset:2px}
-.nl-lobbydesign{display:flex;gap:1rem;align-items:center;padding:.8rem 1rem;border:3px solid #3d2414;border-radius:18px;background:#fffdf6;color:#3d2414;box-shadow:0 6px 0 -1px #3d2414}
+.nl-lobbydesign{display:flex;gap:1rem;align-items:center;padding:.8rem 1rem;border:3px solid #12143d;border-radius:18px;background:#f7f9ff;color:#12143d;box-shadow:0 6px 0 -1px #12143d}
 .nl-lobbydesign p{margin:.15rem 0 .5rem}
 .nl-lobbyprev{display:flex;align-items:flex-end;gap:.4rem}
 .nl-lobbyprev .nl-card{width:4.6rem;min-height:6.4rem;cursor:default}
@@ -422,49 +420,73 @@ html[data-game=nasi] .seats li{background:var(--k-paper)!important;border:2.5px 
 /* phones: keep the floating sound buttons clear of the game picker */
 @media (max-width:600px){.gamepick{margin-top:3.4rem!important}}
 
-/* ================= Kopitiam Kayu: the kiosk's own surfaces ================= */
-/* signboards: a dark board with cream lettering in a polished wood frame, ringed in roof orange */
-.nl-top{background:linear-gradient(180deg,#52301d,var(--k-board) 55%,var(--k-board-2));color:var(--k-chalk);border:3px solid var(--k-wood);
-  box-shadow:0 0 0 3px var(--k-orange),0 0 0 5.5px var(--k-ink),0 16px 24px -12px rgba(40,20,8,.65),inset 0 2px 0 rgba(255,232,190,.18)}
-.nl-top .mark{color:var(--k-chalk);-webkit-text-stroke:0;text-shadow:0 2px 0 #160a04,0 0 14px rgba(255,214,140,.3)}
-.nl-top .nl-code{background:var(--k-orange);color:#fff;border-color:#160a04}
+/* ================= BoBoiBoy Galaxy: the Kokotiam's own surfaces ================= */
+/* signboards: a navy board with pale lettering in a Power Sphera blue frame, ringed in cap orange */
+.nl-top{background:linear-gradient(180deg,#232c7a,var(--k-board) 55%,var(--k-board-2));color:var(--k-chalk);border:3px solid var(--k-wood);
+  box-shadow:0 0 0 3px var(--k-orange),0 0 0 5.5px var(--k-ink),0 18px 30px -14px rgba(0,0,0,.7),inset 0 2px 0 rgba(180,200,255,.22)}
+.nl-top .mark{color:#fff;-webkit-text-stroke:0;text-shadow:0 2px 0 var(--k-ink),0 0 16px rgba(69,216,255,.5)}
+.nl-top .nl-code{background:var(--k-orange);color:#fff;border-color:var(--k-ink)}
 .nl-top .sndfix,.nl-top .snd,.nl-top button:not(.nl-btn){color:var(--k-chalk)}
-.nl-ticker{background:rgba(255,249,238,.9);border-radius:12px;padding:.5rem .85rem;box-shadow:0 8px 18px -12px rgba(40,20,8,.5)}
-/* buttons: cream and roof orange, lit from above */
-.nl-btn{background:linear-gradient(180deg,#fffaf0 0%,#fff2dc 48%,#f6ddb0 52%,#ecc68a 100%)}
-.nl-btn.go{background:linear-gradient(180deg,#f7a25c 0%,#f08a3c 48%,var(--k-orange) 52%,#c75a1c 100%)}
-/* the round kiosk counter: a cream top with faint wood grain, a polished wood rim and its shadow */
-.nl-felt{background:repeating-linear-gradient(96deg,rgba(150,90,40,.05) 0 3px,transparent 3px 11px),radial-gradient(ellipse at 45% 32%,#fffaf0 0%,var(--k-marble) 55%,#efd6ae 100%);
-  border:18px solid var(--k-wood);outline:2.5px solid var(--k-ink);
-  box-shadow:inset 0 0 0 2.5px var(--k-ink),inset 0 -16px 30px rgba(110,60,20,.16),0 0 0 7px #8a4f24,0 0 0 9.5px var(--k-ink),0 24px 0 -2px #6e3d1e,0 44px 50px -22px rgba(40,20,8,.6)}
-.nl-felt::after{content:"";position:absolute;inset:-18px;border-radius:50%;pointer-events:none;background:linear-gradient(160deg,rgba(255,236,200,.45),transparent 30%);
-  -webkit-mask:radial-gradient(closest-side,transparent calc(100% - 18px),#000 calc(100% - 17px));mask:radial-gradient(closest-side,transparent calc(100% - 18px),#000 calc(100% - 17px))}
-/* home: the title is the kiosk's signboard; the picture of the kiosk sits beside it with the cards fanned over it */
+.nl-ticker{background:rgba(234,240,255,.95);border-radius:12px;padding:.5rem .85rem;box-shadow:0 12px 26px -14px rgba(0,0,0,.7)}
+/* buttons: hologram white and cap orange, lit from above */
+.nl-btn{background:linear-gradient(180deg,#fff 0%,#f2f5ff 48%,#d9e1ff 52%,#c2cdff 100%)}
+.nl-btn.go{background:linear-gradient(180deg,#ffb066 0%,#ff9440 48%,var(--k-orange) 52%,#de540a 100%)}
+/* words that sit straight on space */
+.nl-handwrap .nl-cap,div.nl:not(.nl-designbox):not(.nl-lobbydesign) > .nl-muted,.nl-hand .nl-empty{color:var(--g-text-2)}
+html[data-game=nasi] .fine{color:var(--g-text-2)!important;opacity:1}
+/* the round counter: a hovering platform in cap orange with a hologram ring sweeping round it */
+.nl-felt{background:radial-gradient(ellipse at 50% 28%,#2f45b8 0%,#18206a 52%,#0c1040 100%);border:16px solid var(--k-orange);outline:2.5px solid var(--k-ink);
+  box-shadow:inset 0 0 0 2.5px var(--k-ink),inset 0 0 0 7px rgba(69,216,255,.5),inset 0 -26px 44px rgba(0,0,0,.35),0 0 0 6px #b44a08,0 0 0 8.5px var(--k-ink),0 20px 0 -2px #7a3205,0 46px 80px -24px rgba(69,216,255,.5)}
+.nl-felt::after{content:"";position:absolute;inset:6px;border-radius:inherit;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 72%,rgba(120,230,255,.32) 88%,transparent 100%);
+  -webkit-mask:radial-gradient(closest-side,transparent 80%,#000 84%,#000 97%,transparent 100%);mask:radial-gradient(closest-side,transparent 80%,#000 84%,#000 97%,transparent 100%);animation:g-scan 8s linear infinite}
+@keyframes g-scan{to{transform:rotate(360deg)}}
+.nl-felt .nl-sub,.nl-felt .nl-pile{color:var(--g-text)}
+/* stalls: steel posts, a dark booth lit in the character's colour, the character standing behind the counter */
+.nl-stall::before,.nl-stall::after{top:2.3rem;bottom:4rem;background:linear-gradient(90deg,#363d6e,#cdd6ff 45%,#555d8e)}
+.nl-booth{position:relative;z-index:1;height:6.2rem;margin:0 .6rem;overflow:hidden;
+  background:radial-gradient(ellipse 75% 85% at 50% 100%,color-mix(in srgb,var(--awn) 60%,transparent),transparent 72%),linear-gradient(180deg,#0b0f3a,#1a2163)}
+.nl-booth img{position:absolute;left:4%;bottom:-2.4rem;width:92%;height:8.4rem;object-fit:contain;object-position:50% 100%;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));transition:filter .4s}
+.nl-stall.on .nl-booth img{animation:g-bob 1.4s ease-in-out infinite alternate;filter:drop-shadow(0 0 10px var(--awn)) drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+@keyframes g-bob{to{transform:translateY(-6px)}}
+.nl-stall .nl-counter{margin-top:.6rem}
+.nl-stall .nl-sign{margin:0 0 .1rem;padding:.3rem .55rem .32rem;flex-direction:column;align-items:flex-start;gap:0;box-shadow:0 0 0 2px var(--k-ink),inset 3px 0 0 var(--awn)}
+.nl-stall.me .nl-sign{box-shadow:0 0 0 2px var(--k-ink),0 0 0 4.5px var(--k-sun),inset 3px 0 0 var(--awn)}
+.nl-sign small{font:700 .68rem/1.25 var(--k-body);color:color-mix(in srgb,var(--awn) 55%,#fff);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nl-stall.on .nl-counter{box-shadow:0 0 0 4px var(--k-sun),0 0 0 6.5px var(--k-ink),0 16px 34px -6px color-mix(in srgb,var(--awn) 80%,transparent)}
+/* home: the title is the Kokotiam's signboard; beside it a viewport onto the crew in space, with Blaze and Ais stepping out of it */
 .nl-mast h1{display:inline-flex;flex-direction:column;align-items:center;padding:.9rem 1.6rem 1.1rem;border-radius:999px 999px 28px 28px / 120px 120px 28px 28px;
-  font-size:clamp(3rem,9vw,5.6rem);color:var(--k-chalk);-webkit-text-stroke:0;text-shadow:0 4px 0 #160a04,0 0 18px rgba(255,214,140,.35);
-  background:radial-gradient(ellipse at 50% 0%,#6a3d22,var(--k-board) 60%,var(--k-board-2));border:6px solid var(--k-wood);
-  box-shadow:0 0 0 4px var(--k-orange),0 0 0 7px var(--k-ink),0 22px 30px -14px rgba(40,20,8,.7),inset 0 3px 0 rgba(255,232,190,.2)}
+  font-size:clamp(3rem,9vw,5.6rem);color:#fff;-webkit-text-stroke:0;text-shadow:0 4px 0 var(--k-ink),0 0 22px rgba(69,216,255,.45);
+  background:radial-gradient(ellipse at 50% 0%,#2c3a9e,var(--k-board) 60%,var(--k-board-2));border:6px solid var(--k-wood);
+  box-shadow:0 0 0 4px var(--k-orange),0 0 0 7px var(--k-ink),0 26px 40px -16px rgba(0,0,0,.75),inset 0 3px 0 rgba(180,200,255,.22)}
 .nl-mast h1 span{color:var(--k-sun)}
-.nl-mast h1::after{content:"Kopitiam";margin-top:.5rem;font:400 clamp(.9rem,2.2vw,1.2rem)/1 var(--k-display);letter-spacing:.14em;text-transform:uppercase;color:#fff;
-  background:linear-gradient(180deg,#f39448,var(--k-orange) 60%,#b9531c);border:2.5px solid #160a04;border-radius:999px;padding:.35rem .9rem;text-shadow:0 2px 0 rgba(0,0,0,.35)}
-.nl-mast p{background:rgba(255,249,238,.92)}
-.nl-kiosk{position:relative;margin:0;padding-bottom:4.5rem}
-.nl-kiosk img{display:block;width:100%;height:auto;aspect-ratio:495/470;object-fit:cover;border-radius:22px;border:6px solid var(--k-wood);
-  box-shadow:0 0 0 2.5px var(--k-ink),0 26px 40px -18px rgba(40,20,8,.7)}
-.nl-kiosk .nl-mastfan{position:absolute;left:0;right:0;bottom:0;padding-top:0}
-@media (max-width:760px){.nl-mast h1{padding:.7rem 1.1rem .9rem}.nl-kiosk{max-width:24rem;margin-inline:auto;padding-bottom:0}}
-/* BoBoiBoy and friends, pinned to the kiosk like a photo stuck up at the counter */
-.nl-crew{position:absolute;right:-1.2rem;top:-1.4rem;width:44%;margin:0;padding:.45rem .45rem .2rem;background:#fffaf0;border-radius:6px;rotate:-7deg;z-index:2;
-  box-shadow:0 0 0 2px var(--k-ink),0 16px 22px -10px rgba(40,20,8,.6);animation:k-pin 6s ease-in-out infinite alternate}
-.nl-kiosk .nl-crew img{display:block;width:100%;height:auto;aspect-ratio:526/384;border:0;border-radius:3px;box-shadow:none}
-.nl-crew figcaption{font:400 clamp(.72rem,1.4vw,.9rem)/1.6 var(--k-display);color:var(--k-ink);text-align:center}
-.nl-crew::before{content:"";position:absolute;left:50%;top:-.45rem;width:.95rem;height:.95rem;margin-left:-.475rem;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#ffb08a,var(--k-red) 55%,#8a2316);box-shadow:0 2px 3px rgba(0,0,0,.4)}
-@keyframes k-pin{from{rotate:-7deg}to{rotate:-4.5deg}}
-.nl-crew{rotate:6deg;animation-name:k-pin-r}
-@keyframes k-pin-r{from{rotate:6deg}to{rotate:3.5deg}}
-@media (max-width:760px){.nl-crew{right:auto;left:-.5rem;top:auto;bottom:-1.6rem;width:50%;rotate:-6deg;animation-name:k-pin}.nl-kiosk{margin-bottom:1.6rem}}
-@media (prefers-reduced-motion:reduce){.nl-crew{animation:none}}
+.nl-mast h1::after{content:"Tok Aba's Kokotiam";margin-top:.5rem;font:400 clamp(.8rem,2vw,1.1rem)/1 var(--k-display);letter-spacing:.06em;white-space:nowrap;text-transform:uppercase;color:#fff;
+  background:linear-gradient(180deg,#ffa255,var(--k-orange) 60%,#c74a06);border:2.5px solid var(--k-ink);border-radius:999px;padding:.35rem .9rem;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.nl-mast p{background:rgba(234,240,255,.95)}
+.nl-galaxy{position:relative;margin:0;padding:0 0 4.6rem}
+.nl-galaxy .shot{display:block;width:100%;height:auto;aspect-ratio:670/417;object-fit:cover;border-radius:26px;border:6px solid var(--k-orange);
+  box-shadow:0 0 0 2.5px var(--k-ink),0 0 0 9px rgba(69,216,255,.18),0 0 70px -10px rgba(69,216,255,.55),0 34px 50px -22px rgba(0,0,0,.8)}
+.nl-galaxy .pop{position:absolute;bottom:3.4rem;height:66%;width:auto;z-index:1;filter:drop-shadow(0 18px 16px rgba(0,0,0,.6));animation:g-hover 5s ease-in-out infinite alternate}
+.nl-galaxy .pop.l{left:-2.6rem}
+.nl-galaxy .pop.r{right:-2.2rem;animation-delay:-2.5s}
+@keyframes g-hover{to{transform:translateY(-12px)}}
+.nl-galaxy .nl-mastfan{position:absolute;left:0;right:0;bottom:0;padding-top:0;z-index:2}
+@media (max-width:760px){.nl-mast h1{padding:.7rem 1.1rem .9rem}.nl-galaxy{max-width:26rem;margin-inline:auto;padding-bottom:0}.nl-galaxy .pop{height:52%;bottom:-.6rem}.nl-galaxy .pop.l{left:-.8rem}.nl-galaxy .pop.r{right:-.8rem}}
+/* the winner steps forward */
+.nl-winhero{height:clamp(10rem,28vw,15rem);width:auto;filter:drop-shadow(0 0 24px rgba(255,210,63,.75)) drop-shadow(0 10px 10px rgba(0,0,0,.35));animation:k-stampc .8s var(--k-pop) both}
+/* every move: the player's character leaps in beside the burst */
+.k-fx .kfx-hero{position:absolute;left:50%;bottom:0;height:min(68vh,34rem);width:auto;transform:translateX(-118%);filter:drop-shadow(0 0 30px var(--fx)) drop-shadow(0 20px 20px rgba(0,0,0,.5));animation:g-cutin 1.5s var(--k-pop) both}
+@keyframes g-cutin{0%{transform:translateX(-190%) scale(.9);opacity:0}18%{transform:translateX(-118%) scale(1);opacity:1}84%{transform:translateX(-112%) scale(1);opacity:1}100%{transform:translateX(-104%) scale(.96);opacity:0}}
+@media (max-width:760px){.k-fx .kfx-hero{height:42vh;transform:translateX(-50%);animation-name:g-cutin-m}@keyframes g-cutin-m{0%{transform:translate(-50%,40%);opacity:0}18%{transform:translate(-50%,0);opacity:1}84%{opacity:1}100%{transform:translate(-50%,6%);opacity:0}}}
+/* character picker */
+.nl-chargrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(4.5rem,1fr));gap:.5rem;padding:.3rem .1rem .6rem}
+.nl-charopt{appearance:none;display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.35rem .3rem .45rem;border:2.5px solid var(--k-ink);border-radius:14px;cursor:pointer;color:#fff;font:700 .74rem/1.1 var(--k-body);text-align:center;
+  background:radial-gradient(ellipse 80% 70% at 50% 100%,color-mix(in srgb,var(--c) 60%,transparent),transparent 72%),linear-gradient(180deg,#0b0f3a,#1a2163);transition:transform .15s var(--k-pop)}
+.nl-charopt img{height:4.6rem;width:100%;object-fit:contain;object-position:50% 100%}
+.nl-charopt:hover{transform:translateY(-3px)}
+.nl-charopt[aria-pressed=true]{box-shadow:0 0 0 3px var(--c),0 0 20px -2px var(--c)}
+.nl-charopt:focus-visible{outline:3px solid var(--k-orange);outline-offset:2px}
+.nl-lobbyprev .nl-lobbyhero{height:6.6rem;width:auto;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35))}
+@media (prefers-reduced-motion:reduce){.nl-felt::after,.nl-stall.on .nl-booth img,.nl-galaxy .pop,.nl-winhero,.k-fx .kfx-hero{animation:none}}
 /* ---- BoBoiBoy Elemental fronts: deep-space blue, the element's colour as band and glow, a Power Watch badge ---- */
 .nl-card.f-boboiboy{--el:#22c3e6;--el2:#b8f4ff;--gl:var(--el);color:#fff;
   background:radial-gradient(circle,#fff 0 .7px,transparent 1.2px) 3px 7px/23px 29px,radial-gradient(circle,#bcd8ff 0 .6px,transparent 1.1px) 14px 18px/31px 23px,

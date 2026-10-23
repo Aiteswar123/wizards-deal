@@ -33,7 +33,8 @@
   // attacks on another player: Pak Guard stops them, and Hari Raya Open House forbids them
   const ATTACKS = ["thief", "officer", "supplier", "fly", "fan", "teleport", "lori"];
   // Card designs each player can show the table (nasi-ui.js draws them): fronts for the cards you play, backs for your hand.
-  const STYLES = { faces: ["classic", "batik", "songket", "kopitiam", "pasar", "kampung", "boboiboy"], backs: ["daun", "batik", "songket", "jubin", "wau", "boboiboy"] };
+  const STYLES = { faces: ["classic", "batik", "songket", "kopitiam", "pasar", "kampung", "boboiboy"], backs: ["daun", "batik", "songket", "jubin", "wau", "boboiboy"],
+    chars: ["halilintar", "ais", "blaze", "solar", "yaya", "ying", "gopal", "fang", "ochobot", "tokaba", "papazola", "adudu", "probe"] };
   const TRADE_ACTS = ["swatter", "fan", "guard", "saji", "rahsia"];
   const tradable = t => !!ING[t] || TRADE_ACTS.includes(t);
 
@@ -100,7 +101,7 @@
 
   function newGame(players) {
     const n = players.length;
-    const s = { kind: "nasi", status: "play", players: players.map(p => Object.assign({ uid: p.uid, nick: p.nick, hand: [], nl: [], made: 0, moved: 0 }, p.face ? { face: p.face } : {}, p.back ? { back: p.back } : {})),
+    const s = { kind: "nasi", status: "play", players: players.map(p => Object.assign({ uid: p.uid, nick: p.nick, hand: [], nl: [], made: 0, moved: 0 }, p.face ? { face: p.face } : {}, p.back ? { back: p.back } : {}, p.char ? { char: p.char } : {})),
       deck: shuffle(CARDS.filter(c => c.deck < decksFor(n)).map(c => c.id)), discard: [], nlPile: shuffle(NLC.filter(c => c.id < NL_BASE * decksFor(n)).map(c => c.id)),
       turn: Math.floor(Math.random() * n), drew: false, moves: 0, pending: null, winner: null, turnN: 1, last: null, seq: 0, log: [] };
     for (let k = 0; k < HAND; k++) for (const P of s.players) P.hand.push(s.deck.pop());
