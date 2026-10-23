@@ -51,7 +51,9 @@ html[data-game=nasi] .k-scene{display:block}
 @keyframes g-float{from{transform:translate(0,0) rotate(-7deg)}to{transform:translate(-4vw,6vh) rotate(6deg)}}
 @media (prefers-reduced-motion:reduce){.k-nebula,.k-stars,.k-comet,.k-ocho{animation:none}}
 /* ---- Kopitiam events change the weather: one themed layer per event, cross-fading in when the round's event flips ---- */
-.k-ev{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease}
+.k-ev{position:absolute;inset:0;opacity:0}
+/* the cross-fade only switches on once the page has its styles, so nothing fades out on load */
+.k-scene.ready .k-ev{transition:opacity 1.6s ease}
 .k-ev.on{opacity:1}
 .k-ev:not(.on) *{animation-play-state:paused}
 .k-ev::before,.k-ev i{content:"";position:absolute;inset:0;display:block}
@@ -276,6 +278,16 @@ html[data-game=nasi] .k-scene{display:block}
 .nl-card.act{background:repeating-conic-gradient(from 0deg at 50% 46%,#fff6dc 0 10deg,#ffe8b0 10deg 20deg)}
 .nl-card svg{position:relative;z-index:1;width:4.6rem;height:4.6rem;margin-top:.55rem;filter:drop-shadow(0 3px 0 rgba(34,22,58,.25))}
 .nl-card svg > :not(g){stroke:var(--k-ink);stroke-width:2.6;paint-order:stroke;stroke-linejoin:round}
+/* ingredient and fly illustrations carry their own shading and outlines; they sit a little larger */
+.nl-card svg.ill{width:5rem;height:5rem;margin-top:.35rem;filter:drop-shadow(0 4px 3px rgba(18,20,61,.3))}
+.nl-card.small svg.ill{width:2.6rem;height:2.6rem;margin-top:.3rem}
+/* action cards: the character stands in the art window, the card's emblem in a round badge at the top left */
+.nl-card .nl-art{position:relative;z-index:1;display:block;width:100%;height:5.4rem;margin-top:-.1rem}
+.nl-card .nl-art img{display:block;width:100%;height:100%;object-fit:contain;object-position:50% 100%;filter:drop-shadow(0 4px 4px rgba(10,12,40,.4));pointer-events:none}
+.nl-card .nl-ico{position:absolute;z-index:2;top:.42rem;left:.38rem;width:1.95rem;height:1.95rem;border-radius:50%;display:grid;place-items:center;background:#fff;border:2px solid var(--k-ink);box-shadow:0 2px 0 -.5px var(--k-ink)}
+.nl-card .nl-ico svg{width:84%;height:84%;margin:0;filter:none}
+.nl-card.small .nl-art{height:2.9rem;margin-top:0}
+.nl-card.small .nl-ico{top:.2rem;left:.15rem;width:1.1rem;height:1.1rem;border-width:1.5px}
 .nl-card b{position:relative;z-index:1;font:400 .9rem/1.05 var(--k-display);margin-top:.15rem}
 .nl-card i{position:relative;z-index:1;font-style:normal;font-size:.72rem;font-weight:700;color:var(--k-muted)}
 button.nl-card:hover{transform:translateY(-6px) rotate(-1.5deg)}
