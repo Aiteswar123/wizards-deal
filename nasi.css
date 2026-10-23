@@ -134,6 +134,15 @@ html[data-game=nasi] .k-scene{display:block}
 .nl-top .sndfix,.nl-top .snd,.nl-top button:not(.nl-btn){color:var(--k-ink)}
 .nl-ticker{margin:.8rem .2rem 0;font-size:1rem;font-weight:600;color:var(--k-ink)}
 .nl-ticker b{color:var(--k-red)}
+/* open market: the trader's offer and the bids coming in */
+.nl-offer{background:var(--k-cream);border:2px solid var(--k-ink);border-radius:12px;padding:.5rem .75rem;margin:.5rem 0}
+.nl-offer p{margin:.15rem 0;font-size:.92rem}
+.nl-offer b{display:inline-block;min-width:6.5rem;color:var(--k-red)}
+.nl-bids{list-style:none;margin:.35rem 0 .6rem;padding:0;display:grid;gap:.4rem}
+.nl-bid{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.45rem .7rem;border-radius:12px;background:#fff;border:2px solid var(--k-ink);box-shadow:0 3px 0 -1px var(--k-ink);font-size:.9rem}
+.nl-bid.match{background:#eaf7df;border-color:#2f7d2d}
+.nl-bid.me{outline:3px solid var(--k-sun);outline-offset:1px}
+.nl-bid em{margin-left:.45rem;padding:0 .4rem;border-radius:999px;background:var(--k-leaf);color:#fff;font:700 .7rem/1.4 var(--k-body);font-style:normal}
 /* Kopitiam event: the round's rule, chalked on Tok Aba's board */
 .nl-event{--ev:var(--k-sun);position:relative;margin:.7rem .2rem 0;padding:.65rem 1rem .7rem 1.1rem;border-radius:12px;background:var(--k-board);color:var(--k-chalk);border:4px solid var(--k-wood);box-shadow:inset 0 0 0 2px var(--k-wood-d),0 10px 22px -14px rgba(40,20,8,.7);display:grid;grid-template-columns:auto 1fr;column-gap:.7rem;align-items:baseline}
 .nl-event::before{content:"";position:absolute;inset:0 auto 0 0;width:6px;border-radius:8px 0 0 8px;background:var(--ev)}
@@ -150,8 +159,10 @@ html[data-game=nasi] .k-scene{display:block}
 @media (prefers-reduced-motion:reduce){.nl-event.flip{animation:none}}
 
 /* ---- the market: stalls around the kopitiam table ---- */
-.nl-market{position:relative;height:clamp(36rem,74vh,46rem);margin-top:.6rem}
-.nl-felt{position:absolute;inset:23% 19%;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.45rem;text-align:center;padding:1rem 1.6rem;
+.nl-market{display:flex;flex-direction:column;align-items:center;gap:1.7rem;margin-top:1.1rem}
+.nl-lane{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:1.6rem 1.4rem;width:100%}
+.nl-lane.near{align-items:flex-start}
+.nl-felt{position:relative;width:min(34rem,100%);min-height:15.5rem;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.45rem;text-align:center;padding:1rem 1.6rem;
   /* white marble top with grey veins, dark timber rim: the round kopitiam table */
   background:
     radial-gradient(ellipse 60% 70% at 50% 52%,rgba(52,194,90,.0) 0 58%,transparent 59%),
@@ -180,24 +191,38 @@ html[data-game=nasi] .k-scene{display:block}
   background:var(--k-red);border:3px solid var(--k-ink);border-radius:12px;padding:.35rem .8rem;box-shadow:0 5px 0 -1px var(--k-ink);animation:k-stamp .55s var(--k-pop) both}
 @keyframes k-stamp{from{transform:translateX(-50%) rotate(-6deg) scale(2.2);opacity:0}to{transform:translateX(-50%) rotate(-6deg) scale(1);opacity:1}}
 
-/* cartoon stalls: glossy scalloped awning, signboard, timber counter */
-.nl-stall{position:absolute;transform:translate(-50%,-50%);width:clamp(9.5rem,16vw,12.5rem);display:flex;flex-direction:column;z-index:2;transition:transform .35s var(--k-pop)}
-.nl-market.many .nl-stall{width:clamp(8.6rem,12.5vw,10.6rem)}
-.nl-stall.on{transform:translate(-50%,-50%) scale(1.06);z-index:3}
-.nl-awning{position:relative;height:1.9rem;border:3px solid var(--k-ink);border-bottom:0;border-radius:12px 12px 0 0;
-  background:linear-gradient(180deg,rgba(255,255,255,.45) 0 22%,transparent 23%),repeating-linear-gradient(90deg,var(--awn) 0 16px,#fff 16px 32px)}
-.nl-awning::after{content:"";position:absolute;left:-3px;right:-3px;bottom:-12px;height:12px;
-  background:radial-gradient(circle at 8px 0,var(--awn) 0 7px,var(--k-ink) 7.5px 10px,transparent 10.5px) 0 0/16px 12px repeat-x}
-.nl-sign{position:relative;z-index:1;margin:.5rem .55rem 0;padding:.3rem .5rem .35rem;border-radius:10px;background:var(--k-sun);border:3px solid var(--k-ink);text-align:center;display:flex;flex-direction:column;align-items:center;gap:.2rem;box-shadow:0 4px 0 -1px var(--k-ink)}
-.nl-sign b{font:400 .95rem/1.05 var(--k-display);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nl-stall.me .nl-sign{background:#fff}
-.nl-open{font:800 .62rem/1 var(--k-body);letter-spacing:.14em;text-transform:uppercase;color:#fff;background:var(--k-red);border:2px solid var(--k-ink);border-radius:999px;padding:.2rem .45rem}
-.nl-counter{position:relative;margin-top:.55rem;padding:.5rem .5rem .55rem;border:3px solid var(--k-ink);border-radius:0 0 14px 14px;
-  background:linear-gradient(180deg,rgba(255,255,255,.25) 0 12%,transparent 13%),repeating-linear-gradient(90deg,var(--k-wood) 0 24px,#bd7536 24px 48px);display:flex;flex-direction:column;gap:.35rem;
-  box-shadow:0 6px 0 -1px var(--k-ink),0 18px 22px -16px rgba(34,22,58,.6)}
-.nl-counter::before{content:"";position:absolute;left:-.45rem;right:-.45rem;top:-.55rem;height:.55rem;border:3px solid var(--k-ink);border-radius:6px;background:var(--k-wood-d)}
-.nl-stall.on .nl-counter{box-shadow:0 0 0 4px var(--k-sun),0 0 0 7px var(--k-ink),0 18px 26px -10px rgba(255,138,31,.75)}
-.nl-stall.wait .nl-counter{box-shadow:0 0 0 4px var(--k-red),0 0 0 7px var(--k-ink)}
+/* each player's stall: a striped canvas roof in their colour with a scalloped edge, two timber posts,
+   a chalk name board with their initial, and a cream-topped counter on wooden slats. Stalls sit in lanes, so they never overlap. */
+.nl-stall{position:relative;width:clamp(10.5rem,15vw,12.5rem);display:flex;flex-direction:column;padding:0 .2rem;transition:transform .35s var(--k-pop)}
+.nl-market.many .nl-stall{width:clamp(9.6rem,12.5vw,11rem)}
+.nl-stall.on{transform:translateY(-6px)}
+.nl-stall::before,.nl-stall::after{content:"";position:absolute;top:2.3rem;bottom:3rem;width:.55rem;z-index:0;border:2px solid var(--k-ink);border-radius:3px;
+  background:linear-gradient(90deg,#5a3016,#b8743c 45%,#6e3d1e)}
+.nl-stall::before{left:.55rem}.nl-stall::after{right:.55rem}
+.nl-roof{position:relative;z-index:2;height:2.3rem;margin:0 -.35rem;border:2.5px solid var(--k-ink);border-bottom:0;border-radius:16px 16px 3px 3px;
+  background:linear-gradient(180deg,rgba(255,255,255,.45) 0 16%,transparent 42%,rgba(0,0,0,.08)),repeating-linear-gradient(90deg,var(--awn) 0 18px,#fff7ea 18px 36px);
+  box-shadow:0 6px 10px -6px rgba(40,20,8,.5)}
+.nl-roof::after{content:"";position:absolute;left:-2.5px;right:-2.5px;top:100%;height:12px;filter:drop-shadow(0 3px 2px rgba(40,20,8,.3));
+  background:radial-gradient(circle at 9px 0,var(--awn) 0 8px,var(--k-ink) 8.5px 10.5px,transparent 11px) 0 0/36px 12px repeat-x,
+    radial-gradient(circle at 9px 0,#fff7ea 0 8px,var(--k-ink) 8.5px 10.5px,transparent 11px) 18px 0/36px 12px repeat-x}
+.nl-sign{position:relative;z-index:1;margin:1rem .95rem 0;padding:.35rem .5rem;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:.4rem;
+  background:linear-gradient(180deg,#52301d,var(--k-board));border:3px solid var(--k-wood);box-shadow:0 0 0 2px var(--k-ink),0 6px 10px -4px rgba(40,20,8,.55)}
+.nl-sign b{min-width:0;font:400 1rem/1.1 var(--k-display);color:var(--k-chalk);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nl-av{flex:none;width:1.55rem;height:1.55rem;border-radius:50%;display:grid;place-items:center;font:400 .85rem/1 var(--k-display);font-style:normal;color:#fff;
+  background:var(--awn);border:2px solid var(--k-chalk);text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.nl-stall.me .nl-sign{background:linear-gradient(180deg,#6a3d22,#48291a);box-shadow:0 0 0 2px var(--k-ink),0 0 0 4.5px var(--k-sun),0 6px 10px -4px rgba(40,20,8,.55)}
+.nl-open{position:absolute;right:-.6rem;top:-.85rem;transform:rotate(5deg);font:800 .6rem/1 var(--k-body);letter-spacing:.12em;text-transform:uppercase;color:#fff;white-space:nowrap;
+  background:var(--k-red);border:2px solid var(--k-ink);border-radius:999px;padding:.22rem .45rem;box-shadow:0 2px 0 -.5px var(--k-ink);animation:k-serve 1.4s ease-in-out infinite alternate}
+.nl-open.bid{background:var(--k-leaf);animation:none}
+@keyframes k-serve{from{transform:rotate(5deg) scale(1)}to{transform:rotate(5deg) scale(1.08)}}
+.nl-counter{position:relative;z-index:1;margin-top:.75rem;padding:.55rem .55rem 1rem;border:2.5px solid var(--k-ink);border-radius:5px 5px 14px 14px;display:flex;flex-direction:column;gap:.4rem;
+  background:linear-gradient(180deg,rgba(255,255,255,.5) 0 6%,transparent 12%),linear-gradient(var(--k-cream),var(--k-cream)) top/100% calc(100% - .6rem) no-repeat,
+    repeating-linear-gradient(90deg,#b8743c 0 13px,#93552a 13px 15px);
+  box-shadow:0 5px 0 -1px var(--k-ink),0 18px 22px -14px rgba(40,20,8,.6);transition:box-shadow .35s}
+.nl-counter::before{content:"";position:absolute;left:-.5rem;right:-.5rem;top:-.6rem;height:.6rem;border:2.5px solid var(--k-ink);border-radius:6px;
+  background:linear-gradient(180deg,#d6935a,var(--k-wood) 50%,var(--k-wood-d))}
+.nl-stall.on .nl-counter{box-shadow:0 0 0 4px var(--k-sun),0 0 0 6.5px var(--k-ink),0 16px 32px -6px rgba(255,160,40,.85)}
+.nl-stall.wait .nl-counter{box-shadow:0 0 0 4px var(--k-red),0 0 0 6.5px var(--k-ink)}
 .nl-stats{display:flex;flex-wrap:wrap;gap:.3rem;font-size:.74rem;font-weight:700;font-variant-numeric:tabular-nums}
 .nl-stats span{background:var(--k-paper);border:2px solid var(--k-ink);border-radius:999px;padding:.08rem .5rem;color:var(--k-ink)}
 .nl-stats b{color:var(--k-red)}
@@ -332,13 +357,15 @@ html[data-game=nasi] .seats li{background:var(--k-paper)!important;border:2.5px 
 /* phones: the table on top, stalls two by two */
 @media (max-width:760px){
   html[data-game=nasi] .pz-bar{top:auto;bottom:calc(16px + env(safe-area-inset-bottom,0px))}
-  .nl-market{height:auto;display:flex;flex-wrap:wrap;gap:.9rem .7rem;margin-top:1rem}
-  .nl-felt{position:relative;inset:auto;flex:1 1 100%;border-radius:28px;min-height:13rem;order:-1;border-width:10px}
-  .nl-market .nl-stall,.nl-market.many .nl-stall,.nl-stall.on{position:static;transform:none;width:calc(50% - .35rem)}
+  .nl-market{gap:1.2rem}
+  .nl-felt{width:100%;border-radius:28px;min-height:13rem;order:-1;border-width:10px}
+  .nl-lane{gap:1.3rem .8rem}
+  .nl-market .nl-stall,.nl-market.many .nl-stall{width:calc(50% - .4rem)}
 }
 @media (prefers-reduced-motion:reduce){
   .nl-pack .fly,.nl-mastfan .nl-card{animation:none}
   .nl-card,.nl-btn,.nl-opt,.nl-stall{transition:none}
+  .nl-open{animation:none}
   .nl-card.fresh,.nl-pack.fresh,.nl-felt.yourturn::before,.nl-win h2{animation:none}
   .k-fx .kfx-rays{animation:none;opacity:.55}
   .k-fx .kfx-panel,.k-fx .kfx-icon{animation:none}
@@ -409,19 +436,6 @@ html[data-game=nasi] .seats li{background:var(--k-paper)!important;border:2.5px 
   box-shadow:inset 0 0 0 2.5px var(--k-ink),inset 0 -16px 30px rgba(110,60,20,.16),0 0 0 7px #8a4f24,0 0 0 9.5px var(--k-ink),0 24px 0 -2px #6e3d1e,0 44px 50px -22px rgba(40,20,8,.6)}
 .nl-felt::after{content:"";position:absolute;inset:-18px;border-radius:50%;pointer-events:none;background:linear-gradient(160deg,rgba(255,236,200,.45),transparent 30%);
   -webkit-mask:radial-gradient(closest-side,transparent calc(100% - 18px),#000 calc(100% - 17px));mask:radial-gradient(closest-side,transparent calc(100% - 18px),#000 calc(100% - 17px))}
-/* each player's stall is a little kiosk: a round orange roof band in their colour trim, a chalk name board, a cream counter on slats */
-.nl-awning{height:2.2rem;border:2.5px solid var(--k-ink);border-bottom:0;border-radius:50% 50% 0 0 / 70% 70% 0 0;
-  background:linear-gradient(180deg,rgba(255,255,255,.38) 0 14%,transparent 34%),linear-gradient(180deg,#f39448,var(--k-orange) 55%,#b9531c);
-  box-shadow:inset 0 -6px 0 var(--awn),inset 0 -8.5px 0 rgba(0,0,0,.25)}
-.nl-awning::after{left:9%;right:9%;bottom:-9px;height:9px;background:linear-gradient(180deg,#fff6e4,var(--k-cream));border:2.5px solid var(--k-ink);border-top:0;border-radius:0 0 7px 7px}
-.nl-sign{background:linear-gradient(180deg,#52301d,var(--k-board));border:3px solid var(--k-wood);box-shadow:0 0 0 2px var(--k-ink),0 6px 10px -4px rgba(40,20,8,.55)}
-.nl-sign b{color:var(--k-chalk)}
-.nl-stall.me .nl-sign{background:linear-gradient(180deg,#6a3d22,#48291a);box-shadow:0 0 0 2px var(--k-ink),0 0 0 4.5px var(--k-sun),0 6px 10px -4px rgba(40,20,8,.55)}
-.nl-counter{padding-bottom:1.15rem;background:linear-gradient(180deg,rgba(255,255,255,.45) 0 8%,transparent 12%),
-  linear-gradient(var(--k-cream),var(--k-cream)) top/100% calc(100% - .7rem) no-repeat,repeating-linear-gradient(90deg,#b8743c 0 13px,#93552a 13px 15px)}
-/* (the site's own .me styling is for its lists; a stall stays clear) */
-.nl-stall.me{background:none}
-.nl-counter::before{background:linear-gradient(180deg,#d6935a,var(--k-wood) 50%,var(--k-wood-d))}
 /* home: the title is the kiosk's signboard; the picture of the kiosk sits beside it with the cards fanned over it */
 .nl-mast h1{display:inline-flex;flex-direction:column;align-items:center;padding:.9rem 1.6rem 1.1rem;border-radius:999px 999px 28px 28px / 120px 120px 28px 28px;
   font-size:clamp(3rem,9vw,5.6rem);color:var(--k-chalk);-webkit-text-stroke:0;text-shadow:0 4px 0 #160a04,0 0 18px rgba(255,214,140,.35);

@@ -177,7 +177,7 @@
   }
   const packsHTML = (p, mine, fresh = Infinity) => p.nl.length ? `<div class="nl-packs">${p.nl.map((e, k) => `<span class="nl-pack${e.fly != null ? " flied" : ""}${k >= fresh ? " fresh" : ""}" title="${e.fly != null ? "A fly is on this Nasi Lemak: it doesn't count" : mine || e.n >= 0 ? N.entryPacks(e) + " pack" + (N.entryPacks(e) > 1 ? "s" : "") : "Face down"}${e.bonus ? " (Lunch Rush +1)" : ""}">${parcel(e.n >= 0 ? N.entryPacks(e) : "", e.n >= 0)}${e.fly != null ? svg("fly", "fly") : ""}${e.bonus ? `<span class="nl-rush" aria-hidden="true">+1</span>` : ""}<span class="cnt">${k + 1}</span></span>`).join("")}</div>` : `<p class="nl-empty">No Nasi Lemak yet.</p>`;
 
-  const ui = { sel: null, step: {}, trade: null, take: [], key: "" };
+  const ui = { sel: null, step: {}, trade: null, take: [], bid: null, key: "" };
   const ev = () => S.event && S.event.k;
   // the round's Kopitiam event, chalked on the board; it flips over when a new round starts
   function eventHTML() {
@@ -198,21 +198,9 @@
   function panelHTML(v) {
     const P = S.players[v], pd = S.pending;
     if (S.status !== "play") return `<h3>Stalls closed</h3><p class="nl-muted">Thanks for playing.</p>`;
-    if (pd && pd.k === "trade" && pd.to === v) {
-      const T = S.players[pd.from];
-      const can = pd.want.every(w => countIn(P, w.t) >= w.n);
-      return `<h3>${esc(nameOf(pd.from))} wants to trade</h3>
-        <p><b>They give you:</b> ${pd.give.length ? pd.give.map(id => esc(N.cardName(N.typeOf(id)))).join(", ") : "nothing"}</p>
-        <p><b>They want:</b> ${pd.want.length ? pd.want.map(w => `${w.n} ${esc(N.cardName(w.t))}`).join(", ") : "nothing"}</p>
-        ${can ? "" : `<p class="nl-muted">You don't have everything they're asking for.</p>`}
-        <div class="nl-row"><button class="nl-btn go" data-n="answer" data-yes="1" ${can ? "" : "disabled"}>Accept</button><button class="nl-btn" data-n="answer" data-yes="0">Decline</button>
-        ${S.clock && S.clock.resp ? `<span class="nl-muted">Answer within <b data-clock="resp">0:30</b></span>` : ""}</div>${T ? "" : ""}`;
-    }
-    if (S.turn !== v) {
-      const w = pd && pd.k === "trade" ? `${esc(nameOf(pd.to))} is deciding on a trade with ${esc(nameOf(pd.from))}.` : `Your turn comes soon. Plan which ingredients you still need.`;
-      return `<h3>${esc(nameOf(S.turn))}'s turn</h3><p class="nl-muted">${w}</p>`;
-    }
-    if (pd && pd.k === "trade") return `<h3>Waiting for ${esc(nameOf(pd.to))}</h3><p class="nl-muted">They have 30 seconds to accept or decline your offer.</p><div class="nl-row"><button class="nl-btn" data-n="cancel">Withdraw offer</button></div>`;
+    if (pd && pd.k === "market") return marketHTML(v);
+    if (S.turn !== v) return `<h3>${esc(nameOf(S.turn))}'s turn</h3><p class="nl-muted">Your turn comes soon. Plan which ingredients you still need.</p>`;
+    if (pd && pd.k === "trade") return `<h3>Old trade offer</h3><div class="nl-row"><button class="nl-btn" data-n="cancel">Withdraw it</button></div>`;
     if (pd && pd.k === "officer") {
       const hand = pd.hand || [], need = Math.min(2, hand.length);
       return `<h3>${esc(nameOf(pd.to))}'s hand</h3><p class="nl-muted">Only you can see these. Tap ${need} to take.</p>
@@ -234,7 +222,7 @@
       <div class="nl-opts">
         ${opt("make", {}, "Make a Nasi Lemak", types === 5 ? "Uses one of each ingredient" : `Still missing: ${missing.join(", ")}`, types < 5 || !S.nlPile.length)}
         ${mk != null ? opt("make", { mk }, "Make one with Mak Cik", types >= 3 ? "Uses Mak Cik plus 3 different ingredients" : "You need 3 different ingredients", types < 3 || !S.nlPile.length) : ""}
-        ${opt("tradeopen", {}, "Trade with a player", ev() === "hujan" ? "Hujan Lebat: no trading this round" : ev() === "pasar" ? "Pasar Malam: trades are free this round" : "Offer ingredients, Fly Swatters or Fans", ev() === "hujan")}
+        ${opt("tradeopen", {}, "Open the market", ev() === "hujan" ? "Hujan Lebat: no trading this round" : ev() === "pasar" ? "Pasar Malam: trades are free this round" : "Put cards up for trade and let everyone bid", ev() === "hujan")}
       </div>
       <p class="nl-muted" style="font-size:.88rem">Or tap an action card in your hand to play it.</p>
       <div class="nl-row">${end}</div>`;
@@ -275,14 +263,42 @@
   function tradeHTML(v) {
     const P = S.players[v], tr = ui.trade;
     const types = [...N.ING_KEYS, "swatter", "fan"];
-    if (tr.p == null) return `<h3>Trade with…</h3><div class="nl-opts">${others(v).map(p => opt("tradeto", { p }, esc(nameOf(p)), `${S.players[p].hand.length} cards in hand`)).join("")}</div><div class="nl-row"><button class="nl-btn small" data-n="tradeclose">Cancel</button></div>`;
     const giveN = tr.give.length, wantN = Object.values(tr.want).reduce((a, b) => a + b, 0);
-    return `<h3>Trade with ${esc(nameOf(tr.p))}</h3>
+    return `<h3>Open the market</h3>
       <p class="nl-muted" style="font-size:.88rem"><b>You give:</b> tap ingredients, Fly Swatters or Fans in your hand. ${giveN ? `${giveN} picked.` : "Nothing picked yet."}</p>
-      <p class="nl-muted" style="font-size:.88rem;margin-bottom:-.2rem"><b>You ask for:</b></p>
+      <p class="nl-muted" style="font-size:.88rem;margin-bottom:-.2rem"><b>You're looking for</b> (a hint for bidders; you can take any bid):</p>
       <div class="nl-steps">${types.map(t => `<span>${esc(N.cardName(t))}</span><button class="nl-btn small" data-n="want" data-t="${t}" data-d="-1" aria-label="Fewer ${esc(N.cardName(t))}" ${tr.want[t] ? "" : "disabled"}>−</button><b style="text-align:center;min-width:1.2rem">${tr.want[t] || 0}</b><button class="nl-btn small" data-n="want" data-t="${t}" data-d="1" aria-label="More ${esc(N.cardName(t))}">+</button>`).join("")}</div>
-      <div class="nl-row"><button class="nl-btn go" data-n="tradesend" ${giveN || wantN ? "" : "disabled"}>Send offer</button><button class="nl-btn small" data-n="tradeclose">Cancel</button></div>
-      <p class="nl-muted" style="font-size:.82rem">${ev() === "pasar" ? "Pasar Malam: this trade won't use a move." : "A trade only uses a move if they accept."}</p>`;
+      <div class="nl-row"><button class="nl-btn go" data-n="tradesend" ${giveN || wantN ? "" : "disabled"}>Open for bids</button><button class="nl-btn small" data-n="tradeclose">Cancel</button></div>
+      <p class="nl-muted" style="font-size:.82rem">Everyone else can bid with their own cards. ${ev() === "pasar" ? "Pasar Malam: the trade won't use a move." : "It only uses a move when you take a bid."}</p>`;
+  }
+
+  // the open market: the trader's cards are up, everyone else bids, the trader takes the bid they like
+  function marketHTML(v) {
+    const pd = S.pending, mine = pd.from === v, P = S.players[v];
+    const names = ids => ids.map(id => esc(N.cardName(N.typeOf(id)))).join(", ");
+    const covers = ids => pd.want.length > 0 && pd.want.every(w => ids.filter(id => N.typeOf(id) === w.t).length >= w.n);
+    const head = `<h3>${mine ? "Your market is open" : `${esc(nameOf(pd.from))}'s market`}</h3>
+      <div class="nl-offer"><p><b>${mine ? "You give" : "They give"}</b> ${pd.give.length ? names(pd.give) : "nothing"}</p>
+        <p><b>Looking for</b> ${pd.want.length ? pd.want.map(w => `${w.n} ${esc(N.cardName(w.t))}`).join(", ") : "any good offer"}</p></div>`;
+    const rows = Object.entries(pd.bids).map(([q, ids]) => `<li class="nl-bid${covers(ids) ? " match" : ""}${+q === v ? " me" : ""}">
+      <span><b>${esc(nm(+q, v))}</b>${covers(ids) ? `<em>${mine ? "Has what you want" : "Covers the ask"}</em>` : ""}<br>${names(ids)}</span>
+      ${mine ? `<button class="nl-btn go small" data-n="accept" data-p="${q}">Trade</button>` : ""}</li>`).join("");
+    const list = `<span class="nl-cap">Bids</span>${rows ? `<ul class="nl-bids">${rows}</ul>` : `<p class="nl-muted">No bids yet.</p>`}`;
+    if (mine) return head + list + `<div class="nl-row"><button class="nl-btn" data-n="cancel">Close the market</button></div>
+      <p class="nl-muted" style="font-size:.82rem">Take any bid you like. ${ev() === "pasar" ? "Pasar Malam: it won't use a move." : "It uses a move once you trade."}</p>`;
+    if (!P) return head + list;
+    const sel = ui.bid || [], had = pd.bids[v], fill = fillFor(P, pd.want);
+    return head + list + `<p class="nl-muted" style="font-size:.88rem">Tap ingredients, Fly Swatters or Fans in your hand to build your bid. ${sel.length ? `<b>${sel.length} picked:</b> ${names(sel)}` : "Nothing picked yet."}</p>
+      <div class="nl-row"><button class="nl-btn go" data-n="bid" ${sel.length ? "" : "disabled"}>${had ? "Update my bid" : "Place my bid"}</button>
+        ${fill ? `<button class="nl-btn small" data-n="bidfill">Pick what they want</button>` : ""}
+        ${had ? `<button class="nl-btn small" data-n="bidclear">Take back my bid</button>` : ""}</div>`;
+  }
+  // the cards in a hand that cover a market's ask, or null if the hand can't
+  function fillFor(P, want) {
+    if (!want.length) return null;
+    const out = [];
+    for (const w of want) { const have = P.hand.filter(id => N.typeOf(id) === w.t).slice(0, w.n); if (have.length < w.n) return null; out.push(...have); }
+    return out;
   }
 
   function render() {
@@ -295,9 +311,10 @@
     if (ui.dump && P) ui.dump = ui.dump.filter(id => P.hand.includes(id));
     if (P && ui.sel != null && !P.hand.includes(ui.sel)) { ui.sel = null; ui.step = {}; }
     if (ui.trade && P) ui.trade.give = ui.trade.give.filter(id => P.hand.includes(id));
+    if (pd && pd.k === "market" && P && pd.from !== v) ui.bid = (ui.bid || pd.bids[v] || []).filter(id => P.hand.includes(id)); else ui.bid = null;
     const topId = S.discard[S.discard.length - 1];
     const say = S.status === "over" ? `${esc(S.winner === v ? "You win!" : nameOf(S.winner) + " wins!")}`
-      : pd && pd.k === "trade" ? `${esc(nm(pd.from, v))} → ${esc(nm(pd.to, v))}: trade offer`
+      : pd && pd.k === "market" ? `${pd.from === v ? "Your" : esc(nameOf(pd.from)) + "'s"} market is open`
       : myTurn ? (S.drew ? "Your turn" : `Your turn: draw ${N.drawFor(S)}`) : `${esc(nameOf(S.turn))}'s turn`;
     const sub = S.status !== "play" ? "" : `${S.drew ? `${S.moves} of ${N.movesFor(S)} moves` : "Drawing"}<span class="nl-dots">${Array.from({ length: N.movesFor(S) }, (_, i) => `<i class="${i < S.moves ? "used" : ""}"></i>`).join("")}</span>${S.clock ? ` · <b data-clock="turn">${N.TURN_MS / 60000}:00</b> left` : ""}`;
     const last = S.log[S.log.length - 1] || "";
@@ -308,6 +325,23 @@
     ui.game = S.code + ":" + S.created; ui.hand = P ? P.hand.slice() : []; ui.packs = S.players.map(p => p.nl.length);
     const stamp = myTurn && !S.drew && ui.stampTurn !== S.turnN;
     if (myTurn) ui.stampTurn = S.turnN;
+    // stalls sit in two lanes either side of the table, in seat order going clockwise from you:
+    // your left-hand neighbour, you and your right-hand neighbour in front, everyone else across the table
+    const base = v >= 0 ? v : 0, seatAt = k => (base + k) % n, m = n - 1;
+    const lanes = m >= 4 ? { far: Array.from({ length: m - 2 }, (_, j) => seatAt(j + 2)), near: [seatAt(1), base, seatAt(m)] }
+      : { far: Array.from({ length: m }, (_, j) => seatAt(j + 1)), near: [base] };
+    const stall = i => {
+      const O = S.players[i], on = S.turn === i && S.status === "play", nick = i === v ? "You" : nameOf(i);
+      const tag = on ? `<span class="nl-open">${pd && pd.k === "market" ? "Market open" : "Serving"}</span>`
+        : pd && pd.k === "market" && pd.bids[i] ? `<span class="nl-open bid">Bid in</span>` : "";
+      return `<article class="nl-stall${i === v ? " me" : ""}${on ? " on" : ""}${waiting.includes(i) && pd ? " wait" : ""}" style="--awn:${AWNING[i % AWNING.length]}">
+        <div class="nl-roof" aria-hidden="true"></div>
+        <div class="nl-sign"><i class="nl-av" aria-hidden="true">${esc((nameOf(i) || "?").trim().charAt(0).toUpperCase())}</i><b>${esc(nick)}</b>${tag}</div>
+        <div class="nl-counter">
+          <div class="nl-minis" aria-hidden="true">${Array.from({ length: Math.min(O.hand.length, 7) }, () => `<i class="nl-mini b-${backOf(i)}"></i>`).join("")}</div>
+          <div class="nl-stats"><span><b>${O.hand.length}</b> cards</span><span><b>${O.nl.length}</b> wrapped</span>${S.status === "over" || i === v ? `<span><b>${N.packs(O)}</b> packs</span>` : ""}</div>
+          ${O.nl.length ? packsHTML(O, i === v, prevPacks ? prevPacks[i] : Infinity) : `<p class="nl-empty">Nothing wrapped yet</p>`}</div></article>`;
+    };
     let fresh = 0;
     $app.innerHTML = `<div class="nl">
       <header class="nl-top"><span class="mark">Nasi Lemak</span><span class="nl-code">TABLE ${esc(S.code)}</span><span class="grow"></span>${netDown ? `<span class="nl-muted">Reconnecting…</span>` : ""}<button class="nl-btn small" data-nd-open="1">Card design</button>${typeof sndBtn === "function" ? sndBtn() : ""}<button class="nl-btn small" data-a="home">Leave table</button></header>
@@ -315,23 +349,14 @@
       ${eventHTML()}
       ${S.status === "over" ? winHTML(v) : ""}
       <section class="nl-market${n >= 7 ? " many" : ""}" aria-label="The night market">
-        ${S.players.map((O, i) => {
-          // you sit at the bottom; everyone else's stall goes round the table clockwise
-          const k = v >= 0 ? (i - v + n) % n : i, ang = Math.PI / 2 + k * 2 * Math.PI / n;
-          const x = 50 + Math.cos(ang) * 42, y = 50 + Math.sin(ang) * 40, on = S.turn === i && S.status === "play";
-          return `<article class="nl-stall${i === v ? " me" : ""}${on ? " on" : ""}${waiting.includes(i) && pd ? " wait" : ""}" style="left:${x}%;top:${y}%;--awn:${AWNING[i % AWNING.length]}">
-            <div class="nl-awning" aria-hidden="true"></div>
-            <div class="nl-sign"><b>${esc(i === v ? "You" : nameOf(i))}</b>${on ? `<span class="nl-open">Serving</span>` : ""}</div>
-            <div class="nl-counter">
-              <div class="nl-minis" aria-hidden="true">${Array.from({ length: Math.min(O.hand.length, 7) }, () => `<i class="nl-mini b-${backOf(i)}"></i>`).join("")}</div>
-              <div class="nl-stats"><span><b>${O.hand.length}</b> cards</span><span><b>${O.nl.length}</b> wrapped</span>${S.status === "over" || i === v ? `<span><b>${N.packs(O)}</b> packs</span>` : ""}</div>
-              ${O.nl.length ? packsHTML(O, i === v, prevPacks ? prevPacks[i] : Infinity) : `<p class="nl-empty">Nothing wrapped yet</p>`}</div></article>`; }).join("")}
+        <div class="nl-lane far">${lanes.far.map(stall).join("")}</div>
         <div class="nl-felt${stamp ? " yourturn" : ""}"><span class="nl-leafmat" aria-hidden="true"></span>
           <div class="nl-piles"><div class="nl-pile"><div class="nl-back">${S.deck.length}</div>Draw pile</div>
             <div class="nl-pile">${topId != null ? cardHTML(topId, { cls: "small", face: S.by && S.by[topId] != null ? faceOf(S.by[topId]) : "classic" }) : `<div class="nl-back" style="opacity:.35"></div>`}Discard</div>
             <div class="nl-pile"><div class="nl-back gold">${S.nlPile.length}</div>Nasi Lemak</div></div>
           <div class="nl-say">${say}</div><div class="nl-sub">${sub}</div>
         </div>
+        <div class="nl-lane near">${lanes.near.map(stall).join("")}</div>
       </section>
       ${P ? `<div class="nl-zone">
         <section class="nl-mine"><span class="nl-cap">Your stall</span>
@@ -340,7 +365,7 @@
           ${packsHTML(P, true, prevPacks && prevPacks[v] != null ? prevPacks[v] : Infinity)}</section>
         <section class="nl-panel" aria-live="polite">${panelHTML(v)}</section>
         <div class="nl-handwrap"><span class="nl-cap">Your hand · ${P.hand.length} cards${P.hand.length > N.HAND ? ` · keep ${N.HAND} at the end of your turn` : ""} · only you can see it</span>
-          <div class="nl-hand">${handOrder(P.hand).map(id => { const g = (ui.trade && ui.trade.p != null && ui.trade.give.includes(id)) || (ui.dump && ui.dump.includes(id)), s = ui.sel === id, isNew = !prevHand || !prevHand.includes(id);
+          <div class="nl-hand">${handOrder(P.hand).map(id => { const g = (ui.trade && ui.trade.give.includes(id)) || (ui.dump && ui.dump.includes(id)) || (ui.bid && ui.bid.includes(id)), s = ui.sel === id, isNew = !prevHand || !prevHand.includes(id);
             return cardHTML(id, { tag: "button", cls: (g ? "give" : s ? "sel" : "") + (isNew ? " fresh" : ""), attrs: `data-n="card" data-id="${id}"`, face: myFace, style: isNew ? `--d:${fresh++}` : "" }); }).join("") || `<p class="nl-empty">No cards in hand.</p>`}</div></div>
       </div>` : `<p class="nl-muted" style="margin-top:1rem">You're watching this game.</p>`}
       <section class="nl-log"><span class="nl-cap">At the stalls</span><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}</li>`).join("")}</ol></section>
@@ -372,7 +397,7 @@
         <li>Draw 2 cards. This isn't a move.</li>
         <li>Then make up to 3 moves, in any order: <b>make a Nasi Lemak</b>, <b>trade</b>, or <b>play an action card</b>.</li>
         <li><b>Make a Nasi Lemak</b> with one each of Rice, Egg, Peanuts, Sambal Bilis and Cucumber. You take the top card of the Nasi Lemak pile, face down: it holds 1 or 2 packs.</li>
-        <li><b>Trade</b> only on your turn, with anyone, on any terms: 2 for 1 is fine. Ingredients, Fly Swatters and Fans can be traded. It counts as a move only if they accept.</li>
+        <li><b>Trade</b> by opening the market on your turn: put up the cards you'll give and say what you're looking for. Everyone else bids with cards from their hand, and everyone sees the bids. Take the bid you like best, on any terms: 2 for 1 is fine. Ingredients, Fly Swatters and Fans can be traded. It counts as a move only when you take a bid.</li>
         <li><b>Empty hand</b>: if you start your turn with no cards, draw 3 instead of 2.</li>
         <li><b>Hand limit</b>: you can hold ${N.HAND} cards. When you end your turn with more, pick the extras to discard. If your time runs out, random ones go.</li>
         <li><b>Win</b> with 5 packs on your turn. A Nasi Lemak with a Fly on it doesn't count. If the Nasi Lemak pile runs out, the most packs wins.</li></ul>
@@ -396,7 +421,12 @@
           if (k >= 0) ui.dump.splice(k, 1); else if (ui.dump.length < extra) ui.dump.push(id); else return flash(`You only need to discard ${extra}.`);
           return render();
         }
-        if (ui.trade && ui.trade.p != null) {
+        if (ui.bid) {
+          if (!N.tradable(N.typeOf(id))) return flash("Only ingredients, Fly Swatters and Fans can be traded.");
+          const k = ui.bid.indexOf(id); if (k >= 0) ui.bid.splice(k, 1); else ui.bid.push(id);
+          return render();
+        }
+        if (ui.trade) {
           if (!N.tradable(N.typeOf(id))) return flash("Only ingredients, Fly Swatters and Fans can be traded.");
           const k = ui.trade.give.indexOf(id); if (k >= 0) ui.trade.give.splice(k, 1); else ui.trade.give.push(id);
           return render();
@@ -417,13 +447,15 @@
         return act(mk != null ? { t: "make", makcik: mk, cards: pickTypes.map(t => by[t][0]) } : { t: "make", cards: N.ING_KEYS.map(t => by[t][0]) });
       }
       case "play": return act({ t: "play", card: ui.sel, ing: d.ing, p: num("p"), slot: num("slot"), to: num("to") });
-      case "tradeopen": ui.trade = { p: null, give: [], want: {} }; ui.sel = null; return render();
-      case "tradeto": ui.trade.p = num("p"); return render();
+      case "tradeopen": ui.trade = { give: [], want: {} }; ui.sel = null; return render();
       case "tradeclose": ui.trade = null; return render();
       case "want": { const t = d.t, w = ui.trade.want; w[t] = Math.max(0, Math.min(10, (w[t] || 0) + +d.d)); return render(); }
-      case "tradesend": { const tr = ui.trade; return act({ t: "trade", p: tr.p, give: tr.give, want: Object.entries(tr.want).filter(([, x]) => x > 0).map(([t, x]) => ({ t, n: x })) }); }
+      case "tradesend": { const tr = ui.trade; return act({ t: "trade", give: tr.give, want: Object.entries(tr.want).filter(([, x]) => x > 0).map(([t, x]) => ({ t, n: x })) }); }
       case "cancel": return act({ t: "cancel" });
-      case "answer": return act({ t: "answer", yes: d.yes === "1" });
+      case "bid": return act({ t: "bid", cards: ui.bid || [] });
+      case "bidclear": ui.bid = []; return act({ t: "bid", cards: [] });
+      case "bidfill": { const f = fillFor(P, S.pending.want); if (f) ui.bid = f; return render(); }
+      case "accept": return act({ t: "accept", p: num("p") });
       case "pick": { const id = +d.id, need = Math.min(2, (S.pending && S.pending.hand || []).length); const k = ui.take.indexOf(id);
         if (k >= 0) ui.take.splice(k, 1); else if (ui.take.length < need) ui.take.push(id); return render(); }
       case "take": return act({ t: "take", cards: ui.take });

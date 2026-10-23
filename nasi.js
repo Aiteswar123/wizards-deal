@@ -136,34 +136,36 @@
     if (!P) return err("You're not at this table.");
     const t = act && act.t, pd = s.pending;
 
-    // The player asked to trade answers on someone else's turn.
-    if (t === "answer") {
-      if (!pd || pd.k !== "trade" || pd.to !== a) return err("There's no trade waiting for you.");
-      const T = s.players[pd.from];
-      if (!act.yes) {
-        s.pending = null; stamp(s, { k: "trade", p: pd.from, q: a, ok: false });
-        log(s, `@${a} turned down @${pd.from}'s trade.`);
-        return { state: s };
-      }
-      const got = [], pool = P.hand.slice();
-      for (const w of pd.want) for (let i = 0; i < w.n; i++) {
-        const id = pool.find(x => typeOf(x) === w.t && !got.includes(x));
-        if (id == null) return err(`You don't have enough ${cardName(w.t)} for this trade.`);
-        got.push(id);
-      }
-      if (!pd.give.every(id => T.hand.includes(id))) { s.pending = null; log(s, "The trade fell through."); return { state: s }; }
-      pd.give.forEach(id => { take(T.hand, id); P.hand.push(id); });
-      got.forEach(id => { take(P.hand, id); T.hand.push(id); });
-      s.pending = null; if (evk(s) !== "pasar") s.moves++; T.moved = (T.moved || 0) + 1;
-      stamp(s, { k: "trade", p: pd.from, q: a, ok: true, gave: pd.give.length, got: got.length });
-      log(s, `@${pd.from} and @${a} made a trade: ${plural(pd.give.length, "card")} for ${plural(got.length, "card")}.`);
+    // Open market: while a player's trade is up, everyone else bids with cards from their own hand.
+    // An empty bid takes yours back. Bids are public, so players can outbid each other.
+    if (t === "bid") {
+      if (!pd || pd.k !== "market") return err("There's no market open right now.");
+      if (pd.from === a) return err("You can't bid on your own trade.");
+      const ids = Array.isArray(act.cards) ? act.cards : [];
+      if (new Set(ids).size !== ids.length || !ids.every(id => P.hand.includes(id))) return err("Bid with cards from your hand.");
+      if (!ids.every(id => tradable(typeOf(id)))) return err("Only ingredients, Fly Swatters and Fans can be traded.");
+      if (ids.length > 10) return err("Bid at most 10 cards.");
+      const had = pd.bids[a] != null;
+      if (ids.length) pd.bids[a] = ids; else delete pd.bids[a];
+      stamp(s, { k: "bid", p: a, q: pd.from });
+      log(s, ids.length ? `@${a} ${had ? "changed their bid" : "bid"}: ${ids.map(id => cardName(typeOf(id))).join(", ")}.` : `@${a} took back their bid.`);
       return { state: s };
     }
 
     if (s.turn !== a) return err("It's not your turn.");
-    if (pd && pd.k === "trade") {
-      if (t === "cancel") { s.pending = null; log(s, `@${a} withdrew the trade offer.`); return { state: s }; }
-      return err("Wait for the answer to your trade, or withdraw it.");
+    if (pd && (pd.k === "market" || pd.k === "trade")) {
+      if (t === "cancel") { s.pending = null; log(s, `@${a} closed the market.`); return { state: s }; }
+      if (t !== "accept" || pd.k !== "market") return err("Take a bid, or close the market first.");
+      const q = act.p, bid = pd.bids[q], Q = s.players[q];
+      if (!bid || !Q) return err("That player hasn't bid.");
+      if (!pd.give.every(id => P.hand.includes(id))) { s.pending = null; log(s, "The trade fell through."); return { state: s }; }
+      if (!bid.every(id => Q.hand.includes(id))) { delete pd.bids[q]; return err("That bid is no longer good."); }
+      pd.give.forEach(id => { take(P.hand, id); Q.hand.push(id); });
+      bid.forEach(id => { take(Q.hand, id); P.hand.push(id); });
+      s.pending = null; if (evk(s) !== "pasar") s.moves++; P.moved = (P.moved || 0) + 1;
+      stamp(s, { k: "trade", p: a, q, ok: true, gave: pd.give.length, got: bid.length });
+      log(s, `@${a} took @${q}'s bid: ${pd.give.length ? pd.give.map(id => cardName(typeOf(id))).join(", ") : "nothing"} for ${bid.map(id => cardName(typeOf(id))).join(", ")}.`);
+      return { state: s };
     }
     if (pd && pd.k === "officer") {
       if (t !== "take") return err("Pick the cards you want to take first.");
@@ -216,17 +218,15 @@
 
     if (t === "trade") {
       if (evk(s) === "hujan") return err("Hujan Lebat: no trading this round.");
-      const q = act.p, Q = s.players[q];
-      if (q === a || !Q) return err("Choose another player to trade with.");
       const give = Array.isArray(act.give) ? act.give : [];
       const want = (Array.isArray(act.want) ? act.want : []).filter(w => w && w.n > 0);
       if (new Set(give).size !== give.length || !give.every(id => P.hand.includes(id))) return err("Offer cards from your hand.");
       if (!give.every(id => tradable(typeOf(id)))) return err("Only ingredients, Fly Swatters and Fans can be traded.");
       if (!want.every(w => tradable(w.t) && Number.isInteger(w.n) && w.n <= 10)) return err("Ask only for ingredients, Fly Swatters or Fans.");
       if (!give.length && !want.length) return err("Offer or ask for at least one card.");
-      s.pending = { k: "trade", from: a, to: q, give, want };
-      stamp(s, { k: "offer", p: a, q });
-      log(s, `@${a} offered @${q} a trade.`);
+      s.pending = { k: "market", from: a, give, want, bids: {} };
+      stamp(s, { k: "market", p: a });
+      log(s, `@${a} opened the market: giving ${give.length ? give.map(id => cardName(typeOf(id))).join(", ") : "nothing"}${want.length ? `, looking for ${want.map(w => `${w.n} ${cardName(w.t)}`).join(", ")}` : ""}. Place your bids!`);
       return { state: s };
     }
 
@@ -310,15 +310,12 @@
     return err("Unknown move.");
   }
 
-  // ---- turn clock: three minutes a turn; a trade offer waits 30 seconds for an answer ----
+  // ---- turn clock: three minutes a turn; the market stays open until the trader takes a bid, closes it, or runs out of time ----
   function syncClock(prev, s, now) {
     if (s.status !== "play") { s.clock = null; return s; }
     const fresh = !prev || prev.status !== "play" || !prev.clock || prev.created !== s.created || prev.turnN !== s.turnN;
     const c = fresh ? { turn: s.turn, left: TURN_MS, since: now, resp: null, wait: [] } : Object.assign({}, prev.clock);
-    const tr = s.pending && s.pending.k === "trade";
-    const same = tr && prev && prev.pending && prev.pending.k === "trade" && prev.pending.to === s.pending.to && c.resp;
-    c.resp = tr ? (same ? c.resp : now + RESPOND_MS) : null;
-    c.wait = tr ? [s.pending.to] : [];
+    c.resp = null; c.wait = [];
     s.clock = c;
     return s;
   }
@@ -327,15 +324,11 @@
     if (s0.status !== "play" || !c) return null;
     let s = s0, changed = false;
     const run = (seat, act) => { const r = apply(s, seat, act); if (!r.error) { s = r.state; changed = true; } return !r.error; };
-    if (s.pending && s.pending.k === "trade" && c.resp && now >= c.resp) {
-      const q = s.pending.to;
-      if (run(q, { t: "answer", yes: false })) log(s, `@${q} didn't answer in time.`);
-    }
     if (now - c.since >= c.left) {
       const a = s.turn;
       if (s === s0) s = clone(s0);
       log(s, `@${a} ran out of time.`); changed = true;
-      if (s.pending && s.pending.k === "trade") s.pending = null;
+      if (s.pending && (s.pending.k === "market" || s.pending.k === "trade")) s.pending = null;
       if (s.pending && s.pending.k === "officer") { const T = s.players[s.pending.to]; run(a, { t: "take", cards: shuffle(T.hand.slice()).slice(0, Math.min(2, T.hand.length)) }); }
       if (!s.drew) run(a, { t: "draw" });
       // out of time with too many cards: random ones go to the discard pile
@@ -344,7 +337,9 @@
     }
     return changed ? syncClock(s0, s, now) : null;
   }
-  const waitingOn = s => s.status !== "play" ? [] : s.pending && s.pending.k === "trade" ? [s.pending.to] : [s.turn];
+  // during a market the trader decides; everyone who hasn't bid yet may still want to
+  const waitingOn = s => s.status !== "play" ? [] : s.pending && s.pending.k === "market"
+    ? [s.turn, ...s.players.map((p, i) => i).filter(i => i !== s.turn && s.pending.bids[i] == null)] : [s.turn];
 
   // ---- ranking (its own Hall of Fame: Stall Champions) ----
   // Winner 100; the rest place by packs, then Nasi Lemak cards: 2nd 60, 3rd 45, everyone else 30.
