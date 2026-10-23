@@ -155,6 +155,9 @@ html[data-game=nasi] .k-scene{display:block}
 .nl-event.ev-kenduri{--ev:var(--k-sun)}.nl-event.ev-raya{--ev:#6fd36a}.nl-event.ev-lewat{--ev:#f08a7a}
 .nl-event.flip{animation:k-evflip .8s var(--k-pop) both}
 @keyframes k-evflip{0%{transform:perspective(600px) rotateX(90deg);opacity:0}100%{transform:none;opacity:1}}
+.nl-cover{position:absolute;left:50%;top:-34%;width:78%;transform:translateX(-50%);filter:drop-shadow(0 2px 1px rgba(40,20,8,.35))}
+.nl-cover svg{width:100%;height:auto}
+.nl-stats span.lori{background:#dbe7ff;color:#1b3466}
 .nl-rush{position:absolute;left:-.3rem;bottom:-.25rem;padding:0 .25rem;border-radius:6px;background:var(--k-orange);color:#fff;border:2px solid var(--k-ink);font:800 .62rem/1rem var(--k-body)}
 @media (prefers-reduced-motion:reduce){.nl-event.flip{animation:none}}
 

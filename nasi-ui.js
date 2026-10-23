@@ -27,6 +27,11 @@
     makcik: `<path d="M14 54c0-14 8-26 18-26s18 12 18 26z" fill="#2f6b3a"/><circle cx="32" cy="28" r="11" fill="#e2b98f"/><path d="M19 30c0-12 6-18 13-18s13 6 13 18c-3-6-8-9-13-9s-10 3-13 9z" fill="#c8372d"/><path d="M27 31q5 4 10 0" stroke="#6b3b22" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
     fly: `<ellipse cx="22" cy="24" rx="10" ry="6" fill="#cfe6f5" opacity=".85" transform="rotate(-30 22 24)"/><ellipse cx="42" cy="24" rx="10" ry="6" fill="#cfe6f5" opacity=".85" transform="rotate(30 42 24)"/><ellipse cx="32" cy="36" rx="8" ry="12" fill="#1d2420"/><circle cx="32" cy="24" r="6" fill="#1d2420"/><circle cx="29" cy="23" r="2.2" fill="#b3261e"/><circle cx="35" cy="23" r="2.2" fill="#b3261e"/>`,
     swatter: `<rect x="14" y="10" width="26" height="26" rx="4" fill="#d94a3a" transform="rotate(-20 27 23)"/><g stroke="#a12f22" stroke-width="1.5" transform="rotate(-20 27 23)"><path d="M14 19h26M14 27h26M23 10v26M31 10v26"/></g><path d="M33 38l14 16" stroke="#7a5220" stroke-width="4" stroke-linecap="round"/>`,
+    guard: `<path d="M32 8l20 7v14c0 13-9 22-20 27-11-5-20-14-20-27V15z" fill="#2f5aa8" stroke="#1b3466" stroke-width="2"/><path d="M32 16l12 4v10c0 8-5 14-12 18-7-4-12-10-12-18V20z" fill="#e3a72f"/><path d="M26 31l5 5 9-10" stroke="#1b3466" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+    saji: `<path d="M8 44c0-16 11-28 24-28s24 12 24 28z" fill="#d9a35b" stroke="#8a5a2b" stroke-width="2"/><path d="M14 38c3-10 9-16 18-17M50 38c-3-10-9-16-18-17M32 16v28M20 26l24 0M15 34h34" stroke="#a8742f" stroke-width="1.6" fill="none"/><path d="M8 44h48" stroke="#c8372d" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="14" r="3.5" fill="#c8372d"/>`,
+    rahsia: `<path d="M14 26h36l-4 26H18z" fill="#f2efe6" stroke="#9a8f78" stroke-width="2"/><path d="M17 30c4 6 26 6 30 0l-2 12c-5 4-21 4-26 0z" fill="#c8372d"/><path d="M22 18c2-6 6-6 6 0M32 16c2-6 6-6 6 0" stroke="#ffcf3f" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="44" cy="20" r="6" fill="#ffcf3f"/><path d="M44 16v8M40 20h8" stroke="#c8372d" stroke-width="1.8"/>`,
+    teleport: `<circle cx="32" cy="32" r="20" fill="#ffd23f" stroke="#a8742f" stroke-width="2"/><circle cx="32" cy="32" r="13" fill="#fff6d0"/><rect x="24" y="27" width="16" height="9" rx="4.5" fill="#1d2420"/><circle cx="28" cy="31.5" r="2.2" fill="#5fd0ff"/><circle cx="36" cy="31.5" r="2.2" fill="#5fd0ff"/><path d="M6 32a26 26 0 0 1 8-18M58 32a26 26 0 0 1-8 18" stroke="#3d7bff" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M12 10l2 5 5-1M52 54l-2-5-5 1" stroke="#3d7bff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+    lori: `<rect x="6" y="20" width="32" height="22" rx="2" fill="#3d7bff" stroke="#1b3466" stroke-width="2"/><path d="M38 26h10l8 9v7H38z" fill="#ffd23f" stroke="#1b3466" stroke-width="2" stroke-linejoin="round"/><path d="M42 29h5l4 5h-9z" fill="#cfe6f5"/><circle cx="16" cy="45" r="5" fill="#1d2420"/><circle cx="46" cy="45" r="5" fill="#1d2420"/><path d="M22 12c2 3 0 5 2 8M30 10c2 3 0 6 2 9" stroke="#8a8a8a" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M44 18l3-6 2 4 3-5" stroke="#c8372d" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
     fan: `<path d="M32 46L14 20a26 26 0 0 1 36 0z" fill="#e3a72f"/><path d="M32 46L20 18M32 46V16M32 46l12-28" stroke="#a8742f" stroke-width="1.6"/><path d="M14 20a26 26 0 0 1 36 0" fill="none" stroke="#c8372d" stroke-width="3"/><path d="M32 46v10" stroke="#7a5220" stroke-width="4" stroke-linecap="round"/>`
   };
   // each stall's awning colour: sambal red, pandan green, sunshine orange, bunga telang blue, ube purple
@@ -81,6 +86,10 @@
     fly:        { call: "Bzzz!",       icon: "fly",       fx: "#5b4f78", fx2: "#d9d3ea", say: "landed a Fly on" },
     swatter:    { call: "Swat!",       icon: "swatter",   fx: "#ff4b3e", fx2: "#ffd0cb", say: "swatted the fly away" },
     fan:        { call: "Whoosh!",     icon: "fan",       fx: "#ffb52e", fx2: "#fff1b8", say: "fanned the fly over to" },
+    guard:      { call: "Jaga!",       icon: "guard",     fx: "#3d7bff", fx2: "#cfe0ff", say: "had Pak Guard stop an attack from" },
+    saji:       { call: "Tutup!",      icon: "saji",      fx: "#d9a35b", fx2: "#fff1d6", say: "covered a Nasi Lemak with Tudung Saji" },
+    teleport:   { call: "Teleport!",   icon: "teleport",  fx: "#ffd23f", fx2: "#fff6d0", say: "swapped a Nasi Lemak with" },
+    lori:       { call: "Rosak!",      icon: "lori",      fx: "#3d7bff", fx2: "#cfe0ff", say: "broke down the lorry of" },
     trade:      { call: "Deal!",       icon: null,        fx: "#34c25a", fx2: "#d6f7c9", say: "made a trade with" }
   };
   const fx = { seen: null, code: null, queue: [], timer: null };
@@ -157,7 +166,7 @@
   document.addEventListener("click", e => { if (e.target.closest("[data-nd-open]")) openDesign(); });
 
   // BoBoiBoy Elemental fronts: each ingredient is one of BoBoiBoy's elements, shown on a Power Watch badge
-  const ELEMENT = { rice: "light", egg: "lightning", peanut: "earth", sambal: "fire", cucumber: "leaf", fly: "water" };
+  const ELEMENT = { rice: "light", egg: "lightning", peanut: "earth", sambal: "fire", cucumber: "leaf", fly: "water", guard: "earth", saji: "leaf", rahsia: "fire", teleport: "light" };
   const GLYPH = {
     lightning: '<path d="M13.5 2 4.5 13.5h6l-1.5 8.5 9.5-12.5h-6.2z"/>',
     wind: '<path d="M3 8.5h10.5a3 3 0 1 0-3-3M3 12.5h14.5a3.2 3.2 0 1 1-3.2 3.2M3 16.5h7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
@@ -175,7 +184,7 @@
     const el = o.face === "boboiboy" ? ELEMENT[t] || "wind" : null;
     return `<${tag} class="nl-card ${ing ? "ing" : "act"} f-${o.face || "classic"}${el ? " el-" + el : ""} ${o.cls || ""}" style="--band:${ing ? BAND[t] : t === "fly" ? "#8f86ad" : "#ff8a1f"};${o.style || ""}" ${o.attrs || ""}>${el ? badge(el) : ""}${svg(t)}<b>${esc(ing ? ing.n : A.n)}</b><i>${esc(ing ? ing.ms : A.ms)}</i></${tag}>`;
   }
-  const packsHTML = (p, mine, fresh = Infinity) => p.nl.length ? `<div class="nl-packs">${p.nl.map((e, k) => `<span class="nl-pack${e.fly != null ? " flied" : ""}${k >= fresh ? " fresh" : ""}" title="${e.fly != null ? "A fly is on this Nasi Lemak: it doesn't count" : mine || e.n >= 0 ? N.entryPacks(e) + " pack" + (N.entryPacks(e) > 1 ? "s" : "") : "Face down"}${e.bonus ? " (Lunch Rush +1)" : ""}">${parcel(e.n >= 0 ? N.entryPacks(e) : "", e.n >= 0)}${e.fly != null ? svg("fly", "fly") : ""}${e.bonus ? `<span class="nl-rush" aria-hidden="true">+1</span>` : ""}<span class="cnt">${k + 1}</span></span>`).join("")}</div>` : `<p class="nl-empty">No Nasi Lemak yet.</p>`;
+  const packsHTML = (p, mine, fresh = Infinity) => p.nl.length ? `<div class="nl-packs">${p.nl.map((e, k) => `<span class="nl-pack${e.fly != null ? " flied" : ""}${k >= fresh ? " fresh" : ""}" title="${e.fly != null ? "A fly is on this Nasi Lemak: it doesn't count" : mine || e.n >= 0 ? N.entryPacks(e) + " pack" + (N.entryPacks(e) > 1 ? "s" : "") : "Face down"}${e.bonus ? " (Lunch Rush +1)" : ""}${e.cover != null ? " · under a Tudung Saji" : ""}">${parcel(e.n >= 0 ? N.entryPacks(e) : "", e.n >= 0)}${e.fly != null ? svg("fly", "fly") : ""}${e.bonus ? `<span class="nl-rush" aria-hidden="true">+1</span>` : ""}${e.cover != null ? `<span class="nl-cover" aria-hidden="true">${svg("saji")}</span>` : ""}<span class="cnt">${k + 1}</span></span>`).join("")}</div>` : `<p class="nl-empty">No Nasi Lemak yet.</p>`;
 
   const ui = { sel: null, step: {}, trade: null, take: [], bid: null, key: "" };
   const ev = () => S.event && S.event.k;
@@ -208,6 +217,7 @@
         <div class="nl-row"><button class="nl-btn go" data-n="take" ${ui.take.length === need ? "" : "disabled"}>Take ${need} card${need === 1 ? "" : "s"}</button></div>`;
     }
     const dn = N.drawFor(S), mv = N.movesFor(S);
+    if (!S.drew && P.lori) return `<h3>Your lorry broke down</h3><p class="nl-muted">Someone played Lori Rosak on you: no cards this turn. Drawing isn't one of your ${mv} moves.</p><div class="nl-row"><button class="nl-btn go" data-n="draw">Carry on without cards</button></div>`;
     if (!S.drew) return `<h3>Your turn</h3><p class="nl-muted">Start by drawing ${dn} cards${!P.hand.length ? ", one extra because your hand is empty" : ""}. Drawing isn't one of your ${mv} moves.</p><div class="nl-row"><button class="nl-btn go" data-n="draw">Draw ${dn} cards</button></div>`;
     const extra = P.hand.length - N.HAND;
     if (ui.dump && extra > 0) return `<h3>Too many cards</h3><p class="nl-muted">You can keep ${N.HAND}. Tap ${extra} card${extra === 1 ? "" : "s"} in your hand to discard. ${ui.dump.length} of ${extra} picked.</p>
@@ -216,12 +226,14 @@
     if (left <= 0) return `<h3>All ${mv} moves used</h3><p class="nl-muted">End your turn when you're ready.</p><div class="nl-row">${end}</div>`;
     if (ui.trade) return tradeHTML(v) ;
     if (ui.sel != null) return selectedHTML(v) + `<div class="nl-row"><button class="nl-btn small" data-n="unsel">Cancel</button>${end}</div>`;
-    const by = ingsOf(P), types = Object.keys(by).length, mk = P.hand.find(id => N.typeOf(id) === "makcik");
+    const by = ingsOf(P), types = Object.keys(by).length, mk = P.hand.find(id => N.typeOf(id) === "makcik"), rh = P.hand.find(id => N.typeOf(id) === "rahsia");
     const missing = N.ING_KEYS.filter(t => !by[t]).map(t => N.ING[t].n);
     return `<h3>${left} move${left === 1 ? "" : "s"} left</h3>
       <div class="nl-opts">
         ${opt("make", {}, "Make a Nasi Lemak", types === 5 ? "Uses one of each ingredient" : `Still missing: ${missing.join(", ")}`, types < 5 || !S.nlPile.length)}
+        ${rh != null && types === 4 ? opt("make", { rh }, "Make one with Sambal Rahsia", `It stands in for the ${missing[0]}`, !S.nlPile.length) : ""}
         ${mk != null ? opt("make", { mk }, "Make one with Mak Cik", types >= 3 ? "Uses Mak Cik plus 3 different ingredients" : "You need 3 different ingredients", types < 3 || !S.nlPile.length) : ""}
+        ${mk != null && rh != null && types === 2 ? opt("make", { mk, rh }, "Make one with Mak Cik and Sambal Rahsia", "Uses both plus 2 different ingredients", !S.nlPile.length) : ""}
         ${opt("tradeopen", {}, "Open the market", ev() === "hujan" ? "Hujan Lebat: no trading this round" : ev() === "pasar" ? "Pasar Malam: trades are free this round" : "Put cards up for trade and let everyone bid", ev() === "hujan")}
       </div>
       <p class="nl-muted" style="font-size:.88rem">Or tap an action card in your hand to play it.</p>
@@ -236,12 +248,27 @@
     if (ev() === "raya" && N.RAYA_BLOCKS.includes(t)) return head + none("Hari Raya Open House: everyone's friends this round. Keep this card for the next one.");
     switch (t) {
       case "makcik": body = none("Use the “Make one with Mak Cik” button once you have 3 different ingredients."); break;
+      case "rahsia": body = none("Use the “Make one with Sambal Rahsia” button once you have 4 different ingredients."); break;
+      case "guard": body = none("Keep Pak Guard in your hand. The next attack on you is stopped by itself."); break;
+      case "saji": {
+        const list = P.nl.map((e, k) => e.fly == null && e.cover == null ? opt("play", { slot: k }, `Cover Nasi Lemak ${k + 1}`, "No fly can land on it again") : "").join("");
+        body = list || none("You need a Nasi Lemak with no fly and no cover. Keep this for later.");
+        break;
+      }
+      case "teleport": {
+        if (!P.nl.length) { body = none("Wrap a Nasi Lemak first, then swap it."); break; }
+        if (st.slot == null) { body = P.nl.map((e, k) => opt("step", { slot: k }, `Send your Nasi Lemak ${k + 1}`, e.fly != null ? "It has a fly on it" : e.cover != null ? "Under a Tudung Saji" : "")).join(""); break; }
+        const list = []; others(v).forEach(p => S.players[p].nl.forEach((e, k) => list.push(opt("play", { slot: st.slot, p, to: k }, `For ${esc(nameOf(p))}'s Nasi Lemak ${k + 1}`, e.fly != null ? "It has a fly on it" : "Face down: 1 or 2 packs"))));
+        body = list.join("") || none("Nobody else has a Nasi Lemak yet.");
+        break;
+      }
+      case "lori": body = others(v).map(p => opt("play", { p }, `Break down ${esc(nameOf(p))}'s lorry`, S.players[p].lori ? "Already broken down" : "No cards on their next draw", S.players[p].lori)).join(""); break;
       case "supplier": body = N.ING_KEYS.map(k => opt("play", { ing: k }, `Call for ${esc(N.ING[k].n)}`, `You hold ${countIn(P, k)}`)).join(""); break;
       case "thief": body = opt("play", {}, "Send the Thief", "One random card from each other player"); break;
       case "wholesaler": body = opt("play", {}, "Call the Wholesaler", `${S.deck.length} cards in the draw pile`); break;
       case "officer": body = others(v).map(p => opt("play", { p }, `Inspect ${esc(nameOf(p))}`, `${S.players[p].hand.length} cards in hand`, !S.players[p].hand.length)).join(""); break;
       case "fly": {
-        const list = []; others(v).forEach(p => S.players[p].nl.forEach((e, k) => { if (e.fly == null) list.push(opt("play", { p, slot: k }, `${esc(nameOf(p))} · Nasi Lemak ${k + 1}`, "Land the fly here")); }));
+        const list = []; others(v).forEach(p => S.players[p].nl.forEach((e, k) => { if (e.fly == null && e.cover == null) list.push(opt("play", { p, slot: k }, `${esc(nameOf(p))} · Nasi Lemak ${k + 1}`, "Land the fly here")); }));
         body = list.join("") || none("Nobody has a Nasi Lemak without a fly yet.");
         break;
       }
@@ -252,7 +279,7 @@
       }
       case "fan": {
         if (st.slot == null) { const list = P.nl.map((e, k) => e.fly != null ? opt("step", { slot: k }, `Fan the fly off Nasi Lemak ${k + 1}`) : "").join(""); body = list || none("None of your Nasi Lemak has a fly. Keep this for later."); }
-        else { const list = []; others(v).forEach(p => S.players[p].nl.forEach((e, k) => { if (e.fly == null) list.push(opt("play", { slot: st.slot, p, to: k }, `Onto ${esc(nameOf(p))}'s Nasi Lemak ${k + 1}`)); }));
+        else { const list = []; others(v).forEach(p => S.players[p].nl.forEach((e, k) => { if (e.fly == null && e.cover == null) list.push(opt("play", { slot: st.slot, p, to: k }, `Onto ${esc(nameOf(p))}'s Nasi Lemak ${k + 1}`)); }));
           body = list.join("") || none("Nobody else has a Nasi Lemak without a fly."); }
         break;
       }
@@ -262,10 +289,10 @@
 
   function tradeHTML(v) {
     const P = S.players[v], tr = ui.trade;
-    const types = [...N.ING_KEYS, "swatter", "fan"];
+    const types = [...N.ING_KEYS, ...N.TRADE_ACTS];
     const giveN = tr.give.length, wantN = Object.values(tr.want).reduce((a, b) => a + b, 0);
     return `<h3>Open the market</h3>
-      <p class="nl-muted" style="font-size:.88rem"><b>You give:</b> tap ingredients, Fly Swatters or Fans in your hand. ${giveN ? `${giveN} picked.` : "Nothing picked yet."}</p>
+      <p class="nl-muted" style="font-size:.88rem"><b>You give:</b> tap ingredients or defence cards in your hand. ${giveN ? `${giveN} picked.` : "Nothing picked yet."}</p>
       <p class="nl-muted" style="font-size:.88rem;margin-bottom:-.2rem"><b>You're looking for</b> (a hint for bidders; you can take any bid):</p>
       <div class="nl-steps">${types.map(t => `<span>${esc(N.cardName(t))}</span><button class="nl-btn small" data-n="want" data-t="${t}" data-d="-1" aria-label="Fewer ${esc(N.cardName(t))}" ${tr.want[t] ? "" : "disabled"}>−</button><b style="text-align:center;min-width:1.2rem">${tr.want[t] || 0}</b><button class="nl-btn small" data-n="want" data-t="${t}" data-d="1" aria-label="More ${esc(N.cardName(t))}">+</button>`).join("")}</div>
       <div class="nl-row"><button class="nl-btn go" data-n="tradesend" ${giveN || wantN ? "" : "disabled"}>Open for bids</button><button class="nl-btn small" data-n="tradeclose">Cancel</button></div>
@@ -288,7 +315,7 @@
       <p class="nl-muted" style="font-size:.82rem">Take any bid you like. ${ev() === "pasar" ? "Pasar Malam: it won't use a move." : "It uses a move once you trade."}</p>`;
     if (!P) return head + list;
     const sel = ui.bid || [], had = pd.bids[v], fill = fillFor(P, pd.want);
-    return head + list + `<p class="nl-muted" style="font-size:.88rem">Tap ingredients, Fly Swatters or Fans in your hand to build your bid. ${sel.length ? `<b>${sel.length} picked:</b> ${names(sel)}` : "Nothing picked yet."}</p>
+    return head + list + `<p class="nl-muted" style="font-size:.88rem">Tap ingredients or defence cards in your hand to build your bid. ${sel.length ? `<b>${sel.length} picked:</b> ${names(sel)}` : "Nothing picked yet."}</p>
       <div class="nl-row"><button class="nl-btn go" data-n="bid" ${sel.length ? "" : "disabled"}>${had ? "Update my bid" : "Place my bid"}</button>
         ${fill ? `<button class="nl-btn small" data-n="bidfill">Pick what they want</button>` : ""}
         ${had ? `<button class="nl-btn small" data-n="bidclear">Take back my bid</button>` : ""}</div>`;
@@ -339,7 +366,7 @@
         <div class="nl-sign"><i class="nl-av" aria-hidden="true">${esc((nameOf(i) || "?").trim().charAt(0).toUpperCase())}</i><b>${esc(nick)}</b>${tag}</div>
         <div class="nl-counter">
           <div class="nl-minis" aria-hidden="true">${Array.from({ length: Math.min(O.hand.length, 7) }, () => `<i class="nl-mini b-${backOf(i)}"></i>`).join("")}</div>
-          <div class="nl-stats"><span><b>${O.hand.length}</b> cards</span><span><b>${O.nl.length}</b> wrapped</span>${S.status === "over" || i === v ? `<span><b>${N.packs(O)}</b> packs</span>` : ""}</div>
+          <div class="nl-stats"><span><b>${O.hand.length}</b> cards</span><span><b>${O.nl.length}</b> wrapped</span>${O.lori ? `<span class="lori">Lori rosak</span>` : ""}${S.status === "over" || i === v ? `<span><b>${N.packs(O)}</b> packs</span>` : ""}</div>
           ${O.nl.length ? packsHTML(O, i === v, prevPacks ? prevPacks[i] : Infinity) : `<p class="nl-empty">Nothing wrapped yet</p>`}</div></article>`;
     };
     let fresh = 0;
@@ -397,14 +424,14 @@
         <li>Draw 2 cards. This isn't a move.</li>
         <li>Then make up to 3 moves, in any order: <b>make a Nasi Lemak</b>, <b>trade</b>, or <b>play an action card</b>.</li>
         <li><b>Make a Nasi Lemak</b> with one each of Rice, Egg, Peanuts, Sambal Bilis and Cucumber. You take the top card of the Nasi Lemak pile, face down: it holds 1 or 2 packs.</li>
-        <li><b>Trade</b> by opening the market on your turn: put up the cards you'll give and say what you're looking for. Everyone else bids with cards from their hand, and everyone sees the bids. Take the bid you like best, on any terms: 2 for 1 is fine. Ingredients, Fly Swatters and Fans can be traded. It counts as a move only when you take a bid.</li>
+        <li><b>Trade</b> by opening the market on your turn: put up the cards you'll give and say what you're looking for. Everyone else bids with cards from their hand, and everyone sees the bids. Take the bid you like best, on any terms: 2 for 1 is fine. Ingredients and defence cards (Fly Swatter, Fan, Pak Guard, Tudung Saji, Sambal Rahsia) can be traded. It counts as a move only when you take a bid.</li>
         <li><b>Empty hand</b>: if you start your turn with no cards, draw 3 instead of 2.</li>
         <li><b>Hand limit</b>: you can hold ${N.HAND} cards. When you end your turn with more, pick the extras to discard. If your time runs out, random ones go.</li>
         <li><b>Win</b> with 5 packs on your turn. A Nasi Lemak with a Fly on it doesn't count. If the Nasi Lemak pile runs out, the most packs wins.</li></ul>
         <h3>Kopitiam events</h3><ul><li>Each round, once everyone has had a turn, a new event is flipped on the board. It changes one rule for the whole table until the next round.</li>
         ${Object.values(N.EVENTS).map(E => `<li><b>${esc(E.n)}</b>: ${esc(E.d)}</li>`).join("")}</ul></div>
       <div><h3>Action cards</h3><ul>${acts}</ul></div>
-      <div><h3>The deck</h3><ul><li>50 ingredients: 10 each of Rice, Egg, Peanuts, Sambal Bilis and Cucumber.</li><li>25 action cards.</li><li>15 Nasi Lemak cards: 8 with one pack, 7 with two.</li><li>Each player starts with 7 cards.</li><li>With 6 to 10 players, a second full deck and a second Nasi Lemak pile are shuffled in.</li></ul>
+      <div><h3>The deck</h3><ul><li>50 ingredients: 10 each of Rice, Egg, Peanuts, Sambal Bilis and Cucumber.</li><li>34 action cards: the rulebook's 25 plus our own 9 (2 Pak Guard, 2 Tudung Saji, 2 Sambal Rahsia, 1 Ochobot Teleport, 2 Lori Rosak).</li><li>15 Nasi Lemak cards: 8 with one pack, 7 with two.</li><li>Each player starts with 7 cards.</li><li>With 6 to 10 players, a second full deck and a second Nasi Lemak pile are shuffled in.</li></ul>
         <p class="nl-muted" style="font-size:.85rem">Based on Nasi Lemak The Game by Faculty of Fun. Fan-made and unofficial.</p></div>
     </div></details>`;
   }
@@ -422,12 +449,12 @@
           return render();
         }
         if (ui.bid) {
-          if (!N.tradable(N.typeOf(id))) return flash("Only ingredients, Fly Swatters and Fans can be traded.");
+          if (!N.tradable(N.typeOf(id))) return flash("Only ingredients and defence cards can be traded.");
           const k = ui.bid.indexOf(id); if (k >= 0) ui.bid.splice(k, 1); else ui.bid.push(id);
           return render();
         }
         if (ui.trade) {
-          if (!N.tradable(N.typeOf(id))) return flash("Only ingredients, Fly Swatters and Fans can be traded.");
+          if (!N.tradable(N.typeOf(id))) return flash("Only ingredients and defence cards can be traded.");
           const k = ui.trade.give.indexOf(id); if (k >= 0) ui.trade.give.splice(k, 1); else ui.trade.give.push(id);
           return render();
         }
@@ -442,9 +469,11 @@
       case "dumpgo": return act({ t: "end", discard: ui.dump });
       case "dumpclose": ui.dump = null; return render();
       case "make": {
-        const by = ingsOf(P), mk = num("mk");
-        const pickTypes = mk != null ? Object.keys(by).sort((x, y) => by[y].length - by[x].length).slice(0, 3) : N.ING_KEYS;
-        return act(mk != null ? { t: "make", makcik: mk, cards: pickTypes.map(t => by[t][0]) } : { t: "make", cards: N.ING_KEYS.map(t => by[t][0]) });
+        const by = ingsOf(P), mk = num("mk"), rh = num("rh");
+        // spend the ingredients you hold most of
+        const need = (mk != null ? 3 : 5) - (rh != null ? 1 : 0);
+        const pickTypes = Object.keys(by).sort((x, y) => by[y].length - by[x].length).slice(0, need);
+        return act({ t: "make", makcik: mk, rahsia: rh, cards: pickTypes.map(t => by[t][0]) });
       }
       case "play": return act({ t: "play", card: ui.sel, ing: d.ing, p: num("p"), slot: num("slot"), to: num("to") });
       case "tradeopen": ui.trade = { give: [], want: {} }; ui.sel = null; return render();
