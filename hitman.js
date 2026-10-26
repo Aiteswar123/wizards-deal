@@ -9,7 +9,7 @@
 // that follows each card; Cancel and Inferno stop the card directly under them, so they can stop each other in turn.
 (function (G) {
   "use strict";
-  const MAX_PLAYERS = 10, START = 5, TURN_MS = 20000, RESPOND_MS = 12000, REACT_MS = 3500, LOCK_TURNS = 3;
+  const MAX_PLAYERS = 10, START = 5, TURN_MS = 20000, RESPOND_MS = 25000, REACT_MS = 8000, LOCK_TURNS = 3;
   const TYPES = {
     angel:       { n: "Angel", kind: "support", d: "Saves you when you draw a Hitman. Then you choose where the Hitman goes back into the deck." },
     attack:      { n: "Attack", kind: "target", count: 5, d: "Ends your turn. The player you choose takes 2 turns. If you were attacked, the turns stack onto them: yours plus 2." },
@@ -290,7 +290,7 @@
     return err("Unknown move.");
   }
 
-  // ---- clocks: 20 seconds a draw, a short window to answer each card, 12 seconds to save yourself or hand a card over ----
+  // ---- clocks: 20 seconds a draw, 8 seconds to answer each card, 25 seconds to save yourself or hand a card over ----
   function syncClock(prev, s, now) {
     if (s.status !== "play") { s.clock = null; return s; }
     const fresh = !prev || prev.status !== "play" || !prev.clock || prev.created !== s.created || prev.step !== s.step || prev.turn !== s.turn;

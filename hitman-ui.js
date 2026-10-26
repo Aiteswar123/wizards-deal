@@ -88,11 +88,11 @@
         <p>Use ${savers.length > 1 ? "a card" : H.typeOf(pick) === "mirror" ? "your Mirror (it copies the Angel just played)" : "your Angel"} to survive, then choose where the Hitman goes back into the deck.</p>
         ${savers.length > 1 ? `<div class="hm-row">${savers.map(id => `<button class="hm-chip${id === pick ? " on" : ""}" data-h="saver" data-id="${id}">${esc(H.cardName(H.typeOf(id)))}</button>`).join("")}</div>` : ""}
         <div class="hm-pos">${[["top", "On top"], ["second", "2nd"], ["third", "3rd"], ["bottom", "Bottom"], ["random", "Random"]].map(([k, l]) => `<button class="hm-btn${k === "top" ? " red" : ""}" data-h="save" data-pos="${k}" data-id="${pick}">${l}</button>`).join("")}</div>
-        <p class="hm-muted small">Answer within <b data-clock="resp">0:12</b> or it goes back at random.</p></div>`;
+        <p class="hm-muted small">Answer within <b data-clock="resp">0:25</b> or it goes back at random.</p></div>`;
     }
     if (pd && pd.k === "hitman") return `<h3>${esc(nameOf(pd.p))} drew the Hitman</h3><p class="hm-muted">Will they survive?</p>`;
     // a Steal: pick the card to hand over
-    if (pd && pd.k === "give" && pd.from === v) return `<h3>${esc(nameOf(pd.to))} is stealing from you</h3><p class="hm-muted">Tap the card you'll hand over. Answer within <b data-clock="resp">0:12</b> or a random one goes.</p>`;
+    if (pd && pd.k === "give" && pd.from === v) return `<h3>${esc(nameOf(pd.to))} is stealing from you</h3><p class="hm-muted">Tap the card you'll hand over. Answer within <b data-clock="resp">0:25</b> or a random one goes.</p>`;
     if (pd && pd.k === "give") return `<h3>${esc(nameOf(pd.to))} is stealing from ${esc(nameOf(pd.from))}</h3><p class="hm-muted">They're choosing which card to hand over.</p>`;
     // the reaction window: what's on the table and how you can answer it
     if (pd && pd.k === "window") return windowHTML(v);
@@ -134,7 +134,7 @@
     } else if (answers.length) act = `<div class="hm-row">${answers.map(id => { const k = H.typeOf(id); return `<button class="hm-btn quick" data-h="quick" data-k="${k}" data-id="${id}">${svg(ICON[k])}${esc(H.cardName(k))}</button>`; }).join("")}</div>`;
     else act = `<p class="hm-muted small">You have no Quick Play card to answer with.</p>`;
     return `<h3>Answer it?</h3><ol class="hm-stack">${st.map(line).join("")}</ol>
-      <div class="hm-window"><span>Goes through in <b data-clock="resp">0:03</b></span></div>${act}`;
+      <div class="hm-window"><span>Goes through in <b data-clock="resp">0:08</b></span></div>${act}`;
   }
 
   function seatHTML(i, v) {
@@ -213,7 +213,8 @@
         <li>Everyone starts with an <b>Angel</b> and ${H.START} more cards. The deck hides one <b>Hitman</b> fewer than the players still in.</li>
         <li>On your turn, play as many cards as you like, then <b>draw a card</b> to end it. Skip, Reverse, Bottom and Attack also end it.</li>
         <li>Draw a Hitman and you're out, unless you play an <b>Angel</b>: you survive and choose where the Hitman goes back into the deck, even right on top.</li>
-        <li>After any card is played, everyone gets a few seconds to answer with a <b>Quick Play</b> card: Cancel, Inferno, Chain, Redirect or Shuffle.</li>
+        <li>After any card is played, everyone gets ${H.REACT_MS / 1000} seconds to answer with a <b>Quick Play</b> card: Cancel, Inferno, Chain, Redirect or Shuffle. Each answer gives the table the full ${H.REACT_MS / 1000} seconds again.</li>
+        <li>Draw a Hitman, or have a card stolen, and you get ${H.RESPOND_MS / 1000} seconds to choose.</li>
         <li>You have ${H.TURN_MS / 1000} seconds a draw. Run out and you draw.</li>
         <li><b>Last one standing wins.</b> With 6 or more players, a second deck is shuffled in.</li></ul></div>
       <div><h3>The cards</h3><ul class="hm-cardlist">${rows}</ul></div></div>
