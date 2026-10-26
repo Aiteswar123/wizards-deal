@@ -71,10 +71,10 @@
     const v = mySeat(), P = S.players[v];
     if (!P || !P.alive) return null;
     const pd = S.pending, mine = S.turn === v;
-    if (pd && pd.k === "hitman" && pd.p === v) return { bpm: 175, vol: 1.3 };
-    let bpm = 74 + (mine && S.left > 1 ? Math.min(36, 14 * (S.left - 1)) : 0) + heartJumpNow(performance.now());
-    if (!mine) bpm = 60 + (bpm - 74) * .7;
-    return { bpm: Math.min(180, Math.max(50, bpm)), vol: mine ? 1 : .45 };
+    if (pd && pd.k === "hitman" && pd.p === v) return { bpm: 190, vol: 1.35 };
+    let bpm = 96 + (mine && S.left > 1 ? Math.min(50, 18 * (S.left - 1)) : 0) + heartJumpNow(performance.now());
+    if (!mine) bpm = 80 + (bpm - 96) * .8;
+    return { bpm: Math.min(190, Math.max(70, bpm)), vol: mine ? 1.1 : .55 };
   }
   function heartLoop() {
     const r = heartRate();
@@ -91,10 +91,10 @@
     fx.seen = L.n;
     if (L.k === "hitman" || L.k === "save" || L.k === "dead") fxShow(L.k, L.p === v ? "You" : nameOf(L.p));
     // big moments make the heart jump: a Hitman drawn by anyone, a card aimed at you
-    if (L.k === "hitman" || L.k === "dead") heartJump(L.p === v ? 70 : 45, 7000);
-    else if (L.k === "save") heartJump(L.p === v ? 40 : 20, 4000);
-    else if ((L.k === "play" || L.k === "attack" || L.k === "steal") && L.q === v) heartJump(35, 5000);
-    else if (L.k === "quick" && L.t === "redirect") heartJump(20, 3000);
+    if (L.k === "hitman" || L.k === "dead") heartJump(L.p === v ? 85 : 60, 8000);
+    else if (L.k === "save") heartJump(L.p === v ? 55 : 30, 5000);
+    else if ((L.k === "play" || L.k === "attack" || L.k === "steal") && L.q === v) heartJump(50, 6000);
+    else if (L.k === "quick" && L.t === "redirect") heartJump(30, 4000);
   }
 
   // ---- your look for this table: nothing to sync, but the page asks every game for it ----

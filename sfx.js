@@ -132,6 +132,21 @@
       osc.connect(lp); lp.connect(g); send(g, 1.1); osc.start(t); osc.stop(t + 1.2); });
   }
   const mtof0 = n => 440 * Math.pow(2, (n - 69) / 12);
+  // a soft-clipping curve, shared by every heartbeat thud
+  let thudCurve = null;
+  // One heart sound: a deep sine that sags a little in pitch, overdriven through the curve, muffled, dry.
+  function thud(t, v, f, dur) {
+    if (!thudCurve) { thudCurve = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const x = i / 511.5 - 1; thudCurve[i] = Math.tanh(3.2 * x) / Math.tanh(3.2); } }
+    const osc = ctx.createOscillator(), drive = ctx.createGain(), sh = ctx.createWaveShaper(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
+    osc.type = "sine"; osc.frequency.setValueAtTime(f * 1.15, t); osc.frequency.exponentialRampToValueAtTime(f * .85, t + dur);
+    drive.gain.value = 5; sh.curve = thudCurve; sh.oversample = "2x";
+    lp.type = "lowpass"; lp.frequency.value = 800; lp.Q.value = .5;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v * .7, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + dur + .06);
+    osc.connect(drive); drive.connect(sh); sh.connect(lp); lp.connect(g); send(g, 0);
+    osc.start(t); osc.stop(t + dur + .1);
+    // the soft flesh of it: low, short noise
+    noise(t, dur * .7, { filter: "lowpass", f: 160, q: .6, vol: v * .18, att: .006, rev: 0 });
+  }
 
   const S = {
     // light wooden tap for buttons
@@ -151,19 +166,14 @@
     turn() { const t = now(); bell(880, t, { vol: .11, dur: 2 }); bell(1318.5, t + .18, { vol: .09, dur: 2.2 }); tone(220, t, 1.2, { vol: .05, att: .08, rev: 1.4 }); },
     // someone else's turn begins: a quiet single note
     turnOther() { const t = now(); bell(659.3, t, { vol: .04, dur: 1.1 }); },
-    // one heartbeat, "lub-dub": two thumps that drop in pitch, each with a soft knock on top. Phone and laptop speakers
-    // can't play the deep part of a real heartbeat, so the body sits around 110 to 150Hz with an octave above it and a
-    // knock in the mids, and only a touch of true sub-bass underneath for headphones. vol scales it (0.2 to 1.4);
-    // the faster the heart (bpm), the closer the two thumps sit
+    // one heartbeat, "lub-dub", the way it sounds through a chest: two dry, muffled thuds, the "lub" longer, deeper and
+    // louder than the "dub". Each thud is a deep sine (about 50 to 60Hz) softly overdriven so it grows overtones, which is
+    // what lets phone and laptop speakers play a sound that still feels deep, then muffled by a low-pass filter, with no
+    // echo. vol scales it (0.2 to 1.4); the faster the heart (bpm), the closer the "dub" follows the "lub"
     heartbeat(vol = 1, bpm = 70) {
-      const t = now(), k = Math.max(.2, Math.min(1.4, vol)), gap = Math.max(.11, Math.min(.2, 15 / bpm));
-      const thump = (s, v, f) => {
-        tone(f, s, .2, { to: f * .6, glide: .15, vol: v, att: .004, rev: .08 });                    // the body you hear on small speakers
-        tone(f * 2, s, .09, { to: f * 1.2, glide: .08, vol: v * .35, att: .003, rev: .05 });        // its edge
-        tone(f * .45, s, .24, { to: f * .3, glide: .2, vol: v * .5, att: .008, rev: .05 });         // sub-bass for headphones
-        noise(s, .07, { filter: "bandpass", f: 520, q: 1.1, vol: v * .5, att: .002, rev: .05 });   // the knock
-      };
-      thump(t, .5 * k, 150); thump(t + gap, .38 * k, 120);
+      const t = now(), k = Math.max(.2, Math.min(1.4, vol)), gap = Math.max(.12, Math.min(.3, 60 / bpm * .34));
+      thud(t, .9 * k, 52, .13);
+      thud(t + gap, .62 * k, 60, .09);
     },
     // the sorting reveal
     reveal() { const t = now(); for (let i = 0; i < 14; i++) tone(PENTA[i % PENTA.length] * (i >= PENTA.length ? 2 : 1), t + i * .06, .9, { vol: .045, type: "triangle", pan: Math.sin(i) * .5, rev: 1.8 }); bell(293.7, t + .9, { vol: .12, dur: 3 }); bell(440, t + .9, { vol: .08, dur: 3 }); tone(146.8, t + .8, 2.6, { vol: .08, att: .3, rev: 1.6 }); },
@@ -220,6 +230,8 @@
   let mTimer = null, nextT = 0, step = 0, mNote = 76;
   function feel() {
     const sc = document.documentElement.dataset.screen;
+    // at a Hitman table the music steps aside: the heartbeat is the only soundtrack
+    if (sc === "game" && document.documentElement.dataset.game === "hitman") return { dens: 0, vol: 0 };
     return sc === "game" ? { dens: .5, vol: .75 } : sc === "lobby" ? { dens: .65, vol: 1 } : { dens: .72, vol: 1.05 };
   }
   function celesta(n, t, v) { const f = mtof(n), b = mBus, pan = (n - 79) / 14;
