@@ -202,10 +202,21 @@ html[data-game=nasi] .k-scene{display:block}
 .nl-stall{position:relative;width:6.6rem;display:flex;flex-direction:column;align-items:center;gap:.3rem;text-align:center;transition:transform .35s var(--k-pop)}
 .nl-stall.on{transform:translateY(-4px)}
 .nl-av{position:relative;width:4.4rem;height:4.4rem}
-.nl-face{position:absolute;inset:0;border-radius:50%;overflow:hidden;
-  background:radial-gradient(circle at 50% 78%,color-mix(in srgb,var(--awn) 70%,transparent),transparent 72%),linear-gradient(180deg,#1d2670,#0c1040);
-  border:3px solid var(--awn);box-shadow:0 0 0 2.5px var(--k-ink),0 10px 16px -8px rgba(0,0,0,.7);transition:box-shadow .35s}
-.nl-face img{position:absolute;left:-30%;top:3%;width:160%;height:auto;max-width:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
+/* the portrait: a Power Watch bezel (a polished ring in the character's colour, with white glints) round a pocket of space
+   lit from behind in that colour; the bezel's glints turn slowly while it's that player's turn */
+@property --bz{syntax:"<angle>";initial-value:0deg;inherits:false}
+.nl-face{position:absolute;inset:0;border-radius:50%;overflow:hidden;border:4px solid transparent;
+  background:radial-gradient(circle,#fff 0 .6px,transparent 1px) 7px 9px/17px 19px padding-box,radial-gradient(circle,#cfe0ff 0 .5px,transparent 1px) 3px 4px/23px 13px padding-box,
+    radial-gradient(circle at 50% 62%,color-mix(in srgb,var(--awn) 85%,#fff 10%) 0%,color-mix(in srgb,var(--awn) 45%,#0c1040) 42%,#0a0d33 78%) padding-box,
+    conic-gradient(from var(--bz),var(--awn),#fff 9%,var(--awn) 20%,color-mix(in srgb,var(--awn) 45%,#0a0d33) 42%,var(--awn) 60%,#fff 70%,var(--awn) 80%,color-mix(in srgb,var(--awn) 45%,#0a0d33) 92%,var(--awn)) border-box;
+  box-shadow:0 0 0 2px var(--k-ink),0 10px 16px -8px rgba(0,0,0,.75);transition:box-shadow .35s}
+.nl-face img{position:absolute;z-index:0;left:-30%;top:3%;width:160%;height:auto;max-width:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
+/* depth: the space pocket darkens towards its rim, over the picture */
+.nl-face::before{content:"";position:absolute;inset:0;z-index:1;border-radius:50%;box-shadow:inset 0 -6px 12px rgba(5,7,30,.55),inset 0 0 0 1.5px rgba(255,255,255,.12);pointer-events:none}
+.nl-stall.on .nl-face{animation:g-bezel 3.5s linear infinite}
+@keyframes g-bezel{to{--bz:360deg}}
+.nl-stall:hover .nl-av{transform:translateY(-2px) scale(1.04)}
+.nl-av{transition:transform .25s var(--k-pop)}
 .nl-stall.on .nl-face{box-shadow:0 0 0 3px var(--k-sun),0 0 0 5.5px var(--k-ink),0 0 26px 6px color-mix(in srgb,var(--awn) 65%,transparent)}
 .nl-stall.on .nl-face img{animation:g-bob 1.4s ease-in-out infinite alternate}
 @keyframes g-bob{to{transform:translateY(-3px)}}
@@ -221,7 +232,7 @@ html[data-game=nasi] .k-scene{display:block}
 .nl-ring .nl-stall{z-index:1}
 /* a soft halo in the character's colour behind each portrait, and a glassy shine across it */
 .nl-av::before{content:"";position:absolute;inset:-22%;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--awn) 45%,transparent),transparent);z-index:-1}
-.nl-face::after{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(150deg,rgba(255,255,255,.38) 0 18%,transparent 40%);pointer-events:none}
+.nl-face::after{content:"";position:absolute;inset:0;z-index:2;border-radius:50%;background:linear-gradient(150deg,rgba(255,255,255,.34) 0 16%,transparent 38%);pointer-events:none}
 /* the name plate tucks under the portrait like a badge */
 .nl-name{position:relative;z-index:1;margin-top:-.75rem}
 /* the counts sit together in one small pill */
@@ -229,8 +240,9 @@ html[data-game=nasi] .k-scene{display:block}
 .nl-line:empty{display:none}
 /* your own seat is a touch larger */
 .nl-stall.me .nl-av{transform:scale(1.12)}
+.nl-stall.me:hover .nl-av{transform:translateY(-2px) scale(1.15)}
 .nl-stall.me .nl-name{margin-top:-.55rem}
-@media (prefers-reduced-motion:reduce){.nl-orbit::after{animation:none;opacity:0}}
+@media (prefers-reduced-motion:reduce){.nl-orbit::after{animation:none;opacity:0}.nl-stall.on .nl-face{animation:none}.nl-av{transition:none}}
 /* (the site's own .me styling is for its lists; a seat stays clear) */
 .nl-stall.me{background:none}
 .nl-stall.me .nl-name{border-color:var(--k-sun)}
