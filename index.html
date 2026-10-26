@@ -282,6 +282,10 @@ input::placeholder{color:var(--dim);opacity:1}
 .fxfoot{position:fixed;z-index:30;width:11px;height:18px;pointer-events:none;color:#2a1a10;filter:drop-shadow(0 0 2px rgba(240,220,170,.55))}
 .fxfoot svg{width:100%;height:100%;fill:currentColor}
 .fxlumos{position:fixed;z-index:60;width:6px;height:6px;border-radius:50%;pointer-events:none;background:#fff6d8;box-shadow:0 0 8px 2px rgba(255,214,140,.7)}
+/* the other games' mouse trails: sea bubbles (UNO), lightning sparks (Nasi Lemak), a red laser (Hitman) */
+.trail-bub{position:fixed;z-index:60;border-radius:50%;pointer-events:none;border:1.8px solid #fff;background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.85) 0 18%,rgba(140,215,255,.18) 40%,transparent 70%);box-shadow:0 0 8px 1px rgba(140,220,255,.8)}
+.trail-spark{position:fixed;z-index:60;width:3px;height:12px;border-radius:2px;pointer-events:none;background:var(--c);box-shadow:0 0 8px 2px var(--c)}
+.trail-laser{position:fixed;z-index:60;width:5px;height:5px;border-radius:50%;pointer-events:none;background:#ff4a52;box-shadow:0 0 6px 2px rgba(255,40,50,.85),0 0 14px 4px rgba(255,40,50,.35)}
 .fxghost{position:fixed;z-index:35;pointer-events:none;will-change:transform}
 .fxghost>.card{width:100%!important;min-height:0!important;height:100%;margin:0;box-shadow:0 18px 30px -10px rgba(0,0,0,.8)}
 .fxghost>.coin{width:100%;height:100%;display:grid;place-items:center;min-width:0;padding:0}
@@ -1809,15 +1813,33 @@ function fxAfterRender(v, P) {
   FX.cards = new Map([...document.querySelectorAll(".hand button.card[data-id]")].map(el => [+el.dataset.id, { rect: el.getBoundingClientRect(), html: el.outerHTML.replace(/<button/, "<div").replace(/<\/button>$/, "</div>") }]));
 }
 
-// Lumos: a few soft sparks trail the mouse on devices with a fine pointer.
-(function lumos() {
+// The mouse trail, one per game, on devices with a fine pointer: Wizard's Deal's soft wand-light (Lumos),
+// Grand Line UNO's sea bubbles, Nasi Lemak's BoBoiBoy lightning sparks and Hitman's red laser.
+(function trail() {
   if (!(window.matchMedia && matchMedia("(pointer:fine)").matches) || noMotion()) return;
+  const r = (a, b) => a + Math.random() * (b - a);
+  const TRAILS = {
+    // a soft spark that drifts down and fades
+    deal: { every: 45, make: s => { s.className = "fxlumos"; }, keys: () => [{ opacity: .9, transform: "translate(-50%,-50%) scale(1)" },
+      { opacity: 0, transform: `translate(calc(-50% + ${r(-9, 9)}px),calc(-50% + ${r(8, 22)}px)) scale(.2)` }], ms: 700 },
+    // a bubble that wobbles up and pops
+    uno: { every: 60, make: s => { s.className = "trail-bub"; const d = r(7, 13); s.style.width = s.style.height = d + "px"; },
+      keys: () => { const x = r(-6, 6); return [{ opacity: .95, transform: "translate(-50%,-50%) scale(.6)" }, { opacity: .8, offset: .6, transform: `translate(calc(-50% + ${x}px),calc(-50% - ${r(10, 16)}px)) scale(1)` },
+        { opacity: 0, transform: `translate(calc(-50% + ${x + r(-4, 4)}px),calc(-50% - ${r(20, 30)}px)) scale(1.3)` }]; }, ms: 900 },
+    // a spark of lightning that shoots out and dies
+    nasi: { every: 35, make: s => { s.className = "trail-spark"; s.style.setProperty("--c", ["#ffd23f", "#ff7a1a", "#ffe98a", "#45d8ff"][Math.floor(Math.random() * 4)]); },
+      // each spark points the way it flies
+      keys: () => { const a = r(0, Math.PI * 2), d = r(10, 22), deg = a * 180 / Math.PI + 90; return [{ opacity: 1, transform: `translate(-50%,-50%) rotate(${deg}deg) scaleY(1)` },
+        { opacity: 0, transform: `translate(calc(-50% + ${Math.cos(a) * d}px),calc(-50% + ${Math.sin(a) * d}px)) rotate(${deg}deg) scaleY(.3)` }]; }, ms: 420 },
+    // a red laser dot that burns out where it was
+    hitman: { every: 14, make: s => { s.className = "trail-laser"; }, keys: () => [{ opacity: 1, transform: "translate(-50%,-50%) scale(1)" }, { opacity: 0, transform: "translate(-50%,-50%) scale(.3)" }], ms: 260 }
+  };
   let last = 0;
   addEventListener("pointermove", e => {
-    const now = performance.now(); if (now - last < 45) return; last = now;
-    const s = document.createElement("i"); s.className = "fxlumos"; s.style.left = e.clientX + "px"; s.style.top = e.clientY + "px"; document.body.appendChild(s);
-    s.animate([{ opacity: .9, transform: "translate(-50%,-50%) scale(1)" }, { opacity: 0, transform: `translate(calc(-50% + ${(Math.random() - .5) * 18}px),calc(-50% + ${8 + Math.random() * 14}px)) scale(.2)` }],
-      { duration: 700, easing: "ease-out", fill: "both" }).onfinish = () => s.remove();
+    const T = TRAILS[document.documentElement.dataset.game] || TRAILS.deal;
+    const now = performance.now(); if (now - last < T.every) return; last = now;
+    const s = document.createElement("i"); T.make(s); s.style.left = e.clientX + "px"; s.style.top = e.clientY + "px"; document.body.appendChild(s);
+    s.animate(T.keys(), { duration: T.ms, easing: "ease-out", fill: "both" }).onfinish = () => s.remove();
   }, { passive: true });
 })();
 
