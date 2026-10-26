@@ -3,10 +3,11 @@
 require("../engine.js");
 require("../uno.js");
 require("../nasi.js");
-const E = globalThis.Engine, U = globalThis.Uno, N = globalThis.Nasi;
+require("../hitman.js");
+const E = globalThis.Engine, U = globalThis.Uno, N = globalThis.Nasi, HM = globalThis.Hitman;
 // Each table plays one game: Wizard's Deal (the default) or Grand Line UNO (kind "uno"). ENG picks its rules engine.
-const ENG = g => g && g.kind === "uno" ? U : g && g.kind === "nasi" ? N : E;
-const KINDS = ["uno", "nasi"];
+const ENG = g => g && g.kind === "uno" ? U : g && g.kind === "nasi" ? N : g && g.kind === "hitman" ? HM : E;
+const KINDS = ["uno", "nasi", "hitman"];
 
 // ---- storage: Upstash Redis over REST (Vercel Marketplace), or memory for local dev ----
 const R_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -97,7 +98,7 @@ async function lobbies() {
 // ---- ranking: one shared record of every player, matched by name (ignoring capitals and spaces) ----
 const RANK_KEY = "wd:ranking";
 // UNO has its own Hall of Fame
-const rankKey = kind => kind === "uno" ? "wd:uno:ranking" : kind === "nasi" ? "wd:nasi:ranking" : RANK_KEY;
+const rankKey = kind => kind === "uno" ? "wd:uno:ranking" : kind === "nasi" ? "wd:nasi:ranking" : kind === "hitman" ? "wd:hitman:ranking" : RANK_KEY;
 const profileKey = nick => String(nick || "").trim().toLowerCase().replace(/s+/g, " ");
 async function loadRanking(kind) { const v = await redis(["GET", rankKey(kind)]); return v ? JSON.parse(v) : {}; }
 // One-time corrections to records made under older EXP rules. Each runs once, marked done by its own key.
@@ -126,7 +127,7 @@ async function recordGame(g) {
   await fixRanking();
   const list = ENG(g).awards(g);
   g.recorded = true; g.awards = list;
-  await withLock(g.kind === "uno" ? "UNORANK" : g.kind === "nasi" ? "NASIRANK" : "RANKING", async () => {
+  await withLock(g.kind === "uno" ? "UNORANK" : g.kind === "nasi" ? "NASIRANK" : g.kind === "hitman" ? "HITRANK" : "RANKING", async () => {
     const r = await loadRanking(g.kind);
     for (const a of list) {
       const k = profileKey(a.nick); if (!k) continue;
@@ -139,18 +140,18 @@ async function recordGame(g) {
     await redis(["SET", rankKey(g.kind), JSON.stringify(r)]);
   });
 }
-// The overall ranking adds each player's Wizard's Deal and Grand Line UNO records together, matched by name.
+// The overall ranking adds each player's records from every game together, matched by name.
 async function overallRanking() {
   await fixRanking();
-  const [deal, uno, nasi] = await Promise.all([loadRanking("deal"), loadRanking("uno"), loadRanking("nasi")]);
+  const [deal, uno, nasi, hitman] = await Promise.all([loadRanking("deal"), loadRanking("uno"), loadRanking("nasi"), loadRanking("hitman")]);
   const all = {};
-  for (const [src, r] of [["deal", deal], ["uno", uno], ["nasi", nasi]]) for (const [k, p] of Object.entries(r)) {
-    const t = all[k] || (all[k] = { name: p.name, xp: 0, games: 0, wins: 0, deal: 0, uno: 0, nasi: 0, last: -1 });
+  for (const [src, r] of [["deal", deal], ["uno", uno], ["nasi", nasi], ["hitman", hitman]]) for (const [k, p] of Object.entries(r)) {
+    const t = all[k] || (all[k] = { name: p.name, xp: 0, games: 0, wins: 0, deal: 0, uno: 0, nasi: 0, hitman: 0, last: -1 });
     t.xp += p.xp; t.games += p.games; t.wins += p.wins; t[src] = p.xp;
     if ((p.last || 0) > t.last) { t.last = p.last || 0; t.name = p.name; }   // show the name they used most recently
   }
   return Object.values(all).sort((a, b) => b.xp - a.xp || b.wins - a.wins).slice(0, 100)
-    .map(p => Object.assign({ name: p.name, xp: p.xp, games: p.games, wins: p.wins, deal: p.deal, uno: p.uno, nasi: p.nasi }, E.levelFor(p.xp)));
+    .map(p => Object.assign({ name: p.name, xp: p.xp, games: p.games, wins: p.wins, deal: p.deal, uno: p.uno, nasi: p.nasi, hitman: p.hitman }, E.levelFor(p.xp)));
 }
 async function ranking(kind) {
   if (kind === "all") return overallRanking();
