@@ -112,8 +112,10 @@
     if (t === "mirror" && (!as || as === "angel")) return head + `<p class="hm-muted">${as === "angel" ? "A Mirror right after an Angel only saves you from a Hitman." : "Nothing to copy yet."}</p><div class="hm-row">${back}</div>`;
     if (H.locked(S, t) || (as && H.locked(S, as))) return head + `<p class="hm-muted">Chained for now.</p><div class="hm-row">${back}</div>`;
     if (H.TARGET.includes(eff)) {
-      const tg = alive().filter(i => i !== v && (eff !== "steal" || S.players[i].hand.length));
-      return head + `<p class="hm-cap">Choose your target</p><div class="hm-targets">${tg.map(i => `<button class="hm-btn target" data-h="play" data-p="${i}">${svg(ICON.attack)}${esc(nameOf(i))}<small>${S.players[i].hand.length} cards</small></button>`).join("") || `<p class="hm-muted">Nobody to target.</p>`}</div><div class="hm-row">${back}</div>`;
+      // an Attack can also go on yourself: your turn goes on and the turns stack onto you
+      const tg = alive().filter(i => (i !== v || eff === "attack") && (eff !== "steal" || S.players[i].hand.length));
+      const stack = S.left > 1 ? S.left + 2 : 2;
+      return head + `<p class="hm-cap">Choose your target</p><div class="hm-targets">${tg.map(i => `<button class="hm-btn target${i === v ? " self" : ""}" data-h="play" data-p="${i}">${svg(ICON.attack)}${i === v ? "Yourself" : esc(nameOf(i))}<small>${i === v ? `Keep playing · ${stack} turns` : `${S.players[i].hand.length} cards`}</small></button>`).join("") || `<p class="hm-muted">Nobody to target.</p>`}</div><div class="hm-row">${back}</div>`;
     }
     return head + `<div class="hm-row"><button class="hm-btn red" data-h="play">Play ${esc(as ? `Mirror as ${H.cardName(as)}` : T.n)}</button>${back}</div>`;
   }

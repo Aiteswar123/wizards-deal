@@ -41,6 +41,8 @@ html[data-game=hitman] *{scrollbar-color:var(--h-line-2) transparent}
 .hm-btn.quick svg{color:var(--h-steel)}
 .hm-btn.target{flex-direction:column;align-items:flex-start;gap:.15rem;min-width:8rem}
 .hm-btn.target svg{color:var(--h-red-2)}
+.hm-btn.target.self{border-color:rgba(216,178,90,.6)}
+.hm-btn.target.self svg{color:var(--h-brass)}
 .hm-btn.target small{font:600 .78rem/1 var(--h-body);letter-spacing:0;color:var(--h-muted)}
 .hm-chip{appearance:none;border:1px solid var(--h-line-2);background:transparent;color:var(--h-text);border-radius:999px;padding:.3rem .75rem;font:600 .9rem/1 var(--h-body);cursor:pointer}
 .hm-chip.on{background:var(--h-brass);color:#1b1306;border-color:var(--h-brass)}

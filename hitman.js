@@ -12,7 +12,7 @@
   const MAX_PLAYERS = 10, START = 5, TURN_MS = 20000, RESPOND_MS = 25000, REACT_MS = 8000, LOCK_TURNS = 3;
   const TYPES = {
     angel:       { n: "Angel", kind: "support", d: "Saves you when you draw a Hitman. Then you choose where the Hitman goes back into the deck." },
-    attack:      { n: "Attack", kind: "target", count: 5, d: "Ends your turn. The player you choose takes 2 turns. If you were attacked, the turns stack onto them: yours plus 2." },
+    attack:      { n: "Attack", kind: "target", count: 5, d: "Ends your turn. The player you choose takes 2 turns. If you were attacked, the turns stack onto them: yours plus 2. You can attack yourself: your turn goes on and the turns stack onto you." },
     bottom:      { n: "Bottom", kind: "support", count: 3, d: "Draw from the bottom of the deck instead of the top." },
     cancel:      { n: "Cancel", kind: "quick", count: 4, d: "Play it any time, even on someone else's turn, to stop the card just played. It can't stop an Angel, a Steal or another Cancel." },
     chain:       { n: "Chain", kind: "quick", count: 2, d: "Play it on top of the card just played: nobody can play that card for 3 turns." },
@@ -140,8 +140,10 @@
     switch (t) {
       case "attack": {
         const stack = s.left > 1 ? s.left + 2 : 2;
-        log(s, `@${a} attacked @${target}: ${stack} turns.`);
         stamp(s, { k: "attack", p: a, q: target, n: stack });
+        // attacking yourself on your own turn: the turn goes on and the turns stack onto you
+        if (target === s.turn) { s.left = stack; log(s, `@${target} took the Attack: ${stack} turns to play.`); break; }
+        log(s, `@${a} attacked @${target}: ${stack} turns.`);
         giveTurn(s, target, stack);
         break;
       }
@@ -276,7 +278,7 @@
       if (as) e.as = as;
       if (TARGET.includes(eff)) {
         const q = act.p;
-        if (q === a || !s.players[q] || !s.players[q].alive) return err("Choose another player who's still in.");
+        if ((q === a && eff !== "attack") || !s.players[q] || !s.players[q].alive) return err(eff === "attack" ? "Choose a player who's still in." : "Choose another player who's still in.");
         if (eff === "steal" && !s.players[q].hand.length) return err("They have no cards to steal.");
         e.p = q;
       }
