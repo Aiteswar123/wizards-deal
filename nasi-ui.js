@@ -105,7 +105,7 @@
     const F = FX[job.k];
     fxEl.style.setProperty("--fx", F.fx); fxEl.style.setProperty("--fx2", F.fx2);
     const art = F.icon ? svg(F.icon) : parcel("", false);
-    fxEl.innerHTML = `<div class="kfx-rays"></div>${job.ch ? `<img class="kfx-hero" src="${charSrc(job.ch)}" alt="">` : ""}<div class="kfx-panel"><div class="kfx-icon">${art}</div><div class="kfx-txt"><span class="kfx-call">${esc(F.call)}</span><span class="kfx-who"><b>${esc(job.by)}</b> ${esc(F.say)}${job.to ? ` <b>${esc(job.to)}</b>` : ""}</span></div></div>`;
+    fxEl.innerHTML = `<div class="kfx-rays"></div><div class="kfx-stage">${job.ch ? `<img class="kfx-hero" src="${charSrc(job.ch)}" alt="">` : ""}<div class="kfx-panel"><div class="kfx-icon">${art}</div><div class="kfx-txt"><span class="kfx-call">${esc(F.call)}</span><span class="kfx-who"><b>${esc(job.by)}</b> ${esc(F.say)}${job.to ? ` <b>${esc(job.to)}</b>` : ""}</span></div></div></div>`;
     fxEl.hidden = false;
     clearTimeout(fx.timer);
     fx.timer = setTimeout(fxPlay, 1500);
@@ -398,7 +398,7 @@
     };
     let fresh = 0;
     $app.innerHTML = `<div class="nl">
-      <header class="nl-top"><span class="mark">Nasi Lemak</span><span class="nl-code">TABLE ${esc(S.code)}</span><span class="grow"></span>${netDown ? `<span class="nl-muted">Reconnecting…</span>` : ""}<button class="nl-btn small" data-nd-open="1">Your look</button>${typeof sndBtn === "function" ? sndBtn() : ""}<button class="nl-btn small" data-a="home">Leave table</button></header>
+      <header class="nl-top"><span class="mark">Nasi Lemak</span><span class="nl-code">TABLE ${esc(S.code)}</span><span class="grow"></span>${netDown ? `<span class="nl-muted">Reconnecting…</span>` : ""}<button class="nl-btn small" data-nd-open="1">Your look</button>${S.status === "play" && v >= 0 && !(S.vote && S.vote.kind === "pause") ? `<button class="nl-btn small" data-n="pause" title="Ask the table to pause and finish later">Pause</button>` : ""}${typeof sndBtn === "function" ? sndBtn() : ""}<button class="nl-btn small" data-a="home">Leave table</button></header>
       <p class="nl-ticker">${fmt(last)}</p>
       ${eventHTML()}
       ${S.status === "over" ? winHTML(v) : ""}
@@ -492,6 +492,7 @@
       }
       case "unsel": ui.sel = null; ui.step = {}; return render();
       case "step": ui.step.slot = num("slot"); return render();
+      case "pause": return call("vote", { kind: "pause", yes: true });
       case "draw": return act({ t: "draw" });
       case "end": if (P && P.hand.length > N.HAND) { ui.dump = []; ui.sel = null; ui.trade = null; return render(); } return act({ t: "end" });
       case "dumpgo": return act({ t: "end", discard: ui.dump });

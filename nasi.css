@@ -20,7 +20,9 @@ html[data-game=nasi] body{background:radial-gradient(ellipse 60% 45% at 12% 6%,r
   linear-gradient(180deg,#0b0d33,var(--g-space) 55%,#100a35) fixed,var(--g-space);color:var(--g-text)}
 html[data-game=nasi] #sky{display:none}
 html[data-game=nasi] ::selection{background:var(--k-sun);color:var(--k-ink)}
-html[data-game=nasi] .pz-bar{left:auto;right:16px;bottom:auto;top:calc(5.4rem + env(safe-area-inset-top,0px));background:var(--k-paper);color:var(--k-ink);border:3px solid var(--k-ink);box-shadow:0 5px 0 -1px var(--k-ink)}
+/* the Pause button lives in the table's top bar; only a pause vote floats, and it sits at the bottom where it covers least */
+html[data-game=nasi] .pz-bar:not(.vote){display:none!important}
+html[data-game=nasi] .pz-bar{left:16px;right:16px;margin-inline:auto;width:fit-content;bottom:calc(16px + env(safe-area-inset-bottom,0px));top:auto;background:var(--k-paper);color:var(--k-ink);border:3px solid var(--k-ink);box-shadow:0 5px 0 -1px var(--k-ink)}
 html[data-game=nasi] .pz-bar.vote{border-color:var(--k-ink);background:#e6edff}
 html[data-game=nasi] .pz-bar .pz-btn{border:2.5px solid var(--k-ink);background:#fff;color:var(--k-ink);font-family:var(--k-display);font-weight:400}
 html[data-game=nasi] .pz-bar .pz-btn.go{background:var(--k-orange);color:#fff}
@@ -233,10 +235,10 @@ html[data-game=nasi] .k-scene{display:block}
 .nl-empty{font-size:.8rem;font-weight:700;color:var(--k-muted);margin:0}
 
 /* the wrapped packs: banana leaf bungkus tied with a rubber band */
-.nl-packs{display:flex;flex-wrap:wrap;gap:.4rem;min-height:2.6rem;align-items:flex-end}
+.nl-packs{display:flex;flex-wrap:wrap;gap:.6rem .5rem;min-height:2.6rem;align-items:flex-end;padding-top:1rem}
 .nl-pack{position:relative;width:3rem;height:2.8rem;flex:none}
 .nl-stall .nl-pack{width:2.3rem;height:2.15rem}
-.nl-stall .nl-packs{min-height:2.15rem;gap:.25rem}
+.nl-stall .nl-packs{min-height:2.15rem;gap:.25rem;padding-top:.75rem}
 .nl-pack svg{width:100%;height:100%;overflow:visible}
 .nl-pack .cnt{position:absolute;right:-.35rem;top:-.35rem;min-width:1.3rem;height:1.3rem;border-radius:999px;background:var(--k-sun);border:2px solid var(--k-ink);font:800 .7rem/1.05rem var(--k-body);text-align:center;padding:0 .2rem}
 .nl-stall .nl-pack .cnt{display:none}
@@ -369,7 +371,8 @@ html[data-game=nasi] .seats li{background:var(--k-paper)!important;border:2.5px 
 
 /* phones: the table on top, stalls two by two */
 @media (max-width:760px){
-  html[data-game=nasi] .pz-bar{top:auto;bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  /* no side gutters on a phone: the hanging event decorations and Ochobot would only peek out between panels */
+  .ev-kenduri .bunting,.ev-raya .ketupat,.ev-pasar .lights,.k-ocho{display:none}
   .nl-market{gap:1.2rem}
   .nl-felt{width:100%;border-radius:28px;min-height:13rem;order:-1;border-width:10px}
   .nl-lane{gap:1.3rem .8rem}
@@ -478,17 +481,30 @@ html[data-game=nasi] .fine{color:var(--g-text-2)!important;opacity:1}
 .nl-galaxy .shot{display:block;width:100%;height:auto;aspect-ratio:670/417;object-fit:cover;border-radius:26px;border:6px solid var(--k-orange);
   box-shadow:0 0 0 2.5px var(--k-ink),0 0 0 9px rgba(69,216,255,.18),0 0 70px -10px rgba(69,216,255,.55),0 34px 50px -22px rgba(0,0,0,.8)}
 .nl-galaxy .pop{position:absolute;bottom:3.4rem;height:66%;width:auto;z-index:1;filter:drop-shadow(0 18px 16px rgba(0,0,0,.6));animation:g-hover 5s ease-in-out infinite alternate}
-.nl-galaxy .pop.l{left:-2.6rem}
-.nl-galaxy .pop.r{right:-2.2rem;animation-delay:-2.5s}
+.nl-galaxy{margin-inline:clamp(0rem,3vw,2.4rem)}
+.nl-galaxy .pop.l{left:-2.2rem}
+.nl-galaxy .pop.r{right:-2rem;animation-delay:-2.5s}
 @keyframes g-hover{to{transform:translateY(-12px)}}
 .nl-galaxy .nl-mastfan{position:absolute;left:0;right:0;bottom:0;padding-top:0;z-index:2}
 @media (max-width:760px){.nl-mast h1{padding:.7rem 1.1rem .9rem}.nl-galaxy{max-width:26rem;margin-inline:auto;padding-bottom:0}.nl-galaxy .pop{height:52%;bottom:-.6rem}.nl-galaxy .pop.l{left:-.8rem}.nl-galaxy .pop.r{right:-.8rem}}
 /* the winner steps forward */
 .nl-winhero{height:clamp(10rem,28vw,15rem);width:auto;filter:drop-shadow(0 0 24px rgba(255,210,63,.75)) drop-shadow(0 10px 10px rgba(0,0,0,.35));animation:k-stampc .8s var(--k-pop) both}
 /* every move: the player's character leaps in beside the burst */
-.k-fx .kfx-hero{position:absolute;left:50%;bottom:0;height:min(68vh,34rem);width:auto;transform:translateX(-118%);filter:drop-shadow(0 0 30px var(--fx)) drop-shadow(0 20px 20px rgba(0,0,0,.5));animation:g-cutin 1.5s var(--k-pop) both}
-@keyframes g-cutin{0%{transform:translateX(-190%) scale(.9);opacity:0}18%{transform:translateX(-118%) scale(1);opacity:1}84%{transform:translateX(-112%) scale(1);opacity:1}100%{transform:translateX(-104%) scale(.96);opacity:0}}
-@media (max-width:760px){.k-fx .kfx-hero{height:42vh;transform:translateX(-50%);animation-name:g-cutin-m}@keyframes g-cutin-m{0%{transform:translate(-50%,40%);opacity:0}18%{transform:translate(-50%,0);opacity:1}84%{opacity:1}100%{transform:translate(-50%,6%);opacity:0}}}
+/* the character and the panel share one stage, side by side (stacked on phones), so neither ever covers the other */
+.k-fx .kfx-stage{position:relative;display:flex;align-items:center;justify-content:center;gap:clamp(.4rem,2vw,1.6rem);max-width:calc(100vw - 32px);max-height:calc(100vh - 32px)}
+.k-fx .kfx-hero{position:relative;flex:none;height:min(60vh,30rem);width:auto;max-width:40vw;object-fit:contain;object-position:50% 100%;
+  filter:drop-shadow(0 0 28px var(--fx)) drop-shadow(0 18px 18px rgba(0,0,0,.5));animation:g-cutin 1.5s var(--k-pop) both}
+@keyframes g-cutin{0%{transform:translateX(-45%) scale(.9);opacity:0}18%{transform:none;opacity:1}84%{transform:translateX(3%);opacity:1}100%{transform:translateX(6%) scale(.96);opacity:0}}
+.k-fx .kfx-stage .kfx-panel{flex:0 1 auto;min-width:0;max-width:min(36rem,100%)}
+.k-fx .kfx-call{overflow-wrap:anywhere}
+@media (max-width:760px){
+  .k-fx .kfx-stage{flex-direction:column;gap:.2rem}
+  .k-fx .kfx-hero{height:min(34vh,16rem);max-width:70vw;animation-name:g-cutin-m}
+  .k-fx .kfx-stage .kfx-panel{padding:.8rem 1.1rem .8rem .85rem;gap:.8rem}
+  .k-fx .kfx-icon{width:3.4rem;border-width:3px}
+  .k-fx .kfx-call{font-size:clamp(1.7rem,9vw,2.6rem)}
+}
+@keyframes g-cutin-m{0%{transform:translateY(30%) scale(.9);opacity:0}18%{transform:none;opacity:1}84%{transform:translateY(-2%);opacity:1}100%{transform:translateY(-5%);opacity:0}}
 /* character picker */
 .nl-chargrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(4.5rem,1fr));gap:.5rem;padding:.3rem .1rem .6rem}
 .nl-charopt{appearance:none;display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.35rem .3rem .45rem;border:2.5px solid var(--k-ink);border-radius:14px;cursor:pointer;color:#fff;font:700 .74rem/1.1 var(--k-body);text-align:center;
