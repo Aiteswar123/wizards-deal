@@ -60,9 +60,9 @@
     fxEl.hidden = false;
     clearTimeout(fx.timer); fx.timer = setTimeout(() => { fxEl.hidden = true; }, kind === "hitman" ? 1500 : 1900);
   }
-  // ---- the heartbeat: it beats while you're in the game, loud on your turn and quiet otherwise. Its speed follows the
-  // Death % (about 62 bpm on a safe deck, past 130 when a Hitman is likely next), owing extra turns pushes it up, big moments
-  // make it jump and then settle back, and holding a Hitman sends it racing. Off with the sound switch, like every effect.
+  // ---- the heartbeat: it beats while you're in the game, loud on your turn and quiet otherwise. It never hints at the deck:
+  // its speed comes only from what everyone has seen happen. Owing extra turns pushes it up, big moments make it jump and
+  // then settle back, and holding a Hitman sends it racing. Off with the sound switch, like every effect.
   const heart = { jump: 0, jumpAt: 0, jumpFor: 1, timer: null };
   function heartJump(bpm, ms) { const now = performance.now(), left = heartJumpNow(now); heart.jump = Math.max(left, bpm); heart.jumpAt = now; heart.jumpFor = ms; }
   function heartJumpNow(now) { return heart.jump * Math.max(0, 1 - (now - heart.jumpAt) / heart.jumpFor); }
@@ -72,9 +72,8 @@
     if (!P || !P.alive) return null;
     const pd = S.pending, mine = S.turn === v;
     if (pd && pd.k === "hitman" && pd.p === v) return { bpm: 175, vol: 1.3 };
-    const deckN = S.deck.length, death = deckN ? hitmenLeft() / deckN : 0;
-    let bpm = 62 + death * 140 + (mine && S.left > 1 ? Math.min(30, 12 * (S.left - 1)) : 0) + heartJumpNow(performance.now());
-    if (!mine) bpm = 56 + (bpm - 62) * .7;
+    let bpm = 74 + (mine && S.left > 1 ? Math.min(36, 14 * (S.left - 1)) : 0) + heartJumpNow(performance.now());
+    if (!mine) bpm = 60 + (bpm - 74) * .7;
     return { bpm: Math.min(180, Math.max(50, bpm)), vol: mine ? 1 : .45 };
   }
   function heartLoop() {

@@ -151,12 +151,19 @@
     turn() { const t = now(); bell(880, t, { vol: .11, dur: 2 }); bell(1318.5, t + .18, { vol: .09, dur: 2.2 }); tone(220, t, 1.2, { vol: .05, att: .08, rev: 1.4 }); },
     // someone else's turn begins: a quiet single note
     turnOther() { const t = now(); bell(659.3, t, { vol: .04, dur: 1.1 }); },
-    // one heartbeat, "lub-dub": two low thumps that drop in pitch, with a soft thud of body. vol scales it (0.2 to 1.4);
+    // one heartbeat, "lub-dub": two thumps that drop in pitch, each with a soft knock on top. Phone and laptop speakers
+    // can't play the deep part of a real heartbeat, so the body sits around 110 to 150Hz with an octave above it and a
+    // knock in the mids, and only a touch of true sub-bass underneath for headphones. vol scales it (0.2 to 1.4);
     // the faster the heart (bpm), the closer the two thumps sit
     heartbeat(vol = 1, bpm = 70) {
       const t = now(), k = Math.max(.2, Math.min(1.4, vol)), gap = Math.max(.11, Math.min(.2, 15 / bpm));
-      const thump = (s, v, f) => { tone(f, s, .22, { to: f * .58, glide: .17, vol: v, att: .006, rev: .1 }); noise(s, .1, { filter: "lowpass", f: 240, q: .7, vol: v * .4, rev: .05 }); };
-      thump(t, .36 * k, 64); thump(t + gap, .26 * k, 52);
+      const thump = (s, v, f) => {
+        tone(f, s, .2, { to: f * .6, glide: .15, vol: v, att: .004, rev: .08 });                    // the body you hear on small speakers
+        tone(f * 2, s, .09, { to: f * 1.2, glide: .08, vol: v * .35, att: .003, rev: .05 });        // its edge
+        tone(f * .45, s, .24, { to: f * .3, glide: .2, vol: v * .5, att: .008, rev: .05 });         // sub-bass for headphones
+        noise(s, .07, { filter: "bandpass", f: 520, q: 1.1, vol: v * .5, att: .002, rev: .05 });   // the knock
+      };
+      thump(t, .5 * k, 150); thump(t + gap, .38 * k, 120);
     },
     // the sorting reveal
     reveal() { const t = now(); for (let i = 0; i < 14; i++) tone(PENTA[i % PENTA.length] * (i >= PENTA.length ? 2 : 1), t + i * .06, .9, { vol: .045, type: "triangle", pan: Math.sin(i) * .5, rev: 1.8 }); bell(293.7, t + .9, { vol: .12, dur: 3 }); bell(440, t + .9, { vol: .08, dur: 3 }); tone(146.8, t + .8, 2.6, { vol: .08, att: .3, rev: 1.6 }); },
