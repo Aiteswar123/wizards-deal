@@ -163,7 +163,7 @@ button.hm-card:hover{transform:translateY(-6px)}
 
 /* ---- log, win, rules ---- */
 .hm-log{margin-top:1.2rem;padding:.9rem 1rem;border-radius:14px;background:var(--h-panel);border:1px solid var(--h-line)}
-.hm-log ol{list-style:none;margin:.55rem 0 0;padding:0;display:flex;flex-direction:column-reverse;gap:.25rem;font-size:.92rem;color:var(--h-muted);max-height:11rem;overflow:auto}
+.hm-log ol{list-style:none;margin:.55rem 0 0;padding:0;display:flex;flex-direction:column;gap:.25rem;font-size:.92rem;color:var(--h-muted);max-height:11rem;overflow:auto}
 .hm-log b{color:var(--h-text)}
 .hm-win{margin-top:1rem;padding:1.6rem 1rem;border-radius:18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.7rem;
   background:radial-gradient(ellipse 60% 80% at 50% 0%,rgba(216,178,90,.22),transparent 70%),linear-gradient(180deg,#221d16,#141218);border:1px solid rgba(216,178,90,.5)}

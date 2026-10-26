@@ -1,6 +1,8 @@
-// Sound effects and background music for Wizard's Deal, synthesised live with the Web Audio API (no sound files,
-// nothing to license). The music is generated as it plays: an original slow waltz in E minor on celesta, harp, soft
-// strings and a low bass, never the same twice, quieter and sparser during a game. Music and sound effects each have
+// Sound effects and background music for all four games, synthesised live with the Web Audio API. The one recording is
+// the Hitman heartbeat (assets/heartbeat.ogg, CC0), with a synthesised fallback. The music is generated as it plays,
+// never the same twice, and each game has its own original score: Wizard's Deal a slow waltz in E minor on celesta,
+// harp, soft strings and a low bass; Grand Line UNO a jig-like shanty; Nasi Lemak a bouncy kampung tune with marimba,
+// kompang and shaker; Hitman a spy-noir pulse. It is quieter and sparser during a game. Music and sound effects each have
 // their own switch, remembered per device ("wd-music", "wd-sound").
 // Every sound runs through a soft hall reverb and a limiter. Sound is on by default and remembered per device
 // ("wd-sound"); browsers only allow audio after the first tap or key press, so the context starts then.
@@ -99,6 +101,8 @@
       const id = g + "-" + k;
       fetch("assets/voice/" + id + ".wav").then(r => r.ok ? r.arrayBuffer() : Promise.reject()).then(ab => ctx.decodeAudioData(ab)).then(buf => { clips[id] = buf; }).catch(() => {});
     }
+    // a real recorded heartbeat ("Heartbeat #1" by DenisChardonnet, BigSoundBank, CC0); without it the synthesised one plays
+    fetch("assets/heartbeat.ogg").then(r => r.ok ? r.arrayBuffer() : Promise.reject()).then(ab => ctx.decodeAudioData(ab)).then(buf => { clips.heart = buf; }).catch(() => {});
   }
   let shout = null;
   function shoutChain() {
@@ -172,6 +176,17 @@
     // echo. vol scales it (0.2 to 1.4); the faster the heart (bpm), the closer the "dub" follows the "lub"
     heartbeat(vol = 1, bpm = 70) {
       const t = now(), k = Math.max(.2, Math.min(1.4, vol)), gap = Math.max(.12, Math.min(.3, 60 / bpm * .34));
+      // the recording when it's loaded, played dry. It holds one lub-dub: the lub about 60ms in, the dub about 300ms in.
+      // Skip the silence before the lub; when the heart races, play it just fast enough that the dub (and a little of its
+      // tail) lands before the fade into the next beat
+      if (clips.heart) {
+        const src = ctx.createBufferSource(), g = ctx.createGain(), period = 60 / bpm, skip = .045;
+        const rate = Math.min(1.3, Math.max(1, (.335 - skip + .08) / (period * .85)));
+        src.buffer = clips.heart; src.playbackRate.value = rate;
+        g.gain.setValueAtTime(1.5 * k, t); g.gain.setValueAtTime(1.5 * k, t + period * .85); g.gain.linearRampToValueAtTime(0, t + period * .98);
+        src.connect(g); send(g, 0); src.start(t, skip); src.stop(t + period);
+        return;
+      }
       thud(t, .9 * k, 52, .13);
       thud(t + gap, .62 * k, 60, .09);
     },
@@ -230,8 +245,8 @@
   let mTimer = null, nextT = 0, step = 0, mNote = 76;
   function feel() {
     const sc = document.documentElement.dataset.screen;
-    // at a Hitman table the music steps aside: the heartbeat is the only soundtrack
-    if (sc === "game" && document.documentElement.dataset.game === "hitman") return { dens: 0, vol: 0 };
+    // at a Hitman table the noir score drops low and sparse, under the heartbeat
+    if (sc === "game" && document.documentElement.dataset.game === "hitman") return { dens: .3, vol: .38 };
     return sc === "game" ? { dens: .5, vol: .75 } : sc === "lobby" ? { dens: .65, vol: 1 } : { dens: .72, vol: 1.05 };
   }
   function celesta(n, t, v) { const f = mtof(n), b = mBus, pan = (n - 79) / 14;
@@ -247,7 +262,6 @@
   const SEA_PROG = [[50, 53, 57, 62], [48, 52, 55, 60], [50, 53, 57, 62], [45, 48, 52, 57], [50, 53, 57, 62], [41, 45, 48, 53], [48, 52, 55, 60], [50, 53, 57, 62]];
   const SEA_SCALE = [69, 71, 72, 74, 76, 77, 79, 81, 83, 84, 86];
   const SEA_EIGHTH = .21;
-  const atSea = () => document.documentElement.dataset.game === "uno";
   function fiddle(n, t, len, v) { const f = mtof(n), pan = (n - 77) / 16;
     [-6, 6].forEach(dt => { const osc = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter(), l = ctx.createOscillator(), lg = ctx.createGain();
       osc.type = "sawtooth"; osc.frequency.value = f; osc.detune.value = dt; l.frequency.value = 5.5; lg.gain.value = f * .006; l.connect(lg); lg.connect(osc.frequency);
@@ -280,8 +294,60 @@
     }
     step++;
   }
+  // Nasi Lemak: a bright, bouncy original tune with a Malaysian flavour, 4/4 in eighths. A marimba-like melody in D major
+  // pentatonic over I-vi-IV-V, a plucked bass, and kompang-style hand drums ("dum" on the beat, "tak" between) with a shaker.
+  const KAMP_PROG = [[62, 66, 69], [59, 62, 66], [55, 59, 62], [57, 61, 64]];
+  const KAMP_SCALE = [74, 76, 78, 81, 83, 86, 88, 90];
+  const KAMP_EIGHTH = .24;
+  function marimba(n, t, v) { const f = mtof(n), pan = (n - 81) / 16;
+    tone(f, t, .5, { vol: .055 * v, att: .002, pan, rev: .5, bus: mBus }); tone(f * 4, t, .08, { vol: .02 * v, att: .001, pan, rev: .3, bus: mBus }); }
+  function kampongStep(t) {
+    const bar = Math.floor(step / 8), pos = step % 8, ch = KAMP_PROG[bar % KAMP_PROG.length], F = feel();
+    if (pos === 0 || pos === 4) tone(mtof(ch[0] - 24), t, .3, { vol: .1, att: .004, rev: .2, bus: mBus, type: "triangle" });
+    if (pos === 3 || pos === 7) tone(mtof(ch[2] - 24), t, .18, { vol: .06, att: .004, rev: .2, bus: mBus, type: "triangle" });
+    // the kompang: a deep "dum" on beats one and three, bright "tak"s around them, and a shaker on every off-beat
+    if (pos === 0 || pos === 4) { tone(170, t, .16, { to: 120, vol: .07, att: .002, rev: .2, bus: mBus }); noise(t, .06, { f: 900, q: 1.2, vol: .05, rev: .2, bus: mBus }); }
+    if (pos === 2 || pos === 5 || pos === 6) noise(t, .045, { f: 2600, q: 2.2, vol: .045, rev: .25, bus: mBus, pan: pos === 5 ? .25 : -.2 });
+    if (pos % 2 === 1) noise(t, .03, { filter: "highpass", f: 7000, q: .7, vol: .022, rev: .1, bus: mBus });
+    const strong = pos % 2 === 0;
+    if (Math.random() < (strong ? F.dens + .25 : F.dens * .7)) {
+      let idx = KAMP_SCALE.indexOf(mNote); if (idx < 0) idx = 3;
+      if (strong) { const tones = KAMP_SCALE.filter(n => ch.some(c => (n - c) % 12 === 0)); mNote = tones[Math.floor(Math.random() * tones.length)] || KAMP_SCALE[idx]; }
+      else mNote = KAMP_SCALE[Math.max(0, Math.min(KAMP_SCALE.length - 1, idx + [-1, 1, 1, -2, 2][Math.floor(Math.random() * 5)]))];
+      marimba(mNote, t, strong ? 1 : .7);
+      if (strong && Math.random() < .3) marimba(mNote - 12, t, .45);
+    }
+    step++;
+  }
+  // Hitman: an original spy-noir pulse in E minor, 4/4 in eighths. A ticking bass ostinato (E E G E, B♭ A G F♯), a brushed
+  // hi-hat, low tense strings with a flat ninth now and then, a sparse vibraphone, and a muted trumpet stab every few bars.
+  const NOIR_BASS = [40, 40, 43, 40, 46, 45, 43, 42];
+  const NOIR_PADS = [[52, 55, 59], [52, 55, 58], [48, 52, 55], [47, 51, 54]];
+  const NOIR_VIBES = [64, 67, 71, 74, 75, 76, 79];
+  const NOIR_EIGHTH = .3;
+  function noirStep(t) {
+    const bar = Math.floor(step / 8), pos = step % 8, F = feel();
+    const b = NOIR_BASS[pos]; tone(mtof(b), t, NOIR_EIGHTH * .9, { vol: .1, att: .006, rev: .25, bus: mBus, type: "triangle" });
+    noise(t, .05, { filter: "highpass", f: 6500, q: .6, vol: pos % 2 ? .02 : .032, rev: .2, bus: mBus });   // the brushed hat
+    if (pos === 0 && bar % 2 === 0) strings(NOIR_PADS[(bar / 2) % NOIR_PADS.length], t, NOIR_EIGHTH * 16);
+    if (pos === 6 && bar % 4 === 3) [52, 55, 58].forEach(n => { const osc = ctx.createOscillator(), g = ctx.createGain(), bp = ctx.createBiquadFilter();
+      osc.type = "sawtooth"; osc.frequency.value = mtof(n + 12); bp.type = "bandpass"; bp.frequency.value = 1300; bp.Q.value = 2.5;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.03, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + .5);
+      osc.connect(bp); bp.connect(g); send(g, .8, mBus); osc.start(t); osc.stop(t + .55); });   // the muted trumpet stab
+    if (Math.random() < F.dens * .45 && (pos === 1 || pos === 4 || pos === 7)) {
+      const n = NOIR_VIBES[Math.floor(Math.random() * NOIR_VIBES.length)];
+      tone(mtof(n), t, 1.4, { vol: .035, att: .003, vib: 5, vibAmt: .004, pan: (n - 70) / 14, rev: 1.1, bus: mBus });
+    }
+    step++;
+  }
+  // which score is playing: the page's chosen game decides
+  const score = () => { const g = document.documentElement.dataset.game; return g === "uno" ? "sea" : g === "nasi" ? "kampong" : g === "hitman" ? "noir" : "waltz"; };
+  const STEP_LEN = { sea: SEA_EIGHTH, kampong: KAMP_EIGHTH, noir: NOIR_EIGHTH, waltz: EIGHTH };
   function scheduleStep(t) {
-    if (atSea()) return seaStep(t);
+    const sc = score();
+    if (sc === "sea") return seaStep(t);
+    if (sc === "kampong") return kampongStep(t);
+    if (sc === "noir") return noirStep(t);
     const bar = Math.floor(step / 6), pos = step % 6, ch = PROG[bar % PROG.length], F = feel();
     if (pos === 0) {
       strings(ch, t, EIGHTH * 6);
@@ -308,7 +374,7 @@
   function pump() {
     if (!ctx || document.hidden) return;
     if (nextT < ctx.currentTime) nextT = ctx.currentTime + .1;
-    while (nextT < ctx.currentTime + .5) { scheduleStep(nextT); nextT += atSea() ? SEA_EIGHTH : EIGHTH; }
+    while (nextT < ctx.currentTime + .5) { const len = STEP_LEN[score()]; scheduleStep(nextT); nextT += len; }
     const want = feel().vol; if (mGain && Math.abs(mGain.gain.value - want) > .01 && !duckUntil) mGain.gain.setTargetAtTime(want, ctx.currentTime, 1.5);
     if (duckUntil && ctx.currentTime > duckUntil) duckUntil = 0;
   }

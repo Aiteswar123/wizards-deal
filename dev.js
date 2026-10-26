@@ -19,7 +19,7 @@ http.createServer((req, res) => {
   const f = path.join(__dirname, u.pathname === "/" ? "index.html" : u.pathname);
   fs.readFile(f, (e, d) => {
     if (e) { res.statusCode = 404; return res.end("Not found"); }
-    const types = { ".js": "text/javascript", ".css": "text/css", ".jpg": "image/jpeg", ".wav": "audio/wav", ".png": "image/png", ".webp": "image/webp", ".svg": "image/svg+xml", ".md": "text/plain; charset=utf-8" };
+    const types = { ".js": "text/javascript", ".css": "text/css", ".jpg": "image/jpeg", ".wav": "audio/wav", ".png": "image/png", ".webp": "image/webp", ".ogg": "audio/ogg", ".svg": "image/svg+xml", ".md": "text/plain; charset=utf-8" };
     res.setHeader("Content-Type", types[path.extname(f)] || "text/html; charset=utf-8");
     res.end(d);
   });

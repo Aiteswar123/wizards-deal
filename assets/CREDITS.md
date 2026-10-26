@@ -27,3 +27,7 @@ The card pictures (`card-*.png`, `card-*.jpg`) and the UNO background (`sea-1.jp
 ## Nasi Lemak pictures
 
 The pictures in `bb/` are artwork from the BoBoiBoy animated series (Animonsta Studios / Monsta), supplied by the site owner: `crew.webp` (BoBoiBoy, Yaya, Gopal, Ochobot, Fang and Ying floating in space, from BoBoiBoy Galaxy), and thirteen character renders cut out of their plain backgrounds for the stalls: `halilintar`, `ais`, `blaze`, `solar`, `yaya`, `ying`, `gopal`, `fang`, `ochobot`, `tokaba`, `papazola`, `adudu` and `probe` (`.webp`). They are not covered by an open licence.
+
+## Hitman heartbeat
+
+`heartbeat.ogg` is "Heartbeat #1" by DenisChardonnet from BigSoundBank (https://bigsoundbank.com/battement-de-coeur-1-s0243.html), released under CC0 (public domain): free to use, no attribution required. It is played once per beat, dry, sped up a little when the heart races.

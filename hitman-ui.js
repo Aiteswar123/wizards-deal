@@ -217,7 +217,7 @@
           <div class="hm-hand">${P.hand.slice().sort((a, b) => H.typeOf(a).localeCompare(H.typeOf(b)) || a - b).map(id => cardHTML(id, { tag: "button", cls: (ui.sel === id ? "sel" : "") + (giving ? " give" : ""), attrs: `data-h="card" data-id="${id}"` })).join("") || `<p class="hm-muted">No cards in hand.</p>`}</div>
           ${peek}</div>
       </div>` : `<p class="hm-muted" style="margin-top:1rem">You're watching this game.</p>`}
-      <section class="hm-log"><span class="hm-cap">Wire</span><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}</li>`).join("")}</ol></section>
+      <section class="hm-log"><span class="hm-cap">Wire</span><ol>${S.log.slice(-25).reverse().map(m => `<li>${fmt(m)}</li>`).join("")}</ol></section>
       ${rulesHTML()}</div>`;
     fxObserve(v);
   }

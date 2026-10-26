@@ -423,7 +423,7 @@
           <div class="nl-hand">${handOrder(P.hand).map(id => { const g = (ui.trade && ui.trade.give.includes(id)) || (ui.dump && ui.dump.includes(id)) || (ui.bid && ui.bid.includes(id)), s = ui.sel === id, isNew = !prevHand || !prevHand.includes(id);
             return cardHTML(id, { tag: "button", cls: (g ? "give" : s ? "sel" : "") + (isNew ? " fresh" : ""), attrs: `data-n="card" data-id="${id}"`, face: myFace, style: isNew ? `--d:${fresh++}` : "" }); }).join("") || `<p class="nl-empty">No cards in hand.</p>`}</div></div>
       </div>` : `<p class="nl-muted" style="margin-top:1rem">You're watching this game.</p>`}
-      <section class="nl-log"><span class="nl-cap">At the stalls</span><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}</li>`).join("")}</ol></section>
+      <section class="nl-log"><span class="nl-cap">At the stalls</span><ol>${S.log.slice(-25).reverse().map(m => `<li>${fmt(m)}</li>`).join("")}</ol></section>
       ${rulesHTML()}</div>`;
     layoutRing();
     fxObserve(v);
