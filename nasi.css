@@ -588,3 +588,18 @@ button.nl-card.f-boboiboy:hover .bb-badge,.nl-card.f-boboiboy.sel .bb-badge{anim
   linear-gradient(180deg,transparent 0 80%,#1d1d1d 80% 84%,#2b2b2b 84%),
   radial-gradient(ellipse at 40% 22%,#ffc06a,#f28a1c 45%,#c85a08)}
 @media (prefers-reduced-motion:reduce){button.nl-card.f-boboiboy:hover .bb-badge,.nl-card.f-boboiboy.sel .bb-badge{animation:none}}
+
+/* ---- legibility: navy words on orange, deeper red and green behind white words, nothing faded past reading ---- */
+.nl-top .nl-code,.nl-code{color:var(--k-ink);background:var(--k-orange);border-color:var(--k-ink)}
+.nl-rush{color:var(--k-ink)}
+.nl-btn.go,.nl-btn.go:hover{color:var(--k-ink);text-shadow:0 1px 0 rgba(255,255,255,.4)}
+.nl-btn.red{background:linear-gradient(180deg,#f0566a 0%,#e0344a 48%,#c81f35 52%,#a8172b 100%)}
+.nl-open{background:#c81f35}
+.nl-open.bid,.nl-bid em{background:#15803d;color:#fff}
+.nl-mast h1::after{color:var(--k-ink);text-shadow:0 1px 0 rgba(255,255,255,.35)}
+.nl-opt:disabled{opacity:.62}
+.nl-btn:disabled{opacity:.58}
+html[data-game=nasi] .kit .btn.primary,html[data-game=nasi] .lobby .btn.primary{color:var(--k-ink)!important;text-shadow:0 1px 0 rgba(255,255,255,.4)!important}
+html[data-game=nasi] .gamepick button span{color:var(--k-muted)!important}
+/* the pile labels sit half on the banana leaf, half on the navy counter: white with a dark outline reads on both */
+.nl-felt .nl-pile{color:#fff;text-shadow:0 1px 0 #0b0f3a,0 -1px 0 #0b0f3a,1px 0 0 #0b0f3a,-1px 0 0 #0b0f3a,0 0 6px rgba(11,15,58,.9)}

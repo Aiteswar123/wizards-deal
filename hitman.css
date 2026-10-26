@@ -3,7 +3,7 @@
    Layout: everyone's dossier tile across the top, the deck with its death gauge in the middle, your panel and hand below. */
 html[data-game=hitman]{
   --h-bg:#0c0b0f; --h-bg-2:#15131a; --h-panel:#1a1820; --h-panel-2:#232029; --h-line:#363240; --h-line-2:#4a4556;
-  --h-text:#f2ede6; --h-muted:#aaa3b4; --h-dim:#7b7486;
+  --h-text:#f2ede6; --h-muted:#b3acbd; --h-dim:#a39cae;
   --h-red:#e3262f; --h-red-2:#ff4a52; --h-red-d:#7d1016; --h-brass:#d8b25a; --h-brass-d:#8a6a22; --h-paper:#efe6d4; --h-steel:#8fb4ff; --h-violet:#b691ff;
   --h-display:"Bebas Neue","Oswald",system-ui,sans-serif;
   --h-body:"Barlow Semi Condensed","Barlow",system-ui,sans-serif;
@@ -110,7 +110,7 @@ html[data-game=hitman] *{scrollbar-color:var(--h-line-2) transparent}
   font:600 .72rem/1.1 var(--h-body);text-align:center;cursor:pointer;transition:transform .2s var(--h-ease),box-shadow .2s}
 .hm-card .hm-em{position:absolute;left:50%;top:44%;width:3.1rem;height:3.1rem;transform:translate(-50%,-50%);color:var(--c);filter:drop-shadow(0 0 10px color-mix(in srgb,var(--c) 45%,transparent))}
 .hm-card b{position:relative;font:400 1.15rem/1 var(--h-display);letter-spacing:.05em}
-.hm-card i{position:relative;font-style:normal;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--h-muted)}
+.hm-card i{position:relative;font-style:normal;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,237,230,.85)}
 .hm-pip{position:absolute;top:.45rem;left:.45rem;width:1.05rem;height:1.05rem;color:var(--c)}
 .hm-pip svg{width:100%;height:100%}
 .hm-card.k-target{--c:var(--h-red-2)}
@@ -230,7 +230,8 @@ html[data-game=hitman] .btn{font-family:var(--h-display)!important;font-weight:4
 html[data-game=hitman] .btn.primary{background:linear-gradient(180deg,var(--h-red-2),var(--h-red) 55%,#b8151d)!important;border-color:#ff7a80!important;color:#fff!important}
 html[data-game=hitman] .gamepick button{background:var(--h-panel)!important;border:1px solid var(--h-line)!important;color:var(--h-muted)!important;box-shadow:none!important}
 html[data-game=hitman] .gamepick button b{color:var(--h-text)!important}
-html[data-game=hitman] .gamepick button[aria-pressed=true]{background:var(--h-red)!important;border-color:#ff7a80!important;color:#ffd6d8!important}
+html[data-game=hitman] .gamepick button[aria-pressed=true]{background:#c81d25!important;border-color:#ff7a80!important;color:#fff!important}
+html[data-game=hitman] .gamepick button[aria-pressed=true] span{color:#fff!important}
 html[data-game=hitman] .gamepick button[aria-pressed=true] b{color:#fff!important}
 html[data-game=hitman] .seats li{background:#141218!important;border:1px solid var(--h-line)!important;color:var(--h-text)!important}
 html[data-game=hitman] .ranks *{color:inherit}
