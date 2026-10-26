@@ -384,15 +384,14 @@
       const O = S.players[i], on = S.turn === i && S.status === "play", nick = i === v ? "You" : nameOf(i);
       const tag = on ? `<span class="nl-open">${pd && pd.k === "market" ? "Market open" : "Serving"}</span>`
         : pd && pd.k === "market" && pd.bids[i] ? `<span class="nl-open bid">Bid in</span>` : "";
-      const ch = charOf(i);
-      return `<article class="nl-stall${i === v ? " me" : ""}${on ? " on" : ""}${waiting.includes(i) && pd ? " wait" : ""}" data-k="${k}" style="--awn:${CHARS[ch][1]}">
-        <div class="nl-roof" aria-hidden="true"></div>
-        <div class="nl-booth"><img src="${charSrc(ch)}" alt="${esc(CHARS[ch][0])}"></div>
-        <div class="nl-counter">
-          <div class="nl-sign"><b>${esc(nick)}</b><small>${esc(CHARS[ch][0])}</small>${tag}</div>
-          <div class="nl-minis" aria-hidden="true">${Array.from({ length: Math.min(O.hand.length, 7) }, () => `<i class="nl-mini b-${backOf(i)}"></i>`).join("")}</div>
-          <div class="nl-stats"><span><b>${O.hand.length}</b> cards</span><span><b>${O.nl.length}</b> wrapped</span>${O.lori ? `<span class="lori">Lori rosak</span>` : ""}${S.status === "over" || i === v ? `<span><b>${N.packs(O)}</b> packs</span>` : ""}</div>
-          ${O.nl.length ? packsHTML(O, i === v, prevPacks ? prevPacks[i] : Infinity) : `<p class="nl-empty">Nothing wrapped yet</p>`}</div></article>`;
+      const ch = charOf(i), fresh = prevPacks ? prevPacks[i] : Infinity;
+      // one tiny parcel per Nasi Lemak wrapped: greyed under a fly, capped by a Tudung Saji, dotted for a Lunch Rush +1
+      const pks = O.nl.map((e, j) => `<span class="nl-pk${e.fly != null ? " flied" : ""}${e.cover != null ? " covered" : ""}${e.bonus ? " bonus" : ""}${j >= fresh ? " fresh" : ""}">${parcel("", false)}${e.fly != null ? svg("fly", "fly") : ""}</span>`).join("");
+      const desc = `${nick}, ${CHARS[ch][0]}: ${O.hand.length} cards, ${O.nl.length} Nasi Lemak wrapped${O.nl.some(e => e.fly != null) ? ", a fly on one" : ""}${S.status === "over" || i === v ? `, ${N.packs(O)} packs` : ""}${O.lori ? ", lorry broken down" : ""}`;
+      return `<article class="nl-stall${i === v ? " me" : ""}${on ? " on" : ""}${waiting.includes(i) && pd ? " wait" : ""}" data-k="${k}" style="--awn:${CHARS[ch][1]}" title="${esc(desc)}" aria-label="${esc(desc)}">
+        <div class="nl-av"><div class="nl-face"><img src="${charSrc(ch)}" alt=""></div>${tag}</div>
+        <b class="nl-name">${esc(nick)}</b>
+        <div class="nl-line"><span class="nl-cards"><i class="nl-mini b-${backOf(i)}" aria-hidden="true"></i>${O.hand.length}</span>${pks ? `<span class="nl-pks" aria-hidden="true">${pks}</span>` : ""}${S.status === "over" || i === v ? `<span>${N.packs(O)}p</span>` : ""}${O.lori ? `<span class="lori">Lori</span>` : ""}</div></article>`;
     };
     let fresh = 0;
     $app.innerHTML = `<div class="nl">
@@ -437,12 +436,13 @@
     const sideways = seats.some((_, k) => Math.abs(Math.cos(ang(k))) > .55);
     // the counter: as wide as the side stalls allow, never smaller than its piles need. When the side stalls leave it too
     // little room (phones), it takes the full width instead and the side stalls step above or below its edge.
-    const small = W < 560, minFw = small ? 196 : 300, between = W - 2 * sw - 2 * gap;
+    const small = W < 560, minFw = small ? 196 : 280, between = W - 2 * sw - 2 * gap;
     felt.classList.toggle("small", small);
     const beside = !sideways || between >= minFw;
-    const fw = Math.max(minFw, Math.min(beside && sideways ? between : W - 2 * gap, 560));
-    const fh = Math.max(small ? 168 : 230, Math.min(fw * .62, 300));
-    const rx = Math.max(0, (W - sw) / 2);
+    const fw = Math.max(minFw, Math.min(beside && sideways ? between : W - 2 * gap, 520));
+    const fh = Math.max(small ? 160 : 210, Math.min(fw * .5, 250));
+    // seats hug the counter rather than spreading to the screen's edges
+    const rx = Math.max(0, Math.min((W - sw) / 2, fw / 2 + sw / 2 + gap + (n > 6 ? 40 : 10)));
     const clearY = fh / 2 + gap + sh / 2;
     const place = (H, ry, k) => {
       const a = ang(k), x = W / 2 + rx * Math.cos(a) - sw / 2;
