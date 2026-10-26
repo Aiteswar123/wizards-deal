@@ -101,8 +101,8 @@
       const id = g + "-" + k;
       fetch("assets/voice/" + id + ".wav").then(r => r.ok ? r.arrayBuffer() : Promise.reject()).then(ab => ctx.decodeAudioData(ab)).then(buf => { clips[id] = buf; }).catch(() => {});
     }
-    // a real recorded heartbeat ("Heartbeat #1" by DenisChardonnet, BigSoundBank, CC0); without it the synthesised one plays
-    fetch("assets/heartbeat.ogg").then(r => r.ok ? r.arrayBuffer() : Promise.reject()).then(ab => ctx.decodeAudioData(ab)).then(buf => { clips.heart = buf; }).catch(() => {});
+    // a real recorded heartbeat ("Heart Beat", BigSoundBank, CC0); without it the synthesised one plays
+    fetch("assets/heartbeat.mp3").then(r => r.ok ? r.arrayBuffer() : Promise.reject()).then(ab => ctx.decodeAudioData(ab)).then(buf => { clips.heart = buf; }).catch(() => {});
   }
   let shout = null;
   function shoutChain() {
@@ -136,6 +136,9 @@
       osc.connect(lp); lp.connect(g); send(g, 1.1); osc.start(t); osc.stop(t + 1.2); });
   }
   const mtof0 = n => 440 * Math.pow(2, (n - 69) / 12);
+  // where each of the recording's eight middle beats starts (40ms before its lub), in seconds, and which one plays next
+  const HEART_BEATS = [.94, 1.82, 2.70, 3.66, 4.51, 5.42, 6.37, 7.28];
+  let heartIdx = 0;
   // a soft-clipping curve, shared by every heartbeat thud
   let thudCurve = null;
   // One heart sound: a deep sine that sags a little in pitch, overdriven through the curve, muffled, dry.
@@ -176,15 +179,19 @@
     // echo. vol scales it (0.2 to 1.4); the faster the heart (bpm), the closer the "dub" follows the "lub"
     heartbeat(vol = 1, bpm = 70) {
       const t = now(), k = Math.max(.2, Math.min(1.4, vol)), gap = Math.max(.12, Math.min(.3, 60 / bpm * .34));
-      // the recording when it's loaded, played dry. It holds one lub-dub: the lub about 60ms in, the dub about 300ms in.
-      // Skip the silence before the lub; when the heart races, play it just fast enough that the dub (and a little of its
-      // tail) lands before the fade into the next beat
+      // The recording when it's loaded, played dry: ten real lub-dubs at about 70 bpm, the dub always 260ms after the lub.
+      // Each beat here is one of its eight middle beats in turn (so it never sounds looped), cut from just before its lub to
+      // the end of its dub, with the faint hiss filtered off. When the heart races it plays just fast enough (up to 1.35x)
+      // that the dub lands before the fade into the next beat.
       if (clips.heart) {
-        const src = ctx.createBufferSource(), g = ctx.createGain(), period = 60 / bpm, skip = .045;
-        const rate = Math.min(1.3, Math.max(1, (.335 - skip + .08) / (period * .85)));
+        const off = HEART_BEATS[heartIdx++ % HEART_BEATS.length], period = 60 / bpm;
+        const rate = Math.min(1.35, Math.max(1, .42 / (period * .85))), len = .5 / rate, end = Math.min(period * .98, len);
+        const src = ctx.createBufferSource(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
         src.buffer = clips.heart; src.playbackRate.value = rate;
-        g.gain.setValueAtTime(1.5 * k, t); g.gain.setValueAtTime(1.5 * k, t + period * .85); g.gain.linearRampToValueAtTime(0, t + period * .98);
-        src.connect(g); send(g, 0); src.start(t, skip); src.stop(t + period);
+        lp.type = "lowpass"; lp.frequency.value = 1800; lp.Q.value = .5;
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1.4 * k, t + .008);
+        g.gain.setValueAtTime(1.4 * k, t + Math.min(period * .85, len * .85)); g.gain.linearRampToValueAtTime(0, t + end);
+        src.connect(lp); lp.connect(g); send(g, 0); src.start(t, off); src.stop(t + end + .02);
         return;
       }
       thud(t, .9 * k, 52, .13);

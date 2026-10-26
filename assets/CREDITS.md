@@ -30,4 +30,4 @@ The pictures in `bb/` are artwork from the BoBoiBoy animated series (Animonsta S
 
 ## Hitman heartbeat
 
-`heartbeat.ogg` is "Heartbeat #1" by DenisChardonnet from BigSoundBank (https://bigsoundbank.com/battement-de-coeur-1-s0243.html), released under CC0 (public domain): free to use, no attribution required. It is played once per beat, dry, sped up a little when the heart races.
+`heartbeat.mp3` is "Heart Beat" from BigSoundBank (https://bigsoundbank.com/heart-beat-s0218.html), released under CC0 (public domain): free to use, no attribution required. The game plays its eight middle beats in turn, one per heartbeat, dry and low-passed, sped up a little when the heart races.
