@@ -1,5 +1,5 @@
 // Sound effects and background music for all four games, synthesised live with the Web Audio API. The one recording is
-// the Hitman heartbeat (assets/heartbeat.ogg, CC0), with a synthesised fallback. The music is generated as it plays,
+// the Hitman heartbeat (assets/heartbeat.mp3, CC0), with a synthesised fallback. The music is generated as it plays,
 // never the same twice, and each game has its own original score: Wizard's Deal a slow waltz in E minor on celesta,
 // harp, soft strings and a low bass; Grand Line UNO a jig-like shanty; Nasi Lemak a bouncy kampung tune with marimba,
 // kompang and shaker; Hitman a spy-noir pulse. It is quieter and sparser during a game. Music and sound effects each have
@@ -334,8 +334,12 @@
   const NOIR_EIGHTH = .3;
   function noirStep(t) {
     const bar = Math.floor(step / 8), pos = step % 8, F = feel();
-    const b = NOIR_BASS[pos]; tone(mtof(b), t, NOIR_EIGHTH * .9, { vol: .1, att: .006, rev: .25, bus: mBus, type: "triangle" });
-    noise(t, .05, { filter: "highpass", f: 6500, q: .6, vol: pos % 2 ? .02 : .032, rev: .2, bus: mBus });   // the brushed hat
+    // at the table the heartbeat is the only rhythm: no ticking bass, no hat, just the strings, the vibes and the stab
+    const atTable = document.documentElement.dataset.screen === "game";
+    if (!atTable) {
+      const b = NOIR_BASS[pos]; tone(mtof(b), t, NOIR_EIGHTH * .9, { vol: .1, att: .006, rev: .25, bus: mBus, type: "triangle" });
+      noise(t, .05, { filter: "highpass", f: 6500, q: .6, vol: pos % 2 ? .02 : .032, rev: .2, bus: mBus });   // the brushed hat
+    }
     if (pos === 0 && bar % 2 === 0) strings(NOIR_PADS[(bar / 2) % NOIR_PADS.length], t, NOIR_EIGHTH * 16);
     if (pos === 6 && bar % 4 === 3) [52, 55, 58].forEach(n => { const osc = ctx.createOscillator(), g = ctx.createGain(), bp = ctx.createBiquadFilter();
       osc.type = "sawtooth"; osc.frequency.value = mtof(n + 12); bp.type = "bandpass"; bp.frequency.value = 1300; bp.Q.value = 2.5;
