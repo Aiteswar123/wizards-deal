@@ -377,17 +377,15 @@
     ui.game = S.code + ":" + S.created; ui.hand = P ? P.hand.slice() : []; ui.packs = S.players.map(p => p.nl.length);
     const stamp = myTurn && !S.drew && ui.stampTurn !== S.turnN;
     if (myTurn) ui.stampTurn = S.turnN;
-    // stalls sit in two lanes either side of the table, in seat order going clockwise from you:
-    // your left-hand neighbour, you and your right-hand neighbour in front, everyone else across the table
-    const base = v >= 0 ? v : 0, seatAt = k => (base + k) % n, m = n - 1;
-    const lanes = m >= 4 ? { far: Array.from({ length: m - 2 }, (_, j) => seatAt(j + 2)), near: [seatAt(1), base, seatAt(m)] }
-      : { far: Array.from({ length: m }, (_, j) => seatAt(j + 1)), near: [base] };
-    const stall = i => {
+    // everyone sits round the table in seat order: you at the bottom, the others clockwise from your left;
+    // layoutRing() then spaces them out so no two stalls (and no stall and the counter) ever touch
+    const base = v >= 0 ? v : 0, ring = Array.from({ length: n }, (_, k) => (base + k) % n);
+    const stall = (i, k) => {
       const O = S.players[i], on = S.turn === i && S.status === "play", nick = i === v ? "You" : nameOf(i);
       const tag = on ? `<span class="nl-open">${pd && pd.k === "market" ? "Market open" : "Serving"}</span>`
         : pd && pd.k === "market" && pd.bids[i] ? `<span class="nl-open bid">Bid in</span>` : "";
       const ch = charOf(i);
-      return `<article class="nl-stall${i === v ? " me" : ""}${on ? " on" : ""}${waiting.includes(i) && pd ? " wait" : ""}" style="--awn:${CHARS[ch][1]}">
+      return `<article class="nl-stall${i === v ? " me" : ""}${on ? " on" : ""}${waiting.includes(i) && pd ? " wait" : ""}" data-k="${k}" style="--awn:${CHARS[ch][1]}">
         <div class="nl-roof" aria-hidden="true"></div>
         <div class="nl-booth"><img src="${charSrc(ch)}" alt="${esc(CHARS[ch][0])}"></div>
         <div class="nl-counter">
@@ -402,15 +400,14 @@
       <p class="nl-ticker">${fmt(last)}</p>
       ${eventHTML()}
       ${S.status === "over" ? winHTML(v) : ""}
-      <section class="nl-market${n >= 7 ? " many" : ""}" aria-label="The night market">
-        <div class="nl-lane far">${lanes.far.map(stall).join("")}</div>
+      <section class="nl-market nl-ring${n >= 7 ? " many" : ""}" aria-label="The table" data-n="${n}">
+        ${ring.map((i, k) => stall(i, k)).join("")}
         <div class="nl-felt${stamp ? " yourturn" : ""}"><span class="nl-leafmat" aria-hidden="true"></span>
           <div class="nl-piles"><div class="nl-pile"><div class="nl-back">${S.deck.length}</div>Draw pile</div>
-            <div class="nl-pile">${topId != null ? cardHTML(topId, { cls: "small", face: S.by && S.by[topId] != null ? faceOf(S.by[topId]) : "classic" }) : `<div class="nl-back" style="opacity:.35"></div>`}Discard</div>
+            <div class="nl-pile">${topId != null ? cardHTML(topId, { cls: "small", face: S.by && S.by[topId] != null ? faceOf(S.by[topId]) : "boboiboy" }) : `<div class="nl-back" style="opacity:.35"></div>`}Discard</div>
             <div class="nl-pile"><div class="nl-back gold">${S.nlPile.length}</div>Nasi Lemak</div></div>
           <div class="nl-say">${say}</div><div class="nl-sub">${sub}</div>
         </div>
-        <div class="nl-lane near">${lanes.near.map(stall).join("")}</div>
       </section>
       ${P ? `<div class="nl-zone">
         <section class="nl-mine"><span class="nl-cap">Your stall</span>
@@ -424,10 +421,85 @@
       </div>` : `<p class="nl-muted" style="margin-top:1rem">You're watching this game.</p>`}
       <section class="nl-log"><span class="nl-cap">At the stalls</span><ol>${S.log.slice(-25).map(m => `<li>${fmt(m)}</li>`).join("")}</ol></section>
       ${rulesHTML()}</div>`;
+    layoutRing();
     fxObserve(v);
     syncStyle();
     setWeather(S.status === "play" && S.event ? S.event.k : "");
   }
+  // Seats the stalls round the counter. Stalls sit on an ellipse as wide as the table allows; the ellipse grows taller,
+  // a step at a time, until no two stalls overlap and none touches the counter. Runs after every render and on resize.
+  function layoutRing() {
+    const ring = $app.querySelector(".nl-ring"); if (!ring) return;
+    const seats = [...ring.querySelectorAll(".nl-stall")], felt = ring.querySelector(".nl-felt"), n = seats.length;
+    const W = ring.clientWidth, gap = W < 560 ? 10 : 18;
+    const sw = Math.max(...seats.map(e => e.offsetWidth)), sh = Math.max(...seats.map(e => e.offsetHeight));
+    const ang = k => Math.PI / 2 + k * 2 * Math.PI / n;
+    const sideways = seats.some((_, k) => Math.abs(Math.cos(ang(k))) > .55);
+    // the counter: as wide as the side stalls allow, never smaller than its piles need. When the side stalls leave it too
+    // little room (phones), it takes the full width instead and the side stalls step above or below its edge.
+    const small = W < 560, minFw = small ? 196 : 300, between = W - 2 * sw - 2 * gap;
+    felt.classList.toggle("small", small);
+    const beside = !sideways || between >= minFw;
+    const fw = Math.max(minFw, Math.min(beside && sideways ? between : W - 2 * gap, 560));
+    const fh = Math.max(small ? 168 : 230, Math.min(fw * .62, 300));
+    const rx = Math.max(0, (W - sw) / 2);
+    const clearY = fh / 2 + gap + sh / 2;
+    const place = (H, ry, k) => {
+      const a = ang(k), x = W / 2 + rx * Math.cos(a) - sw / 2;
+      let dy = ry * Math.sin(a);
+      // a stall level with the counter that can't fit beside it moves to just above (left half) or below (right half) its edge
+      if (!beside && Math.abs(dy) < clearY && Math.abs(x + sw / 2 - W / 2) < fw / 2 + sw / 2 + gap) dy = (Math.abs(Math.sin(a)) > 1e-6 ? Math.sign(Math.sin(a)) : (Math.cos(a) < 0 ? -1 : 1)) * clearY;
+      return [x, H / 2 + dy - sh / 2];
+    };
+    const clear = (H, ry) => {
+      const pos = seats.map((_, k) => place(H, ry, k));
+      for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++)
+        if (Math.abs(pos[a][0] - pos[b][0]) < sw + gap && Math.abs(pos[a][1] - pos[b][1]) < sh + gap) return null;
+      // no stall corner or edge midpoint inside the counter's ellipse (with a gap round it)
+      const ea = fw / 2 + gap, eb = fh / 2 + gap;
+      for (const [x, y] of pos) for (const [px, py] of [[x, y], [x + sw, y], [x, y + sh], [x + sw, y + sh], [x + sw / 2, y], [x + sw / 2, y + sh], [x, y + sh / 2], [x + sw, y + sh / 2]])
+        if (((px - W / 2) / ea) ** 2 + ((py - H / 2) / eb) ** 2 < 1) return null;
+      return pos;
+    };
+    let ry = clearY, H = 2 * ry + sh, pos = null;
+    for (let i = 0; i < 400 && !(pos = clear(H, ry)); i++) { ry += 6; H = 2 * ry + sh; }
+    // A narrow screen can't hold a big table on an oval without making it very tall. Then the stalls run round a
+    // rounded rectangle instead: you and your two neighbours along the bottom, everyone else clockwise up the left side,
+    // across the top and down the right side, above the counter.
+    if (!pos || H > Math.max(W * 1.75, 2 * sh + fh + 4 * gap)) {
+      const cols = Math.max(2, Math.min(n, Math.floor((W + gap) / (sw + gap))));
+      const bottom = n <= cols ? n : Math.min(cols, 3), upper = n - bottom, rows = Math.ceil(upper / cols);
+      const cells = [];
+      for (let r = rows - 1; r >= 0; r--) cells.push([r, 0]);
+      for (let c = 1; c < cols; c++) cells.push([0, c]);
+      for (let r = 1; r < rows; r++) cells.push([r, cols - 1]);
+      for (let r = 1; r < rows; r++) for (let c = 1; c < cols - 1; c++) cells.push([r, c]);
+      const used = cells.slice(0, upper), cw = (W - cols * sw) / Math.max(1, cols - 1);
+      // the top block's rows centre their seats when a row isn't full
+      const rowCount = r => used.filter(([rr]) => rr === r).length;
+      const xOf = (r, c) => { const m = rowCount(r); const cs = used.filter(([rr]) => rr === r).map(([, cc]) => cc).sort((a, b) => a - b);
+        const off = (W - (m * sw + (m - 1) * gap)) / 2; return m < cols ? off + cs.indexOf(c) * (sw + gap) : c * (sw + cw); };
+      const topH = rows ? rows * sh + (rows - 1) * gap + gap : 0;
+      H = topH + fh + 2 * gap + sh;
+      const bx = (W - (bottom * sw + (bottom - 1) * gap)) / 2;
+      // bottom row, left to right: your left-hand neighbour, you, your right-hand neighbour
+      const bottomKs = bottom === 1 ? [0] : bottom === 2 ? [1, 0] : n <= cols ? Array.from({ length: n }, (_, j) => j) : [1, 0, n - 1];
+      const bottomOrder = n <= cols ? [...bottomKs.slice(1).reverse(), 0].reverse() : bottomKs;
+      pos = seats.map(() => [0, 0]);
+      bottomOrder.forEach((k, j) => { pos[k] = [bx + j * (sw + gap), H - sh]; });
+      const upperKs = Array.from({ length: n }, (_, k) => k).filter(k => !bottomOrder.includes(k));
+      upperKs.forEach((k, j) => { const [r, c] = used[j]; pos[k] = [xOf(r, c), r * (sh + gap)]; });
+      Object.assign(felt.style, { width: `${Math.round(fw)}px`, height: `${Math.round(fh)}px`, left: `${Math.round((W - fw) / 2)}px`, top: `${Math.round(topH + gap)}px` });
+      ring.style.height = `${Math.ceil(H)}px`;
+      seats.forEach((e, k) => { e.style.left = `${Math.round(pos[k][0])}px`; e.style.top = `${Math.round(pos[k][1])}px`; });
+      return;
+    }
+    ring.style.height = `${Math.ceil(H)}px`;
+    seats.forEach((e, k) => { e.style.left = `${Math.round(pos[k][0])}px`; e.style.top = `${Math.round(pos[k][1])}px`; });
+    Object.assign(felt.style, { width: `${Math.round(fw)}px`, height: `${Math.round(fh)}px`, left: `${Math.round((W - fw) / 2)}px`, top: `${Math.round((H - fh) / 2)}px` });
+  }
+  let ringTimer = null;
+  window.addEventListener("resize", () => { clearTimeout(ringTimer); ringTimer = setTimeout(() => { if (typeof S !== "undefined" && S && S.kind === "nasi" && view === "game") layoutRing(); }, 80); });
   const handOrder = h => h.slice().sort((a, b) => { const A = N.card(a), B = N.card(b); return (A.kind === B.kind ? 0 : A.kind === "ing" ? -1 : 1) || A.t.localeCompare(B.t) || a - b; });
 
   function winHTML(v) {

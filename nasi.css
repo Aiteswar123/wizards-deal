@@ -166,10 +166,10 @@ html[data-game=nasi] .k-scene{display:block}
 @media (prefers-reduced-motion:reduce){.nl-event.flip{animation:none}}
 
 /* ---- the market: stalls around the kopitiam table ---- */
-.nl-market{display:flex;flex-direction:column;align-items:center;gap:1.7rem;margin-top:1.1rem}
-.nl-lane{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:1.6rem 1.4rem;width:100%}
-.nl-lane.near{align-items:flex-start}
-.nl-felt{position:relative;width:min(34rem,100%);min-height:15.5rem;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.45rem;text-align:center;padding:1rem 1.6rem;
+/* the round table: stalls sit on an ellipse round the counter; layoutRing() in nasi-ui.js sets every position and the height */
+.nl-market{position:relative;margin-top:1.2rem;min-height:30rem}
+.nl-ring .nl-stall{position:absolute;left:0;top:0}
+.nl-felt{position:absolute;left:50%;top:50%;width:20rem;height:13rem;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.45rem;text-align:center;padding:1rem 1.6rem;
   /* white marble top with grey veins, dark timber rim: the round kopitiam table */
   background:
     radial-gradient(ellipse 60% 70% at 50% 52%,rgba(52,194,90,.0) 0 58%,transparent 59%),
@@ -200,8 +200,13 @@ html[data-game=nasi] .k-scene{display:block}
 
 /* each player's stall: a striped canvas roof in their colour with a scalloped edge, two timber posts,
    a chalk name board with their initial, and a cream-topped counter on wooden slats. Stalls sit in lanes, so they never overlap. */
-.nl-stall{position:relative;width:clamp(10.5rem,15vw,12.5rem);display:flex;flex-direction:column;padding:0 .2rem;transition:transform .35s var(--k-pop)}
-.nl-market.many .nl-stall{width:clamp(9.6rem,12.5vw,11rem)}
+.nl-stall{position:relative;width:clamp(9.6rem,12vw,11.2rem);display:flex;flex-direction:column;padding:0 .2rem;transition:transform .35s var(--k-pop)}
+.nl-market.many .nl-stall{width:clamp(8.8rem,10.5vw,10rem)}
+/* big tables: slimmer stalls so the ring stays a sensible height */
+.nl-ring.many .nl-booth{height:4.6rem}
+.nl-ring.many .nl-booth img{height:6.6rem;bottom:-2rem}
+.nl-ring.many .nl-minis,.nl-ring.many .nl-sign small{display:none}
+.nl-ring.many .nl-stall .nl-pack{width:1.9rem;height:1.8rem}
 .nl-stall.on{transform:translateY(-6px)}
 .nl-stall::before,.nl-stall::after{content:"";position:absolute;top:2.3rem;bottom:3rem;width:.55rem;z-index:0;border:2px solid var(--k-ink);border-radius:3px;
   background:linear-gradient(90deg,#5a3016,#b8743c 45%,#6e3d1e)}
@@ -362,7 +367,19 @@ html[data-game=nasi] .fine{color:var(--k-ink)!important;opacity:.75}
 html[data-game=nasi] .gamepick button{border:3px solid var(--k-ink)!important;background:var(--k-paper)!important;color:var(--k-muted)!important;box-shadow:0 5px 0 -1px var(--k-ink)!important}
 html[data-game=nasi] .gamepick button b{color:var(--k-ink)!important}
 html[data-game=nasi] .gamepick button[aria-pressed=true]{background:var(--k-sun)!important}
-html[data-game=nasi] .lobby,html[data-game=nasi] .lobby *{color:var(--k-ink)}
+/* the lobby sits on open space: pale words on the page, navy ink inside its white panels */
+html[data-game=nasi] .lobby{color:var(--g-text)}
+html[data-game=nasi] .lobby h2{font-family:var(--k-display)!important;font-weight:400!important;color:#fff!important}
+html[data-game=nasi] .lobby .hint,html[data-game=nasi] .lobby > .muted,html[data-game=nasi] .lobby .lbl{color:var(--g-text-2)!important}
+html[data-game=nasi] .letter,html[data-game=nasi] .letter *,html[data-game=nasi] .seats li,html[data-game=nasi] .seats li *{color:var(--k-ink)}
+html[data-game=nasi] .letter .seal,html[data-game=nasi] .letter .flap{display:none}
+html[data-game=nasi] .lettercode{font-family:var(--k-display)!important;font-weight:400!important;letter-spacing:.14em;color:var(--k-orange)!important;-webkit-text-stroke:1.5px var(--k-ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--k-ink)}
+html[data-game=nasi] .letter .to,html[data-game=nasi] .letter .addr{font-family:var(--k-body)!important;font-style:normal!important}
+html[data-game=nasi] .seats .no{color:var(--k-orange)!important;font-family:var(--k-display)!important}
+html[data-game=nasi] .lobby .namefield input{background:#fff!important;color:var(--k-ink)!important;border:3px solid var(--k-ink)!important;border-radius:12px!important}
+html[data-game=nasi] .lobby .btn{font-family:var(--k-display)!important;font-weight:400!important;color:var(--k-ink)!important;border:3px solid var(--k-ink)!important;border-radius:12px!important;
+  background:linear-gradient(180deg,#fff 0 48%,#e3e9ff 52%,#c9d4ff)!important;box-shadow:0 5px 0 -1px var(--k-ink)!important}
+html[data-game=nasi] .lobby .btn.primary{color:#fff!important;text-shadow:0 2px 0 rgba(34,22,58,.45);background:linear-gradient(180deg,#ffb066 0 48%,var(--k-orange) 52%,#de540a)!important}
 html[data-game=nasi] .letter{background:var(--k-paper)!important;border:3px solid var(--k-ink)!important;box-shadow:0 7px 0 -1px var(--k-ink)!important}
 html[data-game=nasi] .seats li{background:var(--k-paper)!important;border:2.5px solid var(--k-ink)!important;border-radius:14px!important}
 .gamepick{max-width:46rem;flex-wrap:wrap}
@@ -373,10 +390,24 @@ html[data-game=nasi] .seats li{background:var(--k-paper)!important;border:2.5px 
 @media (max-width:760px){
   /* no side gutters on a phone: the hanging event decorations and Ochobot would only peek out between panels */
   .ev-kenduri .bunting,.ev-raya .ketupat,.ev-pasar .lights,.k-ocho{display:none}
-  .nl-market{gap:1.2rem}
-  .nl-felt{width:100%;border-radius:28px;min-height:13rem;order:-1;border-width:10px}
-  .nl-lane{gap:1.3rem .8rem}
-  .nl-market .nl-stall,.nl-market.many .nl-stall{width:calc(50% - .4rem)}
+  /* compact stalls so a full ring still fits a phone: a smaller booth, name on the counter, counts and packs only */
+  .nl-market .nl-stall,.nl-market.many .nl-stall{width:6.3rem;padding:0}
+  .nl-ring .nl-roof{height:1.25rem;margin:0 -.2rem;border-radius:10px 10px 3px 3px}
+  .nl-ring .nl-booth{height:3.3rem;margin:0 .35rem}
+  .nl-ring .nl-booth img{height:5rem;bottom:-1.9rem}
+  .nl-ring .nl-stall::before,.nl-ring .nl-stall::after{top:1.25rem;bottom:3rem;width:.35rem}
+  .nl-ring .nl-stall::before{left:.3rem}.nl-ring .nl-stall::after{right:.3rem}
+  .nl-ring .nl-counter{margin-top:.45rem;padding:.35rem .3rem .7rem;gap:.25rem}
+  .nl-ring .nl-sign{padding:.2rem .35rem}
+  .nl-ring .nl-sign b{font-size:.78rem}
+  .nl-ring .nl-sign small,.nl-ring .nl-minis,.nl-ring .nl-empty{display:none}
+  .nl-ring .nl-open{font-size:.48rem;padding:.16rem .32rem;right:-.4rem;top:-.7rem}
+  .nl-ring .nl-stats{font-size:.6rem;gap:.2rem}
+  .nl-ring .nl-stats span{padding:0 .3rem;border-width:1.5px}
+  .nl-ring .nl-pack{width:1.45rem;height:1.35rem}
+  .nl-ring .nl-packs{min-height:0;padding-top:.45rem;gap:.15rem}
+  .nl-ring .nl-rush{font-size:.5rem;line-height:.8rem;padding:0 .15rem;left:-.2rem}
+  .nl-felt{border-width:10px}
 }
 @media (prefers-reduced-motion:reduce){
   .nl-pack .fly,.nl-mastfan .nl-card{animation:none}
@@ -456,6 +487,17 @@ html[data-game=nasi] .fine{color:var(--g-text-2)!important;opacity:1}
   -webkit-mask:radial-gradient(closest-side,transparent 80%,#000 84%,#000 97%,transparent 100%);mask:radial-gradient(closest-side,transparent 80%,#000 84%,#000 97%,transparent 100%);animation:g-scan 8s linear infinite}
 @keyframes g-scan{to{transform:rotate(360deg)}}
 .nl-felt .nl-sub,.nl-felt .nl-pile{color:var(--g-text)}
+/* a small counter (phones): smaller piles and type so everything fits inside the ring */
+.nl-felt.small{padding:.6rem .8rem;gap:.3rem}
+.nl-felt.small .nl-piles{gap:.45rem}
+.nl-felt.small .nl-back{width:2.5rem;height:3.5rem;font-size:.9rem;border-width:2px}
+.nl-felt.small .nl-pile{font-size:.55rem;gap:.2rem}
+.nl-felt.small .nl-card.small{width:2.5rem;min-height:3.5rem}
+.nl-felt.small .nl-card.small svg.ill,.nl-felt.small .nl-card.small .nl-art{width:1.8rem;height:1.8rem;margin-top:.2rem}
+.nl-felt.small .nl-card.small b{font-size:.5rem}
+.nl-felt.small .nl-say{font-size:1.15rem;text-shadow:0 2px 0 var(--k-ink)}
+.nl-felt.small .nl-sub{font-size:.72rem}
+.nl-felt.small .nl-dots i{width:.55rem;height:.55rem}
 /* stalls: steel posts, a dark booth lit in the character's colour, the character standing behind the counter */
 .nl-stall::before,.nl-stall::after{top:2.3rem;bottom:4rem;background:linear-gradient(90deg,#363d6e,#cdd6ff 45%,#555d8e)}
 .nl-booth{position:relative;z-index:1;height:6.2rem;margin:0 .6rem;overflow:hidden;

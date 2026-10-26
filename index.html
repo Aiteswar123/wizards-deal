@@ -906,7 +906,7 @@ const mySeat = () => S && S.players ? S.players.findIndex(p => p.uid === me) : -
 // ---------- rendering ----------
 function render() {
   const seat = view === "game" && S && S.players ? mySeat() : -1;
-  document.documentElement.dataset.game = view === "game" && S ? (S.kind || "deal") : homeGame();
+  document.documentElement.dataset.game = (view === "game" || view === "lobby") && S ? (S.kind || "deal") : homeGame();
   setHouse(seat >= 0 && S.status !== "lobby" && !S.kind ? HOUSE[S.players[seat].char] : "hogwarts");
   document.documentElement.dataset.screen = view === "home" || !S ? "home" : S.status === "lobby" ? "lobby" : "game";
   if (view === "home" || !S) return renderHome();
@@ -1052,7 +1052,7 @@ function renderLobby() {
   const mine = S.players[myIdx];
   $app.innerHTML = `<div class="lobby">
     <div class="letter${renderLobby.opened === S.code ? " settled" : ""}"><div class="flap"></div><span class="seal" aria-hidden="true">W</span>
-      <span class="to">To the players at</span><span class="lettercode">${esc(S.code)}</span><span class="addr">${S.kind === "uno" ? "Aboard ship · The Grand Line" : S.kind === "nasi" ? "The night market · Kampung stalls" : S.kind === "hitman" ? "The safehouse · Contracts open" : "The Great Hall · Hogwarts"}</span>
+      <span class="to">To the players at</span><span class="lettercode">${esc(S.code)}</span><span class="addr">${S.kind === "uno" ? "Aboard ship · The Grand Line" : S.kind === "nasi" ? "Tok Aba's Kokotiam · Somewhere in the galaxy" : S.kind === "hitman" ? "The safehouse · Contracts open" : "The Great Hall · Hogwarts"}</span>
       <button class="btn small" data-a="copyCode">Copy code</button></div>
     <p class="hint">Friends open this website on their own device, type their name, then join with this code.</p>
     ${S.kind === "uno" && window.UnoPhoto && mySeat() >= 0 ? UnoPhoto.lobbyHTML() : ""}

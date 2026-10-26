@@ -235,6 +235,15 @@ html[data-game=hitman] .gamepick button[aria-pressed=true] b{color:#fff!importan
 html[data-game=hitman] .seats li{background:#141218!important;border:1px solid var(--h-line)!important;color:var(--h-text)!important}
 html[data-game=hitman] .ranks *{color:inherit}
 html[data-game=hitman] .fine{color:var(--h-dim)!important}
+/* the lobby: the invite is a case file, not a wizard's letter */
+html[data-game=hitman] .lobby{color:var(--h-text)}
+html[data-game=hitman] .lobby h2{font-family:var(--h-display)!important;font-weight:400!important;letter-spacing:.05em;color:var(--h-text)!important}
+html[data-game=hitman] .letter .seal,html[data-game=hitman] .letter .flap{display:none}
+html[data-game=hitman] .letter *{color:var(--h-text)}
+html[data-game=hitman] .lettercode{font-family:var(--h-display)!important;font-weight:400!important;letter-spacing:.2em;color:var(--h-red-2)!important}
+html[data-game=hitman] .letter .to,html[data-game=hitman] .letter .addr{font-family:var(--h-body)!important;font-style:normal!important;color:var(--h-muted)!important;letter-spacing:.12em;text-transform:uppercase}
+html[data-game=hitman] .seats .no{color:var(--h-red-2)!important;font-family:var(--h-display)!important}
+html[data-game=hitman] .lobby .namefield input{background:#0f0e13!important;color:var(--h-text)!important;border:1px solid var(--h-line-2)!important;border-radius:10px!important}
 
 @media (prefers-reduced-motion:reduce){
   .hm-seat,.hm-card,.hm-btn{transition:none}
