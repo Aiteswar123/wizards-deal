@@ -185,3 +185,4 @@ A pirate theme of its own, entirely original artwork (no official One Piece art 
 - **Your Hitman**: the panel turns into a red alarm with the position buttons (On top, 2nd, 3rd, Bottom, Random) and the answer clock.
 - **Win**: "Contract complete" over the survivor's name, with every placing.
 
+- **Heartbeat**: a synthesised "lub-dub" (two low thumps that drop in pitch, `Sfx.heartbeat`) beats while you are in a Hitman game: full on your turn, quieter otherwise. Its speed follows the Death % (about 62 bpm on a safe deck, past 130 when a Hitman is likely next) and owed Attack turns; big moments make it jump and then settle back over a few seconds (an Attack or Steal aimed at you, anyone drawing the Hitman), and it races at 175 while you hold a Hitman. It follows the sound switch.

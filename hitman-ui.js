@@ -60,6 +60,29 @@
     fxEl.hidden = false;
     clearTimeout(fx.timer); fx.timer = setTimeout(() => { fxEl.hidden = true; }, kind === "hitman" ? 1500 : 1900);
   }
+  // ---- the heartbeat: it beats while you're in the game, loud on your turn and quiet otherwise. Its speed follows the
+  // Death % (about 62 bpm on a safe deck, past 130 when a Hitman is likely next), owing extra turns pushes it up, big moments
+  // make it jump and then settle back, and holding a Hitman sends it racing. Off with the sound switch, like every effect.
+  const heart = { jump: 0, jumpAt: 0, jumpFor: 1, timer: null };
+  function heartJump(bpm, ms) { const now = performance.now(), left = heartJumpNow(now); heart.jump = Math.max(left, bpm); heart.jumpAt = now; heart.jumpFor = ms; }
+  function heartJumpNow(now) { return heart.jump * Math.max(0, 1 - (now - heart.jumpAt) / heart.jumpFor); }
+  function heartRate() {
+    if (typeof S === "undefined" || !S || S.kind !== "hitman" || view !== "game" || S.status !== "play") return null;
+    const v = mySeat(), P = S.players[v];
+    if (!P || !P.alive) return null;
+    const pd = S.pending, mine = S.turn === v;
+    if (pd && pd.k === "hitman" && pd.p === v) return { bpm: 175, vol: 1.3 };
+    const deckN = S.deck.length, death = deckN ? hitmenLeft() / deckN : 0;
+    let bpm = 62 + death * 140 + (mine && S.left > 1 ? Math.min(30, 12 * (S.left - 1)) : 0) + heartJumpNow(performance.now());
+    if (!mine) bpm = 56 + (bpm - 62) * .7;
+    return { bpm: Math.min(180, Math.max(50, bpm)), vol: mine ? 1 : .45 };
+  }
+  function heartLoop() {
+    const r = heartRate();
+    if (r && window.Sfx) Sfx.heartbeat(r.vol, r.bpm);
+    heart.timer = setTimeout(heartLoop, r ? 60000 / r.bpm : 600);
+  }
+  heartLoop();
   function fxObserve(v) {
     const L = S.last;
     if (fx.code !== S.code) { fx.code = S.code; fx.seen = null; }
@@ -68,6 +91,11 @@
     if (L.n === fx.seen) return;
     fx.seen = L.n;
     if (L.k === "hitman" || L.k === "save" || L.k === "dead") fxShow(L.k, L.p === v ? "You" : nameOf(L.p));
+    // big moments make the heart jump: a Hitman drawn by anyone, a card aimed at you
+    if (L.k === "hitman" || L.k === "dead") heartJump(L.p === v ? 70 : 45, 7000);
+    else if (L.k === "save") heartJump(L.p === v ? 40 : 20, 4000);
+    else if ((L.k === "play" || L.k === "attack" || L.k === "steal") && L.q === v) heartJump(35, 5000);
+    else if (L.k === "quick" && L.t === "redirect") heartJump(20, 3000);
   }
 
   // ---- your look for this table: nothing to sync, but the page asks every game for it ----
