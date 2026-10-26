@@ -901,11 +901,13 @@ const musIcon = on => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 1
 const AUDIO = { snd: { on: () => Sfx.enabled, flip: () => Sfx.toggle(), icon: sndIcon, label: "Sound effects" }, mus: { on: () => Sfx.musicEnabled, flip: () => Sfx.toggleMusic(), icon: musIcon, label: "Music" } };
 const audioBtn = k => { const A = AUDIO[k], on = !window.Sfx || A.on(); return `<button class="btn ghost small sndbtn" data-audio="${k}" aria-pressed="${on}" aria-label="${A.label}" title="${A.label} ${on ? "on" : "off"}">${A.icon(on)}</button>`; };
 const sndBtn = () => audioBtn("mus") + audioBtn("snd");
+const showAudio = k => { const A = AUDIO[k], on = A.on(); document.querySelectorAll(`[data-audio="${k}"]`).forEach(x => { x.setAttribute("aria-pressed", String(on)); x.title = `${A.label} ${on ? "on" : "off"}`; x.innerHTML = A.icon(on); }); };
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-audio]"); if (!b || !window.Sfx) return;
-  const k = b.dataset.audio, A = AUDIO[k], on = A.flip();
-  document.querySelectorAll(`[data-audio="${k}"]`).forEach(x => { x.setAttribute("aria-pressed", String(on)); x.title = `${A.label} ${on ? "on" : "off"}`; x.innerHTML = A.icon(on); });
+  AUDIO[b.dataset.audio].flip(); showAudio(b.dataset.audio);
 });
+// a switch flipped in another tab of the game
+document.addEventListener("sfxchange", () => { if (window.Sfx) { showAudio("mus"); showAudio("snd"); } });
 const mySeat = () => S && S.players ? S.players.findIndex(p => p.uid === me) : -1;
 
 // ---------- rendering ----------

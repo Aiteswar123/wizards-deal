@@ -417,6 +417,13 @@
     mGain.gain.cancelScheduledValues(t); mGain.gain.setValueAtTime(mGain.gain.value, t); mGain.gain.linearRampToValueAtTime(v * .3, t + .15); mGain.gain.setValueAtTime(v * .3, t + len); mGain.gain.linearRampToValueAtTime(v, t + len + 1); }
   ["spell", "win", "reveal", "set"].forEach(k => { const f = S[k]; S[k] = (...a) => { duck(k === "win" ? 4 : k === "reveal" ? 3 : k === "spell" ? 2.4 : 1.6); return f(...a); }; });
   document.addEventListener("visibilitychange", () => { if (!document.hidden && ctx) nextT = ctx.currentTime + .1; });
+  // a switch flipped in another tab or window of the game applies here too, so turning the sound off silences every copy
+  addEventListener("storage", e => {
+    if (e.key === KEY) on = read(KEY);
+    else if (e.key === MKEY) { musicOn = read(MKEY); if (!musicOn) stopMusic(); else if (ctx && ctx.state === "running" && !held) startMusic(); }
+    else return;
+    document.dispatchEvent(new Event("sfxchange"));
+  });
 
   window.Sfx = new Proxy(S, { get(target, k) {
     if (k === "enabled") return on;
