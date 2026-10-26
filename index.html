@@ -1841,6 +1841,20 @@ setInterval(() => {
   document.querySelectorAll("[data-clockbar]").forEach(el => { const k = el.dataset.clockbar; el.style.setProperty("--p", Math.max(0, Math.min(1, left[k] / full[k])).toFixed(3)); });
 }, 250);
 
+// Fold-out panels (How to play, How EXP works) stay open across redraws: every game rebuilds its screen on each move,
+// so remember which ones the player opened, by their heading, and open them again after each rebuild.
+const openPanels = new Set();
+const panelKey = d => { const s = d.querySelector(":scope > summary"); return s ? s.textContent.trim() : ""; };
+document.addEventListener("toggle", e => {
+  const d = e.target; if (!(d instanceof HTMLDetailsElement) || !$app.contains(d)) return;
+  const k = panelKey(d); if (!k) return;
+  if (d.open) openPanels.add(k); else openPanels.delete(k);
+}, true);
+new MutationObserver(() => {
+  if (!openPanels.size) return;
+  $app.querySelectorAll("details:not([open])").forEach(d => { if (openPanels.has(panelKey(d))) d.open = true; });
+}).observe($app, { childList: true });
+
 // Start: go straight back to your table if you were seated at one.
 document.body.insertAdjacentHTML("beforeend", `<div class="sndfix">${window.UnoArt ? UnoArt.button() : ""}${window.UnoBacks ? UnoBacks.button() : ""}${window.Radio ? Radio.button() : ""}${sndBtn()}</div>`);
 (async () => {
