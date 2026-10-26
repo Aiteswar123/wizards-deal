@@ -212,13 +212,33 @@ html[data-game=nasi] .k-scene{display:block}
 .nl-stall.wait .nl-face{box-shadow:0 0 0 3px var(--k-red),0 0 0 5.5px var(--k-ink)}
 .nl-name{max-width:100%;padding:.14rem .6rem .16rem;border-radius:999px;font:400 .95rem/1.1 var(--k-display);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   background:linear-gradient(180deg,#232c7a,var(--k-board));border:2px solid var(--k-wood);box-shadow:0 0 0 1.5px var(--k-ink)}
+/* ---- polish: the players orbit Tok Aba's counter ---- */
+/* the orbit: a faint dashed track through every portrait, with a light that travels slowly round it */
+.nl-orbit{position:absolute;z-index:0;border-radius:50%;pointer-events:none;border:2px dashed rgba(120,220,255,.28);box-shadow:0 0 24px rgba(69,216,255,.12),inset 0 0 24px rgba(69,216,255,.1)}
+.nl-orbit::after{content:"";position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 80%,rgba(140,230,255,.75) 95%,transparent 100%);
+  -webkit-mask:radial-gradient(closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));mask:radial-gradient(closest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));animation:g-scan 14s linear infinite}
+.nl-orbit[hidden]{display:none}
+.nl-ring .nl-stall{z-index:1}
+/* a soft halo in the character's colour behind each portrait, and a glassy shine across it */
+.nl-av::before{content:"";position:absolute;inset:-22%;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--awn) 45%,transparent),transparent);z-index:-1}
+.nl-face::after{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(150deg,rgba(255,255,255,.38) 0 18%,transparent 40%);pointer-events:none}
+/* the name plate tucks under the portrait like a badge */
+.nl-name{position:relative;z-index:1;margin-top:-.75rem}
+/* the counts sit together in one small pill */
+.nl-line{padding:.2rem .45rem;border-radius:999px;background:rgba(10,13,48,.82);border:1px solid rgba(160,190,255,.18);box-shadow:0 6px 12px -8px rgba(0,0,0,.8)}
+.nl-line:empty{display:none}
+/* your own seat is a touch larger */
+.nl-stall.me .nl-av{transform:scale(1.12)}
+.nl-stall.me .nl-name{margin-top:-.55rem}
+@media (prefers-reduced-motion:reduce){.nl-orbit::after{animation:none;opacity:0}}
 /* (the site's own .me styling is for its lists; a seat stays clear) */
 .nl-stall.me{background:none}
 .nl-stall.me .nl-name{border-color:var(--k-sun)}
-.nl-line{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.2rem .35rem;font:800 .74rem/1 var(--k-body);color:var(--g-text);font-variant-numeric:tabular-nums}
+.nl-line{display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;white-space:nowrap;gap:.2rem .35rem;font:800 .74rem/1 var(--k-body);color:var(--g-text);font-variant-numeric:tabular-nums}
 .nl-line .nl-cards{display:inline-flex;align-items:center;gap:.2rem}
 .nl-line .nl-mini{margin:0;width:.62rem;height:.88rem;border-width:1.5px}
-.nl-pks{display:inline-flex;gap:1px}
+.nl-pks{display:inline-flex;align-items:center;gap:1px}
+.nl-more{font-size:.62rem;color:var(--g-text-2);margin-left:1px}
 .nl-pk{position:relative;width:1.05rem;height:1rem}
 .nl-pk svg{width:100%;height:100%;overflow:visible}
 .nl-pk.flied svg.parcel{filter:saturate(.3) brightness(.75)}

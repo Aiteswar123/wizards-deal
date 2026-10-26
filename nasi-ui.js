@@ -136,6 +136,10 @@
     tokaba: ["Tok Aba", "#5b8cff"], papazola: ["Papa Zola", "#3f73ff"], adudu: ["Adu Du", "#21c9a6"], probe: ["Probe", "#2fd6c0"]
   };
   const CHAR_KEYS = Object.keys(CHARS);
+  // how each full-body picture sits in a round seat portrait so the face shows: width, left and top, in % of the circle
+  const CROP = { halilintar: [215, -92, -42], ais: [160, -30, 6], blaze: [175, -62, 0], solar: [165, -36, 2], yaya: [160, -30, 3], ying: [160, -30, 3], gopal: [160, -30, 3],
+    fang: [150, -30, -14], ochobot: [125, -8, -50], tokaba: [160, -30, 3], papazola: [175, -18, -12], adudu: [150, -25, 0], probe: [165, -38, -30] };
+  const cropStyle = k => { const [w, l, t] = CROP[k] || [160, -30, 3]; return `width:${w}%;left:${l}%;top:${t}%`; };
   const charSrc = k => `assets/bb/${k}.webp`;
   let myFace = store.get("nl-face", "boboiboy"), myBack = store.get("nl-back", "boboiboy"), myChar = store.get("nl-char", "");
   if (!FACES[myFace]) myFace = "boboiboy";
@@ -386,10 +390,10 @@
         : pd && pd.k === "market" && pd.bids[i] ? `<span class="nl-open bid">Bid in</span>` : "";
       const ch = charOf(i), fresh = prevPacks ? prevPacks[i] : Infinity;
       // one tiny parcel per Nasi Lemak wrapped: greyed under a fly, capped by a Tudung Saji, dotted for a Lunch Rush +1
-      const pks = O.nl.map((e, j) => `<span class="nl-pk${e.fly != null ? " flied" : ""}${e.cover != null ? " covered" : ""}${e.bonus ? " bonus" : ""}${j >= fresh ? " fresh" : ""}">${parcel("", false)}${e.fly != null ? svg("fly", "fly") : ""}</span>`).join("");
+      const pks = O.nl.slice(0, 4).map((e, j) => `<span class="nl-pk${e.fly != null ? " flied" : ""}${e.cover != null ? " covered" : ""}${e.bonus ? " bonus" : ""}${j >= fresh ? " fresh" : ""}">${parcel("", false)}${e.fly != null ? svg("fly", "fly") : ""}</span>`).join("") + (O.nl.length > 4 ? `<span class="nl-more">+${O.nl.length - 4}</span>` : "");
       const desc = `${nick}, ${CHARS[ch][0]}: ${O.hand.length} cards, ${O.nl.length} Nasi Lemak wrapped${O.nl.some(e => e.fly != null) ? ", a fly on one" : ""}${S.status === "over" || i === v ? `, ${N.packs(O)} packs` : ""}${O.lori ? ", lorry broken down" : ""}`;
       return `<article class="nl-stall${i === v ? " me" : ""}${on ? " on" : ""}${waiting.includes(i) && pd ? " wait" : ""}" data-k="${k}" style="--awn:${CHARS[ch][1]}" title="${esc(desc)}" aria-label="${esc(desc)}">
-        <div class="nl-av"><div class="nl-face"><img src="${charSrc(ch)}" alt=""></div>${tag}</div>
+        <div class="nl-av"><div class="nl-face"><img src="${charSrc(ch)}" alt="" style="${cropStyle(ch)}"></div>${tag}</div>
         <b class="nl-name">${esc(nick)}</b>
         <div class="nl-line"><span class="nl-cards"><i class="nl-mini b-${backOf(i)}" aria-hidden="true"></i>${O.hand.length}</span>${pks ? `<span class="nl-pks" aria-hidden="true">${pks}</span>` : ""}${S.status === "over" || i === v ? `<span>${N.packs(O)}p</span>` : ""}${O.lori ? `<span class="lori">Lori</span>` : ""}</div></article>`;
     };
@@ -400,6 +404,7 @@
       ${eventHTML()}
       ${S.status === "over" ? winHTML(v) : ""}
       <section class="nl-market nl-ring${n >= 7 ? " many" : ""}" aria-label="The table" data-n="${n}">
+        <span class="nl-orbit" aria-hidden="true"></span>
         ${ring.map((i, k) => stall(i, k)).join("")}
         <div class="nl-felt${stamp ? " yourturn" : ""}"><span class="nl-leafmat" aria-hidden="true"></span>
           <div class="nl-piles"><div class="nl-pile"><div class="nl-back">${S.deck.length}</div>Draw pile</div>
@@ -429,7 +434,7 @@
   // a step at a time, until no two stalls overlap and none touches the counter. Runs after every render and on resize.
   function layoutRing() {
     const ring = $app.querySelector(".nl-ring"); if (!ring) return;
-    const seats = [...ring.querySelectorAll(".nl-stall")], felt = ring.querySelector(".nl-felt"), n = seats.length;
+    const seats = [...ring.querySelectorAll(".nl-stall")], felt = ring.querySelector(".nl-felt"), orbit = ring.querySelector(".nl-orbit"), n = seats.length;
     const W = ring.clientWidth, gap = W < 560 ? 10 : 18;
     const sw = Math.max(...seats.map(e => e.offsetWidth)), sh = Math.max(...seats.map(e => e.offsetHeight));
     const ang = k => Math.PI / 2 + k * 2 * Math.PI / n;
@@ -492,8 +497,13 @@
       Object.assign(felt.style, { width: `${Math.round(fw)}px`, height: `${Math.round(fh)}px`, left: `${Math.round((W - fw) / 2)}px`, top: `${Math.round(topH + gap)}px` });
       ring.style.height = `${Math.ceil(H)}px`;
       seats.forEach((e, k) => { e.style.left = `${Math.round(pos[k][0])}px`; e.style.top = `${Math.round(pos[k][1])}px`; });
+      orbit.hidden = true;
       return;
     }
+    // the orbit runs through the middle of every portrait: the seats' oval, raised to the portrait's centre
+    const avY = (seats[0].querySelector(".nl-av").offsetTop + seats[0].querySelector(".nl-av").offsetHeight / 2) - sh / 2;
+    orbit.hidden = !beside;
+    Object.assign(orbit.style, { left: `${Math.round(W / 2 - rx)}px`, top: `${Math.round(H / 2 - ry + avY)}px`, width: `${Math.round(2 * rx)}px`, height: `${Math.round(2 * ry)}px` });
     ring.style.height = `${Math.ceil(H)}px`;
     seats.forEach((e, k) => { e.style.left = `${Math.round(pos[k][0])}px`; e.style.top = `${Math.round(pos[k][1])}px`; });
     Object.assign(felt.style, { width: `${Math.round(fw)}px`, height: `${Math.round(fh)}px`, left: `${Math.round((W - fw) / 2)}px`, top: `${Math.round((H - fh) / 2)}px` });
