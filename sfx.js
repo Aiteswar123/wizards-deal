@@ -141,9 +141,10 @@
   let heartIdx = 0;
   // a soft-clipping curve, shared by every heartbeat thud
   let thudCurve = null;
+  const shapeCurve = () => { if (!thudCurve) { thudCurve = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const x = i / 511.5 - 1; thudCurve[i] = Math.tanh(3.2 * x) / Math.tanh(3.2); } } return thudCurve; };
   // One heart sound: a deep sine that sags a little in pitch, overdriven through the curve, muffled, dry.
   function thud(t, v, f, dur) {
-    if (!thudCurve) { thudCurve = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const x = i / 511.5 - 1; thudCurve[i] = Math.tanh(3.2 * x) / Math.tanh(3.2); } }
+    shapeCurve();
     const osc = ctx.createOscillator(), drive = ctx.createGain(), sh = ctx.createWaveShaper(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
     osc.type = "sine"; osc.frequency.setValueAtTime(f * 1.15, t); osc.frequency.exponentialRampToValueAtTime(f * .85, t + dur);
     drive.gain.value = 5; sh.curve = thudCurve; sh.oversample = "2x";
@@ -182,16 +183,25 @@
       // The recording when it's loaded, played dry: ten real lub-dubs at about 70 bpm, the dub always 260ms after the lub.
       // Each beat here is one of its eight middle beats in turn (so it never sounds looped), cut from just before its lub to
       // the end of its dub, with the faint hiss filtered off. When the heart races it plays just fast enough (up to 1.35x)
-      // that the dub lands before the fade into the next beat.
+      // that the dub lands before the fade into the next beat. Most of the recording sits below 120Hz, which phone and
+      // laptop speakers can't play, so the sub-bass is trimmed off and a softly overdriven copy of the thumps adds the
+      // overtones (150 to 600Hz) that let small speakers carry it while it still reads as deep.
       if (clips.heart) {
         const off = HEART_BEATS[heartIdx++ % HEART_BEATS.length], period = 60 / bpm;
         const rate = Math.min(1.35, Math.max(1, .42 / (period * .85))), len = .5 / rate, end = Math.min(period * .98, len);
-        const src = ctx.createBufferSource(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
+        const src = ctx.createBufferSource(), hp = ctx.createBiquadFilter(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
         src.buffer = clips.heart; src.playbackRate.value = rate;
-        lp.type = "lowpass"; lp.frequency.value = 1800; lp.Q.value = .5;
-        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1.4 * k, t + .008);
-        g.gain.setValueAtTime(1.4 * k, t + Math.min(period * .85, len * .85)); g.gain.linearRampToValueAtTime(0, t + end);
-        src.connect(lp); lp.connect(g); send(g, 0); src.start(t, off); src.stop(t + end + .02);
+        hp.type = "highpass"; hp.frequency.value = 45; hp.Q.value = .7;
+        lp.type = "lowpass"; lp.frequency.value = 2500; lp.Q.value = .5;
+        const bp = ctx.createBiquadFilter(), drive = ctx.createGain(), sh = ctx.createWaveShaper(), top = ctx.createBiquadFilter(), mix = ctx.createGain();
+        bp.type = "lowpass"; bp.frequency.value = 140; drive.gain.value = 6;
+        sh.curve = shapeCurve(); sh.oversample = "2x";
+        top.type = "bandpass"; top.frequency.value = 280; top.Q.value = .6; mix.gain.value = .8;
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1.2 * k, t + .008);
+        g.gain.setValueAtTime(1.2 * k, t + Math.min(period * .85, len * .85)); g.gain.linearRampToValueAtTime(0, t + end);
+        src.connect(hp); hp.connect(lp); lp.connect(g);
+        src.connect(bp); bp.connect(drive); drive.connect(sh); sh.connect(top); top.connect(mix); mix.connect(g);
+        send(g, 0); src.start(t, off); src.stop(t + end + .02);
         return;
       }
       thud(t, .9 * k, 52, .13);
@@ -415,6 +425,6 @@
     if (k === "toggle") return () => { on = !on; save(KEY, on); if (on) { unlock(); setTimeout(() => window.Sfx.tap(), 60); } return on; };
     if (k === "toggleMusic") return () => { musicOn = !musicOn; save(MKEY, musicOn); if (musicOn) unlock(); else stopMusic(); return musicOn; };
     const fn = target[k]; if (typeof fn !== "function") return fn;
-    return (...a) => { if (!ready()) return; try { fn(...a); } catch (e) {} };
+    return (...a) => { if (!ready()) return; try { fn(...a); } catch (e) { console.warn("Sfx." + String(k), e); } };
   } });
 })();
